@@ -23,7 +23,7 @@ export default function InstructorCoursesPage() {
           <BookOpen className="w-8 h-8 text-brand-400" />
           {t('myCourses')}
         </h1>
-        <Link href={`/${locale}/courses/new/edit`}>
+        <Link href={`/${locale}/instructor-courses/new/edit`}>
           <Button variant="primary" className="gap-2">
             <Plus className="w-4 h-4" />
             <span>{t('createNewCourse')}</span>
@@ -67,14 +67,14 @@ export default function InstructorCoursesPage() {
                   </td>
                   <td className="p-4">
                     <div className="flex items-center justify-center gap-2">
-                      <Link href={`/${locale}/courses/${course.id}/edit`}>
+                      <Link href={`/${locale}/instructor-courses/${course.id}/edit`}>
                         <Button variant="ghost" size="sm" className="gap-1">
                           <Edit className="w-3.5 h-3.5" />
                           <span>Edit</span>
                         </Button>
                       </Link>
 
-                      <Link href={`/${locale}/courses/${course.id}/students`}>
+                      <Link href={`/${locale}/instructor-courses/${course.id}/students`}>
                         <Button variant="ghost" size="sm" className="gap-1 text-brand-400">
                           <Users className="w-3.5 h-3.5" />
                           <span>Students</span>

@@ -70,7 +70,7 @@ export default function CourseEditorPage() {
   };
 
   const handleSave = () => {
-    router.push(`/${locale}/courses`);
+    router.push(`/${locale}/instructor-courses`);
   };
 
   return (
