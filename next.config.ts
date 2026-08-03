@@ -1,22 +1,9 @@
-import createNextIntlPlugin from 'next-intl/plugin';
-import type { NextConfig } from 'next';
-
-const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
+import type { NextConfig } from "next";
+import path from "path";
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
-  images: {
-    remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: 'images.unsplash.com',
-      },
-      {
-        protocol: 'https',
-        hostname: 'picsum.photos',
-      },
-    ],
-  },
+  outputFileTracingRoot: path.join(__dirname),
 };
 
-export default withNextIntl(nextConfig);
+export default nextConfig;

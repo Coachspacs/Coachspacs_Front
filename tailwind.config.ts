@@ -2,39 +2,45 @@ import type { Config } from "tailwindcss";
 
 const config: Config = {
   content: [
-    "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/features/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
+    "./app/**/*.{js,ts,jsx,tsx,mdx}",
+    "./components/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
     extend: {
       colors: {
         brand: {
-          50: '#f0f4ff',
-          100: '#e0e9fe',
-          200: '#bae6fd',
-          500: '#3b82f6',
-          600: '#2563eb',
-          700: '#1d4ed8',
-          800: '#1e40af',
-          900: '#1e3a8a',
-          950: '#0f172a',
+          DEFAULT: "var(--color-primary-main)",
+          dark: "var(--color-primary-dark)",
+          light: "var(--color-secondary-light)",
         },
-        accent: {
-          500: '#10b981',
-          600: '#059669',
+        canvas: "var(--color-bg-default)",
+        surface: "var(--color-surface)",
+        ink: {
+          DEFAULT: "var(--color-text-primary)",
+          secondary: "var(--color-text-secondary)",
+          muted: "var(--color-text-muted)",
         },
-        gold: {
-          500: '#eab308',
-          600: '#ca8a04',
-        }
+        line: "var(--color-border)",
+        header: "var(--color-header-bg)",
+        primary: {
+          main: "var(--color-primary-main)",
+          dark: "var(--color-primary-dark)",
+        },
+        secondary: {
+          light: "var(--color-secondary-light)",
+        },
+        text: {
+          primary: "var(--color-text-primary)",
+          secondary: "var(--color-text-secondary)",
+          muted: "var(--color-text-muted)",
+        },
       },
-      fontFamily: {
-        sans: ['Inter', 'Cairo', 'sans-serif'],
+      boxShadow: {
+        card: "var(--shadow-card)",
       },
     },
   },
   plugins: [],
 };
+
 export default config;
