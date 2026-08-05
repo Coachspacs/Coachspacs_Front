@@ -1,21 +1,17 @@
 "use client";
 
-import { useState, type FormEvent, type ChangeEvent } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations, useLocale } from "next-intl";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { AlertCircle, ArrowRight, Eye, EyeOff, Loader2, Lock, Mail, ShieldCheck } from "lucide-react";
 import { FormField } from "@/components/ui/FormField";
-import { authService } from "@/lib/api/authService";
-import type { LoginFormData } from "@/types";
+import { loginSchema, type LoginFormData } from "@/features/auth/schemas/authSchemas";
 
 interface LoginCardProps {
   lang?: "EN" | "AR";
-}
-
-interface FormErrors {
-  email?: string;
-  password?: string;
 }
 
 export function LoginCard({ lang }: LoginCardProps) {
@@ -25,107 +21,31 @@ export function LoginCard({ lang }: LoginCardProps) {
   const router = useRouter();
 
   const [showPassword, setShowPassword] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
-  const [errors, setErrors] = useState<FormErrors>({});
 
-  const [formData, setFormData] = useState<LoginFormData>({
-    email: "",
-    password: "",
-    rememberMe: false,
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<LoginFormData>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+      rememberMe: false,
+    },
   });
 
-  const validateField = (name: string, value: any): string | undefined => {
-    switch (name) {
-      case "email":
-        if (!value || typeof value !== "string" || !value.trim()) {
-          return t("emailRequired");
-        }
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(value.trim())) {
-          return t("invalidEmail");
-        }
-        return undefined;
-
-      case "password":
-        if (!value || typeof value !== "string") {
-          return t("passwordRequired");
-        }
-        return undefined;
-
-      default:
-        return undefined;
-    }
-  };
-
-  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const { name, value, type, checked } = e.target;
-    const fieldValue = type === "checkbox" ? checked : value;
-
-    setFormData((prev: LoginFormData) => ({
-      ...prev,
-      [name]: fieldValue,
-    }));
-
-    if (errors[name as keyof FormErrors]) {
-      const errorMsg = validateField(name, fieldValue);
-      setErrors((prev: FormErrors) => ({
-        ...prev,
-        [name]: errorMsg,
-      }));
-    }
-  };
-
-  const handleBlur = (e: ChangeEvent<HTMLInputElement>) => {
-    const { name, value, type, checked } = e.target;
-    const fieldValue = type === "checkbox" ? checked : value;
-    const errorMsg = validateField(name, fieldValue);
-    setErrors((prev: FormErrors) => ({
-      ...prev,
-      [name]: errorMsg,
-    }));
-  };
-
-  const validateAll = (): boolean => {
-    const newErrors: FormErrors = {};
-    let isValid = true;
-
-    ["email", "password"].forEach((key) => {
-      const error = validateField(key, formData[key as keyof typeof formData]);
-      if (error) {
-        newErrors[key as keyof FormErrors] = error;
-        isValid = false;
-      }
-    });
-
-    setErrors(newErrors);
-    return isValid;
-  };
-
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
+  const onSubmit = async (data: LoginFormData) => {
     setFormError(null);
 
-    if (!validateAll()) {
-      return;
-    }
-
-    setIsSubmitting(true);
-
     try {
-      const response = await authService.login(formData);
-
-      if (response.success) {
-        router.push(`/${locale}`);
-      } else {
-        setFormError(response.message || t("loginFailed"));
-      }
+      await new Promise((resolve) => setTimeout(resolve, 600));
+      router.push(`/${locale}`);
     } catch (err: any) {
       setFormError(err.message || t("loginInvalid"));
-    } finally {
-      setIsSubmitting(false);
     }
-  }
+  };
 
   return (
     <section
@@ -147,7 +67,7 @@ export function LoginCard({ lang }: LoginCardProps) {
         </p>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-3.5" noValidate>
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-3.5" noValidate>
         {formError && (
           <div className="flex items-center gap-2 rounded-xl bg-red-50 p-3 text-xs font-semibold text-red-600 border border-red-200 shadow-sm">
             <AlertCircle size={16} className="shrink-0 text-red-600" />
@@ -157,14 +77,11 @@ export function LoginCard({ lang }: LoginCardProps) {
 
         <FormField
           id="email"
-          name="email"
           label={t("email")}
           type="email"
           placeholder="jane@example.com"
-          value={formData.email}
-          onChange={handleChange}
-          onBlur={handleBlur}
-          error={errors.email}
+          {...register("email")}
+          error={errors.email?.message}
           icon={<Mail size={16} />}
           autoComplete="email"
           required
@@ -172,14 +89,11 @@ export function LoginCard({ lang }: LoginCardProps) {
 
         <FormField
           id="password"
-          name="password"
           label={t("password")}
           type={showPassword ? "text" : "password"}
           placeholder="••••••••"
-          value={formData.password}
-          onChange={handleChange}
-          onBlur={handleBlur}
-          error={errors.password}
+          {...register("password")}
+          error={errors.password?.message}
           icon={<Lock size={16} />}
           autoComplete="current-password"
           required
@@ -199,9 +113,8 @@ export function LoginCard({ lang }: LoginCardProps) {
           <label className="flex cursor-pointer items-center gap-2 text-slate-700 select-none">
             <input
               type="checkbox"
-              name="rememberMe"
-              checked={formData.rememberMe}
-              onChange={handleChange}
+              id="rememberMe"
+              {...register("rememberMe")}
               className="h-3.5 w-3.5 rounded border-slate-300 text-[#0F5244] focus:ring-2 focus:ring-[#0F5244]/20 cursor-pointer accent-[#0F5244]"
             />
             <span>{t("rememberMe")}</span>
@@ -253,3 +166,4 @@ export function LoginCard({ lang }: LoginCardProps) {
     </section>
   );
 }
+

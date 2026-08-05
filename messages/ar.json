@@ -161,5 +161,17 @@
     "hasCompleted": "قد أتم بنجاح الدورة التدريبية بعنوان",
     "issueDate": "تاريخ الإصدار",
     "download": "تحميل الشهادة (PDF)"
+  },
+  "footer": {
+    "rights": "منصة كوتش سبيس. جميع الحقوق محفوظة.",
+    "privacyPolicy": "سياسة الخصوصية",
+    "termsOfService": "شروط الخدمة"
+  },
+  "header": {
+    "brandName": "كوتش سبيس",
+    "switchLanguage": "English",
+    "switchLanguageLabel": "Switch to English"
   }
 }
+
+

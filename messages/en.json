@@ -161,5 +161,17 @@
     "hasCompleted": "has successfully completed the online course",
     "issueDate": "Issued on",
     "download": "Download Certificate (PDF)"
+  },
+  "footer": {
+    "rights": "Coach Space Platform. All rights reserved.",
+    "privacyPolicy": "Privacy Policy",
+    "termsOfService": "Terms of Service"
+  },
+  "header": {
+    "brandName": "Coach Space",
+    "switchLanguage": "العربية",
+    "switchLanguageLabel": "Switch to Arabic"
   }
 }
+
+

@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { useTranslations, useLocale } from "next-intl";
 
 interface LogoProps {
   compact?: boolean;
@@ -11,10 +14,13 @@ interface LogoProps {
 export function Logo({
   compact = false,
   showText = true,
-  isAr = false,
+  isAr,
   className = "",
   imageClassName = "",
 }: LogoProps) {
+  const t = useTranslations("header");
+  const locale = useLocale() || "en";
+  const isArabic = isAr ?? (locale === "ar");
   const logoHeight = compact ? 36 : 50;
 
   return (
@@ -42,9 +48,10 @@ export function Logo({
           }`}
           style={{ lineHeight: 1 }}
         >
-          {isAr ? "كوتش سبيس" : "Coach Space"}
+          {t("brandName")}
         </span>
       )}
     </Link>
   );
 }
+

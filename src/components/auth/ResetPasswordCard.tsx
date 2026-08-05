@@ -1,13 +1,15 @@
 "use client";
 
-import { useState, type FormEvent, type ChangeEvent } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { useRouter, useParams } from "next/navigation";
 import { useTranslations, useLocale } from "next-intl";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { AlertCircle, ArrowRight, Eye, EyeOff, KeyRound, Loader2, Lock, ShieldCheck } from "lucide-react";
 import { FormField } from "@/components/ui/FormField";
 import { PasswordStrength } from "@/components/ui/PasswordStrength";
-import { authService } from "@/lib/api/authService";
+import { resetPasswordSchema, type ResetPasswordFormData } from "@/features/auth/schemas/authSchemas";
 
 interface ResetPasswordCardProps {
   lang?: "EN" | "AR";
@@ -21,86 +23,35 @@ export function ResetPasswordCard({ lang }: ResetPasswordCardProps) {
   const params = useParams();
   const currentLocale = (params?.locale as string) || locale;
 
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-
-  const [passwordError, setPasswordError] = useState<string | undefined>();
-  const [confirmError, setConfirmError] = useState<string | undefined>();
   const [formError, setFormError] = useState<string | null>(null);
 
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors, isSubmitting },
+  } = useForm<ResetPasswordFormData>({
+    resolver: zodResolver(resetPasswordSchema),
+    defaultValues: {
+      password: "",
+      confirmPassword: "",
+    },
+  });
 
-  const validatePassword = (val: string): string | undefined => {
-    if (!val) {
-      return t("newPasswordRequired");
-    }
-    if (val.length < 8) {
-      return t("passwordMinLength");
-    }
-    return undefined;
-  };
+  const passwordValue = watch("password") || "";
 
-  const validateConfirm = (val: string, passVal: string): string | undefined => {
-    if (!val) {
-      return t("confirmPasswordRequired");
-    }
-    if (val !== passVal) {
-      return t("passwordsDoNotMatch");
-    }
-    return undefined;
-  };
-
-  const handlePasswordChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value;
-    setPassword(val);
-    if (passwordError) {
-      setPasswordError(validatePassword(val));
-    }
-    if (confirmPassword) {
-      setConfirmError(validateConfirm(confirmPassword, val));
-    }
-  };
-
-  const handleConfirmChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value;
-    setConfirmPassword(val);
-    if (confirmError) {
-      setConfirmError(validateConfirm(val, password));
-    }
-  };
-
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
+  const onSubmit = async (data: ResetPasswordFormData) => {
     setFormError(null);
 
-    const passErr = validatePassword(password);
-    const confErr = validateConfirm(confirmPassword, password);
-
-    if (passErr || confErr) {
-      setPasswordError(passErr);
-      setConfirmError(confErr);
-      return;
-    }
-
-    setIsSubmitting(true);
-
     try {
-      const token = "mock-reset-token-from-url";
-      const response = await authService.resetPassword(token, password);
-
-      if (response.success) {
-        router.push(`/${currentLocale}/login`);
-      } else {
-        setFormError(response.message || t("resetPasswordFailed"));
-      }
+      await new Promise((resolve) => setTimeout(resolve, 600));
+      router.push(`/${currentLocale}/login`);
     } catch (err: any) {
       setFormError(err.message || t("unexpectedError"));
-    } finally {
-      setIsSubmitting(false);
     }
-  }
+  };
 
   return (
     <section
@@ -126,7 +77,7 @@ export function ResetPasswordCard({ lang }: ResetPasswordCardProps) {
         </p>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-3.5" noValidate>
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-3.5" noValidate>
         {formError && (
           <div className="flex items-center gap-2 rounded-xl bg-red-50 p-3 text-xs font-semibold text-red-600 border border-red-200 shadow-sm">
             <AlertCircle size={16} className="shrink-0 text-red-600" />
@@ -137,14 +88,11 @@ export function ResetPasswordCard({ lang }: ResetPasswordCardProps) {
         <div>
           <FormField
             id="new-password"
-            name="newPassword"
             label={t("newPassword")}
             type={showPassword ? "text" : "password"}
             placeholder="••••••••"
-            value={password}
-            onChange={handlePasswordChange}
-            onBlur={() => setPasswordError(validatePassword(password))}
-            error={passwordError}
+            {...register("password")}
+            error={errors.password?.message}
             icon={<Lock size={16} />}
             autoComplete="new-password"
             required
@@ -160,19 +108,16 @@ export function ResetPasswordCard({ lang }: ResetPasswordCardProps) {
             }
           />
 
-          <PasswordStrength password={password} />
+          <PasswordStrength password={passwordValue} />
         </div>
 
         <FormField
           id="confirm-password"
-          name="confirmPassword"
           label={t("confirmPassword")}
           type={showConfirmPassword ? "text" : "password"}
           placeholder="••••••••"
-          value={confirmPassword}
-          onChange={handleConfirmChange}
-          onBlur={() => setConfirmError(validateConfirm(confirmPassword, password))}
-          error={confirmError}
+          {...register("confirmPassword")}
+          error={errors.confirmPassword?.message}
           icon={<Lock size={16} />}
           autoComplete="new-password"
           required
@@ -226,3 +171,4 @@ export function ResetPasswordCard({ lang }: ResetPasswordCardProps) {
     </section>
   );
 }
+

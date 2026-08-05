@@ -1,9 +1,11 @@
 "use client";
 
-import { useState, type FormEvent, type ChangeEvent } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useTranslations, useLocale } from "next-intl";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import {
   AlertCircle,
   ArrowLeft,
@@ -15,7 +17,7 @@ import {
   RotateCcw,
 } from "lucide-react";
 import { FormField } from "@/components/ui/FormField";
-import { authService } from "@/lib/api/authService";
+import { forgotPasswordSchema, type ForgotPasswordFormData } from "@/features/auth/schemas/authSchemas";
 
 interface ForgotPasswordCardProps {
   lang?: "EN" | "AR";
@@ -28,61 +30,32 @@ export function ForgotPasswordCard({ lang }: ForgotPasswordCardProps) {
   const params = useParams();
   const currentLocale = (params?.locale as string) || locale;
 
-  const [email, setEmail] = useState("");
-  const [emailError, setEmailError] = useState<string | undefined>();
+  const [submittedEmail, setSubmittedEmail] = useState("");
   const [formError, setFormError] = useState<string | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
 
-  const validateEmail = (value: string): string | undefined => {
-    if (!value || !value.trim()) {
-      return t("emailRequired");
-    }
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(value.trim())) {
-      return t("invalidEmail");
-    }
-    return undefined;
-  };
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<ForgotPasswordFormData>({
+    resolver: zodResolver(forgotPasswordSchema),
+    defaultValues: {
+      email: "",
+    },
+  });
 
-  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value;
-    setEmail(val);
-    if (emailError) {
-      setEmailError(validateEmail(val));
-    }
-  };
-
-  const handleBlur = () => {
-    setEmailError(validateEmail(email));
-  };
-
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
+  const onSubmit = async (data: ForgotPasswordFormData) => {
     setFormError(null);
 
-    const err = validateEmail(email);
-    if (err) {
-      setEmailError(err);
-      return;
-    }
-
-    setIsSubmitting(true);
-
     try {
-      const response = await authService.requestPasswordReset(email.trim());
-
-      if (response.success) {
-        setIsSubmitted(true);
-      } else {
-        setFormError(response.message || t("sendResetFailed"));
-      }
+      await new Promise((resolve) => setTimeout(resolve, 600));
+      setSubmittedEmail(data.email.trim());
+      setIsSubmitted(true);
     } catch (err: any) {
       setFormError(err.message || t("unexpectedError"));
-    } finally {
-      setIsSubmitting(false);
     }
-  }
+  };
 
   return (
     <section
@@ -119,7 +92,7 @@ export function ForgotPasswordCard({ lang }: ForgotPasswordCardProps) {
           </p>
 
           <div className="my-2.5 inline-block rounded-xl bg-[#0F5244]/10 px-4 py-1.5 border border-[#0F5244]/20 text-xs font-bold text-[#0F5244]">
-            {email}
+            {submittedEmail}
           </div>
 
           <p className="text-[11px] text-slate-400 font-normal">
@@ -146,7 +119,7 @@ export function ForgotPasswordCard({ lang }: ForgotPasswordCardProps) {
           </div>
         </div>
       ) : (
-        <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
           {formError && (
             <div className="flex items-center gap-2 rounded-xl bg-red-50 p-3 text-xs font-semibold text-red-600 border border-red-200">
               <AlertCircle size={15} className="shrink-0 text-red-500" />
@@ -156,14 +129,11 @@ export function ForgotPasswordCard({ lang }: ForgotPasswordCardProps) {
 
           <FormField
             id="forgot-email"
-            name="email"
             label={t("email")}
             type="email"
             placeholder={t("enterEmailPlaceholder")}
-            value={email}
-            onChange={handleChange}
-            onBlur={handleBlur}
-            error={emailError}
+            {...register("email")}
+            error={errors.email?.message}
             icon={<Mail size={16} />}
             autoComplete="email"
             required
@@ -214,3 +184,4 @@ export function ForgotPasswordCard({ lang }: ForgotPasswordCardProps) {
     </section>
   );
 }
+

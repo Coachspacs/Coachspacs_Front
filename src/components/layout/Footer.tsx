@@ -1,13 +1,16 @@
 "use client";
 
 import Link from "next/link";
+import { useTranslations, useLocale } from "next-intl";
 
 interface FooterProps {
   lang?: "EN" | "AR";
 }
 
-export function Footer({ lang = "EN" }: FooterProps) {
-  const isAr = lang === "AR";
+export function Footer({ lang }: FooterProps) {
+  const t = useTranslations("footer");
+  const locale = useLocale() || "en";
+  const isAr = locale === "ar" || lang === "AR";
 
   return (
     <footer
@@ -20,7 +23,7 @@ export function Footer({ lang = "EN" }: FooterProps) {
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
             <span className="relative inline-flex rounded-full h-2 w-2 bg-[#0F5244]" />
           </span>
-          <p>© 2026 {isAr ? "منصة كوتش سبيس. جميع الحقوق محفوظة." : "Coach Space Platform. All rights reserved."}</p>
+          <p>© 2026 {t("rights")}</p>
         </div>
 
         <div className="flex items-center gap-5 text-[11px] sm:text-xs">
@@ -28,17 +31,18 @@ export function Footer({ lang = "EN" }: FooterProps) {
             href="#privacy"
             className="text-slate-500 hover:text-[#0F5244] font-semibold transition-colors duration-200"
           >
-            {isAr ? "سياسة الخصوصية" : "Privacy Policy"}
+            {t("privacyPolicy")}
           </Link>
           <span className="text-slate-300">•</span>
           <Link
             href="#terms"
             className="text-slate-500 hover:text-[#0F5244] font-semibold transition-colors duration-200"
           >
-            {isAr ? "شروط الخدمة" : "Terms of Service"}
+            {t("termsOfService")}
           </Link>
         </div>
       </div>
     </footer>
   );
 }
+

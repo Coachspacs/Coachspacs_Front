@@ -1,9 +1,11 @@
 "use client";
 
-import { useState, type FormEvent, type ChangeEvent } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations, useLocale } from "next-intl";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import {
   AlertCircle,
   ArrowRight,
@@ -19,18 +21,11 @@ import {
 } from "lucide-react";
 import { FormField } from "@/components/ui/FormField";
 import { PasswordStrength } from "@/components/ui/PasswordStrength";
-import { authService } from "@/lib/api/authService";
-import type { RegisterFormData, RoleType } from "@/types";
+import { registerSchema, type RegisterFormData } from "@/features/auth/schemas/authSchemas";
+import type { RoleType } from "@/types";
 
 interface RegisterCardProps {
   lang?: "EN" | "AR";
-}
-
-interface FormErrors {
-  fullName?: string;
-  email?: string;
-  password?: string;
-  agreeToTerms?: string;
 }
 
 export function RegisterCard({ lang }: RegisterCardProps) {
@@ -40,136 +35,46 @@ export function RegisterCard({ lang }: RegisterCardProps) {
   const router = useRouter();
 
   const [showPassword, setShowPassword] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
-  const [errors, setErrors] = useState<FormErrors>({});
 
-  const [formData, setFormData] = useState<RegisterFormData>({
-    role: "student",
-    fullName: "",
-    email: "",
-    password: "",
-    agreeToTerms: false,
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    watch,
+    formState: { errors, isSubmitting },
+  } = useForm<RegisterFormData>({
+    resolver: zodResolver(registerSchema),
+    defaultValues: {
+      role: "student",
+      fullName: "",
+      email: "",
+      password: "",
+      agreeToTerms: false,
+    },
   });
 
-  const validateField = (name: keyof RegisterFormData, value: any): string | undefined => {
-    switch (name) {
-      case "fullName":
-        if (!value || typeof value !== "string" || !value.trim()) {
-          return t("fullNameRequired");
-        }
-        if (value.trim().length < 2) {
-          return t("nameMinLength");
-        }
-        return undefined;
-
-      case "email":
-        if (!value || typeof value !== "string" || !value.trim()) {
-          return t("emailRequired");
-        }
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(value.trim())) {
-          return t("invalidEmail");
-        }
-        return undefined;
-
-      case "password":
-        if (!value || typeof value !== "string") {
-          return t("passwordRequired");
-        }
-        if (value.length < 8) {
-          return t("passwordMinLength");
-        }
-        return undefined;
-
-      case "agreeToTerms":
-        if (!value) {
-          return t("agreeToTermsError");
-        }
-        return undefined;
-
-      default:
-        return undefined;
-    }
-  };
-
-  const validateAll = (): boolean => {
-    const newErrors: FormErrors = {};
-    let isValid = true;
-
-    (Object.keys(formData) as Array<keyof RegisterFormData>).forEach((key) => {
-      if (key === "role") return;
-      const error = validateField(key, formData[key]);
-      if (error) {
-        newErrors[key as keyof FormErrors] = error;
-        isValid = false;
-      }
-    });
-
-    setErrors(newErrors);
-    return isValid;
-  };
+  const currentRole = watch("role");
+  const passwordValue = watch("password") || "";
 
   const handleRoleSelect = (role: RoleType) => {
-    setFormData((prev: RegisterFormData) => ({ ...prev, role }));
+    setValue("role", role, { shouldValidate: true });
   };
 
-  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const { name, value, type, checked } = e.target;
-    const fieldValue = type === "checkbox" ? checked : value;
-
-    setFormData((prev: RegisterFormData) => ({
-      ...prev,
-      [name]: fieldValue,
-    }));
-
-    if (errors[name as keyof FormErrors]) {
-      const errorMsg = validateField(name as keyof RegisterFormData, fieldValue);
-      setErrors((prev: FormErrors) => ({
-        ...prev,
-        [name]: errorMsg,
-      }));
-    }
-  };
-
-  const handleBlur = (e: ChangeEvent<HTMLInputElement>) => {
-    const { name, value, type, checked } = e.target;
-    const fieldValue = type === "checkbox" ? checked : value;
-    const errorMsg = validateField(name as keyof RegisterFormData, fieldValue);
-    setErrors((prev: FormErrors) => ({
-      ...prev,
-      [name]: errorMsg,
-    }));
-  };
-
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
+  const onSubmit = async (data: RegisterFormData) => {
     setFormError(null);
 
-    if (!validateAll()) {
-      return;
-    }
-
-    setIsSubmitting(true);
-
     try {
-      const response = await authService.register(formData);
-
-      if (response.success) {
-        if (formData.role === "coach") {
-          router.push(`/${locale}/dashboard`);
-        } else {
-          router.push(`/${locale}`);
-        }
+      await new Promise((resolve) => setTimeout(resolve, 600));
+      if (data.role === "coach") {
+        router.push(`/${locale}/dashboard`);
       } else {
-        setFormError(response.message || t("registrationFailed"));
+        router.push(`/${locale}`);
       }
     } catch (err: any) {
       setFormError(err.message || t("unexpectedError"));
-    } finally {
-      setIsSubmitting(false);
     }
-  }
+  };
 
   return (
     <section
@@ -197,7 +102,7 @@ export function RegisterCard({ lang }: RegisterCardProps) {
             type="button"
             onClick={() => handleRoleSelect("student")}
             className={`flex items-center justify-center gap-1.5 rounded-lg py-2 px-2.5 text-xs sm:text-sm whitespace-nowrap overflow-hidden transition-all duration-200 cursor-pointer ${
-              formData.role === "student"
+              currentRole === "student"
                 ? "bg-white text-[#0F5244] shadow-sm border-2 border-[#0F5244] font-extrabold"
                 : "border-2 border-transparent text-slate-600 hover:text-slate-900 hover:bg-white/60 font-semibold"
             }`}
@@ -210,7 +115,7 @@ export function RegisterCard({ lang }: RegisterCardProps) {
             type="button"
             onClick={() => handleRoleSelect("coach")}
             className={`flex items-center justify-center gap-1.5 rounded-lg py-2 px-2.5 text-xs sm:text-sm whitespace-nowrap overflow-hidden transition-all duration-200 cursor-pointer ${
-              formData.role === "coach"
+              currentRole === "coach"
                 ? "bg-[#0F5244] text-white shadow-md border-2 border-[#0B4035] font-extrabold"
                 : "border-2 border-transparent text-slate-600 hover:text-slate-900 hover:bg-white/60 font-semibold"
             }`}
@@ -221,7 +126,7 @@ export function RegisterCard({ lang }: RegisterCardProps) {
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-3" noValidate>
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-3" noValidate>
         {formError && (
           <div className="flex items-center gap-2 rounded-xl bg-red-50 p-3 text-xs font-semibold text-red-600 border border-red-200 shadow-sm">
             <AlertCircle size={16} className="shrink-0 text-red-600" />
@@ -231,14 +136,11 @@ export function RegisterCard({ lang }: RegisterCardProps) {
 
         <FormField
           id="full-name"
-          name="fullName"
           label={t("fullName")}
           type="text"
           placeholder={t("fullNamePlaceholder")}
-          value={formData.fullName}
-          onChange={handleChange}
-          onBlur={handleBlur}
-          error={errors.fullName}
+          {...register("fullName")}
+          error={errors.fullName?.message}
           icon={<User size={16} />}
           autoComplete="name"
           required
@@ -246,14 +148,11 @@ export function RegisterCard({ lang }: RegisterCardProps) {
 
         <FormField
           id="email"
-          name="email"
           label={t("email")}
           type="email"
           placeholder="jane@example.com"
-          value={formData.email}
-          onChange={handleChange}
-          onBlur={handleBlur}
-          error={errors.email}
+          {...register("email")}
+          error={errors.email?.message}
           icon={<Mail size={16} />}
           autoComplete="email"
           required
@@ -262,14 +161,11 @@ export function RegisterCard({ lang }: RegisterCardProps) {
         <div>
           <FormField
             id="password"
-            name="password"
             label={t("password")}
             type={showPassword ? "text" : "password"}
             placeholder="••••••••"
-            value={formData.password}
-            onChange={handleChange}
-            onBlur={handleBlur}
-            error={errors.password}
+            {...register("password")}
+            error={errors.password?.message}
             icon={<Lock size={16} />}
             autoComplete="new-password"
             required
@@ -285,7 +181,7 @@ export function RegisterCard({ lang }: RegisterCardProps) {
             }
           />
 
-          <PasswordStrength password={formData.password} />
+          <PasswordStrength password={passwordValue} />
         </div>
 
         <div className="pt-0.5">
@@ -296,9 +192,7 @@ export function RegisterCard({ lang }: RegisterCardProps) {
             <input
               id="agreeToTerms"
               type="checkbox"
-              name="agreeToTerms"
-              checked={formData.agreeToTerms}
-              onChange={handleChange}
+              {...register("agreeToTerms")}
               className="mt-0.5 h-3.5 w-3.5 rounded border-slate-300 text-[#0F5244] focus:ring-2 focus:ring-[#0F5244]/20 cursor-pointer accent-[#0F5244]"
             />
             <span>
@@ -312,8 +206,8 @@ export function RegisterCard({ lang }: RegisterCardProps) {
               </Link>
             </span>
           </label>
-          {errors.agreeToTerms && (
-            <p className="mt-1.5 text-xs font-normal text-red-500">{errors.agreeToTerms}</p>
+          {errors.agreeToTerms?.message && (
+            <p className="mt-1.5 text-xs font-normal text-red-500">{errors.agreeToTerms.message}</p>
           )}
         </div>
 
@@ -355,3 +249,4 @@ export function RegisterCard({ lang }: RegisterCardProps) {
     </section>
   );
 }
+
