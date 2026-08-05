@@ -1,13 +1,18 @@
+import type { InputHTMLAttributes, ReactNode } from "react";
+
 export type UserRole = 'STUDENT' | 'INSTRUCTOR' | 'ADMIN';
+export type RoleType = "student" | "coach";
 
 export interface User {
   id: string;
-  name: string;
+  name?: string;
+  fullName?: string;
   email: string;
-  role: UserRole;
+  role: UserRole | RoleType;
   avatar?: string;
   bio?: string;
   title?: string;
+  createdAt?: string;
 }
 
 export interface AuthState {
@@ -16,6 +21,56 @@ export interface AuthState {
   refreshToken: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
+}
+
+export interface NavigationItem {
+  label: string;
+  href: string;
+  labelAr?: string;
+}
+
+export interface FooterLinkGroup {
+  title: string;
+  titleAr?: string;
+  links: {
+    label: string;
+    labelAr?: string;
+    href: string;
+  }[];
+}
+
+export interface RegisterFormData {
+  role: RoleType;
+  fullName: string;
+  email: string;
+  password: string;
+  agreeToTerms: boolean;
+}
+
+export interface LoginFormData {
+  email: string;
+  password: string;
+  rememberMe: boolean;
+}
+
+export interface AuthResponse {
+  success: boolean;
+  token?: string;
+  user?: User;
+  message?: string;
+}
+
+export interface ApiErrorResponse {
+  message: string;
+  errors?: Record<string, string>;
+}
+
+export interface FormFieldProps extends Omit<InputHTMLAttributes<HTMLInputElement>, "id"> {
+  id: string;
+  label: string;
+  error?: string;
+  icon?: ReactNode;
+  trailing?: ReactNode;
 }
 
 export interface Lesson {

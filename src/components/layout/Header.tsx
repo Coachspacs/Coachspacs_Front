@@ -15,13 +15,10 @@ export function Header({ lang = "EN", onLanguageToggle }: HeaderProps) {
     <header className="sticky top-0 z-50 w-full shrink-0 transition-all duration-300">
       <div className="h-[64px] w-full border-b border-slate-200/70 bg-white/85 backdrop-blur-2xl shadow-[0_4px_20px_rgba(0,0,0,0.03)]">
         <div className="mx-auto flex h-full max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-          
-          {/* Brand: Logo Image + Website Name */}
           <div className="flex items-center">
             <Logo showText={true} isAr={isAr} />
           </div>
 
-          {/* Right Control: Language Switcher Only */}
           <div className="flex items-center">
             <button
               type="button"
@@ -34,7 +31,6 @@ export function Header({ lang = "EN", onLanguageToggle }: HeaderProps) {
               <span className="h-1.5 w-1.5 rounded-full bg-[#10B981] animate-pulse" />
             </button>
           </div>
-
         </div>
       </div>
     </header>

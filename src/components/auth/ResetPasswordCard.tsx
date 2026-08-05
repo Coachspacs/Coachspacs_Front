@@ -2,36 +2,25 @@
 
 import { useState, type FormEvent, type ChangeEvent } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
+import { useTranslations, useLocale } from "next-intl";
 import { AlertCircle, ArrowRight, Eye, EyeOff, KeyRound, Loader2, Lock, ShieldCheck } from "lucide-react";
 import { FormField } from "@/components/ui/FormField";
 import { PasswordStrength } from "@/components/ui/PasswordStrength";
 import { authService } from "@/lib/api/authService";
 
-/**
- * Props for ResetPasswordCard Component
- */
 interface ResetPasswordCardProps {
-  /**
-   * Active UI language ('AR' for Arabic, 'EN' for English).
-   * Defaults to 'EN'.
-   */
   lang?: "EN" | "AR";
 }
 
-/**
- * ResetPasswordCard Component
- *
- * Handles resetting user password using a token from email.
- * Structured and annotated for seamless backend API integration.
- */
-export function ResetPasswordCard({ lang = "EN" }: ResetPasswordCardProps) {
-  const isAr = lang === "AR";
+export function ResetPasswordCard({ lang }: ResetPasswordCardProps) {
+  const t = useTranslations("auth");
+  const locale = useLocale() || "en";
+  const isAr = locale === "ar";
   const router = useRouter();
+  const params = useParams();
+  const currentLocale = (params?.locale as string) || locale;
 
-  // ---------------------------------------------------------------------------
-  // Component State
-  // ---------------------------------------------------------------------------
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -43,32 +32,26 @@ export function ResetPasswordCard({ lang = "EN" }: ResetPasswordCardProps) {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // ---------------------------------------------------------------------------
-  // Validation Logic
-  // ---------------------------------------------------------------------------
   const validatePassword = (val: string): string | undefined => {
     if (!val) {
-      return isAr ? "يرجى إدخال كلمة المرور الجديدة" : "New password is required";
+      return t("newPasswordRequired");
     }
     if (val.length < 8) {
-      return isAr ? "يجب أن تحتوي كلمة المرور على 8 خانات على الأقل" : "Password must be at least 8 characters";
+      return t("passwordMinLength");
     }
     return undefined;
   };
 
   const validateConfirm = (val: string, passVal: string): string | undefined => {
     if (!val) {
-      return isAr ? "يرجى تأكيد كلمة المرور" : "Please confirm your password";
+      return t("confirmPasswordRequired");
     }
     if (val !== passVal) {
-      return isAr ? "كلمتا المرور غير متطابقتين" : "Passwords do not match";
+      return t("passwordsDoNotMatch");
     }
     return undefined;
   };
 
-  // ---------------------------------------------------------------------------
-  // Event Handlers
-  // ---------------------------------------------------------------------------
   const handlePasswordChange = (e: ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
     setPassword(val);
@@ -88,9 +71,6 @@ export function ResetPasswordCard({ lang = "EN" }: ResetPasswordCardProps) {
     }
   };
 
-  /**
-   * Submit Handler for Resetting Password
-   */
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setFormError(null);
@@ -107,37 +87,21 @@ export function ResetPasswordCard({ lang = "EN" }: ResetPasswordCardProps) {
     setIsSubmitting(true);
 
     try {
-      // ------------------------------------------------------------------------
-      // BACKEND INTEGRATION TODO:
-      // Extract `token` from URL search params (e.g. useSearchParams().get('token'))
-      // ------------------------------------------------------------------------
       const token = "mock-reset-token-from-url";
       const response = await authService.resetPassword(token, password);
 
       if (response.success) {
-        // Redirect to login page after successful password reset
-        router.push("/login");
+        router.push(`/${currentLocale}/login`);
       } else {
-        setFormError(
-          response.message ||
-            (isAr ? "فشل إعادة تعيين كلمة المرور." : "Failed to reset password.")
-        );
+        setFormError(response.message || t("resetPasswordFailed"));
       }
     } catch (err: any) {
-      setFormError(
-        err.message ||
-          (isAr
-            ? "حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى."
-            : "An unexpected error occurred. Please try again.")
-      );
+      setFormError(err.message || t("unexpectedError"));
     } finally {
       setIsSubmitting(false);
     }
   }
 
-  // ---------------------------------------------------------------------------
-  // JSX Render
-  // ---------------------------------------------------------------------------
   return (
     <section
       id="reset-password-card"
@@ -145,7 +109,6 @@ export function ResetPasswordCard({ lang = "EN" }: ResetPasswordCardProps) {
       dir={isAr ? "rtl" : "ltr"}
       className="relative mx-auto w-full max-w-[480px] overflow-hidden rounded-2xl bg-white/95 p-5 sm:p-6 lg:p-7 shadow-card border border-slate-200/90 backdrop-blur-3xl transition-all duration-300 font-sans"
     >
-      {/* Header Titles */}
       <div className="mb-3 flex flex-col items-center text-center">
         <div className="mb-2 flex h-11 w-11 items-center justify-center rounded-2xl bg-[#0F5244]/10 text-[#0F5244] border border-[#0F5244]/20 shadow-inner">
           <KeyRound size={22} />
@@ -155,17 +118,14 @@ export function ResetPasswordCard({ lang = "EN" }: ResetPasswordCardProps) {
           id="reset-password-title"
           className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 leading-snug"
         >
-          {isAr ? "تعيين كلمة المرور الجديدة" : "Create New Password"}
+          {t("resetPasswordTitle")}
         </h1>
 
         <p className="mt-1 text-xs sm:text-sm leading-relaxed text-slate-500 font-normal max-w-xs">
-          {isAr
-            ? "أدخل كلمة المرور الجديدة لحسابك وتأكيدها للمتابعة."
-            : "Enter your new password and confirm it below."}
+          {t("resetPasswordSub")}
         </p>
       </div>
 
-      {/* RESET PASSWORD FORM */}
       <form onSubmit={handleSubmit} className="space-y-3.5" noValidate>
         {formError && (
           <div className="flex items-center gap-2 rounded-xl bg-red-50 p-3 text-xs font-semibold text-red-600 border border-red-200 shadow-sm">
@@ -178,7 +138,7 @@ export function ResetPasswordCard({ lang = "EN" }: ResetPasswordCardProps) {
           <FormField
             id="new-password"
             name="newPassword"
-            label={isAr ? "كلمة المرور الجديدة" : "NEW PASSWORD"}
+            label={t("newPassword")}
             type={showPassword ? "text" : "password"}
             placeholder="••••••••"
             value={password}
@@ -191,7 +151,7 @@ export function ResetPasswordCard({ lang = "EN" }: ResetPasswordCardProps) {
             trailing={
               <button
                 type="button"
-                aria-label={showPassword ? "Hide password" : "Show password"}
+                aria-label={showPassword ? t("hidePassword") : t("showPassword")}
                 onClick={() => setShowPassword((prev) => !prev)}
                 className="rounded-lg p-1 text-slate-400 hover:text-[#0F5244] focus:outline-none transition-colors"
               >
@@ -200,14 +160,13 @@ export function ResetPasswordCard({ lang = "EN" }: ResetPasswordCardProps) {
             }
           />
 
-          {/* Live Password Strength Indicator Bar */}
-          <PasswordStrength password={password} lang={lang} />
+          <PasswordStrength password={password} />
         </div>
 
         <FormField
           id="confirm-password"
           name="confirmPassword"
-          label={isAr ? "تأكيد كلمة المرور الجديدة" : "CONFIRM NEW PASSWORD"}
+          label={t("confirmPassword")}
           type={showConfirmPassword ? "text" : "password"}
           placeholder="••••••••"
           value={confirmPassword}
@@ -220,7 +179,7 @@ export function ResetPasswordCard({ lang = "EN" }: ResetPasswordCardProps) {
           trailing={
             <button
               type="button"
-              aria-label={showConfirmPassword ? "Hide password" : "Show password"}
+              aria-label={showConfirmPassword ? t("hidePassword") : t("showPassword")}
               onClick={() => setShowConfirmPassword((prev) => !prev)}
               className="rounded-lg p-1 text-slate-400 hover:text-[#0F5244] focus:outline-none transition-colors"
             >
@@ -229,7 +188,6 @@ export function ResetPasswordCard({ lang = "EN" }: ResetPasswordCardProps) {
           }
         />
 
-        {/* Primary Submit Button */}
         <button
           type="submit"
           disabled={isSubmitting}
@@ -239,7 +197,7 @@ export function ResetPasswordCard({ lang = "EN" }: ResetPasswordCardProps) {
             <Loader2 className="h-4 w-4 animate-spin" />
           ) : (
             <>
-              <span>{isAr ? "حفظ كلمة المرور الجديدة" : "Save New Password"}</span>
+              <span>{t("saveNewPassword")}</span>
               <ArrowRight
                 size={16}
                 className={`transition-transform duration-200 ${
@@ -251,20 +209,18 @@ export function ResetPasswordCard({ lang = "EN" }: ResetPasswordCardProps) {
         </button>
       </form>
 
-      {/* Security Note Badge */}
       <div className="mt-3.5 flex items-center justify-center gap-1.5 text-[10px] text-slate-400 font-medium">
         <ShieldCheck size={12} className="text-[#0F5244]" />
-        <span>{isAr ? "بياناتك محمية ومشفرة 100%" : "100% Encrypted & Secure Connection"}</span>
+        <span>{t("encryptedConnection")}</span>
       </div>
 
-      {/* Back to Login Link */}
       <div className="mt-3.5 border-t border-slate-200/60 pt-3.5 text-center text-xs text-slate-500 font-normal">
-        {isAr ? "تذكرت كلمة المرور القديمة؟ " : "Remember your password? "}
+        {t("rememberOldPassword")}{" "}
         <Link
-          href="/login"
+          href={`/${currentLocale}/login`}
           className="font-bold text-[#0F5244] transition-colors hover:underline"
         >
-          {isAr ? "تسجيل الدخول" : "Sign In"}
+          {t("login")}
         </Link>
       </div>
     </section>

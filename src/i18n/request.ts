@@ -4,11 +4,11 @@ export default getRequestConfig(async ({ requestLocale }) => {
   let locale = await requestLocale;
 
   if (!locale || !['en', 'ar'].includes(locale)) {
-    locale = 'ar';
+    locale = 'en';
   }
 
   return {
     locale,
-    messages: (await import(`./messages/${locale}.json`)).default,
+    messages: (await import(`../../messages/${locale}.json`)).default,
   };
 });

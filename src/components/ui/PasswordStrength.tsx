@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
+import { useTranslations, useLocale } from "next-intl";
 import { Check, X } from "lucide-react";
 
 interface PasswordStrengthProps {
@@ -8,8 +9,9 @@ interface PasswordStrengthProps {
   lang?: "EN" | "AR";
 }
 
-export function PasswordStrength({ password, lang = "EN" }: PasswordStrengthProps) {
-  const isAr = lang === "AR";
+export function PasswordStrength({ password, lang }: PasswordStrengthProps) {
+  const t = useTranslations("auth");
+  const locale = useLocale() || "en";
 
   const stats = useMemo(() => {
     let score = 0;
@@ -33,13 +35,13 @@ export function PasswordStrength({ password, lang = "EN" }: PasswordStrengthProp
     switch (stats.score) {
       case 0:
       case 1:
-        return { text: isAr ? "ضعيفة جداً" : "Very Weak", color: "bg-red-500", textColor: "text-red-600" };
+        return { text: t("veryWeak"), color: "bg-red-500", textColor: "text-red-600" };
       case 2:
-        return { text: isAr ? "ضعيفة" : "Weak", color: "bg-amber-500", textColor: "text-amber-600" };
+        return { text: t("weak"), color: "bg-amber-500", textColor: "text-amber-600" };
       case 3:
-        return { text: isAr ? "جيدة" : "Good", color: "bg-emerald-500", textColor: "text-emerald-600" };
+        return { text: t("good"), color: "bg-emerald-500", textColor: "text-emerald-600" };
       case 4:
-        return { text: isAr ? "قوية جداً" : "Strong", color: "bg-teal-600", textColor: "text-teal-700" };
+        return { text: t("strong"), color: "bg-teal-600", textColor: "text-teal-700" };
       default:
         return { text: "", color: "bg-slate-200", textColor: "text-slate-500" };
     }
@@ -49,10 +51,9 @@ export function PasswordStrength({ password, lang = "EN" }: PasswordStrengthProp
 
   return (
     <div className="mt-2 space-y-2 rounded-xl bg-slate-50/90 p-3 border border-slate-200/70 shadow-inner">
-      {/* Strength Bar */}
       <div className="flex items-center justify-between gap-2">
         <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
-          {isAr ? "قوة كلمة المرور:" : "Password Strength:"}
+          {t("passwordStrength")}
         </span>
         <span className={`text-xs font-bold ${labelInfo.textColor}`}>
           {labelInfo.text}
@@ -70,7 +71,6 @@ export function PasswordStrength({ password, lang = "EN" }: PasswordStrengthProp
         ))}
       </div>
 
-      {/* Criteria checklist */}
       <div className="grid grid-cols-2 gap-1.5 pt-1 text-[11px] text-slate-600">
         <div className="flex items-center gap-1.5">
           {stats.hasLength ? (
@@ -78,7 +78,7 @@ export function PasswordStrength({ password, lang = "EN" }: PasswordStrengthProp
           ) : (
             <X size={13} className="text-slate-400 shrink-0" />
           )}
-          <span>{isAr ? "8 خانات على الأقل" : "Min 8 characters"}</span>
+          <span>{t("min8Chars")}</span>
         </div>
         <div className="flex items-center gap-1.5">
           {stats.hasUpper ? (
@@ -86,7 +86,7 @@ export function PasswordStrength({ password, lang = "EN" }: PasswordStrengthProp
           ) : (
             <X size={13} className="text-slate-400 shrink-0" />
           )}
-          <span>{isAr ? "حرف كبير (A-Z)" : "Uppercase letter"}</span>
+          <span>{t("uppercase")}</span>
         </div>
         <div className="flex items-center gap-1.5">
           {stats.hasNumber ? (
@@ -94,7 +94,7 @@ export function PasswordStrength({ password, lang = "EN" }: PasswordStrengthProp
           ) : (
             <X size={13} className="text-slate-400 shrink-0" />
           )}
-          <span>{isAr ? "رقم (0-9)" : "Number"}</span>
+          <span>{t("number")}</span>
         </div>
         <div className="flex items-center gap-1.5">
           {stats.hasSpecial ? (
@@ -102,7 +102,7 @@ export function PasswordStrength({ password, lang = "EN" }: PasswordStrengthProp
           ) : (
             <X size={13} className="text-slate-400 shrink-0" />
           )}
-          <span>{isAr ? "رمز خاص (!@#$)" : "Special character"}</span>
+          <span>{t("specialChar")}</span>
         </div>
       </div>
     </div>

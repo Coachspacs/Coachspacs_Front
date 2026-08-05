@@ -22,7 +22,6 @@ export function Logo({
       href="/"
       className={`inline-flex items-center gap-3 shrink-0 focus:outline-none ${className}`}
     >
-      {/* Logo Image explicitly sized & vertically centered */}
       <img
         src="/images/logo.png"
         alt="Coach Space Logo"

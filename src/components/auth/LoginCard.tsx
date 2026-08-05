@@ -3,6 +3,7 @@
 import { useState, type FormEvent, type ChangeEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useTranslations, useLocale } from "next-intl";
 import { AlertCircle, ArrowRight, Eye, EyeOff, Loader2, Lock, Mail, ShieldCheck } from "lucide-react";
 import { FormField } from "@/components/ui/FormField";
 import { authService } from "@/lib/api/authService";
@@ -17,14 +18,10 @@ interface FormErrors {
   password?: string;
 }
 
-/**
- * LoginCard Component
- *
- * Renders the user login form. Upon successful authentication,
- * the backend developer can handle storing tokens and redirecting to the main page.
- */
-export function LoginCard({ lang = "EN" }: LoginCardProps) {
-  const isAr = lang === "AR";
+export function LoginCard({ lang }: LoginCardProps) {
+  const t = useTranslations("auth");
+  const locale = useLocale() || "en";
+  const isAr = locale === "ar";
   const router = useRouter();
 
   const [showPassword, setShowPassword] = useState(false);
@@ -42,17 +39,17 @@ export function LoginCard({ lang = "EN" }: LoginCardProps) {
     switch (name) {
       case "email":
         if (!value || typeof value !== "string" || !value.trim()) {
-          return isAr ? "يرجى إدخال البريد الإلكتروني" : "Email address is required";
+          return t("emailRequired");
         }
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(value.trim())) {
-          return isAr ? "صيغة البريد الإلكتروني غير صحيحة" : "Please enter a valid email address";
+          return t("invalidEmail");
         }
         return undefined;
 
       case "password":
         if (!value || typeof value !== "string") {
-          return isAr ? "يرجى إدخال كلمة المرور" : "Password is required";
+          return t("passwordRequired");
         }
         return undefined;
 
@@ -65,14 +62,14 @@ export function LoginCard({ lang = "EN" }: LoginCardProps) {
     const { name, value, type, checked } = e.target;
     const fieldValue = type === "checkbox" ? checked : value;
 
-    setFormData((prev) => ({
+    setFormData((prev: LoginFormData) => ({
       ...prev,
       [name]: fieldValue,
     }));
 
     if (errors[name as keyof FormErrors]) {
       const errorMsg = validateField(name, fieldValue);
-      setErrors((prev) => ({
+      setErrors((prev: FormErrors) => ({
         ...prev,
         [name]: errorMsg,
       }));
@@ -83,7 +80,7 @@ export function LoginCard({ lang = "EN" }: LoginCardProps) {
     const { name, value, type, checked } = e.target;
     const fieldValue = type === "checkbox" ? checked : value;
     const errorMsg = validateField(name, fieldValue);
-    setErrors((prev) => ({
+    setErrors((prev: FormErrors) => ({
       ...prev,
       [name]: errorMsg,
     }));
@@ -105,9 +102,6 @@ export function LoginCard({ lang = "EN" }: LoginCardProps) {
     return isValid;
   };
 
-  /**
-   * Login form submit handler
-   */
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setFormError(null);
@@ -119,33 +113,15 @@ export function LoginCard({ lang = "EN" }: LoginCardProps) {
     setIsSubmitting(true);
 
     try {
-      // BACKEND API CALL: Perform Login
       const response = await authService.login(formData);
 
       if (response.success) {
-        // ----------------------------------------------------------------------
-        // BACKEND INTEGRATION TODO:
-        // 1. Store authentication token / user session (e.g. cookies or localStorage):
-        //    localStorage.setItem('token', response.token);
-        // 2. Redirect user directly to Home / Dashboard page:
-        //    router.push('/');
-        // ----------------------------------------------------------------------
-        router.push("/");
+        router.push(`/${locale}`);
       } else {
-        setFormError(
-          response.message ||
-            (isAr
-              ? "فشل تسجيل الدخول. يرجى التحقق من بياناتك."
-              : "Login failed. Please check your credentials.")
-        );
+        setFormError(response.message || t("loginFailed"));
       }
     } catch (err: any) {
-      setFormError(
-        err.message ||
-          (isAr
-            ? "فشل تسجيل الدخول. يرجى التحقق من البريد الإلكتروني وكلمة المرور."
-            : "Invalid email or password. Please try again.")
-      );
+      setFormError(err.message || t("loginInvalid"));
     } finally {
       setIsSubmitting(false);
     }
@@ -158,23 +134,19 @@ export function LoginCard({ lang = "EN" }: LoginCardProps) {
       dir={isAr ? "rtl" : "ltr"}
       className="relative mx-auto w-full max-w-[480px] overflow-hidden rounded-2xl bg-white/95 p-5 sm:p-6 lg:p-7 shadow-card border border-slate-200/90 backdrop-blur-3xl transition-all duration-300 font-sans"
     >
-      {/* Header Titles */}
       <div className="mb-3.5 flex flex-col items-center text-center">
         <h1
           id="login-title"
           className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 leading-snug"
         >
-          {isAr ? "تسجيل الدخول" : "Sign In to Account"}
+          {t("loginTitle")}
         </h1>
 
         <p className="mt-1.5 text-xs sm:text-sm leading-relaxed text-slate-500 font-normal max-w-xs">
-          {isAr
-            ? "أدخل بياناتك للمتابعة والوصول إلى حسابك ودوراتك."
-            : "Enter your credentials to access your courses & coaching sessions."}
+          {t("loginSubtitle")}
         </p>
       </div>
 
-      {/* LOGIN FORM */}
       <form onSubmit={handleSubmit} className="space-y-3.5" noValidate>
         {formError && (
           <div className="flex items-center gap-2 rounded-xl bg-red-50 p-3 text-xs font-semibold text-red-600 border border-red-200 shadow-sm">
@@ -186,7 +158,7 @@ export function LoginCard({ lang = "EN" }: LoginCardProps) {
         <FormField
           id="email"
           name="email"
-          label={isAr ? "البريد الإلكتروني" : "EMAIL ADDRESS"}
+          label={t("email")}
           type="email"
           placeholder="jane@example.com"
           value={formData.email}
@@ -201,7 +173,7 @@ export function LoginCard({ lang = "EN" }: LoginCardProps) {
         <FormField
           id="password"
           name="password"
-          label={isAr ? "كلمة المرور" : "PASSWORD"}
+          label={t("password")}
           type={showPassword ? "text" : "password"}
           placeholder="••••••••"
           value={formData.password}
@@ -214,8 +186,8 @@ export function LoginCard({ lang = "EN" }: LoginCardProps) {
           trailing={
             <button
               type="button"
-              aria-label={showPassword ? "Hide password" : "Show password"}
-              onClick={() => setShowPassword((prev) => !prev)}
+              aria-label={showPassword ? t("hidePassword") : t("showPassword")}
+              onClick={() => setShowPassword((prev: boolean) => !prev)}
               className="rounded-lg p-1 text-slate-400 hover:text-[#0F5244] focus:outline-none transition-colors"
             >
               {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
@@ -223,7 +195,6 @@ export function LoginCard({ lang = "EN" }: LoginCardProps) {
           }
         />
 
-        {/* Remember Me & Forgot Password Row */}
         <div className="flex items-center justify-between pt-0.5 text-xs font-medium">
           <label className="flex cursor-pointer items-center gap-2 text-slate-700 select-none">
             <input
@@ -233,18 +204,17 @@ export function LoginCard({ lang = "EN" }: LoginCardProps) {
               onChange={handleChange}
               className="h-3.5 w-3.5 rounded border-slate-300 text-[#0F5244] focus:ring-2 focus:ring-[#0F5244]/20 cursor-pointer accent-[#0F5244]"
             />
-            <span>{isAr ? "تذكرني" : "Remember Me"}</span>
+            <span>{t("rememberMe")}</span>
           </label>
 
           <Link
-            href="/forgot-password"
+            href={`/${locale}/forgot-password`}
             className="font-bold text-[#0F5244] hover:underline focus:outline-none transition-colors"
           >
-            {isAr ? "نسيت كلمة المرور؟" : "Forgot Password?"}
+            {t("forgotPassword")}
           </Link>
         </div>
 
-        {/* Primary Submit Button */}
         <button
           type="submit"
           disabled={isSubmitting}
@@ -254,7 +224,7 @@ export function LoginCard({ lang = "EN" }: LoginCardProps) {
             <Loader2 className="h-4 w-4 animate-spin" />
           ) : (
             <>
-              <span>{isAr ? "تسجيل الدخول" : "Sign In"}</span>
+              <span>{t("submitLogin")}</span>
               <ArrowRight
                 size={16}
                 className={`transition-transform duration-200 ${
@@ -266,20 +236,18 @@ export function LoginCard({ lang = "EN" }: LoginCardProps) {
         </button>
       </form>
 
-      {/* Security Note Badge */}
       <div className="mt-3.5 flex items-center justify-center gap-1.5 text-[10px] text-slate-400 font-medium">
         <ShieldCheck size={12} className="text-[#0F5244]" />
-        <span>{isAr ? "بياناتك محمية ومشفرة 100%" : "100% Encrypted & Secure Connection"}</span>
+        <span>{t("encryptedConnection")}</span>
       </div>
 
-      {/* Footer Link inside Card */}
       <div className="mt-3.5 border-t border-slate-200/60 pt-3.5 text-center text-xs text-slate-500 font-normal">
-        {isAr ? "ليس لديك حساب بعد؟ " : "Don't have an account yet? "}
+        {t("dontHaveAccount")}{" "}
         <Link
-          href="/"
+          href={`/${locale}/register`}
           className="font-bold text-[#0F5244] transition-colors hover:underline"
         >
-          {isAr ? "إنشاء حساب جديد" : "Create Account"}
+          {t("createAccount")}
         </Link>
       </div>
     </section>

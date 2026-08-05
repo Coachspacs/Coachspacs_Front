@@ -1,143 +1,55 @@
-'use client';
+"use client";
 
-import React from 'react';
-import Link from 'next/link';
-import { useRouter, useParams } from 'next/navigation';
-import { useTranslations } from 'next-intl';
-import { useDispatch } from 'react-redux';
-import { setCredentials } from '@/features/auth/slice';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { registerSchema, RegisterFormData } from '@/features/auth/schemas/authSchemas';
-import { Input } from '@/components/ui/Input';
-import { Button } from '@/components/ui/Button';
-import { Card } from '@/components/ui/Card';
-import { User as UserIcon, Mail, Lock, CheckCircle2 } from 'lucide-react';
+import { useParams, useRouter, usePathname } from "next/navigation";
+import { Header } from "@/components/layout/Header";
+import { RegisterCard } from "@/components/auth/RegisterCard";
+import { Footer } from "@/components/layout/Footer";
 
 export default function RegisterPage() {
-  const t = useTranslations('auth');
   const params = useParams();
-  const locale = params.locale as string;
   const router = useRouter();
-  const dispatch = useDispatch();
+  const pathname = usePathname();
 
-  const {
-    register,
-    handleSubmit,
-    setValue,
-    watch,
-    formState: { errors, isSubmitting },
-  } = useForm<RegisterFormData>({
-    resolver: zodResolver(registerSchema),
-    defaultValues: {
-      name: '',
-      email: '',
-      password: '',
-      role: 'STUDENT',
-    },
-  });
+  const locale = (params?.locale as string) || "en";
+  const isAr = locale === "ar";
+  const lang = isAr ? "AR" : "EN";
 
-  const selectedRole = watch('role');
-
-  const onSubmit = async (data: RegisterFormData) => {
-    dispatch(
-      setCredentials({
-        user: {
-          id: `u-${Date.now()}`,
-          name: data.name,
-          email: data.email,
-          role: data.role,
-        },
-        token: 'mock-jwt-token-12345',
-        refreshToken: 'mock-refresh-token-67890',
-      })
-    );
-    if (data.role === 'INSTRUCTOR') {
-      router.push(`/${locale}/dashboard`);
+  const toggleLanguage = () => {
+    const nextLocale = locale === "ar" ? "en" : "ar";
+    let newPath = pathname;
+    if (pathname.startsWith(`/${locale}`)) {
+      newPath = pathname.replace(`/${locale}`, `/${nextLocale}`);
     } else {
-      router.push(`/${locale}`);
+      newPath = `/${nextLocale}${pathname}`;
     }
+    router.push(newPath);
   };
 
   return (
-    <div className="min-h-[80vh] flex items-center justify-center px-4 py-12">
-      <div className="w-full max-w-lg">
-        <Card className="shadow-2xl border-slate-800 p-8 space-y-6">
-          <div className="text-center space-y-2">
-            <h1 className="text-2xl font-extrabold text-white">{t('registerTitle')}</h1>
-            <p className="text-sm text-slate-400">{t('registerSubtitle')}</p>
-          </div>
+    <div
+      dir={isAr ? "rtl" : "ltr"}
+      className="relative flex h-screen h-[100dvh] w-full max-w-full overflow-hidden flex-col justify-between bg-slate-50 text-slate-800 selection:bg-[#0F5244] selection:text-white font-sans"
+    >
+      {/* Background SVG Grid Mesh Pattern */}
+      <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(#cbd5e1_1px,transparent_1px)] [background-size:24px_24px] opacity-40" />
 
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            {/* Role Selection Tabs */}
-            <div className="space-y-1.5">
-              <label className="text-xs font-semibold uppercase tracking-wider text-slate-300">
-                {t('role')}
-              </label>
-              <div className="grid grid-cols-2 gap-3">
-                <button
-                  type="button"
-                  onClick={() => setValue('role', 'STUDENT')}
-                  className={`p-3 rounded-xl border flex flex-col items-center gap-1.5 text-xs font-semibold transition-all ${
-                    selectedRole === 'STUDENT'
-                      ? 'border-brand-500 bg-brand-500/10 text-white'
-                      : 'border-slate-800 bg-slate-900/60 text-slate-400 hover:border-slate-700'
-                  }`}
-                >
-                  <UserIcon className="w-5 h-5 text-brand-400" />
-                  <span>{t('roleStudent')}</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setValue('role', 'INSTRUCTOR')}
-                  className={`p-3 rounded-xl border flex flex-col items-center gap-1.5 text-xs font-semibold transition-all ${
-                    selectedRole === 'INSTRUCTOR'
-                      ? 'border-brand-500 bg-brand-500/10 text-white'
-                      : 'border-slate-800 bg-slate-900/60 text-slate-400 hover:border-slate-700'
-                  }`}
-                >
-                  <CheckCircle2 className="w-5 h-5 text-brand-400" />
-                  <span>{t('roleInstructor')}</span>
-                </button>
-              </div>
-            </div>
+      {/* Dynamic Ambient Background Glows */}
+      <div className="pointer-events-none absolute -top-40 left-1/2 -z-10 h-[600px] w-[1000px] -translate-x-1/2 rounded-full bg-gradient-to-tr from-[#34D399]/20 via-[#0F5244]/8 to-transparent blur-3xl animate-pulse-glow" />
+      <div className="pointer-events-none absolute top-1/2 -right-32 -z-10 h-[500px] w-[500px] rounded-full bg-[#D1FAE5]/50 blur-3xl" />
+      <div className="pointer-events-none absolute bottom-1/4 -left-32 -z-10 h-[450px] w-[450px] rounded-full bg-[#0F5244]/8 blur-3xl" />
 
-            <Input
-              label={t('fullName')}
-              placeholder="e.g. Tariq Mansoor"
-              error={errors.name?.message}
-              {...register('name')}
-            />
+      {/* Authentication Header */}
+      <Header lang={lang} onLanguageToggle={toggleLanguage} />
 
-            <Input
-              label={t('email')}
-              type="email"
-              placeholder="name@example.com"
-              error={errors.email?.message}
-              {...register('email')}
-            />
+      {/* Main Centered Register Card */}
+      <main className="relative z-10 flex-1 min-h-0 flex flex-col items-center justify-center px-4 py-1 sm:py-2">
+        <div className="w-full max-w-[480px] my-auto">
+          <RegisterCard lang={lang} />
+        </div>
+      </main>
 
-            <Input
-              label={t('password')}
-              type="password"
-              placeholder="••••••••"
-              error={errors.password?.message}
-              {...register('password')}
-            />
-
-            <Button type="submit" isLoading={isSubmitting} className="w-full">
-              {t('submitRegister')}
-            </Button>
-          </form>
-
-          <div className="text-center text-xs text-slate-400 pt-2 border-t border-slate-800">
-            Already have an account?{' '}
-            <Link href={`/${locale}/login`} className="text-brand-400 font-semibold hover:underline">
-              Sign In
-            </Link>
-          </div>
-        </Card>
-      </div>
+      {/* Minimal Footer */}
+      <Footer lang={lang} />
     </div>
   );
 }

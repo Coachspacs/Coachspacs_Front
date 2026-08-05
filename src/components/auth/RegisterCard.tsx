@@ -3,6 +3,7 @@
 import { useState, type FormEvent, type ChangeEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useTranslations, useLocale } from "next-intl";
 import {
   AlertCircle,
   ArrowRight,
@@ -21,20 +22,10 @@ import { PasswordStrength } from "@/components/ui/PasswordStrength";
 import { authService } from "@/lib/api/authService";
 import type { RegisterFormData, RoleType } from "@/types";
 
-/**
- * Props for RegisterCard Component
- */
 interface RegisterCardProps {
-  /**
-   * Active UI language ('AR' for Arabic, 'EN' for English).
-   * Defaults to 'EN'.
-   */
   lang?: "EN" | "AR";
 }
 
-/**
- * Validation errors interface for Register form
- */
 interface FormErrors {
   fullName?: string;
   email?: string;
@@ -42,19 +33,12 @@ interface FormErrors {
   agreeToTerms?: string;
 }
 
-/**
- * RegisterCard Component
- *
- * Provides user registration for both Students and Instructors.
- * Formatted and modularized for easy backend integration.
- */
-export function RegisterCard({ lang = "EN" }: RegisterCardProps) {
-  const isAr = lang === "AR";
+export function RegisterCard({ lang }: RegisterCardProps) {
+  const t = useTranslations("auth");
+  const locale = useLocale() || "en";
+  const isAr = locale === "ar";
   const router = useRouter();
 
-  // ---------------------------------------------------------------------------
-  // Component State
-  // ---------------------------------------------------------------------------
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
@@ -68,42 +52,39 @@ export function RegisterCard({ lang = "EN" }: RegisterCardProps) {
     agreeToTerms: false,
   });
 
-  // ---------------------------------------------------------------------------
-  // Validation Logic
-  // ---------------------------------------------------------------------------
   const validateField = (name: keyof RegisterFormData, value: any): string | undefined => {
     switch (name) {
       case "fullName":
         if (!value || typeof value !== "string" || !value.trim()) {
-          return isAr ? "يرجى إدخال الاسم الكامل" : "Full name is required";
+          return t("fullNameRequired");
         }
         if (value.trim().length < 2) {
-          return isAr ? "يجب أن يتكون الاسم من حرفين على الأقل" : "Name must be at least 2 characters";
+          return t("nameMinLength");
         }
         return undefined;
 
       case "email":
         if (!value || typeof value !== "string" || !value.trim()) {
-          return isAr ? "يرجى إدخال البريد الإلكتروني" : "Email address is required";
+          return t("emailRequired");
         }
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(value.trim())) {
-          return isAr ? "صيغة البريد الإلكتروني غير صحيحة" : "Please enter a valid email address";
+          return t("invalidEmail");
         }
         return undefined;
 
       case "password":
         if (!value || typeof value !== "string") {
-          return isAr ? "يرجى إدخال كلمة المرور" : "Password is required";
+          return t("passwordRequired");
         }
         if (value.length < 8) {
-          return isAr ? "يجب أن تحتوي كلمة المرور على 8 خانات على الأقل" : "Password must be at least 8 characters";
+          return t("passwordMinLength");
         }
         return undefined;
 
       case "agreeToTerms":
         if (!value) {
-          return isAr ? "يرجى الموافقة على الشروط والأحكام" : "You must agree to the Terms and Privacy Policy";
+          return t("agreeToTermsError");
         }
         return undefined;
 
@@ -129,25 +110,22 @@ export function RegisterCard({ lang = "EN" }: RegisterCardProps) {
     return isValid;
   };
 
-  // ---------------------------------------------------------------------------
-  // Event Handlers
-  // ---------------------------------------------------------------------------
   const handleRoleSelect = (role: RoleType) => {
-    setFormData((prev) => ({ ...prev, role }));
+    setFormData((prev: RegisterFormData) => ({ ...prev, role }));
   };
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
     const fieldValue = type === "checkbox" ? checked : value;
 
-    setFormData((prev) => ({
+    setFormData((prev: RegisterFormData) => ({
       ...prev,
       [name]: fieldValue,
     }));
 
     if (errors[name as keyof FormErrors]) {
       const errorMsg = validateField(name as keyof RegisterFormData, fieldValue);
-      setErrors((prev) => ({
+      setErrors((prev: FormErrors) => ({
         ...prev,
         [name]: errorMsg,
       }));
@@ -158,15 +136,12 @@ export function RegisterCard({ lang = "EN" }: RegisterCardProps) {
     const { name, value, type, checked } = e.target;
     const fieldValue = type === "checkbox" ? checked : value;
     const errorMsg = validateField(name as keyof RegisterFormData, fieldValue);
-    setErrors((prev) => ({
+    setErrors((prev: FormErrors) => ({
       ...prev,
       [name]: errorMsg,
     }));
   };
 
-  /**
-   * Registration Form Submission Handler
-   */
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setFormError(null);
@@ -178,39 +153,24 @@ export function RegisterCard({ lang = "EN" }: RegisterCardProps) {
     setIsSubmitting(true);
 
     try {
-      // BACKEND API CALL: Register New User
       const response = await authService.register(formData);
 
       if (response.success) {
-        // ----------------------------------------------------------------------
-        // BACKEND INTEGRATION TODO:
-        // 1. Save auth session token if applicable:
-        //    localStorage.setItem('token', response.token);
-        // 2. Redirect to dashboard or onboarding page:
-        //    router.push('/');
-        // ----------------------------------------------------------------------
-        router.push("/");
+        if (formData.role === "coach") {
+          router.push(`/${locale}/dashboard`);
+        } else {
+          router.push(`/${locale}`);
+        }
       } else {
-        setFormError(
-          response.message ||
-            (isAr ? "حدث خطأ أثناء التسجيل." : "Registration failed.")
-        );
+        setFormError(response.message || t("registrationFailed"));
       }
     } catch (err: any) {
-      setFormError(
-        err.message ||
-          (isAr
-            ? "حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى."
-            : "An unexpected error occurred. Please try again.")
-      );
+      setFormError(err.message || t("unexpectedError"));
     } finally {
       setIsSubmitting(false);
     }
   }
 
-  // ---------------------------------------------------------------------------
-  // JSX Render
-  // ---------------------------------------------------------------------------
   return (
     <section
       id="register"
@@ -218,23 +178,19 @@ export function RegisterCard({ lang = "EN" }: RegisterCardProps) {
       dir={isAr ? "rtl" : "ltr"}
       className="relative mx-auto w-full max-w-[480px] overflow-hidden rounded-2xl bg-white/95 p-5 sm:p-6 lg:p-7 shadow-card border border-slate-200/90 backdrop-blur-3xl transition-all duration-300 font-sans"
     >
-      {/* Header Titles */}
       <div className="mb-3 flex flex-col items-center text-center">
         <h1
           id="register-title"
           className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 leading-snug"
         >
-          {isAr ? "أنشئ حسابك الجديد" : "Create Your Account"}
+          {t("registerTitle")}
         </h1>
 
         <p className="mt-1 text-xs sm:text-sm leading-relaxed text-slate-500 font-normal max-w-xs">
-          {isAr
-            ? "ابدأ رحلتك التعليمية الآن وتواصل مع نخبة الخبراء والمدربين."
-            : "Start your journey today with certified coaches and mentors."}
+          {t("registerSubtitle")}
         </p>
       </div>
 
-      {/* Role Selection Tabs */}
       <div className="mb-3 rounded-xl bg-slate-100/80 p-1 border border-slate-200/70 shadow-inner">
         <div className="grid grid-cols-2 gap-1">
           <button
@@ -247,7 +203,7 @@ export function RegisterCard({ lang = "EN" }: RegisterCardProps) {
             }`}
           >
             <GraduationCap size={15} className="shrink-0" />
-            <span className="truncate">{isAr ? "طالب" : "Student"}</span>
+            <span className="truncate">{t("roleStudent")}</span>
           </button>
 
           <button
@@ -260,12 +216,11 @@ export function RegisterCard({ lang = "EN" }: RegisterCardProps) {
             }`}
           >
             <Briefcase size={15} className="shrink-0" />
-            <span className="truncate">{isAr ? "محاضر" : "Instructor"}</span>
+            <span className="truncate">{t("roleInstructor")}</span>
           </button>
         </div>
       </div>
 
-      {/* REGISTRATION FORM */}
       <form onSubmit={handleSubmit} className="space-y-3" noValidate>
         {formError && (
           <div className="flex items-center gap-2 rounded-xl bg-red-50 p-3 text-xs font-semibold text-red-600 border border-red-200 shadow-sm">
@@ -277,9 +232,9 @@ export function RegisterCard({ lang = "EN" }: RegisterCardProps) {
         <FormField
           id="full-name"
           name="fullName"
-          label={isAr ? "الاسم الكامل" : "FULL NAME"}
+          label={t("fullName")}
           type="text"
-          placeholder={isAr ? "أحمد محمد" : "Jane Doe"}
+          placeholder={t("fullNamePlaceholder")}
           value={formData.fullName}
           onChange={handleChange}
           onBlur={handleBlur}
@@ -292,7 +247,7 @@ export function RegisterCard({ lang = "EN" }: RegisterCardProps) {
         <FormField
           id="email"
           name="email"
-          label={isAr ? "البريد الإلكتروني" : "EMAIL ADDRESS"}
+          label={t("email")}
           type="email"
           placeholder="jane@example.com"
           value={formData.email}
@@ -308,7 +263,7 @@ export function RegisterCard({ lang = "EN" }: RegisterCardProps) {
           <FormField
             id="password"
             name="password"
-            label={isAr ? "كلمة المرور" : "PASSWORD"}
+            label={t("password")}
             type={showPassword ? "text" : "password"}
             placeholder="••••••••"
             value={formData.password}
@@ -321,8 +276,8 @@ export function RegisterCard({ lang = "EN" }: RegisterCardProps) {
             trailing={
               <button
                 type="button"
-                aria-label={showPassword ? "Hide password" : "Show password"}
-                onClick={() => setShowPassword((prev) => !prev)}
+                aria-label={showPassword ? t("hidePassword") : t("showPassword")}
+                onClick={() => setShowPassword((prev: boolean) => !prev)}
                 className="rounded-lg p-1 text-slate-400 hover:text-[#0F5244] focus:outline-none transition-colors"
               >
                 {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
@@ -330,11 +285,9 @@ export function RegisterCard({ lang = "EN" }: RegisterCardProps) {
             }
           />
 
-          {/* Live Password Strength Indicator Bar */}
-          <PasswordStrength password={formData.password} lang={lang} />
+          <PasswordStrength password={formData.password} />
         </div>
 
-        {/* Terms & Privacy Checkbox */}
         <div className="pt-0.5">
           <label
             htmlFor="agreeToTerms"
@@ -349,13 +302,13 @@ export function RegisterCard({ lang = "EN" }: RegisterCardProps) {
               className="mt-0.5 h-3.5 w-3.5 rounded border-slate-300 text-[#0F5244] focus:ring-2 focus:ring-[#0F5244]/20 cursor-pointer accent-[#0F5244]"
             />
             <span>
-              {isAr ? "أوافق على " : "I agree to the "}
+              {t("agreeTo")}{" "}
               <Link href="#terms" className="text-[#0F5244] hover:underline font-bold">
-                {isAr ? "شروط الخدمة" : "Terms of Service"}
+                {t("termsOfService")}
               </Link>{" "}
-              {isAr ? "و " : "and "}{" "}
+              {t("and")}{" "}
               <Link href="#privacy" className="text-[#0F5244] hover:underline font-bold">
-                {isAr ? "سياسة الخصوصية" : "Privacy Policy"}
+                {t("privacyPolicy")}
               </Link>
             </span>
           </label>
@@ -364,7 +317,6 @@ export function RegisterCard({ lang = "EN" }: RegisterCardProps) {
           )}
         </div>
 
-        {/* Primary Submit Button */}
         <button
           type="submit"
           disabled={isSubmitting}
@@ -374,15 +326,7 @@ export function RegisterCard({ lang = "EN" }: RegisterCardProps) {
             <Loader2 className="h-4 w-4 animate-spin" />
           ) : (
             <>
-              <span>
-                {isAr
-                  ? formData.role === "coach"
-                    ? "تسجيل كمحاضر معتمد"
-                    : "إنشاء حساب جديد"
-                  : formData.role === "coach"
-                  ? "Join as Certified Instructor"
-                  : "Create Account"}
-              </span>
+              <span>{t("submitRegister")}</span>
               <ArrowRight
                 size={15}
                 className={`transition-transform duration-200 ${
@@ -394,20 +338,18 @@ export function RegisterCard({ lang = "EN" }: RegisterCardProps) {
         </button>
       </form>
 
-      {/* Security Note Badge */}
       <div className="mt-2.5 flex items-center justify-center gap-1.5 text-[10px] text-slate-400 font-medium">
         <ShieldCheck size={12} className="text-[#0F5244]" />
-        <span>{isAr ? "بياناتك محمية ومشفرة 100%" : "100% Encrypted & Secure Connection"}</span>
+        <span>{t("encryptedConnection")}</span>
       </div>
 
-      {/* Footer Link inside Card */}
       <div className="mt-2.5 border-t border-slate-200/60 pt-2.5 text-center text-xs text-slate-500 font-normal">
-        {isAr ? "لديك حساب بالفعل؟ " : "Already have an account? "}
+        {t("alreadyHaveAccount")}{" "}
         <Link
-          href="/login"
+          href={`/${locale}/login`}
           className="font-bold text-[#0F5244] transition-colors hover:underline"
         >
-          {isAr ? "تسجيل الدخول" : "Login"}
+          {t("login")}
         </Link>
       </div>
     </section>
