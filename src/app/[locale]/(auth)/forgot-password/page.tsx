@@ -1,82 +1,55 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import Link from 'next/link';
-import { useParams } from 'next/navigation';
-import { useTranslations } from 'next-intl';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { forgotPasswordSchema, ForgotPasswordFormData } from '@/features/auth/schemas/authSchemas';
-import { Input } from '@/components/ui/Input';
-import { Button } from '@/components/ui/Button';
-import { Card } from '@/components/ui/Card';
-import { Mail, CheckCircle } from 'lucide-react';
+import { useParams, useRouter, usePathname } from "next/navigation";
+import { Header } from "@/components/layout/Header";
+import { ForgotPasswordCard } from "@/components/auth/ForgotPasswordCard";
+import { Footer } from "@/components/layout/Footer";
 
 export default function ForgotPasswordPage() {
-  const t = useTranslations('auth');
   const params = useParams();
-  const locale = params.locale as string;
-  const [submitted, setSubmitted] = useState(false);
+  const router = useRouter();
+  const pathname = usePathname();
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors, isSubmitting },
-  } = useForm<ForgotPasswordFormData>({
-    resolver: zodResolver(forgotPasswordSchema),
-  });
+  const locale = (params?.locale as string) || "en";
+  const isAr = locale === "ar";
+  const lang = isAr ? "AR" : "EN";
 
-  const onSubmit = async () => {
-    setSubmitted(true);
+  const toggleLanguage = () => {
+    const nextLocale = locale === "ar" ? "en" : "ar";
+    let newPath = pathname;
+    if (pathname.startsWith(`/${locale}`)) {
+      newPath = pathname.replace(`/${locale}`, `/${nextLocale}`);
+    } else {
+      newPath = `/${nextLocale}${pathname}`;
+    }
+    router.push(newPath);
   };
 
   return (
-    <div className="min-h-[80vh] flex items-center justify-center px-4 py-12">
-      <div className="w-full max-w-md">
-        <Card className="shadow-2xl border-slate-800 p-8 space-y-6">
-          <div className="text-center space-y-2">
-            <h1 className="text-2xl font-extrabold text-white">{t('forgotPassword')}</h1>
-            <p className="text-sm text-slate-400">Enter your account email to receive a recovery link</p>
-          </div>
+    <div
+      dir={isAr ? "rtl" : "ltr"}
+      className="relative flex h-screen h-[100dvh] w-full max-w-full overflow-hidden flex-col justify-between bg-slate-50 text-slate-800 selection:bg-[#0F5244] selection:text-white font-sans"
+    >
+      {/* Background SVG Grid Mesh Pattern */}
+      <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(#cbd5e1_1px,transparent_1px)] [background-size:24px_24px] opacity-40" />
 
-          {submitted ? (
-            <div className="p-6 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-center space-y-3">
-              <CheckCircle className="w-10 h-10 text-emerald-400 mx-auto" />
-              <h3 className="text-base font-bold text-white">Check your Inbox</h3>
-              <p className="text-xs text-slate-300">
-                We sent a password reset link to your email address. Follow the link to create a new password.
-              </p>
-              <Link href={`/${locale}/login`}>
-                <Button variant="outline" size="sm" className="mt-2">Back to Login</Button>
-              </Link>
-            </div>
-          ) : (
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-              <div className="relative">
-                <Input
-                  label={t('email')}
-                  type="email"
-                  placeholder="name@example.com"
-                  error={errors.email?.message}
-                  {...register('email')}
-                />
-                <Mail className="absolute ltr:right-3 rtl:left-3 top-9 w-4 h-4 text-slate-500" />
-              </div>
+      {/* Dynamic Ambient Background Glows */}
+      <div className="pointer-events-none absolute -top-40 left-1/2 -z-10 h-[600px] w-[1000px] -translate-x-1/2 rounded-full bg-gradient-to-tr from-[#34D399]/20 via-[#0F5244]/8 to-transparent blur-3xl animate-pulse-glow" />
+      <div className="pointer-events-none absolute top-1/2 -right-32 -z-10 h-[500px] w-[500px] rounded-full bg-[#D1FAE5]/50 blur-3xl" />
+      <div className="pointer-events-none absolute bottom-1/4 -left-32 -z-10 h-[450px] w-[450px] rounded-full bg-[#0F5244]/8 blur-3xl" />
 
-              <Button type="submit" isLoading={isSubmitting} className="w-full">
-                {t('sendReset')}
-              </Button>
-            </form>
-          )}
+      {/* Authentication Header */}
+      <Header lang={lang} onLanguageToggle={toggleLanguage} />
 
-          <div className="text-center text-xs text-slate-400 pt-2 border-t border-slate-800">
-            Remembered your password?{' '}
-            <Link href={`/${locale}/login`} className="text-brand-400 font-semibold hover:underline">
-              Back to Login
-            </Link>
-          </div>
-        </Card>
-      </div>
+      {/* Main Centered Forgot Password Card */}
+      <main className="relative z-10 flex-1 min-h-0 flex flex-col items-center justify-center px-4 py-1 sm:py-2">
+        <div className="w-full max-w-[460px] my-auto">
+          <ForgotPasswordCard lang={lang} />
+        </div>
+      </main>
+
+      {/* Minimal Footer */}
+      <Footer lang={lang} />
     </div>
   );
 }

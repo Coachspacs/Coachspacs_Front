@@ -1,82 +1,55 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import Link from 'next/link';
-import { useParams, useRouter } from 'next/navigation';
-import { useTranslations } from 'next-intl';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { resetPasswordSchema, ResetPasswordFormData } from '@/features/auth/schemas/authSchemas';
-import { Input } from '@/components/ui/Input';
-import { Button } from '@/components/ui/Button';
-import { Card } from '@/components/ui/Card';
+import { useParams, useRouter, usePathname } from "next/navigation";
+import { Header } from "@/components/layout/Header";
+import { ResetPasswordCard } from "@/components/auth/ResetPasswordCard";
+import { Footer } from "@/components/layout/Footer";
 
 export default function ResetPasswordPage() {
-  const t = useTranslations('auth');
   const params = useParams();
-  const locale = params.locale as string;
   const router = useRouter();
-  const [resetDone, setResetDone] = useState(false);
+  const pathname = usePathname();
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors, isSubmitting },
-  } = useForm<ResetPasswordFormData>({
-    resolver: zodResolver(resetPasswordSchema),
-  });
+  const locale = (params?.locale as string) || "en";
+  const isAr = locale === "ar";
+  const lang = isAr ? "AR" : "EN";
 
-  const onSubmit = async () => {
-    setResetDone(true);
-    setTimeout(() => {
-      router.push(`/${locale}/login`);
-    }, 2000);
+  const toggleLanguage = () => {
+    const nextLocale = locale === "ar" ? "en" : "ar";
+    let newPath = pathname;
+    if (pathname.startsWith(`/${locale}`)) {
+      newPath = pathname.replace(`/${locale}`, `/${nextLocale}`);
+    } else {
+      newPath = `/${nextLocale}${pathname}`;
+    }
+    router.push(newPath);
   };
 
   return (
-    <div className="min-h-[80vh] flex items-center justify-center px-4 py-12">
-      <div className="w-full max-w-md">
-        <Card className="shadow-2xl border-slate-800 p-8 space-y-6">
-          <div className="text-center space-y-2">
-            <h1 className="text-2xl font-extrabold text-white">{t('resetPasswordTitle')}</h1>
-            <p className="text-sm text-slate-400">{t('resetPasswordSub')}</p>
-          </div>
+    <div
+      dir={isAr ? "rtl" : "ltr"}
+      className="relative flex h-screen h-[100dvh] w-full max-w-full overflow-hidden flex-col justify-between bg-slate-50 text-slate-800 selection:bg-[#0F5244] selection:text-white font-sans"
+    >
+      {/* Background SVG Grid Mesh Pattern */}
+      <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(#cbd5e1_1px,transparent_1px)] [background-size:24px_24px] opacity-40" />
 
-          {resetDone ? (
-            <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-sm text-center font-semibold">
-              Password reset successfully! Redirecting to login...
-            </div>
-          ) : (
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-              <Input
-                label="New Password"
-                type="password"
-                placeholder="••••••••"
-                error={errors.password?.message}
-                {...register('password')}
-              />
+      {/* Dynamic Ambient Background Glows */}
+      <div className="pointer-events-none absolute -top-40 left-1/2 -z-10 h-[600px] w-[1000px] -translate-x-1/2 rounded-full bg-[#34D399]/20 via-[#0F5244]/8 to-transparent blur-3xl animate-pulse-glow" />
+      <div className="pointer-events-none absolute top-1/2 -right-32 -z-10 h-[500px] w-[500px] rounded-full bg-[#D1FAE5]/50 blur-3xl" />
+      <div className="pointer-events-none absolute bottom-1/4 -left-32 -z-10 h-[450px] w-[450px] rounded-full bg-[#0F5244]/8 blur-3xl" />
 
-              <Input
-                label="Confirm Password"
-                type="password"
-                placeholder="••••••••"
-                error={errors.confirmPassword?.message}
-                {...register('confirmPassword')}
-              />
+      {/* Authentication Header */}
+      <Header lang={lang} onLanguageToggle={toggleLanguage} />
 
-              <Button type="submit" isLoading={isSubmitting} className="w-full">
-                Reset Password
-              </Button>
-            </form>
-          )}
+      {/* Main Centered Reset Password Card */}
+      <main className="relative z-10 flex-1 min-h-0 flex flex-col items-center justify-center px-4 py-1 sm:py-2">
+        <div className="w-full max-w-[480px] my-auto">
+          <ResetPasswordCard lang={lang} />
+        </div>
+      </main>
 
-          <div className="text-center text-xs text-slate-400 pt-2 border-t border-slate-800">
-            <Link href={`/${locale}/login`} className="text-brand-400 font-semibold hover:underline">
-              Back to Login
-            </Link>
-          </div>
-        </Card>
-      </div>
+      {/* Minimal Footer */}
+      <Footer lang={lang} />
     </div>
   );
 }
