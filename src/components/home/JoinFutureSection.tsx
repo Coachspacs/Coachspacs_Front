@@ -13,21 +13,12 @@ export function JoinFutureSection() {
   return (
     <section className="w-full bg-[#F0F3FF] py-10 sm:py-14">
       <div className="mx-auto max-w-[1400px] px-3 sm:px-5 lg:px-8">
-        {/* Full-width container with rounded corners rounded-3xl / rounded-[36px] */}
+        {/* Full-width container with original #003535 color */}
         <div className="relative bg-[#003535] rounded-3xl lg:rounded-[36px] overflow-hidden grid grid-cols-1 lg:grid-cols-12 shadow-xl border border-white/10">
           
-          {/* Figma Linear Gradient Overlay */}
-          <div
-            className="absolute inset-0 pointer-events-none z-10"
-            style={{
-              background:
-                "linear-gradient(to top right, #003535 0%, rgba(0, 53, 53, 0) 50%, rgba(0, 53, 53, 0) 100%)",
-            }}
-          />
-
           {/* Left Column (Content & Actions) */}
-          <div className="lg:col-span-7 p-8 sm:p-12 lg:p-14 flex flex-col justify-center text-left rtl:text-right space-y-6 z-20">
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white leading-[1.2] tracking-tight">
+          <div className="col-span-1 lg:col-span-7 p-6 sm:p-10 lg:p-14 flex flex-col justify-center text-left rtl:text-right space-y-6 z-20">
+            <h2 className="text-2xl sm:text-4xl lg:text-5xl font-black text-white leading-[1.2] tracking-tight">
               {t("joinTitle")}
             </h2>
 
@@ -54,17 +45,14 @@ export function JoinFutureSection() {
             </div>
           </div>
 
-          {/* Right Column: Image positioned at the top right, leaves green space below */}
-          <div className="lg:col-span-5 relative flex flex-col justify-start z-20 min-h-[340px] lg:min-h-[400px]">
-            <div className="relative w-full h-[260px] sm:h-[300px] lg:h-[330px] overflow-hidden ltr:rounded-tr-3xl ltr:lg:rounded-tr-[36px] rtl:rounded-tl-3xl rtl:lg:rounded-tl-[36px]">
-              <Image
-                src="/images/join-instructors.png"
-                alt={t("joinTitle")}
-                fill
-                className="object-cover object-top"
-              />
-            </div>
-            {/* Green space #003535 remains exposed underneath the image */}
+          {/* Right Column: Image (Hidden on mobile, visible on desktop lg screens) */}
+          <div className="hidden lg:block lg:col-span-5 relative w-full h-full lg:min-h-[420px] z-10 overflow-hidden">
+            <Image
+              src="/images/join-instructors.png"
+              alt={t("joinTitle")}
+              fill
+              className="object-cover object-center"
+            />
           </div>
 
         </div>
@@ -72,3 +60,5 @@ export function JoinFutureSection() {
     </section>
   );
 }
+
+

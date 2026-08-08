@@ -52,22 +52,22 @@ export function LoginCard({ lang }: LoginCardProps) {
       id="login-card"
       aria-labelledby="login-title"
       dir={isAr ? "rtl" : "ltr"}
-      className="relative mx-auto w-full max-w-[480px] overflow-hidden rounded-2xl bg-white/95 p-5 sm:p-6 lg:p-7 shadow-card border border-slate-200/90 backdrop-blur-3xl transition-all duration-300 font-sans"
+      className="relative mx-auto w-full max-w-[460px] overflow-hidden rounded-2xl bg-white/95 p-4 sm:p-5 lg:p-6 shadow-card border border-slate-200/90 backdrop-blur-3xl transition-all duration-300 font-sans"
     >
-      <div className="mb-3.5 flex flex-col items-center text-center">
+      <div className="mb-3 flex flex-col items-center text-center">
         <h1
           id="login-title"
-          className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 leading-snug"
+          className="text-lg sm:text-xl font-bold tracking-tight text-slate-900 leading-snug"
         >
           {t("loginTitle")}
         </h1>
 
-        <p className="mt-1.5 text-xs sm:text-sm leading-relaxed text-slate-500 font-normal max-w-xs">
+        <p className="mt-1 text-xs leading-relaxed text-slate-500 font-normal max-w-xs">
           {t("loginSubtitle")}
         </p>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-3.5" noValidate>
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-3" noValidate>
         {formError && (
           <div className="flex items-center gap-2 rounded-xl bg-red-50 p-3 text-xs font-semibold text-red-600 border border-red-200 shadow-sm">
             <AlertCircle size={16} className="shrink-0 text-red-600" />

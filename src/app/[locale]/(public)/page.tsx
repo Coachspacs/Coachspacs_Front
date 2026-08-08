@@ -8,7 +8,6 @@ import { WhyCoachSpaceStandsOutSection } from "@/components/home/WhyCoachSpaceSt
 import { RealStoriesSection } from "@/components/home/RealStoriesSection";
 import { FaqSection } from "@/components/home/FaqSection";
 import { JoinFutureSection } from "@/components/home/JoinFutureSection";
-import { NewsletterSection } from "@/components/home/NewsletterSection";
 
 export default function HomePage() {
   return (
@@ -18,7 +17,6 @@ export default function HomePage() {
       <MasterYourCraftSection />
       <WhyCoachSpaceStandsOutSection />
       <RealStoriesSection />
-      <NewsletterSection />
       <FaqSection />
       <JoinFutureSection />
     </div>

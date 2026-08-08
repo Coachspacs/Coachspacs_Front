@@ -81,52 +81,52 @@ export function RegisterCard({ lang }: RegisterCardProps) {
       id="register"
       aria-labelledby="register-title"
       dir={isAr ? "rtl" : "ltr"}
-      className="relative mx-auto w-full max-w-[480px] overflow-hidden rounded-2xl bg-white/95 p-5 sm:p-6 lg:p-7 shadow-card border border-slate-200/90 backdrop-blur-3xl transition-all duration-300 font-sans"
+      className="relative mx-auto w-full max-w-[460px] overflow-hidden rounded-2xl bg-white/95 p-4 sm:p-5 lg:p-6 shadow-card border border-slate-200/90 backdrop-blur-3xl transition-all duration-300 font-sans"
     >
-      <div className="mb-3 flex flex-col items-center text-center">
+      <div className="mb-2 sm:mb-2.5 flex flex-col items-center text-center">
         <h1
           id="register-title"
-          className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 leading-snug"
+          className="text-lg sm:text-xl font-bold tracking-tight text-slate-900 leading-snug"
         >
           {t("registerTitle")}
         </h1>
 
-        <p className="mt-1 text-xs sm:text-sm leading-relaxed text-slate-500 font-normal max-w-xs">
+        <p className="mt-0.5 text-xs leading-relaxed text-slate-500 font-normal max-w-xs">
           {t("registerSubtitle")}
         </p>
       </div>
 
-      <div className="mb-3 rounded-xl bg-slate-100/80 p-1 border border-slate-200/70 shadow-inner">
+      <div className="mb-2 sm:mb-2.5 rounded-xl bg-slate-100/80 p-1 border border-slate-200/70 shadow-inner">
         <div className="grid grid-cols-2 gap-1">
           <button
             type="button"
             onClick={() => handleRoleSelect("student")}
-            className={`flex items-center justify-center gap-1.5 rounded-lg py-2 px-2.5 text-xs sm:text-sm whitespace-nowrap overflow-hidden transition-all duration-200 cursor-pointer ${
+            className={`flex items-center justify-center gap-1.5 rounded-lg py-1.5 px-2 text-xs whitespace-nowrap overflow-hidden transition-all duration-200 cursor-pointer ${
               currentRole === "student"
                 ? "bg-white text-[#0F5244] shadow-sm border-2 border-[#0F5244] font-extrabold"
                 : "border-2 border-transparent text-slate-600 hover:text-slate-900 hover:bg-white/60 font-semibold"
             }`}
           >
-            <GraduationCap size={15} className="shrink-0" />
+            <GraduationCap size={14} className="shrink-0" />
             <span className="truncate">{t("roleStudent")}</span>
           </button>
 
           <button
             type="button"
             onClick={() => handleRoleSelect("coach")}
-            className={`flex items-center justify-center gap-1.5 rounded-lg py-2 px-2.5 text-xs sm:text-sm whitespace-nowrap overflow-hidden transition-all duration-200 cursor-pointer ${
+            className={`flex items-center justify-center gap-1.5 rounded-lg py-1.5 px-2 text-xs whitespace-nowrap overflow-hidden transition-all duration-200 cursor-pointer ${
               currentRole === "coach"
                 ? "bg-[#0F5244] text-white shadow-md border-2 border-[#0B4035] font-extrabold"
                 : "border-2 border-transparent text-slate-600 hover:text-slate-900 hover:bg-white/60 font-semibold"
             }`}
           >
-            <Briefcase size={15} className="shrink-0" />
+            <Briefcase size={14} className="shrink-0" />
             <span className="truncate">{t("roleInstructor")}</span>
           </button>
         </div>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-3" noValidate>
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-2 sm:space-y-2.5" noValidate>
         {formError && (
           <div className="flex items-center gap-2 rounded-xl bg-red-50 p-3 text-xs font-semibold text-red-600 border border-red-200 shadow-sm">
             <AlertCircle size={16} className="shrink-0 text-red-600" />
