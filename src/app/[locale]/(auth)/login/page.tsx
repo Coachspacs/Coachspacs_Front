@@ -42,7 +42,7 @@ export default function LoginPage() {
       <Header variant="auth" lang={lang} onLanguageToggle={toggleLanguage} />
 
       {/* Main Centered Login Card */}
-      <main className="relative z-10 flex-1 flex flex-col items-center justify-center px-4 py-8 sm:py-12">
+      <main className="relative z-10 flex-1 flex flex-col items-center justify-center px-4 py-4 sm:py-6 lg:py-8">
         <div className="w-full max-w-[480px] my-auto">
           <LoginCard lang={lang} />
         </div>
