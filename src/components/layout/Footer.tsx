@@ -16,15 +16,22 @@ export function Footer({ lang, variant = "main" }: FooterProps) {
 
   if (variant === "auth") {
     return (
-      <footer className="w-full bg-[#D1FAE5] shrink-0 border-t border-[#0F5244]/10 py-4">
+      <footer className="w-full bg-transparent shrink-0 py-5 border-t border-slate-200/50 font-sans">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-xs sm:text-sm font-medium text-[#2D5B50]">
-            <p>© 2024 {t("rights")}</p>
-            <div className="flex items-center gap-6">
-              <Link href="#privacy" className="hover:text-[#0F5244] transition-colors">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-xs font-medium text-slate-500">
+            {/* Copyright with Green Dot */}
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-[#0F5244] shrink-0" />
+              <span>© {new Date().getFullYear()} Coach Space Platform. All rights reserved.</span>
+            </div>
+
+            {/* Privacy Policy & Terms Links */}
+            <div className="flex items-center gap-3 text-slate-500">
+              <Link href="#privacy" className="hover:text-slate-900 transition-colors">
                 {t("privacyPolicy")}
               </Link>
-              <Link href="#terms" className="hover:text-[#0F5244] transition-colors">
+              <span className="text-slate-300">·</span>
+              <Link href="#terms" className="hover:text-slate-900 transition-colors">
                 {t("termsOfService")}
               </Link>
             </div>
