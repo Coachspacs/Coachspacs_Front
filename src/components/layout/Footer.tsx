@@ -7,11 +7,32 @@ import { Globe, Users, Share2 } from "lucide-react";
 
 interface FooterProps {
   lang?: string;
+  variant?: "main" | "auth";
 }
 
-export function Footer({ lang }: FooterProps) {
+export function Footer({ lang, variant = "main" }: FooterProps) {
   const t = useTranslations("footer");
   const headerT = useTranslations("header");
+
+  if (variant === "auth") {
+    return (
+      <footer className="w-full bg-[#D1FAE5] shrink-0 border-t border-[#0F5244]/10 py-4">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-xs sm:text-sm font-medium text-[#2D5B50]">
+            <p>© 2024 {t("rights")}</p>
+            <div className="flex items-center gap-6">
+              <Link href="#privacy" className="hover:text-[#0F5244] transition-colors">
+                {t("privacyPolicy")}
+              </Link>
+              <Link href="#terms" className="hover:text-[#0F5244] transition-colors">
+                {t("termsOfService")}
+              </Link>
+            </div>
+          </div>
+        </div>
+      </footer>
+    );
+  }
 
   return (
     <footer className="w-full bg-[#D1FAE5] shrink-0 border-t border-[#0F5244]/10">
