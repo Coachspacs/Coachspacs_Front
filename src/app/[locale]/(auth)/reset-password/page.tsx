@@ -28,7 +28,7 @@ export default function ResetPasswordPage() {
   return (
     <div
       dir={isAr ? "rtl" : "ltr"}
-      className="relative flex min-h-screen w-full flex-col justify-between bg-slate-50 text-slate-800 selection:bg-[#0F5244] selection:text-white font-sans"
+      className="relative flex h-screen h-[100dvh] w-full flex-col justify-between bg-slate-50 text-slate-800 selection:bg-[#0F5244] selection:text-white font-sans overflow-hidden"
     >
       {/* Background SVG Grid Mesh Pattern */}
       <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(#cbd5e1_1px,transparent_1px)] [background-size:24px_24px] opacity-40" />
@@ -42,8 +42,8 @@ export default function ResetPasswordPage() {
       <Header variant="auth" lang={lang} onLanguageToggle={toggleLanguage} />
 
       {/* Main Centered Reset Password Card */}
-      <main className="relative z-10 flex-1 flex flex-col items-center justify-center px-4 py-4 sm:py-6 lg:py-8">
-        <div className="w-full max-w-[480px] my-auto">
+      <main className="relative z-10 flex-1 min-h-0 overflow-y-auto flex flex-col items-center justify-center px-4 py-2 sm:py-4">
+        <div className="w-full max-w-[480px] my-auto py-2">
           <ResetPasswordCard lang={lang} />
         </div>
       </main>

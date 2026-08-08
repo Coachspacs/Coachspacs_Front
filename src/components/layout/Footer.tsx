@@ -16,7 +16,7 @@ export function Footer({ lang, variant = "main" }: FooterProps) {
 
   if (variant === "auth") {
     return (
-      <footer className="w-full bg-slate-50 shrink-0 py-4 sm:py-5 border-t border-slate-200/60 font-sans mt-auto">
+      <footer className="w-full bg-slate-50/90 backdrop-blur-xs shrink-0 py-3 sm:py-4 border-t border-slate-200/60 font-sans z-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-xs font-medium text-slate-500">
             {/* Copyright with Green Dot */}
