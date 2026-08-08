@@ -39,7 +39,7 @@ export default function ResetPasswordPage() {
       <div className="pointer-events-none absolute bottom-1/4 -left-32 -z-10 h-[450px] w-[450px] rounded-full bg-[#0F5244]/8 blur-3xl" />
 
       {/* Authentication Header */}
-      <Header lang={lang} onLanguageToggle={toggleLanguage} />
+      <Header variant="auth" lang={lang} onLanguageToggle={toggleLanguage} />
 
       {/* Main Centered Reset Password Card */}
       <main className="relative z-10 flex-1 min-h-0 flex flex-col items-center justify-center px-4 py-1 sm:py-2">

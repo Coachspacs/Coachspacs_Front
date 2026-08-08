@@ -32,43 +32,87 @@ export const Navbar: React.FC = () => {
     router.push(newPath);
   };
 
+  const isActive = (targetPath: string) => {
+    let current = pathname || "/";
+
+    // Strip locale prefix if present (e.g., /ar or /en)
+    if (current === `/${locale}` || current === `/${locale}/`) {
+      current = "/";
+    } else if (current.startsWith(`/${locale}/`)) {
+      current = current.slice(locale.length + 1);
+    }
+
+    if (!current.startsWith("/")) {
+      current = "/" + current;
+    }
+
+    if (targetPath === "/") {
+      return current === "/";
+    }
+
+    return current === targetPath || current.startsWith(targetPath + "/");
+  };
+
   const handleLogout = () => {
     dispatch(logout());
     router.push(`/${locale}/login`);
   };
 
   return (
-    <header className="sticky top-0 z-40 w-full glass-card border-b border-slate-800/80">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+    <header className="sticky top-0 z-40 w-full bg-white border-b border-slate-200/80 shadow-xs">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         {/* Brand Logo */}
         <Link href={`/${locale}`} className="flex items-center gap-3 group">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-indigo-500 flex items-center justify-center shadow-lg shadow-brand-600/30 group-hover:scale-105 transition-transform">
+          <div className="w-10 h-10 rounded-xl bg-[#0F5244] flex items-center justify-center shadow-md group-hover:scale-105 transition-transform">
             <BookOpen className="w-5 h-5 text-white" />
           </div>
-          <span className="text-xl font-extrabold tracking-tight bg-gradient-to-r from-white via-slate-200 to-brand-400 bg-clip-text text-transparent">
-            CoachSpace<span className="text-brand-500">.</span>
+          <span className="text-xl font-extrabold tracking-tight text-slate-900">
+            CoachSpace<span className="text-[#0F5244]">.</span>
           </span>
         </Link>
 
         {/* Desktop Nav Links */}
-        <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-slate-300">
-          <Link href={`/${locale}`} className="hover:text-brand-400 transition-colors">
-            {t('home')}
+        <nav className="hidden md:flex items-center gap-8 text-sm">
+          <Link
+            href={`/${locale}`}
+            className={`transition-colors py-1 text-sm ${
+              isActive("/")
+                ? "text-slate-950 font-extrabold"
+                : "text-slate-500 hover:text-slate-900 font-medium"
+            }`}
+          >
+            {t("home")}
           </Link>
-          <Link href={`/${locale}/courses`} className="hover:text-brand-400 transition-colors">
-            {t('courses')}
+          <Link
+            href={`/${locale}/courses`}
+            className={`transition-colors py-1 text-sm ${
+              isActive("/courses")
+                ? "text-slate-950 font-extrabold"
+                : "text-slate-500 hover:text-slate-900 font-medium"
+            }`}
+          >
+            {t("courses")}
           </Link>
-          {isAuthenticated && (
-            <Link href={`/${locale}/my-courses`} className="hover:text-brand-400 transition-colors">
-              {t('myCourses')}
-            </Link>
-          )}
-          {isAuthenticated && (user?.role === 'INSTRUCTOR' || user?.role === 'ADMIN') && (
-            <Link href={`/${locale}/dashboard`} className="flex items-center gap-1 text-brand-400 hover:text-brand-300 font-semibold">
-              <LayoutDashboard className="w-4 h-4" />
-              {t('dashboard')}
-            </Link>
-          )}
+          <Link
+            href={`/${locale}/categories`}
+            className={`transition-colors py-1 text-sm ${
+              isActive("/categories")
+                ? "text-slate-950 font-extrabold"
+                : "text-slate-500 hover:text-slate-900 font-medium"
+            }`}
+          >
+            {t("categories")}
+          </Link>
+          <Link
+            href={`/${locale}/become-instructor`}
+            className={`transition-colors py-1 text-sm ${
+              isActive("/become-instructor")
+                ? "text-slate-950 font-extrabold"
+                : "text-slate-500 hover:text-slate-900 font-medium"
+            }`}
+          >
+            {t("becomeInstructor")}
+          </Link>
         </nav>
 
         {/* Right Actions */}
@@ -76,18 +120,18 @@ export const Navbar: React.FC = () => {
           {/* Language Switcher */}
           <button
             onClick={toggleLanguage}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-700 bg-slate-900/60 text-slate-300 hover:bg-slate-800 text-xs font-semibold uppercase tracking-wider transition-colors"
-            title="Switch Language"
+            className="inline-flex items-center gap-2 rounded-full border border-slate-300 bg-white px-4 py-1.5 text-xs sm:text-sm font-semibold text-slate-700 hover:bg-slate-50 hover:border-slate-400 transition-all focus:outline-none focus:ring-2 focus:ring-[#0F5244]/20 active:scale-95 shadow-xs"
+            aria-label="Switch Language"
           >
-            <Globe className="w-3.5 h-3.5 text-brand-400" />
-            {locale === 'ar' ? 'English' : 'العربية'}
+            <Globe className="w-4 h-4 text-slate-600 shrink-0" />
+            <span>{locale === 'ar' ? 'English' : 'العربية'}</span>
           </button>
 
           {/* Cart Icon */}
-          <Link href={`/${locale}/cart`} className="relative p-2.5 rounded-xl bg-slate-900/60 border border-slate-700 text-slate-300 hover:text-white transition-colors">
+          <Link href={`/${locale}/cart`} className="relative p-2 rounded-xl bg-slate-100 text-slate-700 hover:text-[#0F5244] transition-colors">
             <ShoppingCart className="w-5 h-5" />
             {cartItems.length > 0 && (
-              <span className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-brand-600 text-white text-xs font-bold flex items-center justify-center shadow-md">
+              <span className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-[#0F5244] text-white text-xs font-bold flex items-center justify-center shadow-md">
                 {cartItems.length}
               </span>
             )}
@@ -96,11 +140,11 @@ export const Navbar: React.FC = () => {
           {/* Auth buttons / User Profile */}
           {isAuthenticated ? (
             <div className="flex items-center gap-3">
-              <Link href={`/${locale}/account`} className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-800 border border-slate-700 text-slate-200 hover:border-brand-500 text-sm font-medium transition-colors">
-                <UserIcon className="w-4 h-4 text-brand-400" />
+              <Link href={`/${locale}/account`} className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-100 border border-slate-200 text-slate-800 hover:border-[#0F5244] text-sm font-medium transition-colors">
+                <UserIcon className="w-4 h-4 text-[#0F5244]" />
                 <span>{user?.name || 'Account'}</span>
               </Link>
-              <Button variant="ghost" size="sm" onClick={handleLogout} className="text-red-400 hover:bg-red-950/40 hover:text-red-300">
+              <Button variant="ghost" size="sm" onClick={handleLogout} className="text-red-600 hover:bg-red-50">
                 <LogOut className="w-4 h-4" />
               </Button>
             </div>
@@ -118,17 +162,17 @@ export const Navbar: React.FC = () => {
 
         {/* Mobile Menu Button */}
         <div className="flex md:hidden items-center gap-2">
-          <Link href={`/${locale}/cart`} className="relative p-2 text-slate-300">
+          <Link href={`/${locale}/cart`} className="relative p-2 text-slate-700">
             <ShoppingCart className="w-5 h-5" />
             {cartItems.length > 0 && (
-              <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-brand-600 text-white text-[10px] font-bold flex items-center justify-center">
+              <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-[#0F5244] text-white text-[10px] font-bold flex items-center justify-center">
                 {cartItems.length}
               </span>
             )}
           </Link>
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="p-2 rounded-lg bg-slate-800 text-slate-300 hover:text-white"
+            className="p-2 rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200"
           >
             {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
@@ -137,21 +181,17 @@ export const Navbar: React.FC = () => {
 
       {/* Mobile Drawer */}
       {mobileMenuOpen && (
-        <div className="md:hidden glass-card border-b border-slate-800 px-4 pt-4 pb-6 space-y-4">
-          <nav className="flex flex-col gap-3 text-slate-300 font-medium">
-            <Link href={`/${locale}`} onClick={() => setMobileMenuOpen(false)}>{t('home')}</Link>
-            <Link href={`/${locale}/courses`} onClick={() => setMobileMenuOpen(false)}>{t('courses')}</Link>
-            {isAuthenticated && (
-              <Link href={`/${locale}/my-courses`} onClick={() => setMobileMenuOpen(false)}>{t('myCourses')}</Link>
-            )}
-            {isAuthenticated && (user?.role === 'INSTRUCTOR' || user?.role === 'ADMIN') && (
-              <Link href={`/${locale}/dashboard`} onClick={() => setMobileMenuOpen(false)} className="text-brand-400">{t('dashboard')}</Link>
-            )}
+        <div className="md:hidden bg-white border-b border-slate-200 px-4 pt-4 pb-6 space-y-4">
+          <nav className="flex flex-col gap-2 text-slate-700 font-medium">
+            <Link href={`/${locale}`} onClick={() => setMobileMenuOpen(false)} className={`px-3 py-2 rounded-lg transition-colors text-sm ${isActive("/") ? "text-slate-950 font-extrabold" : "hover:bg-slate-50 font-medium text-slate-600"}`}>{t('home')}</Link>
+            <Link href={`/${locale}/courses`} onClick={() => setMobileMenuOpen(false)} className={`px-3 py-2 rounded-lg transition-colors text-sm ${isActive("/courses") ? "text-slate-950 font-extrabold" : "hover:bg-slate-50 font-medium text-slate-600"}`}>{t('courses')}</Link>
+            <Link href={`/${locale}/categories`} onClick={() => setMobileMenuOpen(false)} className={`px-3 py-2 rounded-lg transition-colors text-sm ${isActive("/categories") ? "text-slate-950 font-extrabold" : "hover:bg-slate-50 font-medium text-slate-600"}`}>{t('categories')}</Link>
+            <Link href={`/${locale}/become-instructor`} onClick={() => setMobileMenuOpen(false)} className={`px-3 py-2 rounded-lg transition-colors text-sm ${isActive("/become-instructor") ? "text-slate-950 font-extrabold" : "hover:bg-slate-50 font-medium text-slate-600"}`}>{t('becomeInstructor')}</Link>
           </nav>
-          <div className="pt-4 border-t border-slate-800 flex flex-col gap-3">
+          <div className="pt-4 border-t border-slate-200 flex flex-col gap-3">
             <button
               onClick={toggleLanguage}
-              className="flex items-center justify-center gap-2 w-full py-2 rounded-xl bg-slate-800 text-slate-300 text-sm"
+              className="flex items-center justify-center gap-2 w-full py-2 rounded-xl bg-slate-100 text-slate-700 text-sm font-semibold"
             >
               <Globe className="w-4 h-4" />
               {locale === 'ar' ? 'English' : 'العربية'}

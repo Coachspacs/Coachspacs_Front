@@ -1,7 +1,9 @@
 {
   "nav": {
     "home": "الرئيسية",
-    "courses": "الدورات التدريبية",
+    "courses": "الدورات",
+    "categories": "التصنيفات",
+    "becomeInstructor": "كن مدرباً",
     "myCourses": "دوراتي",
     "dashboard": "لوحة المدرب",
     "login": "تسجيل الدخول",
@@ -29,9 +31,19 @@
     "sendReset": "إرسال رابط الإعادة"
   },
   "home": {
-    "heroTitle": "أتقن مهارات المستقبل مع كبار الخبراء والمدربين",
-    "heroSubtitle": "منصة تعليمية تفاعلية، دورات فيديو عالية الجودة، ومسارات تدريبية معتمدة.",
+    "heroBadge": "توجيه عالي المستوى",
+    "heroTitle": "أتقن مهارات جديدة مع",
+    "heroTitleHighlight": "خبراء التدريب",
+    "heroSubtitle": "أطلق العنان لإمكانياتك من خلال مسارات تعليمية مخصصة يقودها خبراء المجال. من التصميم إلى التطوير، احصل على التميز الذي تحتاجه في سوق العمل الحديث.",
+    "searchPlaceholder": "ماذا تريد أن تتعلم اليوم؟",
+    "searchBtn": "بحث",
     "exploreCourses": "استكشف الدورات",
+    "activeStudentsCount": "12 ألف+",
+    "activeStudentsLabel": "طالب نشط",
+    "expertCoursesCount": "0k+",
+    "expertCoursesLabel": "دورة معتمدة",
+    "certificatesCount": "2 ألف+",
+    "certificatesLabel": "شهادة صادرة",
     "becomeInstructor": "انضم كمدرب",
     "featuredCourses": "الدورات المميزة",
     "viewAll": "عرض جميع الدورات",

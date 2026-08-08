@@ -30,7 +30,7 @@
   body {
     background-color: var(--background);
     color: var(--foreground);
-    font-family: var(--font-cairo), var(--font-jakarta), system-ui, -apple-system, sans-serif;
+    font-family: var(--font-cairo), var(--font-inter), system-ui, -apple-system, sans-serif;
     min-height: 100vh;
     overflow-x: hidden;
     -webkit-font-smoothing: antialiased;
@@ -40,11 +40,11 @@
 
   [dir="rtl"] {
     text-align: right;
-    font-family: var(--font-cairo), system-ui, sans-serif;
+    font-family: var(--font-cairo), system-ui, -apple-system, sans-serif;
   }
 
   [dir="ltr"] {
-    font-family: var(--font-jakarta), var(--font-cairo), system-ui, sans-serif;
+    font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
   }
 }
 
