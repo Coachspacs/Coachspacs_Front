@@ -1,0 +1,66 @@
+{
+  "header": {
+    "browse": "تصفح الدورات",
+    "myLearning": "تعلمي",
+    "mentors": "المدربون",
+    "resources": "المصادر",
+    "switchLanguage": "English",
+    "notifications": "الإشعارات",
+    "wishlist": "المفضلة",
+    "profile": "الملف الشخصي"
+  },
+  "search": {
+    "placeholder": "البحث عن الدورات...",
+    "resultsFound": "تم العثور على {count} نتيجة",
+    "sortBy": "ترتيب حسب:",
+    "sortOptions": {
+      "most_popular": "الأكثر شعبية",
+      "highest_rated": "الأعلى تقييماً",
+      "newest": "الأحدث",
+      "price_low_to_high": "السعر: من الأقل للأعلى",
+      "price_high_to_low": "السعر: من الأعلى للأقل"
+    }
+  },
+  "filters": {
+    "title": "الفلاتر",
+    "subtitle": "تضييق نطاق البحث",
+    "level": "المستوى",
+    "price": "السعر",
+    "language": "اللغة",
+    "category": "التصنيف",
+    "applyFilters": "تطبيق الفلاتر",
+    "resetAll": "إعادة تعيين الكل",
+    "allLevels": "جميع المستويات",
+    "beginner": "مبتدئ",
+    "intermediate": "متوسط",
+    "advanced": "متقدم",
+    "allPrices": "جميع الأسعار",
+    "free": "مجاني",
+    "paid": "مدفوع",
+    "under50": "أقل من $50",
+    "range50to100": "$50 - $100",
+    "above100": "أكثر من $100",
+    "allLanguages": "جميع اللغات",
+    "english": "الإنجليزية",
+    "arabic": "العربية"
+  },
+  "card": {
+    "bestseller": "الأكثر مبيعاً",
+    "new": "جديد",
+    "popular": "شائع",
+    "hours": "ساعات",
+    "hour": "ساعة",
+    "reviews": "تقييمات",
+    "bookmark": "حفظ الدورة"
+  },
+  "pagination": {
+    "previous": "السابق",
+    "next": "التالي",
+    "page": "صفحة"
+  },
+  "emptyState": {
+    "title": "لم يتم العثور على دورات",
+    "description": "يرجى محاولة تعديل كلمات البحث أو الفلاتر للعثور على ما تبحث عنه.",
+    "resetButton": "إعادة تعيين الفلاتر"
+  }
+}

@@ -36,7 +36,7 @@ export function FaqSection() {
   };
 
   return (
-    <section className="w-full bg-[#F0F3FF] py-14 sm:py-20 border-t border-slate-200/60">
+    <section className="w-full bg-[#FAFCFC] py-14 sm:py-20 border-t border-slate-200/60">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-14">
