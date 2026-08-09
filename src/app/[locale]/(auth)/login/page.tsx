@@ -28,7 +28,7 @@ export default function LoginPage() {
   return (
     <div
       dir={isAr ? "rtl" : "ltr"}
-      className="relative flex h-screen h-[100dvh] w-full max-w-full overflow-hidden flex-col justify-between bg-slate-50 text-slate-800 selection:bg-[#0F5244] selection:text-white font-sans"
+      className="relative flex h-screen h-[100dvh] w-full flex-col justify-between bg-slate-50 text-slate-800 selection:bg-[#0F5244] selection:text-white font-sans overflow-hidden"
     >
       {/* Background SVG Grid Mesh Pattern */}
       <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(#cbd5e1_1px,transparent_1px)] [background-size:24px_24px] opacity-40" />
@@ -39,17 +39,19 @@ export default function LoginPage() {
       <div className="pointer-events-none absolute bottom-1/4 -left-32 -z-10 h-[450px] w-[450px] rounded-full bg-[#0F5244]/8 blur-3xl" />
 
       {/* Authentication Header */}
-      <Header lang={lang} onLanguageToggle={toggleLanguage} />
+      <Header variant="auth" lang={lang} onLanguageToggle={toggleLanguage} />
 
       {/* Main Centered Login Card */}
-      <main className="relative z-10 flex-1 min-h-0 flex flex-col items-center justify-center px-4 py-1 sm:py-2">
-        <div className="w-full max-w-[480px] my-auto">
+      <main className="relative z-10 flex-1 min-h-0 overflow-y-auto flex flex-col items-center justify-center p-3 sm:p-4">
+        <div className="w-full max-w-[460px] my-auto">
           <LoginCard lang={lang} />
         </div>
       </main>
 
       {/* Minimal Footer */}
-      <Footer lang={lang} />
+      <Footer variant="auth" lang={lang} />
     </div>
   );
 }
+
+

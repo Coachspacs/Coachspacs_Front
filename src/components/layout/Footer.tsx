@@ -1,48 +1,145 @@
 "use client";
 
+import React from "react";
 import Link from "next/link";
-import { useTranslations, useLocale } from "next-intl";
+import { useTranslations } from "next-intl";
+import { Globe, Users, Share2 } from "lucide-react";
 
 interface FooterProps {
-  lang?: "EN" | "AR";
+  lang?: string;
+  variant?: "main" | "auth";
 }
 
-export function Footer({ lang }: FooterProps) {
+export function Footer({ lang, variant = "main" }: FooterProps) {
   const t = useTranslations("footer");
-  const locale = useLocale() || "en";
-  const isAr = locale === "ar" || lang === "AR";
+  const headerT = useTranslations("header");
+
+  if (variant === "auth") {
+    return (
+      <footer className="w-full bg-slate-50/90 backdrop-blur-xs shrink-0 py-2 sm:py-2.5 border-t border-slate-200/60 font-sans z-20">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-2 sm:gap-3 text-xs font-medium text-slate-500">
+            {/* Copyright with Green Dot */}
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-[#0F5244] shrink-0" />
+              <span>© {new Date().getFullYear()} Coach Space Platform. All rights reserved.</span>
+            </div>
+
+            {/* Privacy Policy & Terms Links */}
+            <div className="flex items-center gap-3 text-slate-500">
+              <Link href="#privacy" className="hover:text-slate-900 transition-colors">
+                {t("privacyPolicy")}
+              </Link>
+              <span className="text-slate-300">·</span>
+              <Link href="#terms" className="hover:text-slate-900 transition-colors">
+                {t("termsOfService")}
+              </Link>
+            </div>
+          </div>
+        </div>
+      </footer>
+    );
+  }
 
   return (
-    <footer
-      dir={isAr ? "rtl" : "ltr"}
-      className="w-full shrink-0 border-t border-slate-200/70 bg-white/80 py-2.5 sm:py-3 backdrop-blur-xl transition-all duration-300"
-    >
-      <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-2.5 px-4 sm:flex-row sm:px-6 lg:px-8 text-xs text-slate-500 font-medium">
-        <div className="flex items-center gap-2">
-          <span className="relative flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-[#0F5244]" />
-          </span>
-          <p>© 2026 {t("rights")}</p>
+    <footer className="w-full bg-[#D1FAE5] shrink-0 border-t border-[#0F5244]/10">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        {/* Main Footer Grid */}
+        <div className="pt-12 pb-10 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 lg:gap-12">
+          
+          {/* Column 1: Brand & Subtitle */}
+          <div className="space-y-3">
+            <h3 className="text-xl sm:text-2xl font-bold text-[#0F5244] tracking-tight">
+              {headerT("brandName")}
+            </h3>
+            <p className="text-xs sm:text-sm font-medium text-[#2D5B50] leading-relaxed max-w-xs">
+              {t("brandSubtitle")}
+            </p>
+          </div>
+
+          {/* Column 2: COMPANY */}
+          <div className="space-y-3">
+            <h4 className="text-xs sm:text-sm font-bold text-[#0F5244] tracking-wider uppercase">
+              {t("company")}
+            </h4>
+            <ul className="space-y-2 text-xs sm:text-sm font-medium text-[#2D5B50]">
+              <li>
+                <Link href="#about" className="hover:text-[#0F5244] transition-colors">
+                  {t("aboutUs")}
+                </Link>
+              </li>
+              <li>
+                <Link href="#careers" className="hover:text-[#0F5244] transition-colors">
+                  {t("careers")}
+                </Link>
+              </li>
+              <li>
+                <Link href="#blog" className="hover:text-[#0F5244] transition-colors">
+                  {t("blog")}
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* Column 3: SUPPORT */}
+          <div className="space-y-3">
+            <h4 className="text-xs sm:text-sm font-bold text-[#0F5244] tracking-wider uppercase">
+              {t("support")}
+            </h4>
+            <ul className="space-y-2 text-xs sm:text-sm font-medium text-[#2D5B50]">
+              <li>
+                <Link href="#help" className="hover:text-[#0F5244] transition-colors">
+                  {t("helpCenter")}
+                </Link>
+              </li>
+              <li>
+                <Link href="#safety" className="hover:text-[#0F5244] transition-colors">
+                  {t("safetyCenter")}
+                </Link>
+              </li>
+              <li>
+                <Link href="#contact" className="hover:text-[#0F5244] transition-colors">
+                  {t("contact")}
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* Column 4: CONNECT */}
+          <div className="space-y-3">
+            <h4 className="text-xs sm:text-sm font-bold text-[#0F5244] tracking-wider uppercase">
+              {t("connect")}
+            </h4>
+            <div className="flex items-center gap-4 text-[#0F5244]">
+              <Link href="#" aria-label="Website" className="hover:opacity-75 transition-opacity">
+                <Globe className="w-5 h-5 stroke-[2]" />
+              </Link>
+              <Link href="#" aria-label="Community" className="hover:opacity-75 transition-opacity">
+                <Users className="w-5 h-5 stroke-[2]" />
+              </Link>
+              <Link href="#" aria-label="Share" className="hover:opacity-75 transition-opacity">
+                <Share2 className="w-5 h-5 stroke-[2]" />
+              </Link>
+            </div>
+          </div>
+
         </div>
 
-        <div className="flex items-center gap-5 text-[11px] sm:text-xs">
-          <Link
-            href="#privacy"
-            className="text-slate-500 hover:text-[#0F5244] font-semibold transition-colors duration-200"
-          >
-            {t("privacyPolicy")}
-          </Link>
-          <span className="text-slate-300">•</span>
-          <Link
-            href="#terms"
-            className="text-slate-500 hover:text-[#0F5244] font-semibold transition-colors duration-200"
-          >
-            {t("termsOfService")}
-          </Link>
+        {/* Bottom Bar */}
+        <div className="border-t border-[#0F5244]/15 py-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs sm:text-sm font-medium text-[#2D5B50]">
+          <p>© 2024 {t("rights")}</p>
+
+          <div className="flex items-center gap-6">
+            <Link href="#privacy" className="hover:text-[#0F5244] transition-colors">
+              {t("privacyPolicy")}
+            </Link>
+            <Link href="#terms" className="hover:text-[#0F5244] transition-colors">
+              {t("termsOfService")}
+            </Link>
+          </div>
         </div>
+
       </div>
     </footer>
   );
 }
-

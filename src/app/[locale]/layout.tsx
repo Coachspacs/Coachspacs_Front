@@ -2,19 +2,19 @@ import React from 'react';
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages } from 'next-intl/server';
 import StoreProvider from '@/components/StoreProvider';
-import { Cairo, Plus_Jakarta_Sans } from 'next/font/google';
+import { Inter, IBM_Plex_Sans_Arabic } from 'next/font/google';
 
-const cairo = Cairo({
-  subsets: ['arabic', 'latin'],
+const inter = Inter({
+  subsets: ['latin'],
   weight: ['400', '500', '600', '700', '800', '900'],
-  variable: '--font-cairo',
+  variable: '--font-inter',
   display: 'swap',
 });
 
-const jakarta = Plus_Jakarta_Sans({
-  subsets: ['latin'],
-  weight: ['400', '500', '600', '700', '800'],
-  variable: '--font-jakarta',
+const ibmPlexArabic = IBM_Plex_Sans_Arabic({
+  subsets: ['arabic', 'latin'],
+  weight: ['300', '400', '500', '600', '700'],
+  variable: '--font-ibm-plex',
   display: 'swap',
 });
 
@@ -30,7 +30,7 @@ export default async function LocaleLayout({
   const dir = locale === 'ar' ? 'rtl' : 'ltr';
 
   return (
-    <html lang={locale} dir={dir} className={`${cairo.variable} ${jakarta.variable}`}>
+    <html lang={locale} dir={dir} className={`${inter.variable} ${ibmPlexArabic.variable}`}>
       <body className="min-h-screen flex flex-col antialiased font-sans">
         <StoreProvider>
           <NextIntlClientProvider messages={messages} locale={locale}>

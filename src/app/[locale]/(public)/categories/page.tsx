@@ -2,7 +2,7 @@
 
 import React from "react";
 
-export default function CoursesPage() {
+export default function CategoriesPage() {
   return (
     <div className="min-h-screen w-full bg-slate-50">
       {/* Content to be added by user */}
