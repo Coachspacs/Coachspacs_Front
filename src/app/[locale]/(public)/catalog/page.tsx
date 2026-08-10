@@ -6,6 +6,6 @@ export const metadata = {
   description: "Browse certified courses and master new skills with world-class mentors on Coach Space.",
 };
 
-export default function CoursesPage() {
+export default function CatalogPage() {
   return <CourseCatalogView />;
 }

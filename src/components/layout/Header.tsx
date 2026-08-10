@@ -95,7 +95,7 @@ export function Header({ lang, onLanguageToggle, variant = "main" }: HeaderProps
                 className="inline-flex items-center gap-2 rounded-full border border-slate-300 bg-white px-4 py-1.5 text-xs sm:text-sm font-semibold text-slate-700 hover:bg-slate-50 hover:border-slate-400 transition-all focus:outline-none focus:ring-2 focus:ring-[#0F5244]/20 active:scale-95 shadow-xs"
               >
                 <Globe className="h-4 w-4 text-slate-600 shrink-0" />
-                <span>{isAr ? "English" : "العربية"}</span>
+                <span>{tHeader("switchLanguage")}</span>
               </button>
             </div>
           </div>
@@ -130,25 +130,25 @@ export function Header({ lang, onLanguageToggle, variant = "main" }: HeaderProps
           </Link>
 
           <Link
+            href={`/${locale}/catalog`}
+            className={`transition-colors py-1 text-sm ${
+              isActive("/catalog")
+                ? "text-[#0F5244] font-extrabold"
+                : "text-slate-500 hover:text-slate-900 font-medium"
+            }`}
+          >
+            {tNav("catalog")}
+          </Link>
+
+          <Link
             href={`/${locale}/courses`}
             className={`transition-colors py-1 text-sm ${
               isActive("/courses")
-                ? "text-slate-950 font-extrabold"
+                ? "text-[#0F5244] font-extrabold"
                 : "text-slate-500 hover:text-slate-900 font-medium"
             }`}
           >
             {tNav("courses")}
-          </Link>
-
-          <Link
-            href={`/${locale}/categories`}
-            className={`transition-colors py-1 text-sm ${
-              isActive("/categories")
-                ? "text-slate-950 font-extrabold"
-                : "text-slate-500 hover:text-slate-900 font-medium"
-            }`}
-          >
-            {tNav("categories")}
           </Link>
 
           <Link
@@ -171,10 +171,10 @@ export function Header({ lang, onLanguageToggle, variant = "main" }: HeaderProps
             type="button"
             onClick={handleLanguageToggle}
             className="inline-flex items-center gap-2 rounded-full border border-slate-300 bg-white px-4 py-1.5 text-xs sm:text-sm font-semibold text-slate-700 hover:bg-slate-50 hover:border-slate-400 transition-all focus:outline-none focus:ring-2 focus:ring-[#0F5244]/20 active:scale-95 shadow-xs"
-            aria-label="Switch Language"
+            aria-label={tHeader("switchLanguageLabel")}
           >
             <Globe className="h-4 w-4 text-slate-600 shrink-0" />
-            <span>{isAr ? "English" : "العربية"}</span>
+            <span>{tHeader("switchLanguage")}</span>
           </button>
 
           {/* Vertical Divider */}
@@ -286,10 +286,10 @@ export function Header({ lang, onLanguageToggle, variant = "main" }: HeaderProps
             type="button"
             onClick={handleLanguageToggle}
             className="inline-flex items-center gap-1.5 rounded-full border border-slate-300 bg-white px-3 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-all"
-            aria-label="Switch Language"
+            aria-label={tHeader("switchLanguageLabel")}
           >
             <Globe className="h-3.5 w-3.5 text-slate-600 shrink-0" />
-            <span>{isAr ? "English" : "العربية"}</span>
+            <span>{tHeader("switchLanguage")}</span>
           </button>
           
           <button
@@ -321,27 +321,27 @@ export function Header({ lang, onLanguageToggle, variant = "main" }: HeaderProps
             </Link>
 
             <Link
+              href={`/${locale}/catalog`}
+              onClick={() => setMobileMenuOpen(false)}
+              className={`px-3 py-2 rounded-lg transition-colors text-sm ${
+                isActive("/catalog")
+                  ? "text-[#0F5244] font-extrabold"
+                  : "hover:bg-slate-50 font-medium text-slate-600"
+              }`}
+            >
+              {tNav("catalog")}
+            </Link>
+
+            <Link
               href={`/${locale}/courses`}
               onClick={() => setMobileMenuOpen(false)}
               className={`px-3 py-2 rounded-lg transition-colors text-sm ${
                 isActive("/courses")
-                  ? "text-slate-950 font-extrabold"
+                  ? "text-[#0F5244] font-extrabold"
                   : "hover:bg-slate-50 font-medium text-slate-600"
               }`}
             >
               {tNav("courses")}
-            </Link>
-
-            <Link
-              href={`/${locale}/categories`}
-              onClick={() => setMobileMenuOpen(false)}
-              className={`px-3 py-2 rounded-lg transition-colors text-sm ${
-                isActive("/categories")
-                  ? "text-slate-950 font-extrabold"
-                  : "hover:bg-slate-50 font-medium text-slate-600"
-              }`}
-            >
-              {tNav("categories")}
             </Link>
 
             <Link
