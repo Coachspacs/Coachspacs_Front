@@ -43,9 +43,9 @@ const config: Config = {
         line: "var(--color-border)",
       },
       fontFamily: {
-        sans: ['var(--font-ibm-plex)', 'var(--font-inter)', 'system-ui', 'sans-serif'],
-        ibmPlex: ['var(--font-ibm-plex)', 'sans-serif'],
-        inter: ['var(--font-inter)', 'sans-serif'],
+        sans: ['Cairo', 'Plus Jakarta Sans', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+        cairo: ['Cairo', 'sans-serif'],
+        jakarta: ['Plus Jakarta Sans', 'sans-serif'],
       },
       boxShadow: {
         card: "var(--shadow-card)",

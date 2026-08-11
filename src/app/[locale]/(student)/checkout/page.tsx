@@ -33,7 +33,7 @@ export default function CheckoutPage() {
       setIsSuccess(true);
       dispatch(clearCart());
       setTimeout(() => {
-        router.push(`/${locale}/my-courses`);
+        router.push(`/${locale}/account`);
       }, 2000);
     }, 1500);
   };

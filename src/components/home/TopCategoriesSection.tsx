@@ -22,31 +22,31 @@ export function TopCategoriesSection() {
       id: "design",
       title: t("categoryDesign"),
       icon: PenTool,
-      href: `/${locale}/categories`,
+      href: `/${locale}/catalog?category=Design`,
     },
     {
       id: "development",
       title: t("categoryDevelopment"),
       icon: Code,
-      href: `/${locale}/categories`,
+      href: `/${locale}/catalog?category=Development`,
     },
     {
       id: "business",
       title: t("categoryBusiness"),
       icon: BarChart3,
-      href: `/${locale}/categories`,
+      href: `/${locale}/catalog?category=Management`,
     },
     {
       id: "marketing",
       title: t("categoryMarketing"),
       icon: Target,
-      href: `/${locale}/categories`,
+      href: `/${locale}/catalog?category=Marketing`,
     },
     {
       id: "growth",
       title: t("categoryGrowth"),
       icon: Brain,
-      href: `/${locale}/categories`,
+      href: `/${locale}/catalog?category=Leadership`,
     },
   ];
 
@@ -71,7 +71,7 @@ export function TopCategoriesSection() {
           </div>
 
           <Link
-            href={`/${locale}/categories`}
+            href={`/${locale}/catalog`}
             className="inline-flex items-center gap-2.5 text-[#0F5244] hover:text-white bg-[#0F5244]/10 hover:bg-[#0F5244] px-5 py-2.5 rounded-full text-sm font-extrabold transition-all duration-300 shadow-2xs hover:shadow-md shrink-0 self-start sm:self-auto group"
           >
             <span>{t("viewAllCategories")}</span>

@@ -66,7 +66,7 @@ export const Navbar: React.FC = () => {
           <div className="w-10 h-10 rounded-xl bg-[#0F5244] flex items-center justify-center shadow-md group-hover:scale-105 transition-transform">
             <BookOpen className="w-5 h-5 text-white" />
           </div>
-          <span className="text-xl font-extrabold tracking-tight text-slate-900">
+          <span className="hidden sm:inline text-xl font-extrabold tracking-tight text-slate-900">
             CoachSpace<span className="text-[#0F5244]">.</span>
           </span>
         </Link>

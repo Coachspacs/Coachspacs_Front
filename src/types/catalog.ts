@@ -27,6 +27,8 @@ export interface Course {
   coverImage: string;
   instructorName: string;
   instructorNameAr: string;
+  instructorRole?: string;
+  instructorRoleAr?: string;
   rating: number;
   reviewsCount: number;
   reviewsCountFormatted: string;
@@ -37,6 +39,10 @@ export interface Course {
   level: Level;
   language: CourseLanguage;
   isSaved?: boolean;
+  description?: string;
+  descriptionAr?: string;
+  whatYouWillLearn?: string[];
+  whatYouWillLearnAr?: string[];
 }
 
 export interface FilterState {
