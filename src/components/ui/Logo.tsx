@@ -43,7 +43,7 @@ export function Logo({
 
       {showText && (
         <span
-          className={`font-extrabold text-[#0F5244] tracking-tight rtl:tracking-normal leading-none flex items-center shrink-0 ${
+          className={`hidden sm:flex font-extrabold text-[#0F5244] tracking-tight rtl:tracking-normal leading-none items-center shrink-0 ${
             compact ? "text-lg sm:text-xl" : "text-xl sm:text-2xl"
           }`}
           style={{ lineHeight: 1 }}

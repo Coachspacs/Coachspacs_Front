@@ -28,6 +28,7 @@ export function CourseCatalogView() {
   const [filters, setFilters] = useState<FilterState>(INITIAL_FILTERS);
   const [activeFilters, setActiveFilters] = useState<FilterState>(INITIAL_FILTERS);
   const [currentPage, setCurrentPage] = useState<number>(1);
+  const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
 
   // Instant Filter change handler
   const handleFilterChange = (newFilters: FilterState) => {
@@ -153,6 +154,8 @@ export function CourseCatalogView() {
             onApplyFilters={handleApplyFilters}
             onResetFilters={handleResetFilters}
             isAr={isAr}
+            mobileDrawerOpen={mobileDrawerOpen}
+            onMobileDrawerOpenChange={setMobileDrawerOpen}
           />
 
           {/* Main Catalog Content */}
@@ -166,6 +169,8 @@ export function CourseCatalogView() {
               sortBy={filters.sortBy}
               onSortChange={handleSortChange}
               isAr={isAr}
+              onOpenMobileFilters={() => setMobileDrawerOpen(true)}
+              selectedFiltersCount={filters.selectedCategories.length}
             />
 
             {/* Course Cards Grid */}

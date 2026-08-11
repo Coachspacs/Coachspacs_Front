@@ -84,11 +84,11 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
 
   const handleFreeEnroll = () => {
     setIsEnrolled(true);
-    router.push(`/${locale}/learn/${course.id}`);
+    router.push(`/${locale}/account`);
   };
 
   const handleGoToCourse = () => {
-    router.push(`/${locale}/learn/${course.id}`);
+    router.push(`/${locale}/account`);
   };
 
   const handleOpenPreview = (title: string) => {
@@ -107,7 +107,8 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
       id: "section1",
       titleEn: "Section 1: Getting Started",
       titleAr: "القسم الأول: البدء والأساسيات",
-      duration: "3 lectures • 45 min",
+      durationEn: "3 lectures • 45 min",
+      durationAr: "3 دروس • 45 دقيقة",
       lessons: [
         {
           id: "l-1",
@@ -136,7 +137,8 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
       id: "section2",
       titleEn: "Section 2: Core Concepts & Layout Architecture",
       titleAr: "القسم الثاني: المفاهيم الأساسية وهيكلة الواجهات",
-      duration: "5 lectures • 1 hr 20 min",
+      durationEn: "5 lectures • 1 hr 20 min",
+      durationAr: "5 دروس • ساعة و20 دقيقة",
       lessons: [
         {
           id: "l-4",
@@ -158,7 +160,8 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
       id: "section3",
       titleEn: "Section 3: Building a Real Project & Micro-interactions",
       titleAr: "القسم الثالث: بناء مشروع حقيقي والتفاعلات الدقيقة",
-      duration: "4 lectures • 2 hrs 15 min",
+      durationEn: "4 lectures • 2 hrs 15 min",
+      durationAr: "4 دروس • ساعتان و15 دقيقة",
       lessons: [
         {
           id: "l-6",
@@ -272,7 +275,9 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
                     <span className="font-extrabold text-slate-900 block leading-none">
                       {isAr ? course.instructorNameAr : course.instructorName}
                     </span>
-                    <span className="text-[11px] text-slate-400 font-medium">Lead Designer, TechFlow</span>
+                    <span className="text-[11px] text-slate-400 font-medium">
+                      {isAr ? (course.instructorRoleAr || t("leadRole")) : (course.instructorRole || t("leadRole"))}
+                    </span>
                   </div>
                 </div>
 
@@ -366,7 +371,7 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
                             {isAr ? sec.titleAr : sec.titleEn}
                           </h3>
                           <p className="text-xs font-semibold text-slate-400 mt-0.5">
-                            {sec.duration}
+                            {isAr ? sec.durationAr : sec.durationEn}
                           </p>
                         </div>
                         {isOpen ? (
@@ -414,7 +419,7 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
                                     )}
                                   </div>
                                   <span className="text-[11px] font-medium text-slate-400">
-                                    Video • {lesson.duration}
+                                    {t("videoLabel")} • {lesson.duration}
                                   </span>
                                 </div>
                               </div>
@@ -438,27 +443,34 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
             {/* Tab 2: DESCRIPTION */}
             {activeTab === "description" && (
               <div className="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-2xs space-y-4 text-slate-600 text-sm leading-relaxed animate-in fade-in duration-200">
-                <h3 className="text-lg font-bold text-slate-900">What you will learn</h3>
+                <h3 className="text-lg font-bold text-slate-900">
+                  {t("whatYouWillLearn")}
+                </h3>
                 <p>
-                  This comprehensive curriculum is engineered to transform your design thinking into industry-grade design systems. You will learn the exact frameworks top tech companies use to deliver seamless UI patterns.
+                  {isAr
+                    ? (course.descriptionAr || t("defaultDescription"))
+                    : (course.description || t("defaultDescription"))}
                 </p>
                 <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-2">
-                  <li className="flex items-center gap-2 text-xs font-semibold text-slate-700">
-                    <Check className="h-4 w-4 text-emerald-600 shrink-0" />
-                    <span>Master Design Systems in Figma & Code</span>
-                  </li>
-                  <li className="flex items-center gap-2 text-xs font-semibold text-slate-700">
-                    <Check className="h-4 w-4 text-emerald-600 shrink-0" />
-                    <span>Advanced Micro-interactions & Motion</span>
-                  </li>
-                  <li className="flex items-center gap-2 text-xs font-semibold text-slate-700">
-                    <Check className="h-4 w-4 text-emerald-600 shrink-0" />
-                    <span>Component Tokens & Architecture</span>
-                  </li>
-                  <li className="flex items-center gap-2 text-xs font-semibold text-slate-700">
-                    <Check className="h-4 w-4 text-emerald-600 shrink-0" />
-                    <span>Accessibility & Inclusive Design Rules</span>
-                  </li>
+                  {(isAr
+                    ? (course.whatYouWillLearnAr || [
+                        t("learnItem1"),
+                        t("learnItem2"),
+                        t("learnItem3"),
+                        t("learnItem4"),
+                      ])
+                    : (course.whatYouWillLearn || [
+                        t("learnItem1"),
+                        t("learnItem2"),
+                        t("learnItem3"),
+                        t("learnItem4"),
+                      ])
+                  ).map((item, idx) => (
+                    <li key={idx} className="flex items-center gap-2 text-xs font-semibold text-slate-700">
+                      <Check className="h-4 w-4 text-emerald-600 shrink-0" />
+                      <span>{item}</span>
+                    </li>
+                  ))}
                 </ul>
               </div>
             )}
@@ -474,7 +486,9 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
                         <Star key={i} className="h-4 w-4 fill-amber-400 text-amber-400" />
                       ))}
                     </div>
-                    <span className="text-xs font-medium text-slate-500">Based on 2,451 student reviews</span>
+                    <span className="text-xs font-medium text-slate-500">
+                      {t("basedOnReviews")}
+                    </span>
                   </div>
                 </div>
               </div>

@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
 @import "tailwindcss/base";
 @import "tailwindcss/components";
 @import "tailwindcss/utilities";
@@ -30,7 +32,7 @@
   body {
     background-color: #F8FAFC;
     color: var(--foreground);
-    font-family: var(--font-cairo), var(--font-inter), system-ui, -apple-system, sans-serif;
+    font-family: 'Cairo', 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
     min-height: 100vh;
     overflow-x: hidden;
     -webkit-font-smoothing: antialiased;
@@ -40,11 +42,41 @@
 
   [dir="rtl"] {
     text-align: right;
-    font-family: var(--font-cairo), system-ui, -apple-system, sans-serif;
+    font-family: 'Cairo', system-ui, -apple-system, sans-serif;
   }
 
   [dir="ltr"] {
-    font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  }
+
+  /* Prevent native iOS Safari inner shadow & unwanted default styles */
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="number"],
+  input[type="search"],
+  input[type="tel"],
+  input[type="url"],
+  select,
+  textarea {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+  }
+
+  /* Prevent iOS Safari from auto-zooming on input focus on small screens (< 640px) */
+  @media (max-width: 639px) {
+    input[type="text"],
+    input[type="email"],
+    input[type="password"],
+    input[type="number"],
+    input[type="search"],
+    input[type="tel"],
+    input[type="url"],
+    select,
+    textarea {
+      font-size: 16px !important;
+    }
   }
 }
 
