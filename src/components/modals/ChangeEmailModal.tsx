@@ -50,12 +50,12 @@ export function ChangeEmailModal({
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!newEmail || !emailRegex.test(newEmail)) {
-      setError(isAr ? "يرجى إدخال عنوان بريد إلكتروني صحيح" : "Please enter a valid email address");
+      setError(t("invalidEmailError"));
       return;
     }
 
     if (newEmail.toLowerCase() === currentEmail.toLowerCase()) {
-      setError(isAr ? "البريد الإلكتروني الجديد مطابق للبريد الحالي" : "New email matches current email");
+      setError(t("emailMatchesCurrentError"));
       return;
     }
 

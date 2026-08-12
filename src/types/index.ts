@@ -24,17 +24,14 @@ export interface AuthState {
 }
 
 export interface NavigationItem {
-  label: string;
+  key: string;
   href: string;
-  labelAr?: string;
 }
 
 export interface FooterLinkGroup {
-  title: string;
-  titleAr?: string;
+  key: string;
   links: {
-    label: string;
-    labelAr?: string;
+    key: string;
     href: string;
   }[];
 }

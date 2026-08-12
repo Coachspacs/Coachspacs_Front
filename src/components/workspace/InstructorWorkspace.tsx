@@ -43,6 +43,11 @@ import { Footer } from "@/components/layout/Footer";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { ArchiveCourseModal } from "@/components/modals/ArchiveCourseModal";
 import { ChangeEmailModal } from "@/components/modals/ChangeEmailModal";
+import {
+  mockInstructorWorkspaceCourses,
+  mockInstructorWorkspaceStudents,
+  mockInstructorWorkspaceProfile,
+} from "@/lib/mockData";
 
 interface InstructorWorkspaceProps {
   initialTab?: "overview" | "courses" | "students" | "payout" | "settings";
@@ -75,74 +80,24 @@ export function InstructorWorkspace({ initialTab = "overview", onRoleSwitch }: I
   const [archiveModalCourseId, setArchiveModalCourseId] = useState<string | null>(null);
 
   // Instructor Courses State (US-08)
-  const [courses, setCourses] = useState([
-    {
-      id: "c-1",
-      titleAr: "دورة احتراف React 19 و Next.js App Router",
-      titleEn: "React 19 & Next.js App Router Masterclass",
-      category: "Development",
-      level: "Intermediate",
-      price: 49.99,
-      studentsCount: 340,
-      rating: 4.9,
-      status: "published",
-      image: "https://images.unsplash.com/photo-1633356122544-f134324a6cee?q=80&w=600&auto=format&fit=crop",
-      rejectionReason: "",
-      sections: []
-    },
-    {
-      id: "c-2",
-      titleAr: "تطبيقات الذكاء الاصطناعي بلغة Python",
-      titleEn: "Applied AI with Python",
-      category: "Data Science",
-      level: "Advanced",
-      price: 79.99,
-      studentsCount: 120,
-      rating: 4.8,
-      status: "pending_review",
-      image: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?q=80&w=600&auto=format&fit=crop",
-      rejectionReason: "",
-      sections: []
-    },
-    {
-      id: "c-3",
-      titleAr: "دليل تصميم أنظمة UI/UX المتكاملة",
-      titleEn: "Complete UI/UX Design System Guide",
-      category: "Design",
-      level: "Beginner",
-      price: 39.99,
-      studentsCount: 0,
-      rating: 0.0,
-      status: "rejected",
-      image: "https://images.unsplash.com/photo-1581291518633-83b4ebd1d83e?q=80&w=600&auto=format&fit=crop",
-      rejectionReason: isAr
-        ? "يرجى إضافة فيديو تعريفي بجودة HD وإضافة 3 دروس مجانية للمعاينة."
-        : "Please upload HD promo video and add at least 3 free preview lessons.",
-      sections: []
-    },
-    {
-      id: "c-4",
-      titleAr: "أساسيات البرمجة بلغة C++",
-      titleEn: "C++ Programming Basics",
-      category: "Development",
-      level: "Beginner",
-      price: 29.99,
-      studentsCount: 85,
-      rating: 4.5,
-      status: "archived",
-      image: "https://images.unsplash.com/photo-1515879218367-8466d910aaa4?q=80&w=600&auto=format&fit=crop",
-      rejectionReason: "",
-      sections: []
-    }
-  ]);
+  const [courses, setCourses] = useState(() =>
+    mockInstructorWorkspaceCourses.map((c) => ({
+      ...c,
+      rejectionReason: isAr ? (c.rejectionReasonAr || "") : (c.rejectionReasonEn || ""),
+    }))
+  );
 
   // Enrolled Students Data (US-17)
-  const [students] = useState([
-    { id: "s-1", name: isAr ? "أحمد المحمد" : "Ahmad Al-Mohammad", email: "ahmad@example.com", course: "React 19 & Next.js Masterclass", date: "2026-02-08", progress: 85 },
-    { id: "s-2", name: isAr ? "سارة خالد" : "Sarah Khaled", email: "sarah@example.com", course: "React 19 & Next.js Masterclass", date: "2026-02-05", progress: 100 },
-    { id: "s-3", name: isAr ? "عمر الفاروق" : "Omar Al-Farooq", email: "omar@example.com", course: "Applied AI with Python", date: "2026-01-28", progress: 40 },
-    { id: "s-4", name: isAr ? "ريم السالم" : "Reem Al-Salem", email: "reem@example.com", course: "C++ Programming Basics", date: "2026-01-20", progress: 60 },
-  ]);
+  const [students] = useState(() =>
+    mockInstructorWorkspaceStudents.map((s) => ({
+      id: s.id,
+      name: isAr ? s.nameAr : s.nameEn,
+      email: s.email,
+      course: s.course,
+      date: s.date,
+      progress: s.progress,
+    }))
+  );
 
   // Pagination (US-17)
   const [currentPage, setCurrentPage] = useState(1);
@@ -154,23 +109,21 @@ export function InstructorWorkspace({ initialTab = "overview", onRoleSwitch }: I
 
   // Form State (Full Settings)
   const [formData, setFormData] = useState({
-    fullName: isAr ? "د. طارق المنصور" : "Dr. Tarek Al-Mansoor",
-    email: "tarek.mansoor@example.com",
-    phone: "+966 50 987 6543",
-    headline: isAr ? "خبير ذكاء اصطناعي ومدرب معتمد" : "AI Specialist & Certified Executive Coach",
-    specialization: "Data Science & AI",
-    experienceYears: "8",
-    hourlyRate: "120",
-    bio: isAr
-      ? "خبرة أكثر من 8 سنوات في تصميم ونشر نماذج الذكاء الاصطناعي وتدريب أكثر من 15,000 طالب عبر العالم."
-      : "8+ years designing AI models and training over 15,000 professionals worldwide.",
-    payoutMethod: "bank",
-    bankIban: "SA03 8000 0000 6080 1010 1000",
-    paypalEmail: "tarek.mansoor@example.com",
-    autoPayout: true,
-    introVideoUrl: "https://youtube.com/watch?v=demo123",
-    website: "https://tarekmansoor.ai",
-    linkedin: "https://linkedin.com/in/tarekmansoor",
+    fullName: isAr ? mockInstructorWorkspaceProfile.fullNameAr : mockInstructorWorkspaceProfile.fullNameEn,
+    email: mockInstructorWorkspaceProfile.email,
+    phone: mockInstructorWorkspaceProfile.phone,
+    headline: isAr ? mockInstructorWorkspaceProfile.headlineAr : mockInstructorWorkspaceProfile.headlineEn,
+    specialization: mockInstructorWorkspaceProfile.specialization,
+    experienceYears: mockInstructorWorkspaceProfile.experienceYears,
+    hourlyRate: mockInstructorWorkspaceProfile.hourlyRate,
+    bio: isAr ? mockInstructorWorkspaceProfile.bioAr : mockInstructorWorkspaceProfile.bioEn,
+    payoutMethod: mockInstructorWorkspaceProfile.payoutMethod,
+    bankIban: mockInstructorWorkspaceProfile.bankIban,
+    paypalEmail: mockInstructorWorkspaceProfile.paypalEmail,
+    autoPayout: mockInstructorWorkspaceProfile.autoPayout,
+    introVideoUrl: mockInstructorWorkspaceProfile.introVideoUrl,
+    website: mockInstructorWorkspaceProfile.website,
+    linkedin: mockInstructorWorkspaceProfile.linkedin,
     currentPassword: "",
     newPassword: "",
     confirmPassword: "",
@@ -286,7 +239,7 @@ export function InstructorWorkspace({ initialTab = "overview", onRoleSwitch }: I
     <div dir={isAr ? "rtl" : "ltr"} className="min-h-screen bg-[#FAFCFB] flex flex-col font-sans">
       <Header />
 
-      <main className="flex-grow py-8 sm:py-10 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full space-y-6">
+      <main className="flex-grow py-4 sm:py-10 px-3 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full space-y-4 sm:space-y-6">
         
         {/* Toast Notification */}
         {toastMessage && (
@@ -316,19 +269,19 @@ export function InstructorWorkspace({ initialTab = "overview", onRoleSwitch }: I
         />
 
         {/* Top Header Card */}
-        <div className="bg-white rounded-3xl border border-slate-200/80 p-6 sm:p-8 shadow-2xs flex flex-col md:flex-row items-center justify-between gap-6">
-          <div className="flex flex-col sm:flex-row items-center gap-5 text-center sm:text-start">
-            <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-[#E8F3F1] border-2 border-emerald-200/80 overflow-hidden shrink-0 shadow-2xs flex items-center justify-center">
+        <div className="bg-white rounded-2xl sm:rounded-3xl border border-slate-200/80 p-4 sm:p-8 shadow-2xs flex flex-col md:flex-row items-center justify-between gap-4 sm:gap-6">
+          <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-5 text-center sm:text-start">
+            <div className="w-16 h-16 sm:w-24 sm:h-24 rounded-full bg-[#E8F3F1] border-2 border-emerald-200/80 overflow-hidden shrink-0 shadow-2xs flex items-center justify-center">
               {avatarPreview ? (
                 <img src={avatarPreview} alt="Instructor" className="w-full h-full object-cover" />
               ) : (
-                <span className="font-black text-3xl text-[#0F5244]">{formData.fullName.charAt(0)}</span>
+                <span className="font-black text-2xl sm:text-3xl text-[#0F5244]">{formData.fullName.charAt(0)}</span>
               )}
             </div>
 
             <div className="space-y-1">
               <div className="flex items-center justify-center sm:justify-start gap-2 flex-wrap">
-                <h1 className="text-xl sm:text-2xl font-black text-slate-900">{formData.fullName}</h1>
+                <h1 className="text-lg sm:text-2xl font-black text-slate-900">{formData.fullName}</h1>
                 <span className="px-2.5 py-0.5 rounded-full bg-emerald-100 text-[#0F5244] text-[11px] font-extrabold">
                   👨‍🏫 {tInst("verifiedCoach")}
                 </span>
@@ -338,19 +291,19 @@ export function InstructorWorkspace({ initialTab = "overview", onRoleSwitch }: I
             </div>
           </div>
 
-          <div className="flex items-center gap-3 w-full md:w-auto justify-center sm:justify-end">
+          <div className="flex items-center gap-3 w-full md:w-auto justify-center sm:justify-end border-t md:border-t-0 pt-3 md:pt-0 border-slate-100">
             {onRoleSwitch && (
-              <div className="flex items-center gap-1 bg-slate-100/90 p-1.5 rounded-2xl border border-slate-200/60">
+              <div className="flex items-center gap-1 bg-slate-100/90 p-1.5 rounded-2xl border border-slate-200/60 w-full sm:w-auto justify-center">
                 <button
                   type="button"
                   onClick={() => onRoleSwitch("student")}
-                  className="px-4 py-2 rounded-xl text-slate-600 hover:text-slate-900 text-xs font-bold transition-all cursor-pointer"
+                  className="flex-1 sm:flex-none px-4 py-2 rounded-xl text-slate-600 hover:text-slate-900 text-xs font-bold transition-all cursor-pointer"
                 >
                   🎓 {tInst("studentHubBtn")}
                 </button>
                 <button
                   type="button"
-                  className="px-4 py-2 rounded-xl bg-white text-[#0F5244] text-xs font-extrabold shadow-2xs"
+                  className="flex-1 sm:flex-none px-4 py-2 rounded-xl bg-white text-[#0F5244] text-xs font-extrabold shadow-2xs"
                 >
                   👨‍🏫 {tInst("coachHubBtn")}
                 </button>
@@ -360,9 +313,9 @@ export function InstructorWorkspace({ initialTab = "overview", onRoleSwitch }: I
         </div>
 
         {/* Status Approval Banner (US-02) */}
-        <div className="p-4 rounded-3xl bg-white border border-slate-200/80 shadow-2xs flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="p-4 rounded-2xl sm:rounded-3xl bg-white border border-slate-200/80 shadow-2xs flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-3 text-center sm:text-start">
-            <div className="p-2 rounded-2xl bg-emerald-50 text-[#0F5244] border border-emerald-200">
+            <div className="p-2 rounded-2xl bg-emerald-50 text-[#0F5244] border border-emerald-200 shrink-0">
               <ShieldCheck className="h-5 w-5" />
             </div>
             <div>
@@ -379,9 +332,9 @@ export function InstructorWorkspace({ initialTab = "overview", onRoleSwitch }: I
         </div>
 
         {/* Master Workspace Layout: Left Sidebar + Right Content */}
-        <div className="flex flex-col md:flex-row gap-6 lg:gap-8 items-start">
+        <div className="flex flex-col md:flex-row gap-4 sm:gap-6 lg:gap-8 items-start">
           
-          {/* Vertical Sidebar Navigation Menu */}
+          {/* Vertical / Mobile Navigation Bar */}
           <Sidebar
             activeTab={activeTab}
             onTabChange={(tabId) => setActiveTab(tabId as any)}
@@ -400,7 +353,7 @@ export function InstructorWorkspace({ initialTab = "overview", onRoleSwitch }: I
           />
 
           {/* Main Display Area */}
-          <div className="flex-1 w-full bg-[#FFFFFF] rounded-3xl border border-slate-200/80 p-6 sm:p-10 shadow-2xs">
+          <div className="flex-1 w-full bg-[#FFFFFF] rounded-2xl sm:rounded-3xl border border-slate-200/80 p-4 sm:p-10 shadow-2xs">
             
             {/* OVERVIEW TAB */}
             {activeTab === "overview" && (

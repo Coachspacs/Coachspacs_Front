@@ -154,3 +154,141 @@ export const mockEnrolledStudents: EnrolledStudent[] = [
   { id: 'st-2', name: 'Fatima Al-Sayed', email: 'fatima@example.com', courseTitle: 'UI/UX Design Systems', enrolledAt: '2026-07-14', progress: 40, avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=150&auto=format&fit=crop' },
   { id: 'st-3', name: 'Omar Khaled', email: 'omar@example.com', courseTitle: 'Executive Coaching Leadership', enrolledAt: '2026-07-20', progress: 100, avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=150&auto=format&fit=crop' },
 ];
+
+export interface InstructorWorkspaceCourse {
+  id: string;
+  titleAr: string;
+  titleEn: string;
+  category: string;
+  level: string;
+  price: number;
+  studentsCount: number;
+  rating: number;
+  status: "published" | "pending_review" | "rejected" | "archived" | "draft";
+  image: string;
+  rejectionReasonAr?: string;
+  rejectionReasonEn?: string;
+  sections?: any[];
+}
+
+export const mockInstructorWorkspaceCourses: InstructorWorkspaceCourse[] = [
+  {
+    id: "c-1",
+    titleAr: "دورة احتراف React 19 و Next.js App Router",
+    titleEn: "React 19 & Next.js App Router Masterclass",
+    category: "Development",
+    level: "Intermediate",
+    price: 49.99,
+    studentsCount: 340,
+    rating: 4.9,
+    status: "published",
+    image: "https://images.unsplash.com/photo-1633356122544-f134324a6cee?q=80&w=600&auto=format&fit=crop",
+    rejectionReasonAr: "",
+    rejectionReasonEn: "",
+    sections: []
+  },
+  {
+    id: "c-2",
+    titleAr: "تطبيقات الذكاء الاصطناعي بلغة Python",
+    titleEn: "Applied AI with Python",
+    category: "Data Science",
+    level: "Advanced",
+    price: 79.99,
+    studentsCount: 120,
+    rating: 4.8,
+    status: "pending_review",
+    image: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?q=80&w=600&auto=format&fit=crop",
+    rejectionReasonAr: "",
+    rejectionReasonEn: "",
+    sections: []
+  },
+  {
+    id: "c-3",
+    titleAr: "دليل تصميم أنظمة UI/UX المتكاملة",
+    titleEn: "Complete UI/UX Design System Guide",
+    category: "Design",
+    level: "Beginner",
+    price: 39.99,
+    studentsCount: 0,
+    rating: 0.0,
+    status: "rejected",
+    image: "https://images.unsplash.com/photo-1581291518633-83b4ebd1d83e?q=80&w=600&auto=format&fit=crop",
+    rejectionReasonAr: "يرجى إضافة فيديو تعريفي بجودة HD وإضافة 3 دروس مجانية للمعاينة.",
+    rejectionReasonEn: "Please upload HD promo video and add at least 3 free preview lessons.",
+    sections: []
+  },
+  {
+    id: "c-4",
+    titleAr: "أساسيات البرمجة بلغة C++",
+    titleEn: "C++ Programming Basics",
+    category: "Development",
+    level: "Beginner",
+    price: 29.99,
+    studentsCount: 85,
+    rating: 4.5,
+    status: "archived",
+    image: "https://images.unsplash.com/photo-1515879218367-8466d910aaa4?q=80&w=600&auto=format&fit=crop",
+    rejectionReasonAr: "",
+    rejectionReasonEn: "",
+    sections: []
+  }
+];
+
+export interface InstructorWorkspaceStudentData {
+  id: string;
+  nameAr: string;
+  nameEn: string;
+  email: string;
+  course: string;
+  date: string;
+  progress: number;
+}
+
+export const mockInstructorWorkspaceStudents: InstructorWorkspaceStudentData[] = [
+  { id: "s-1", nameAr: "أحمد المحمد", nameEn: "Ahmad Al-Mohammad", email: "ahmad@example.com", course: "React 19 & Next.js Masterclass", date: "2026-02-08", progress: 85 },
+  { id: "s-2", nameAr: "سارة خالد", nameEn: "Sarah Khaled", email: "sarah@example.com", course: "React 19 & Next.js Masterclass", date: "2026-02-05", progress: 100 },
+  { id: "s-3", nameAr: "عمر الفاروق", nameEn: "Omar Al-Farooq", email: "omar@example.com", course: "Applied AI with Python", date: "2026-01-28", progress: 40 },
+  { id: "s-4", nameAr: "ريم السالم", nameEn: "Reem Al-Salem", email: "reem@example.com", course: "C++ Programming Basics", date: "2026-01-20", progress: 60 },
+];
+
+export interface InstructorWorkspaceProfileData {
+  fullNameAr: string;
+  fullNameEn: string;
+  email: string;
+  phone: string;
+  headlineAr: string;
+  headlineEn: string;
+  specialization: string;
+  experienceYears: string;
+  hourlyRate: string;
+  bioAr: string;
+  bioEn: string;
+  payoutMethod: string;
+  bankIban: string;
+  paypalEmail: string;
+  autoPayout: boolean;
+  introVideoUrl: string;
+  website: string;
+  linkedin: string;
+}
+
+export const mockInstructorWorkspaceProfile: InstructorWorkspaceProfileData = {
+  fullNameAr: "د. طارق المنصور",
+  fullNameEn: "Dr. Tarek Al-Mansoor",
+  email: "tarek.mansoor@example.com",
+  phone: "+966 50 987 6543",
+  headlineAr: "خبير ذكاء اصطناعي ومدرب معتمد",
+  headlineEn: "AI Specialist & Certified Executive Coach",
+  specialization: "Data Science & AI",
+  experienceYears: "8",
+  hourlyRate: "120",
+  bioAr: "خبرة أكثر من 8 سنوات في تصميم ونشر نماذج الذكاء الاصطناعي وتدريب أكثر من 15,000 طالب عبر العالم.",
+  bioEn: "8+ years designing AI models and training over 15,000 professionals worldwide.",
+  payoutMethod: "bank",
+  bankIban: "SA03 8000 0000 6080 1010 1000",
+  paypalEmail: "tarek.mansoor@example.com",
+  autoPayout: true,
+  introVideoUrl: "https://youtube.com/watch?v=demo123",
+  website: "https://tarekmansoor.ai",
+  linkedin: "https://linkedin.com/in/tarekmansoor",
+};

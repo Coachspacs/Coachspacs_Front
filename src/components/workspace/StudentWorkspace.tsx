@@ -224,7 +224,7 @@ export function StudentWorkspace({ initialTab = "overview", onRoleSwitch }: Stud
     <div dir={isAr ? "rtl" : "ltr"} className="min-h-screen bg-[#FAFCFB] flex flex-col font-sans">
       <Header />
 
-      <main className="flex-grow py-8 sm:py-10 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full space-y-6">
+      <main className="flex-grow py-4 sm:py-10 px-3 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full space-y-4 sm:space-y-6">
         
         {/* Toast */}
         {toastMessage && (
@@ -247,21 +247,24 @@ export function StudentWorkspace({ initialTab = "overview", onRoleSwitch }: Stud
         />
 
         {/* Top Student Header Card */}
-        <div className="bg-white rounded-3xl border border-slate-200/80 p-6 sm:p-8 shadow-2xs flex flex-col md:flex-row items-center justify-between gap-6">
-          <div className="flex flex-col sm:flex-row items-center gap-5 text-center sm:text-start">
+        <div className="bg-white rounded-2xl sm:rounded-3xl border border-slate-200/80 p-4 sm:p-8 shadow-2xs flex flex-col md:flex-row items-center justify-between gap-4 sm:gap-6">
+          <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-5 text-center sm:text-start">
             
             {/* Avatar */}
-            <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-[#E8F3F1] border-2 border-emerald-200/80 overflow-hidden shrink-0 shadow-2xs flex items-center justify-center">
-              {avatarPreview ? (
-                <img src={avatarPreview} alt="Student" className="w-full h-full object-cover" />
-              ) : (
-                <span className="font-black text-3xl text-[#0F5244]">{formData.fullName.charAt(0)}</span>
-              )}
+            <div className="relative group shrink-0">
+              <div className="w-16 h-16 sm:w-24 sm:h-24 rounded-full bg-[#E8F3F1] border-2 border-emerald-200/80 overflow-hidden shadow-2xs flex items-center justify-center">
+                {avatarPreview ? (
+                  <img src={avatarPreview} alt="Student" className="w-full h-full object-cover" />
+                ) : (
+                  <span className="font-black text-2xl sm:text-3xl text-[#0F5244]">{formData.fullName.charAt(0)}</span>
+                )}
+              </div>
+              <span className="absolute bottom-0 right-0 rtl:right-auto rtl:left-0 w-3.5 h-3.5 bg-emerald-500 border-2 border-white rounded-full" />
             </div>
 
             <div className="space-y-1">
               <div className="flex items-center justify-center sm:justify-start gap-2 flex-wrap">
-                <h1 className="text-xl sm:text-2xl font-black text-slate-900">{formData.fullName}</h1>
+                <h1 className="text-lg sm:text-2xl font-black text-slate-900">{formData.fullName}</h1>
                 <span className="px-2.5 py-0.5 rounded-full bg-emerald-100 text-[#0F5244] text-[11px] font-extrabold">
                   {tWs("studentAccount")}
                 </span>
@@ -272,21 +275,21 @@ export function StudentWorkspace({ initialTab = "overview", onRoleSwitch }: Stud
           </div>
 
           {/* Role Switch */}
-          <div className="flex items-center gap-3 w-full md:w-auto justify-center sm:justify-end">
+          <div className="flex items-center gap-3 w-full md:w-auto justify-center sm:justify-end border-t md:border-t-0 pt-3 md:pt-0 border-slate-100">
             {onRoleSwitch && (
-              <div className="flex items-center gap-1 bg-slate-100/90 p-1.5 rounded-2xl border border-slate-200/60">
+              <div className="flex items-center gap-1 bg-slate-100/90 p-1.5 rounded-2xl border border-slate-200/60 w-full sm:w-auto justify-center">
                 <button
                   type="button"
-                  className="px-4 py-2 rounded-xl bg-white text-[#0F5244] text-xs font-extrabold shadow-2xs"
+                  className="flex-1 sm:flex-none px-4 py-2 rounded-xl bg-white text-[#0F5244] text-xs font-extrabold shadow-2xs"
                 >
-                  {tWs("studentHub")}
+                  🎓 {tWs("studentHub")}
                 </button>
                 <button
                   type="button"
                   onClick={() => onRoleSwitch("instructor")}
-                  className="px-4 py-2 rounded-xl text-slate-600 hover:text-slate-900 text-xs font-bold transition-all cursor-pointer"
+                  className="flex-1 sm:flex-none px-4 py-2 rounded-xl text-slate-600 hover:text-slate-900 text-xs font-bold transition-all cursor-pointer"
                 >
-                  {tWs("coachHub")}
+                  👨‍🏫 {tWs("coachHub")}
                 </button>
               </div>
             )}
@@ -294,9 +297,9 @@ export function StudentWorkspace({ initialTab = "overview", onRoleSwitch }: Stud
         </div>
 
         {/* Master Workspace Layout: Left Sidebar + Right Content */}
-        <div className="flex flex-col md:flex-row gap-6 lg:gap-8 items-start">
+        <div className="flex flex-col md:flex-row gap-4 sm:gap-6 lg:gap-8 items-start">
           
-          {/* Vertical Sidebar Navigation Menu */}
+          {/* Vertical / Mobile Navigation Bar */}
           <Sidebar
             activeTab={activeTab}
             onTabChange={(tabId) => setActiveTab(tabId as any)}
@@ -308,7 +311,7 @@ export function StudentWorkspace({ initialTab = "overview", onRoleSwitch }: Stud
           />
 
           {/* Main Display Area */}
-          <div className="flex-1 w-full bg-white rounded-3xl border border-slate-200/80 p-6 sm:p-10 shadow-2xs">
+          <div className="flex-1 w-full bg-white rounded-2xl sm:rounded-3xl border border-slate-200/80 p-4 sm:p-10 shadow-2xs">
             
             {/* OVERVIEW TAB */}
             {activeTab === "overview" && (

@@ -1,4 +1,8 @@
 {
+  "site": {
+    "name": "Coach Space",
+    "tagline": "Premium mentorship and education platform for the modern professional."
+  },
   "nav": {
     "home": "Home",
     "courses": "Courses",
@@ -231,7 +235,11 @@
     "learnItem4": "Accessibility & Inclusive Design Rules",
     "basedOnReviews": "Based on 2,451 student reviews",
     "videoLabel": "Video",
-    "leadRole": "Lead Designer, TechFlow"
+    "leadRole": "Lead Designer, TechFlow",
+    "instructor": "About the Instructor",
+    "hours": "hours of HD video",
+    "rating": "Rating",
+    "students": "Students Enrolled"
   },
   "cart": {
     "title": "My Cart",
@@ -266,7 +274,9 @@
     "submitBtn": "Send Verification Link",
     "sending": "Sending verification link...",
     "cancel": "Cancel",
-    "success": "Verification link sent to new email address 📧"
+    "success": "Verification link sent to new email address 📧",
+    "invalidEmailError": "Please enter a valid email address",
+    "emailMatchesCurrentError": "New email matches current email"
   },
   "orderHistory": {
     "title": "Order History",
@@ -451,7 +461,9 @@
       "innerDesc": "We couldn't match any courses to your current search. Try a different keyword or explore our catalog.",
       "headline": "No courses match your filters",
       "subdescription": "We couldn't find any courses that match your current search criteria. Try adjusting your filters or browsing all available courses.",
-      "resetButton": "Reset filters"
+      "resetButton": "Reset filters",
+      "title": "No courses found",
+      "description": "Try adjusting your search terms or filters to find what you are looking for."
     }
   },
   "account": {
@@ -538,6 +550,7 @@
   },
   "instructorSettings": {
     "title": "Instructor Settings",
+    "courses": "Courses",
     "subtitle": "Manage your coaching profile, payout methods and portfolio.",
     "instructorProfile": "Instructor Profile & Bio",
     "payoutAndBilling": "Payout & Billing",
@@ -641,5 +654,3 @@
     "instructorRole": "Instructor"
   }
 }
-
-
