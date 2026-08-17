@@ -15,6 +15,8 @@ export interface User {
   bio?: string;
   specialization?: string;
   hourlyRate?: number;
+  approval_status?: 'pending' | 'approved' | 'rejected' | string;
+  approvalStatus?: 'pending' | 'approved' | 'rejected' | string;
   createdAt?: string;
 }
 

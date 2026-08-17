@@ -50,23 +50,35 @@ export function LoginCard({ lang }: LoginCardProps) {
         password: data.password,
       });
 
-      const token = res.token || res.accessToken || (res.data && res.data.token) || 'authenticated';
-      const refreshToken = res.refreshToken || (res.data && res.data.refreshToken);
+      const token = res.access || res.token || res.accessToken || (res.data && (res.data.access || res.data.token));
+      const refreshToken = res.refresh || res.refreshToken || (res.data && (res.data.refresh || res.data.refreshToken));
+
+      if (!token) {
+        throw new Error(res.message || res.detail || "Authentication token not received");
+      }
 
       const rawUser = res.user || (res.data && res.data.user) || (typeof res.data === 'object' ? res.data : {}) || {};
+      const approvalStatus = res.approval_status || res.approvalStatus || rawUser.approval_status || rawUser.approvalStatus || (rawUser.role === 'instructor' ? 'pending' : 'approved');
+
       const user = {
-        id: rawUser.id || rawUser.pk || '1',
+        id: String(rawUser.id || rawUser.pk || '1'),
         email: rawUser.email || data.email,
         fullName: rawUser.fullName || rawUser.full_name || rawUser.name || data.email.split('@')[0],
         name: rawUser.name || rawUser.full_name || rawUser.fullName || data.email.split('@')[0],
-        role: rawUser.role || 'student',
+        role: rawUser.role || (data.email.includes('coach') || data.email.includes('instructor') ? 'instructor' : 'student'),
         avatar: rawUser.avatar || '',
         bio: rawUser.bio || '',
+        approval_status: approvalStatus,
+        approvalStatus: approvalStatus,
       };
 
       dispatch(setCredentials({ user, token, refreshToken }));
 
-      router.push(`/${locale}`);
+      if (user.role === 'instructor') {
+        router.push(`/${locale}/instructor`);
+      } else {
+        router.push(`/${locale}`);
+      }
     } catch (err: any) {
       const errorMessage = getApiErrorMessage(
         err,

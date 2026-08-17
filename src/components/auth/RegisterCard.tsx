@@ -95,7 +95,7 @@ export function RegisterCard({ lang }: RegisterCardProps) {
       if (token) {
         const rawUser = res.user || (res.data && res.data.user) || (typeof res.data === 'object' ? res.data : {}) || {};
         const user = {
-          id: rawUser.id || rawUser.pk || '1',
+          id: String(rawUser.id || rawUser.pk || Date.now()),
           email: rawUser.email || data.email,
           fullName: rawUser.fullName || rawUser.full_name || data.fullName,
           name: rawUser.name || rawUser.full_name || data.fullName,
@@ -106,16 +106,6 @@ export function RegisterCard({ lang }: RegisterCardProps) {
         dispatch(setCredentials({ user, token, refreshToken }));
       }
 
-      const user = {
-        id: String(Date.now()),
-        email: data.email,
-        fullName: data.fullName,
-        name: data.fullName,
-        role: rolePayload,
-        avatar: '',
-        bio: '',
-      };
-      dispatch(setCredentials({ user, token: 'registered_session' }));
       router.push(`/${locale}/verify-email?email=${encodeURIComponent(data.email)}`);
     } catch (err: any) {
       console.warn("[RegisterCard] Registration catch block error:", {

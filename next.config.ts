@@ -5,7 +5,6 @@ const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
-  swcMinify: true,
   compress: true,
   onDemandEntries: {
     maxInactiveAge: 60 * 1000,
@@ -44,10 +43,12 @@ const nextConfig: NextConfig = {
     },
   },
   async rewrites() {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+    if (!apiUrl) return [];
     return [
       {
         source: '/api/:path*',
-        destination: 'https://coachspace-back.onrender.com/api/:path*',
+        destination: `${apiUrl.replace(/\/+$/, '')}/:path*`,
       },
     ];
   },

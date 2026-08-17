@@ -40,6 +40,8 @@ import {
   RotateCcw
 } from "lucide-react";
 import dynamic from "next/dynamic";
+import { useSelector } from "react-redux";
+import { RootState } from "@/lib/store";
 import { Sidebar } from "@/components/layout/Sidebar";
 
 const ArchiveCourseModal = dynamic(() => import("@/components/modals/ArchiveCourseModal").then((mod) => mod.ArchiveCourseModal), { ssr: false });
@@ -64,13 +66,21 @@ export function InstructorWorkspace({ initialTab = "overview", hideSidebar = tru
   const tChangeEmail = useTranslations("changeEmailModal");
   const tDash = useTranslations("instructorDashboard");
 
+  const authUser = useSelector((state: RootState) => state.auth.user);
+
   // Active Workspace Section
   const [activeTab, setActiveTab] = useState<"overview" | "courses" | "students" | "payout" | "settings">(initialTab);
   const [studentSearch, setStudentSearch] = useState("");
   const [courseFilter, setCourseFilter] = useState<"all" | "active" | "archived">("active");
 
   // Account Approval Status (US-02)
-  const [approvalStatus, setApprovalStatus] = useState<"approved" | "pending" | "rejected">("approved");
+  const initialStatus = (authUser?.approval_status === "pending" || authUser?.approvalStatus === "pending")
+    ? "pending"
+    : (authUser?.approval_status === "rejected" || authUser?.approvalStatus === "rejected")
+    ? "rejected"
+    : "approved";
+
+  const [approvalStatus, setApprovalStatus] = useState<"approved" | "pending" | "rejected">(initialStatus);
 
   // Toast & Modals
   const [toastMessage, setToastMessage] = useState<string | null>(null);

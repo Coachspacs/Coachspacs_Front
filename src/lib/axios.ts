@@ -1,14 +1,14 @@
-import axios from 'axios';
+import axios from "axios";
 
-const rawBaseURL = process.env.NEXT_PUBLIC_API_URL || 'https://coachspace-back.onrender.com/api';
-const baseURL = rawBaseURL.replace(/\/+$/, '');
+const rawBaseURL = process.env.NEXT_PUBLIC_API_URL || "";
+const baseURL = rawBaseURL.replace(/\/+$/, "");
 
 export const axiosInstance = axios.create({
   baseURL,
   timeout: 60000, // 60 seconds timeout to accommodate Render free-tier cold starts
   headers: {
-    'Content-Type': 'application/json',
-    'Accept': 'application/json',
+    "Content-Type": "application/json",
+    Accept: "application/json",
   },
 });
 
@@ -32,47 +32,54 @@ const processQueue = (error: unknown, token: string | null = null) => {
 axiosInstance.interceptors.request.use(
   (config) => {
     config.headers = config.headers || {};
-    if (!config.headers['Content-Type']) {
-      config.headers['Content-Type'] = 'application/json';
+    if (!config.headers["Content-Type"]) {
+      config.headers["Content-Type"] = "application/json";
     }
-    if (!config.headers['Accept']) {
-      config.headers['Accept'] = 'application/json';
+    if (!config.headers["Accept"]) {
+      config.headers["Accept"] = "application/json";
     }
 
-    if (typeof window !== 'undefined') {
-      const token = localStorage.getItem('token');
+    if (typeof window !== "undefined") {
+      const token = localStorage.getItem("token");
       if (token && config.headers) {
         config.headers.Authorization = `Bearer ${token}`;
       }
     }
 
-    const fullUrl = (config.baseURL || '').replace(/\/+$/, '') + (config.url || '');
-    console.log(`[Axios Request] ${config.method?.toUpperCase()} -> ${fullUrl}`, {
-      headers: config.headers,
-      data: config.data,
-    });
+    const fullUrl =
+      (config.baseURL || "").replace(/\/+$/, "") + (config.url || "");
+    console.log(
+      `[Axios Request] ${config.method?.toUpperCase()} -> ${fullUrl}`,
+      {
+        headers: config.headers,
+        data: config.data,
+      },
+    );
 
     return config;
   },
   (error) => {
-    console.error('[Axios Request Error]:', {
+    console.error("[Axios Request Error]:", {
       message: error?.message,
       response: error?.response,
       config: error?.config,
       code: error?.code,
     });
     return Promise.reject(error);
-  }
+  },
 );
 
 axiosInstance.interceptors.response.use(
   (response) => {
-    console.log(`[Axios Response ${response.status}] ${response.config.url}:`, response.data);
+    console.log(
+      `[Axios Response ${response.status}] ${response.config.url}:`,
+      response.data,
+    );
     return response;
   },
   async (error) => {
-    console.warn('[Axios Response Error]:', {
-      message: error?.message || 'Unknown Error',
+    console.warn("[Axios Response Error]:", {
+      message: error?.message || "Unknown Error",
       status: error?.response?.status,
       statusText: error?.response?.statusText,
       data: error?.response?.data,
@@ -99,32 +106,44 @@ axiosInstance.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        const refreshToken = localStorage.getItem('refreshToken');
+        const refreshToken = localStorage.getItem("refreshToken");
         if (!refreshToken) {
-          throw new Error('No refresh token available');
+          throw new Error("No refresh token available");
         }
 
-        const res = await axios.post(`${baseURL}/auth/refresh`, { refreshToken }, {
-          headers: {
-            'Content-Type': 'application/json',
+        const res = await axios.post(
+          `${baseURL}/auth/login/refresh`,
+          {
+            refresh: refreshToken,
+            refreshToken,
           },
-        });
-        const { token: newToken, refreshToken: newRefreshToken } = res.data;
+          {
+            headers: {
+              "Content-Type": "application/json",
+            },
+          },
+        );
+        const newToken = res.data.access || res.data.token;
+        const newRefreshToken = res.data.refresh || res.data.refreshToken;
 
-        localStorage.setItem('token', newToken);
+        localStorage.setItem("token", newToken);
         if (newRefreshToken) {
-          localStorage.setItem('refreshToken', newRefreshToken);
+          localStorage.setItem("refreshToken", newRefreshToken);
         }
 
         axiosInstance.defaults.headers.common.Authorization = `Bearer ${newToken}`;
         processQueue(null, newToken);
 
+        originalRequest.headers = originalRequest.headers || {};
+        originalRequest.headers.Authorization = `Bearer ${newToken}`;
+
         return axiosInstance(originalRequest);
       } catch (refreshErr) {
         processQueue(refreshErr, null);
-        if (typeof window !== 'undefined') {
-          localStorage.removeItem('token');
-          localStorage.removeItem('refreshToken');
+        if (typeof window !== "undefined") {
+          localStorage.removeItem("token");
+          localStorage.removeItem("refreshToken");
+          localStorage.removeItem("user");
         }
         return Promise.reject(refreshErr);
       } finally {
@@ -133,7 +152,7 @@ axiosInstance.interceptors.response.use(
     }
 
     return Promise.reject(error);
-  }
+  },
 );
 
 export default axiosInstance;
