@@ -1,8 +1,7 @@
-@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-@import "tailwindcss/base";
-@import "tailwindcss/components";
-@import "tailwindcss/utilities";
 
 @layer base {
   :root {
@@ -32,7 +31,7 @@
   body {
     background-color: #F8FAFC;
     color: var(--foreground);
-    font-family: 'Cairo', 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    font-family: var(--font-cairo), var(--font-jakarta), system-ui, -apple-system, sans-serif;
     min-height: 100vh;
     overflow-x: hidden;
     -webkit-font-smoothing: antialiased;
@@ -42,11 +41,11 @@
 
   [dir="rtl"] {
     text-align: right;
-    font-family: 'Cairo', system-ui, -apple-system, sans-serif;
+    font-family: var(--font-cairo), system-ui, -apple-system, sans-serif;
   }
 
   [dir="ltr"] {
-    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    font-family: var(--font-jakarta), system-ui, -apple-system, sans-serif;
   }
 
   /* Prevent native iOS Safari inner shadow & unwanted default styles */

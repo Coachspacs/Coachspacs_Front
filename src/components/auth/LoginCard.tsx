@@ -4,12 +4,15 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations, useLocale } from "next-intl";
+import { useDispatch } from "react-redux";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AlertCircle, ArrowRight, Eye, EyeOff, Loader2, Lock, Mail, ShieldCheck } from "lucide-react";
 import { FormField } from "@/components/ui/FormField";
 import { Logo } from "@/components/ui/Logo";
 import { loginSchema, type LoginFormData } from "@/features/auth/schemas/authSchemas";
+import { authService, getApiErrorMessage } from "@/services/auth";
+import { setCredentials } from "@/features/auth/slice";
 
 interface LoginCardProps {
   lang?: "EN" | "AR";
@@ -20,6 +23,7 @@ export function LoginCard({ lang }: LoginCardProps) {
   const locale = useLocale() || "en";
   const isAr = locale === "ar";
   const router = useRouter();
+  const dispatch = useDispatch();
 
   const [showPassword, setShowPassword] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
@@ -41,40 +45,66 @@ export function LoginCard({ lang }: LoginCardProps) {
     setFormError(null);
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 600));
+      const res = await authService.login({
+        email: data.email,
+        password: data.password,
+      });
+
+      const token = res.token || res.accessToken || (res.data && res.data.token) || 'authenticated';
+      const refreshToken = res.refreshToken || (res.data && res.data.refreshToken);
+
+      const rawUser = res.user || (res.data && res.data.user) || (typeof res.data === 'object' ? res.data : {}) || {};
+      const user = {
+        id: rawUser.id || rawUser.pk || '1',
+        email: rawUser.email || data.email,
+        fullName: rawUser.fullName || rawUser.full_name || rawUser.name || data.email.split('@')[0],
+        name: rawUser.name || rawUser.full_name || rawUser.fullName || data.email.split('@')[0],
+        role: rawUser.role || 'student',
+        avatar: rawUser.avatar || '',
+        bio: rawUser.bio || '',
+      };
+
+      dispatch(setCredentials({ user, token, refreshToken }));
+
       router.push(`/${locale}`);
     } catch (err: any) {
-      setFormError(err.message || t("loginInvalid"));
+      const errorMessage = getApiErrorMessage(
+        err,
+        t("loginInvalid") || "Invalid email or password",
+        isAr
+      );
+      setFormError(errorMessage);
     }
   };
+
 
   return (
     <section
       id="login-card"
       aria-labelledby="login-title"
       dir={isAr ? "rtl" : "ltr"}
-      className="relative mx-auto w-full max-w-[450px] rounded-lg bg-white p-6 sm:p-8 shadow-xl border border-slate-200/90 font-sans"
+      className="relative mx-auto w-full max-w-[440px] rounded-xl bg-white p-4 sm:p-6 shadow-xl border border-slate-200/90 font-sans"
     >
       {/* Header Section */}
-      <div className="mb-5 flex flex-col items-center text-center">
-        <div className="mb-3.5 flex items-center justify-center">
-          <Logo showText={false} compact={false} />
+      <div className="mb-3 flex flex-col items-center text-center">
+        <div className="mb-2 flex items-center justify-center">
+          <Logo showText={false} compact={true} />
         </div>
 
         <h1
           id="login-title"
-          className="text-xl sm:text-2xl font-extrabold tracking-tight text-slate-900 leading-snug"
+          className="text-lg sm:text-xl font-extrabold tracking-tight text-slate-900 leading-tight"
         >
           {t("loginTitle")}
         </h1>
 
-        <p className="mt-1 text-xs sm:text-sm leading-relaxed text-slate-500 font-normal max-w-xs">
+        <p className="mt-0.5 text-xs leading-relaxed text-slate-500 font-normal max-w-xs">
           {t("loginSubtitle")}
         </p>
       </div>
 
       {/* Form Section */}
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-3" noValidate>
         {formError && (
           <div className="flex items-center gap-2.5 rounded-md bg-red-50 p-3 text-xs font-semibold text-red-600 border border-red-200">
             <AlertCircle size={16} className="shrink-0 text-red-500" />

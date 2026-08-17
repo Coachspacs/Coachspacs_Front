@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useTranslations, useLocale } from "next-intl";
 import { useSelector, useDispatch } from "react-redux";
@@ -189,9 +190,11 @@ export function Header({ lang, onLanguageToggle, variant = "main" }: HeaderProps
               aria-label="User Profile Menu"
             >
               {user?.avatar ? (
-                <img
+                <Image
                   src={user.avatar}
                   alt={user?.name || "User Avatar"}
+                  width={40}
+                  height={40}
                   className="h-10 w-10 rounded-full object-cover border border-slate-200 shadow-xs"
                 />
               ) : (
@@ -212,7 +215,7 @@ export function Header({ lang, onLanguageToggle, variant = "main" }: HeaderProps
                     </div>
 
                     <Link
-                      href={`/${locale}/account`}
+                      href={user?.role === "INSTRUCTOR" ? `/${locale}/instructor/profile` : `/${locale}/student/profile`}
                       onClick={() => setUserDropdownOpen(false)}
                       className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium hover:bg-slate-50 transition-colors mt-1 text-slate-700"
                     >
@@ -360,9 +363,11 @@ export function Header({ lang, onLanguageToggle, variant = "main" }: HeaderProps
           <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
             <div className="flex items-center gap-3">
               {user?.avatar ? (
-                <img
+                <Image
                   src={user.avatar}
                   alt="User Avatar"
+                  width={40}
+                  height={40}
                   className="h-10 w-10 rounded-full object-cover border border-slate-200"
                 />
               ) : (

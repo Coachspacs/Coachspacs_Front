@@ -7,16 +7,27 @@ export interface LoginRequest {
 }
 
 export interface AuthResponse {
-  user: User;
-  token: string;
+  user?: User;
+  token?: string;
   refreshToken?: string;
+  message?: string;
+  detail?: string;
 }
 
 export interface RegisterRequest {
-  name: string;
+  full_name: string;
   email: string;
   password: string;
-  role: 'STUDENT' | 'INSTRUCTOR';
+  role: 'student' | 'instructor';
+}
+
+export interface VerifyEmailRequest {
+  uid: string;
+  token: string;
+}
+
+export interface ResendVerificationEmailRequest {
+  email: string;
 }
 
 export const authApi = apiSlice.injectEndpoints({
@@ -33,6 +44,19 @@ export const authApi = apiSlice.injectEndpoints({
         url: '/auth/register',
         method: 'POST',
         body: userData,
+      }),
+    }),
+    verifyEmail: builder.query<AuthResponse, VerifyEmailRequest>({
+      query: ({ uid, token }) => ({
+        url: `/auth/verify-email?uid=${encodeURIComponent(uid)}&token=${encodeURIComponent(token)}`,
+        method: 'GET',
+      }),
+    }),
+    resendVerificationEmail: builder.mutation<AuthResponse, ResendVerificationEmailRequest>({
+      query: (body) => ({
+        url: '/auth/resend-verification-email',
+        method: 'POST',
+        body,
       }),
     }),
     forgotPassword: builder.mutation<{ message: string }, { email: string }>({
@@ -55,6 +79,8 @@ export const authApi = apiSlice.injectEndpoints({
 export const {
   useLoginMutation,
   useRegisterMutation,
+  useVerifyEmailQuery,
+  useResendVerificationEmailMutation,
   useForgotPasswordMutation,
   useResetPasswordMutation,
 } = authApi;

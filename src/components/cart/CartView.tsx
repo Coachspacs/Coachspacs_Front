@@ -83,6 +83,10 @@ export function CartView({ items, onRemoveItem, onCheckout }: CartViewProps) {
             <img
               src="/images/empty-cart-bag.png"
               alt="Empty Cart Bag"
+              width={224}
+              height={176}
+              loading="lazy"
+              decoding="async"
               className="w-44 h-36 sm:w-56 sm:h-44 object-contain shrink-0"
             />
           </div>
@@ -123,6 +127,10 @@ export function CartView({ items, onRemoveItem, onCheckout }: CartViewProps) {
                   <img
                     src={item.image}
                     alt={item.title}
+                    width={128}
+                    height={80}
+                    loading="lazy"
+                    decoding="async"
                     className="w-24 h-16 sm:w-32 sm:h-20 rounded-2xl object-cover border border-slate-100 shrink-0 shadow-2xs"
                   />
                   <div className="space-y-1 min-w-0">
@@ -188,7 +196,7 @@ export function CartView({ items, onRemoveItem, onCheckout }: CartViewProps) {
                 <button
                   type="button"
                   onClick={onCheckout}
-                  className="w-full py-3.5 px-6 rounded-2xl bg-[#0F5244] hover:bg-[#07382E] text-white text-xs sm:text-sm font-extrabold shadow-sm hover:shadow-md active:scale-98 transition-all cursor-pointer flex items-center justify-center gap-2"
+                  className="w-full py-3.5 px-6 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-extrabold shadow-sm hover:shadow-md active:scale-98 transition-all cursor-pointer flex items-center justify-center gap-2"
                 >
                   <span>{t("checkout")}</span>
                   <ArrowRight className="h-4 w-4 rtl:rotate-180" />

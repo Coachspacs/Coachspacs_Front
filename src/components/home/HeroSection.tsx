@@ -2,8 +2,11 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useTranslations, useLocale } from "next-intl";
+import { useSelector } from "react-redux";
+import { RootState } from "@/lib/store";
 import {
   Search,
   ArrowRight,
@@ -11,6 +14,7 @@ import {
   Users,
   GraduationCap,
   Award,
+  Sparkles,
 } from "lucide-react";
 
 export function HeroSection() {
@@ -18,6 +22,7 @@ export function HeroSection() {
   const locale = useLocale();
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
+  const { user, isAuthenticated } = useSelector((state: RootState) => state.auth);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,6 +33,8 @@ export function HeroSection() {
     }
   };
 
+  const displayName = user?.name || user?.fullName || user?.email?.split("@")[0] || "";
+
   return (
     <section className="relative w-full overflow-hidden bg-gradient-to-b from-slate-50/80 via-white to-slate-50/40 pt-12 md:pt-16 lg:pt-20 pb-6 sm:pb-8 lg:pb-10">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -36,11 +43,22 @@ export function HeroSection() {
           {/* Content */}
           <div className="lg:col-span-6 flex flex-col items-start text-left rtl:text-right z-10">
             
-            {/* Badge */}
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#6CF8BB]/20 text-[#0F5244] border border-[#6CF8BB]/40 shadow-xs mb-6 text-xs font-bold tracking-wider uppercase">
-              <BadgeCheck className="w-4 h-4 text-[#0F5244] shrink-0" />
-              <span>{t("heroBadge")}</span>
-            </div>
+            {/* Logged in Welcome Pill / Badge */}
+            {isAuthenticated ? (
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#0F5244] text-white shadow-md mb-6 text-xs sm:text-sm font-bold animate-in fade-in duration-300">
+                <Sparkles className="w-4 h-4 text-[#6CF8BB] shrink-0" />
+                <span>
+                  {locale === "ar"
+                    ? `مرحباً بك مجدداً، ${displayName}!`
+                    : `Welcome back, ${displayName}!`}
+                </span>
+              </div>
+            ) : (
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#6CF8BB]/20 text-[#0F5244] border border-[#6CF8BB]/40 shadow-xs mb-6 text-xs font-bold tracking-wider uppercase">
+                <BadgeCheck className="w-4 h-4 text-[#0F5244] shrink-0" />
+                <span>{t("heroBadge")}</span>
+              </div>
+            )}
 
             {/* Title */}
             <h1 className="text-3xl sm:text-5xl lg:text-[3.25rem] font-extrabold text-slate-900 tracking-tight leading-[1.35] mb-6">
@@ -97,9 +115,14 @@ export function HeroSection() {
             <div className="relative z-10 w-full max-w-[440px] sm:max-w-[480px] rtl:lg:-translate-x-8 transition-transform duration-300">
               
               <div className="w-full aspect-square rounded-[2.5rem] overflow-hidden border-4 border-white shadow-2xl bg-white">
-                <img
+                <Image
                   src="/images/hero-coach.png"
                   alt="Coach Space"
+                  width={480}
+                  height={480}
+                  priority
+                  quality={80}
+                  sizes="(max-width: 768px) 100vw, 480px"
                   className="w-full h-full object-cover object-center"
                 />
               </div>

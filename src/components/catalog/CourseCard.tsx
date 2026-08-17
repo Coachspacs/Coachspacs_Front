@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useLocale, useTranslations } from "next-intl";
 import { Star, Clock, User } from "lucide-react";
 import { Course } from "@/types/catalog";
@@ -40,9 +41,11 @@ export function CourseCard({ course, isAr = false }: CourseCardProps) {
         
         {/* Top Image Banner Container */}
         <div className="relative w-full aspect-[16/10] bg-slate-100 overflow-hidden">
-          <img
+          <Image
             src={imgSrc}
-            alt={isAr ? course.titleAr : course.title}
+            alt={isAr ? (course.titleAr || course.title || "") : (course.title || course.titleAr || "")}
+            fill
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             onError={() => {
               setImgSrc("https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=800&q=80");
             }}

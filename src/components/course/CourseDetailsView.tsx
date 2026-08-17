@@ -47,7 +47,7 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
 
   // State checks
   const isFree = course.price === 0 || course.priceFormatted === "Free" || course.priceFormatted === "مجاني";
-  const isInCart = cartItems.some((item) => item.course.id === course.id);
+  const isInCart = cartItems.some((item: any) => (item.course?.id || item.courseId || item.id) === course.id);
   
   // Enrolled check (mock check: if user has enrolledCourses array containing this ID or user is enrolled)
   const [isEnrolled, setIsEnrolled] = useState(false);
@@ -465,7 +465,7 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
                         t("learnItem3"),
                         t("learnItem4"),
                       ])
-                  ).map((item, idx) => (
+                  ).map((item: string, idx: number) => (
                     <li key={idx} className="flex items-center gap-2 text-xs font-semibold text-slate-700">
                       <Check className="h-4 w-4 text-emerald-600 shrink-0" />
                       <span>{item}</span>

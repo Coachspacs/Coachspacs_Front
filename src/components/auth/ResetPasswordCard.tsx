@@ -2,15 +2,16 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { useRouter, useParams } from "next/navigation";
+import { useRouter, useParams, useSearchParams } from "next/navigation";
 import { useTranslations, useLocale } from "next-intl";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { AlertCircle, ArrowRight, Eye, EyeOff, Loader2, Lock, ShieldCheck } from "lucide-react";
+import { AlertCircle, ArrowRight, Eye, EyeOff, Loader2, Lock, ShieldCheck, CheckCircle2 } from "lucide-react";
 import { FormField } from "@/components/ui/FormField";
 import { PasswordStrength } from "@/components/ui/PasswordStrength";
 import { Logo } from "@/components/ui/Logo";
 import { resetPasswordSchema, type ResetPasswordFormData } from "@/features/auth/schemas/authSchemas";
+import { authService, getApiErrorMessage } from "@/services/auth";
 
 interface ResetPasswordCardProps {
   lang?: "EN" | "AR";
@@ -22,11 +23,16 @@ export function ResetPasswordCard({ lang }: ResetPasswordCardProps) {
   const isAr = locale === "ar";
   const router = useRouter();
   const params = useParams();
+  const searchParams = useSearchParams();
   const currentLocale = (params?.locale as string) || locale;
+
+  const token = searchParams.get("token") || searchParams.get("code") || "";
+  const uid = searchParams.get("uid") || "";
 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
+  const [resetSuccess, setResetSuccess] = useState(false);
 
   const {
     register,
@@ -46,11 +52,32 @@ export function ResetPasswordCard({ lang }: ResetPasswordCardProps) {
   const onSubmit = async (data: ResetPasswordFormData) => {
     setFormError(null);
 
+    if (!token) {
+      setFormError(
+        isAr
+          ? "رمز إعادة التعيين (Token) مفقود أو غير صالح. يرجى طلب رابط جديد لإعادة تعيين كلمة المرور."
+          : "Invalid or missing password reset token. Please request a new reset link."
+      );
+      return;
+    }
+
     try {
-      await new Promise((resolve) => setTimeout(resolve, 600));
-      router.push(`/${currentLocale}/login`);
+      await authService.resetPassword({
+        token,
+        uid: uid || undefined,
+        password: data.password,
+      });
+      setResetSuccess(true);
+      setTimeout(() => {
+        router.push(`/${currentLocale}/login`);
+      }, 2500);
     } catch (err: any) {
-      setFormError(err.message || t("unexpectedError"));
+      const errorMessage = getApiErrorMessage(
+        err,
+        t("unexpectedError") || "An error occurred while resetting password",
+        isAr
+      );
+      setFormError(errorMessage);
     }
   };
 
@@ -79,14 +106,28 @@ export function ResetPasswordCard({ lang }: ResetPasswordCardProps) {
         </p>
       </div>
 
-      {/* Form Section */}
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
-        {formError && (
-          <div className="flex items-center gap-2.5 rounded-md bg-red-50 p-3 text-xs font-semibold text-red-600 border border-red-200">
-            <AlertCircle size={16} className="shrink-0 text-red-500" />
-            <span>{formError}</span>
+      {resetSuccess ? (
+        <div className="py-4 text-center animate-in fade-in duration-200">
+          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-emerald-50 text-[#0F5244] border border-emerald-200 shadow-xs">
+            <CheckCircle2 size={28} className="text-[#0F5244]" />
           </div>
-        )}
+
+          <h3 className="text-lg font-extrabold text-slate-900">
+            {isAr ? "تم إعادة تعيين كلمة المرور بنجاح!" : "Password Reset Successfully!"}
+          </h3>
+
+          <p className="mt-2 text-xs sm:text-sm text-slate-500 leading-relaxed font-normal">
+            {isAr ? "جاري تحويلك لصفحة تسجيل الدخول..." : "Redirecting you to the login page..."}
+          </p>
+        </div>
+      ) : (
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
+          {formError && (
+            <div className="flex items-center gap-2.5 rounded-md bg-red-50 p-3 text-xs font-semibold text-red-600 border border-red-200">
+              <AlertCircle size={16} className="shrink-0 text-red-500" />
+              <span>{formError}</span>
+            </div>
+          )}
 
         <div>
           <FormField
@@ -156,6 +197,7 @@ export function ResetPasswordCard({ lang }: ResetPasswordCardProps) {
           )}
         </button>
       </form>
+      )}
 
       {/* Security Badge */}
       <div className="mt-4 flex items-center justify-center gap-1.5 text-[11px] text-slate-400 font-semibold">

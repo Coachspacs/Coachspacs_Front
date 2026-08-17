@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations, useLocale } from "next-intl";
+import { useDispatch } from "react-redux";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -23,7 +24,9 @@ import { FormField } from "@/components/ui/FormField";
 import { PasswordStrength } from "@/components/ui/PasswordStrength";
 import { Logo } from "@/components/ui/Logo";
 import { registerSchema, type RegisterFormData } from "@/features/auth/schemas/authSchemas";
-import type { RoleType } from "@/types";
+import { authService, getApiErrorMessage, type UserRoleType } from "@/services/auth";
+import { setCredentials } from "@/features/auth/slice";
+
 
 interface RegisterCardProps {
   lang?: "EN" | "AR";
@@ -37,6 +40,7 @@ export function RegisterCard({ lang }: RegisterCardProps) {
 
   const [showPassword, setShowPassword] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
+  const [submittedEmail, setSubmittedEmail] = useState("");
 
   const {
     register,
@@ -58,22 +62,76 @@ export function RegisterCard({ lang }: RegisterCardProps) {
   const currentRole = watch("role");
   const passwordValue = watch("password") || "";
 
-  const handleRoleSelect = (role: RoleType) => {
+  const handleRoleSelect = (role: "student" | "instructor" | "coach") => {
     setValue("role", role, { shouldValidate: true });
   };
 
+  const dispatch = useDispatch();
+
   const onSubmit = async (data: RegisterFormData) => {
     setFormError(null);
+    setSubmittedEmail(data.email);
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 600));
-      if (data.role === "coach") {
-        router.push(`/${locale}/dashboard`);
-      } else {
-        router.push(`/${locale}`);
+      const rolePayload: UserRoleType =
+        data.role === "coach" || data.role === "instructor" ? "instructor" : "student";
+
+      console.log("[RegisterCard] Submitting registration form:", {
+        email: data.email,
+        role: rolePayload,
+        fullName: data.fullName,
+      });
+
+      const res = await authService.register({
+        full_name: data.fullName,
+        email: data.email,
+        password: data.password,
+        role: rolePayload,
+      });
+
+      const token = res.token || res.accessToken || (res.data && res.data.token);
+      const refreshToken = res.refreshToken || (res.data && res.data.refreshToken);
+
+      if (token) {
+        const rawUser = res.user || (res.data && res.data.user) || (typeof res.data === 'object' ? res.data : {}) || {};
+        const user = {
+          id: rawUser.id || rawUser.pk || '1',
+          email: rawUser.email || data.email,
+          fullName: rawUser.fullName || rawUser.full_name || data.fullName,
+          name: rawUser.name || rawUser.full_name || data.fullName,
+          role: rolePayload,
+          avatar: rawUser.avatar || '',
+          bio: rawUser.bio || '',
+        };
+        dispatch(setCredentials({ user, token, refreshToken }));
       }
+
+      const user = {
+        id: String(Date.now()),
+        email: data.email,
+        fullName: data.fullName,
+        name: data.fullName,
+        role: rolePayload,
+        avatar: '',
+        bio: '',
+      };
+      dispatch(setCredentials({ user, token: 'registered_session' }));
+      router.push(`/${locale}/verify-email?email=${encodeURIComponent(data.email)}`);
     } catch (err: any) {
-      setFormError(err.message || t("unexpectedError"));
+      console.warn("[RegisterCard] Registration catch block error:", {
+        message: err?.message,
+        status: err?.response?.status,
+        data: err?.response?.data,
+        url: err?.config?.url,
+        code: err?.code,
+      });
+
+      const errorMessage = getApiErrorMessage(
+        err,
+        t("unexpectedError") || "An error occurred during registration",
+        isAr
+      );
+      setFormError(errorMessage);
     }
   };
 
@@ -82,28 +140,28 @@ export function RegisterCard({ lang }: RegisterCardProps) {
       id="register"
       aria-labelledby="register-title"
       dir={isAr ? "rtl" : "ltr"}
-      className="relative mx-auto w-full max-w-[450px] rounded-lg bg-white p-5 sm:p-7 shadow-xl border border-slate-200/90 font-sans"
+      className="relative mx-auto w-full max-w-[440px] rounded-xl bg-white p-4 sm:p-5 shadow-xl border border-slate-200/90 font-sans"
     >
       {/* Header Section */}
-      <div className="mb-4 flex flex-col items-center text-center">
-        <div className="mb-3 flex items-center justify-center">
-          <Logo showText={false} compact={false} />
+      <div className="mb-2.5 flex flex-col items-center text-center">
+        <div className="mb-1 flex items-center justify-center">
+          <Logo showText={false} compact={true} />
         </div>
 
         <h1
           id="register-title"
-          className="text-xl sm:text-2xl font-extrabold tracking-tight text-slate-900 leading-snug"
+          className="text-lg sm:text-xl font-extrabold tracking-tight text-slate-900 leading-tight"
         >
           {t("registerTitle")}
         </h1>
 
-        <p className="mt-1 text-xs sm:text-sm leading-relaxed text-slate-500 font-normal max-w-xs">
+        <p className="mt-0.5 text-[11px] sm:text-xs leading-normal text-slate-500 font-normal max-w-xs">
           {t("registerSubtitle")}
         </p>
       </div>
 
       {/* Role Selection Tabs */}
-      <div className="mb-4 rounded-md bg-slate-100 p-1 border border-slate-200">
+      <div className="mb-2.5 rounded-md bg-slate-100 p-1 border border-slate-200">
         <div className="grid grid-cols-2 gap-1">
           <button
             type="button"
@@ -120,9 +178,9 @@ export function RegisterCard({ lang }: RegisterCardProps) {
 
           <button
             type="button"
-            onClick={() => handleRoleSelect("coach")}
+            onClick={() => handleRoleSelect("instructor")}
             className={`flex items-center justify-center gap-2 rounded-md py-2 px-3 text-xs whitespace-nowrap overflow-hidden transition-all duration-200 cursor-pointer ${
-              currentRole === "coach"
+              currentRole === "instructor" || currentRole === "coach"
                 ? "bg-[#0F5244] text-white shadow-sm border-2 border-[#0B4035] font-extrabold"
                 : "border-2 border-transparent text-slate-600 hover:text-slate-900 hover:bg-white/60 font-semibold"
             }`}
@@ -136,8 +194,8 @@ export function RegisterCard({ lang }: RegisterCardProps) {
       {/* Form Section */}
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-3" noValidate>
         {formError && (
-          <div className="flex items-center gap-2.5 rounded-md bg-red-50 p-3 text-xs font-semibold text-red-600 border border-red-200">
-            <AlertCircle size={16} className="shrink-0 text-red-500" />
+          <div className="rounded-md bg-red-50 p-3 text-xs font-semibold text-red-600 border border-red-200 flex items-start gap-2.5">
+            <AlertCircle size={16} className="shrink-0 text-red-500 mt-0.5" />
             <span>{formError}</span>
           </div>
         )}

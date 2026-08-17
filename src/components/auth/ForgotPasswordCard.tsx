@@ -19,6 +19,7 @@ import {
 import { FormField } from "@/components/ui/FormField";
 import { Logo } from "@/components/ui/Logo";
 import { forgotPasswordSchema, type ForgotPasswordFormData } from "@/features/auth/schemas/authSchemas";
+import { authService, getApiErrorMessage } from "@/services/auth";
 
 interface ForgotPasswordCardProps {
   lang?: "EN" | "AR";
@@ -50,11 +51,16 @@ export function ForgotPasswordCard({ lang }: ForgotPasswordCardProps) {
     setFormError(null);
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 600));
+      await authService.forgotPassword({ email: data.email.trim() });
       setSubmittedEmail(data.email.trim());
       setIsSubmitted(true);
     } catch (err: any) {
-      setFormError(err.message || t("unexpectedError"));
+      const errorMessage = getApiErrorMessage(
+        err,
+        t("unexpectedError") || "An error occurred while sending reset link",
+        isAr
+      );
+      setFormError(errorMessage);
     }
   };
 

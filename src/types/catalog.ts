@@ -1,3 +1,7 @@
+import { Course } from "./course";
+
+export type { Course };
+
 export type Category = 
   | "Leadership"
   | "Management"
@@ -16,34 +20,7 @@ export type CourseLanguage = "All" | "English" | "Arabic";
 
 export type SortOption = "most_popular" | "highest_rated" | "newest" | "price_low_to_high" | "price_high_to_low";
 
-export interface Course {
-  id: string;
-  title: string;
-  titleAr: string;
-  category: Category;
-  categoryAr: string;
-  badge?: "Bestseller" | "New" | "Popular" | "Featured";
-  badgeAr?: string;
-  coverImage: string;
-  instructorName: string;
-  instructorNameAr: string;
-  instructorRole?: string;
-  instructorRoleAr?: string;
-  rating: number;
-  reviewsCount: number;
-  reviewsCountFormatted: string;
-  price: number;
-  priceFormatted: string;
-  durationHours: number;
-  durationFormatted: string;
-  level: Level;
-  language: CourseLanguage;
-  isSaved?: boolean;
-  description?: string;
-  descriptionAr?: string;
-  whatYouWillLearn?: string[];
-  whatYouWillLearnAr?: string[];
-}
+export type CatalogCourse = Course;
 
 export interface FilterState {
   searchQuery: string;

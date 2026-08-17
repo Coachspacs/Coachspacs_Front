@@ -15,14 +15,12 @@ export default async function LocaleLayout({
   const dir = locale === 'ar' ? 'rtl' : 'ltr';
 
   return (
-    <html lang={locale} dir={dir}>
-      <body className="min-h-screen flex flex-col antialiased font-sans">
-        <StoreProvider>
-          <NextIntlClientProvider messages={messages} locale={locale}>
-            <main className="flex-grow">{children}</main>
-          </NextIntlClientProvider>
-        </StoreProvider>
-      </body>
-    </html>
+    <div dir={dir} lang={locale} className="min-h-screen flex flex-col antialiased font-sans w-full">
+      <StoreProvider>
+        <NextIntlClientProvider messages={messages} locale={locale}>
+          <main className="flex-grow w-full">{children}</main>
+        </NextIntlClientProvider>
+      </StoreProvider>
+    </div>
   );
 }

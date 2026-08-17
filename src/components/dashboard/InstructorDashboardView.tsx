@@ -454,23 +454,27 @@ export function InstructorDashboardView() {
 
                         {/* Status Badges (US-08) */}
                         {course.status === "published" && (
-                          <span className="px-2.5 py-0.5 rounded-full bg-emerald-100 text-[#0F5244] text-[11px] font-black border border-emerald-200">
-                            {isAr ? "منشور Published ✅" : "Published ✅"}
+                          <span className="px-2.5 py-0.5 rounded-full bg-emerald-100 text-[#0F5244] text-[11px] font-black border border-emerald-200 inline-flex items-center gap-1">
+                            <CheckCircle2 className="h-3 w-3 text-emerald-600 shrink-0" />
+                            <span>{isAr ? "منشور Published" : "Published"}</span>
                           </span>
                         )}
                         {course.status === "pending_review" && (
-                          <span className="px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 text-[11px] font-black border border-amber-200">
-                            {isAr ? "قيد المراجعة Pending Review ⏳" : "Pending Review ⏳"}
+                          <span className="px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 text-[11px] font-black border border-amber-200 inline-flex items-center gap-1">
+                            <Clock className="h-3 w-3 text-amber-600 shrink-0" />
+                            <span>{isAr ? "قيد المراجعة Pending Review" : "Pending Review"}</span>
                           </span>
                         )}
                         {course.status === "rejected" && (
-                          <span className="px-2.5 py-0.5 rounded-full bg-rose-100 text-rose-800 text-[11px] font-black border border-rose-200">
-                            {isAr ? "مرفوض Rejected ❌" : "Rejected ❌"}
+                          <span className="px-2.5 py-0.5 rounded-full bg-rose-100 text-rose-800 text-[11px] font-black border border-rose-200 inline-flex items-center gap-1">
+                            <XCircle className="h-3 w-3 text-rose-600 shrink-0" />
+                            <span>{isAr ? "مرفوض Rejected" : "Rejected"}</span>
                           </span>
                         )}
                         {course.status === "archived" && (
-                          <span className="px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600 text-[11px] font-black border border-slate-200">
-                            {isAr ? "مؤرشف Archived 📦" : "Archived 📦"}
+                          <span className="px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600 text-[11px] font-black border border-slate-200 inline-flex items-center gap-1">
+                            <Archive className="h-3 w-3 text-slate-500 shrink-0" />
+                            <span>{isAr ? "مؤرشف Archived" : "Archived"}</span>
                           </span>
                         )}
                         {course.status === "draft" && (
@@ -496,7 +500,7 @@ export function InstructorDashboardView() {
                         <span>•</span>
                         <span>{isAr ? "الطلاب:" : "Students:"} <strong className="text-slate-900">{course.studentsCount}</strong></span>
                         <span>•</span>
-                        <span>{isAr ? "التقييم:" : "Rating:"} <strong className="text-slate-900">{course.rating} ⭐</strong></span>
+                        <span>{isAr ? "التقييم:" : "Rating:"} <strong className="text-slate-900 inline-flex items-center gap-1">{course.rating} <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400 inline shrink-0" /></strong></span>
                       </div>
                     </div>
                   </div>
@@ -868,8 +872,6 @@ export function InstructorDashboardView() {
           courses.find((c) => c.id === archiveModalCourseId)?.[isAr ? "titleAr" : "titleEn"]
         }
       />
-
-      <Footer />
     </div>
   );
 }

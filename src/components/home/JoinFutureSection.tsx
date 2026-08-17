@@ -47,6 +47,8 @@ export function JoinFutureSection() {
 
               <Link
                 href={`/${locale}/become-instructor`}
+                aria-label={`${t("learnMore")} - ${t("becomeInstructor")}`}
+                title={`${t("learnMore")} - ${t("becomeInstructor")}`}
                 className="text-[#0F5244] hover:text-[#08382E] text-sm sm:text-base font-bold transition-colors inline-flex items-center gap-1.5 group"
               >
                 <span>{t("learnMore")}</span>

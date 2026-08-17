@@ -62,19 +62,26 @@ export function RealStoriesSection() {
   const touchEndX = useRef<number | null>(null);
 
   useEffect(() => {
+    let rafId: number | null = null;
     const handleResize = () => {
-      if (window.innerWidth < 768) {
-        setItemsPerPage(1);
-      } else if (window.innerWidth < 1024) {
-        setItemsPerPage(2);
-      } else {
-        setItemsPerPage(3);
-      }
+      if (rafId !== null) cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(() => {
+        if (window.innerWidth < 768) {
+          setItemsPerPage(1);
+        } else if (window.innerWidth < 1024) {
+          setItemsPerPage(2);
+        } else {
+          setItemsPerPage(3);
+        }
+      });
     };
 
     handleResize();
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
+    window.addEventListener("resize", handleResize, { passive: true });
+    return () => {
+      if (rafId !== null) cancelAnimationFrame(rafId);
+      window.removeEventListener("resize", handleResize);
+    };
   }, []);
 
   const maxIndex = Math.max(0, stories.length - itemsPerPage);
