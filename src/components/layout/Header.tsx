@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
@@ -28,9 +28,14 @@ export function Header({ lang, onLanguageToggle, variant = "main" }: HeaderProps
   const isAr = locale === "ar" || lang === "AR";
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   const { user, isAuthenticated } = useSelector((state: RootState) => state.auth);
   const cartItems = useSelector((state: RootState) => state.cart?.items || []);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const handleLanguageToggle = () => {
     if (onLanguageToggle) {
@@ -207,7 +212,7 @@ export function Header({ lang, onLanguageToggle, variant = "main" }: HeaderProps
             {/* Dropdown Menu */}
             {userDropdownOpen && (
               <div className="absolute right-0 rtl:left-0 rtl:right-auto mt-2 w-56 rounded-xl bg-white p-2 shadow-xl border border-slate-100 text-slate-700 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
-                {isAuthenticated ? (
+                {mounted && isAuthenticated ? (
                   <>
                     <div className="px-3 py-2 border-b border-slate-100">
                       <p className="text-sm font-bold text-slate-900 truncate">{user?.name || "User"}</p>
@@ -381,7 +386,7 @@ export function Header({ lang, onLanguageToggle, variant = "main" }: HeaderProps
               </div>
             </div>
 
-            {isAuthenticated ? (
+            {mounted && isAuthenticated ? (
               <button
                 onClick={handleLogout}
                 className="rounded-lg bg-red-50 p-2 text-red-600 hover:bg-red-100"

@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const rawBaseURL = process.env.NEXT_PUBLIC_API_URL || "";
+const rawBaseURL = process.env.NEXT_PUBLIC_API_URL || "/api";
 const baseURL = rawBaseURL.replace(/\/+$/, "");
 
 export const axiosInstance = axios.create({
@@ -111,18 +111,24 @@ axiosInstance.interceptors.response.use(
           throw new Error("No refresh token available");
         }
 
-        const res = await axios.post(
-          `${baseURL}/auth/login/refresh`,
-          {
-            refresh: refreshToken,
-            refreshToken,
-          },
-          {
-            headers: {
-              "Content-Type": "application/json",
-            },
-          },
-        );
+        let res;
+        try {
+          res = await axios.post(
+            `${baseURL}/auth/refresh`,
+            { refresh: refreshToken },
+            { headers: { "Content-Type": "application/json" } }
+          );
+        } catch (rErr: any) {
+          if (rErr?.response?.status === 404) {
+            res = await axios.post(
+              `${baseURL}/auth/login/refresh`,
+              { refresh: refreshToken },
+              { headers: { "Content-Type": "application/json" } }
+            );
+          } else {
+            throw rErr;
+          }
+        }
         const newToken = res.data.access || res.data.token;
         const newRefreshToken = res.data.refresh || res.data.refreshToken;
 

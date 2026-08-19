@@ -2,12 +2,13 @@
 
 import React, { useState, useEffect } from "react";
 import { useTranslations, useLocale } from "next-intl";
-import { Mail, X, Send, AlertCircle, CheckCircle2 } from "lucide-react";
+import { Mail, X, Send, AlertCircle, CheckCircle2, Loader2 } from "lucide-react";
+import { authService, getApiErrorMessage } from "@/services/auth";
 
 export interface ChangeEmailModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onConfirmEmailChange: (newEmail: string) => void;
+  onConfirmEmailChange?: (newEmail: string) => void;
   currentEmail?: string;
 }
 
@@ -24,6 +25,8 @@ export function ChangeEmailModal({
   const [newEmail, setNewEmail] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isSending, setIsSending] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -41,10 +44,12 @@ export function ChangeEmailModal({
     setNewEmail("");
     setError(null);
     setIsSending(false);
+    setIsSuccess(false);
+    setSuccessMessage(null);
     onClose();
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
@@ -60,11 +65,33 @@ export function ChangeEmailModal({
     }
 
     setIsSending(true);
-    setTimeout(() => {
+
+    try {
+      const res = await authService.requestEmailChange(newEmail.trim());
       setIsSending(false);
-      onConfirmEmailChange(newEmail);
-      handleClose();
-    }, 1500);
+      setIsSuccess(true);
+      const detailMsg = Array.isArray(res?.detail) ? res.detail.join(' ') : res?.detail;
+      setSuccessMessage(
+        res?.message ||
+          detailMsg ||
+          t("success") ||
+          (isAr
+            ? "تم إرسال رابط تأكيد التفعيل إلى بريدك الإلكتروني الجديد بنجاح."
+            : "Verification link has been sent to the new email address successfully.")
+      );
+
+      if (onConfirmEmailChange) {
+        onConfirmEmailChange(newEmail.trim());
+      }
+    } catch (err: any) {
+      setIsSending(false);
+      const msg = getApiErrorMessage(
+        err,
+        isAr ? "فشل طلب تغيير البريد الإلكتروني. يرجى المحاولة مرة أخرى." : "Failed to change email. Please try again.",
+        isAr
+      );
+      setError(msg);
+    }
   };
 
   if (!isOpen) return null;
@@ -112,10 +139,31 @@ export function ChangeEmailModal({
         {/* Modal Content / Form */}
         {isSending ? (
           <div className="py-8 px-4 rounded-2xl bg-emerald-50/70 border border-emerald-200/80 text-center space-y-3">
-            <Send className="h-8 w-8 text-[#0F5244] mx-auto animate-bounce" />
+            <Loader2 className="h-8 w-8 text-[#0F5244] mx-auto animate-spin" />
             <p className="text-sm font-extrabold text-[#0F5244]">
               {t("sending")}
             </p>
+          </div>
+        ) : isSuccess ? (
+          <div className="py-6 px-4 rounded-2xl bg-emerald-50/80 border border-emerald-200 text-center space-y-4">
+            <div className="w-14 h-14 rounded-full bg-emerald-100 text-[#0F5244] mx-auto flex items-center justify-center shadow-xs">
+              <CheckCircle2 className="h-8 w-8" />
+            </div>
+            <div className="space-y-1.5">
+              <h4 className="text-sm sm:text-base font-extrabold text-slate-900">
+                {isAr ? "تم إرسال رابط التأكيد بنجاح!" : "Verification Link Sent!"}
+              </h4>
+              <p className="text-xs sm:text-sm text-slate-600 font-medium max-w-xs mx-auto leading-relaxed">
+                {successMessage}
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={handleClose}
+              className="w-full py-2.5 rounded-xl bg-[#0F5244] hover:bg-[#07382E] text-white text-xs sm:text-sm font-extrabold cursor-pointer shadow-xs transition-all active:scale-98"
+            >
+              {isAr ? "حسناً، تم" : "Got it"}
+            </button>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4">

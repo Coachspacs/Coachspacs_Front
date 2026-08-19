@@ -9,9 +9,13 @@ export interface LoginRequest {
 export interface AuthResponse {
   user?: User;
   token?: string;
+  access?: string;
+  refresh?: string;
   refreshToken?: string;
+  role?: 'student' | 'instructor' | string;
+  approval_status?: 'pending' | 'approved' | 'rejected' | string;
   message?: string;
-  detail?: string;
+  detail?: string | string[];
 }
 
 export interface RegisterRequest {
@@ -54,23 +58,28 @@ export const authApi = apiSlice.injectEndpoints({
     }),
     resendVerificationEmail: builder.mutation<AuthResponse, ResendVerificationEmailRequest>({
       query: (body) => ({
-        url: '/auth/resend-verification-email',
+        url: '/auth/verify-email/resend',
         method: 'POST',
         body,
       }),
     }),
     forgotPassword: builder.mutation<{ message: string }, { email: string }>({
       query: (body) => ({
-        url: '/auth/forgot-password',
+        url: '/auth/password/forgot',
         method: 'POST',
         body,
       }),
     }),
-    resetPassword: builder.mutation<{ message: string }, { token: string; password: string }>({
+    resetPassword: builder.mutation<{ message: string }, { uid?: string; token: string; password: string }>({
       query: (body) => ({
-        url: '/auth/reset-password',
+        url: '/auth/password/reset',
         method: 'POST',
-        body,
+        body: {
+          uid: body.uid,
+          token: body.token,
+          new_password: body.password,
+          password: body.password,
+        },
       }),
     }),
   }),

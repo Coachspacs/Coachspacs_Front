@@ -87,14 +87,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${cairo.variable} ${plusJakartaSans.variable}`}>
+    <html lang="en" className={`${cairo.variable} ${plusJakartaSans.variable}`} suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://images.unsplash.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://images.unsplash.com" />
         <link rel="preconnect" href="https://picsum.photos" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://picsum.photos" />
       </head>
-      <body className="min-h-screen flex flex-col antialiased font-sans">
+      <body className="min-h-screen flex flex-col antialiased font-sans" suppressHydrationWarning>
         {children}
       </body>
     </html>

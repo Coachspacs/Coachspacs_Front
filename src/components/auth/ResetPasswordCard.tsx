@@ -26,8 +26,8 @@ export function ResetPasswordCard({ lang }: ResetPasswordCardProps) {
   const searchParams = useSearchParams();
   const currentLocale = (params?.locale as string) || locale;
 
-  const token = searchParams.get("token") || searchParams.get("code") || "";
-  const uid = searchParams.get("uid") || "";
+  const token = searchParams.get("token") || searchParams.get("code") || searchParams.get("key") || "";
+  const uid = searchParams.get("uid") || searchParams.get("uidb64") || searchParams.get("id") || "";
 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);

@@ -2,7 +2,6 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import { useTranslations, useLocale } from "next-intl";
-import { useRouter, usePathname } from "next/navigation";
 import { useSelector } from "react-redux";
 import { RootState } from "@/lib/store";
 import {
@@ -13,18 +12,12 @@ import {
   Camera,
   CheckCircle2,
   AlertCircle,
-  Briefcase,
   Globe,
-  Mail,
-  Send,
-  X,
   ShieldCheck,
-  UserCheck,
   Trash2,
   Building,
 } from "lucide-react";
 import dynamic from "next/dynamic";
-import { Sidebar } from "@/components/layout/Sidebar";
 
 const ChangeEmailModal = dynamic(() => import("@/components/modals/ChangeEmailModal").then((mod) => mod.ChangeEmailModal), { ssr: false });
 
@@ -40,8 +33,6 @@ export function InstructorSettingsView({}: InstructorSettingsViewProps = {}) {
   const tChangeEmail = useTranslations("changeEmailModal");
   const locale = useLocale() || "en";
   const isAr = locale === "ar";
-  const router = useRouter();
-  const pathname = usePathname();
 
   const { user } = useSelector((state: RootState) => state.auth);
 
@@ -238,15 +229,8 @@ export function InstructorSettingsView({}: InstructorSettingsViewProps = {}) {
               );
             })}
           </div>
-            
-            <div className="space-y-1">
-              <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-                {tInst("title")}
-              </h1>
-              <p className="text-xs sm:text-sm text-slate-500 font-medium">
-                {tInst("subtitle")}
-              </p>
-            </div>
+
+            {/* TAB 1: PROFILE */}
 
             {/* TAB 1: PROFILE */}
             {activeTab === "profile" && (

@@ -13,6 +13,7 @@ import {
   RefreshCw,
   AlertCircle,
   ShieldCheck,
+  Send,
 } from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
 import { authService, getApiErrorMessage } from "@/services/auth";
@@ -24,11 +25,23 @@ function VerifyEmailContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const uid = searchParams.get("uid");
-  const token = searchParams.get("token");
+  const uid =
+    searchParams.get("uid") ||
+    searchParams.get("uidb64") ||
+    searchParams.get("id") ||
+    searchParams.get("user_id") ||
+    searchParams.get("userId") ||
+    "";
+  const token =
+    searchParams.get("token") ||
+    searchParams.get("key") ||
+    searchParams.get("code") ||
+    "";
   const emailParam = searchParams.get("email") || "";
 
-  const [verifying, setVerifying] = useState<boolean>(Boolean(uid && token));
+  const hasVerificationParams = Boolean(token && (uid || token.length > 10));
+
+  const [verifying, setVerifying] = useState<boolean>(hasVerificationParams);
   const [verifiedSuccess, setVerifiedSuccess] = useState<boolean>(false);
   const [verifyError, setVerifyError] = useState<string | null>(null);
 
@@ -38,7 +51,7 @@ function VerifyEmailContent() {
   const [resendErrorMessage, setResendErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!uid || !token) return;
+    if (!token) return;
 
     let isMounted = true;
     setVerifying(true);
@@ -53,7 +66,11 @@ function VerifyEmailContent() {
       })
       .catch((err) => {
         if (!isMounted) return;
-        const msg = getApiErrorMessage(err, t("verifyFailed") || "Email verification failed or link is expired.");
+        const msg = getApiErrorMessage(
+          err,
+          t("verifyFailed") || (isAr ? "فشل التحقق من البريد الإلكتروني أو انتهت صلاحية الرابط." : "Email verification failed or link is expired."),
+          isAr
+        );
         setVerifyError(msg);
         setVerifiedSuccess(false);
         setVerifying(false);
@@ -62,12 +79,12 @@ function VerifyEmailContent() {
     return () => {
       isMounted = false;
     };
-  }, [uid, token, t]);
+  }, [uid, token, t, isAr]);
 
-  const handleResend = async (e?: React.FormEvent) => {
-    if (e) e.preventDefault();
-    if (!emailInput || !emailInput.trim()) {
-      setResendErrorMessage(t("emailRequired") || "Please enter a valid email address.");
+  const handleResend = async (manualEmail?: string) => {
+    const targetEmail = (manualEmail || emailInput || emailParam).trim();
+    if (!targetEmail || !targetEmail.includes("@")) {
+      setResendErrorMessage(isAr ? "يرجى إدخال بريد إلكتروني صحيح لإعادة الإرسال." : "Please enter a valid email address.");
       return;
     }
 
@@ -76,12 +93,19 @@ function VerifyEmailContent() {
     setResendErrorMessage(null);
 
     try {
-      const res = await authService.resendVerificationEmail({ email: emailInput.trim() });
+      const res = await authService.resendVerificationEmail({ email: targetEmail });
       setResendSuccessMessage(
-        res.message || t("resendSuccessMessage") || "Verification email has been sent successfully. Please check your inbox."
+        res.message ||
+          (typeof res.detail === "string" ? res.detail : null) ||
+          t("resendSuccessMessage") ||
+          (isAr ? "تم إرسال رابط تفعيل جديد بنجاح! يرجى مراجعة صندوق الوارد." : "New verification link sent successfully! Check your inbox.")
       );
     } catch (err: any) {
-      const msg = getApiErrorMessage(err, t("resendFailed") || "Failed to resend verification email.");
+      const msg = getApiErrorMessage(
+        err,
+        t("resendFailed") || (isAr ? "فشل إعادة إرسال رابط التحقق. يرجى المحاولة لاحقاً." : "Failed to resend verification email."),
+        isAr
+      );
       setResendErrorMessage(msg);
     } finally {
       setResending(false);
@@ -91,200 +115,214 @@ function VerifyEmailContent() {
   return (
     <div
       dir={isAr ? "rtl" : "ltr"}
-      className="relative mx-auto w-full max-w-[480px] rounded-xl bg-white p-6 sm:p-8 shadow-xl border border-slate-200/90 font-sans"
+      className="relative mx-auto w-full max-w-[420px] rounded-2xl bg-white p-6 sm:p-7 shadow-xl border border-slate-200/90 font-sans"
     >
-      <div className="mb-5 flex flex-col items-center text-center">
-        <div className="mb-3 flex items-center justify-center">
-          <Logo showText={false} compact={false} />
-        </div>
+      {/* Brand Logo */}
+      <div className="mb-4 flex flex-col items-center text-center">
+        <Logo showText={false} compact={true} />
       </div>
 
       {/* STATE 1: Automatic Verification In Progress */}
       {verifying && (
-        <div className="flex flex-col items-center text-center py-6">
-          <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-50 text-[#0F5244]">
-            <Loader2 className="h-8 w-8 animate-spin" />
+        <div className="flex flex-col items-center text-center py-4 animate-in fade-in duration-200">
+          <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-50 text-[#0F5244] border border-emerald-100 shadow-xs">
+            <Loader2 className="h-7 w-7 animate-spin" />
           </div>
-          <h1 className="text-xl sm:text-2xl font-extrabold text-slate-900 mb-2">
-            {t("verifyingTitle") || "Verifying Your Email..."}
+          <h1 className="text-lg sm:text-xl font-extrabold text-slate-900 tracking-tight mb-1.5">
+            {t("verifyingTitle") || (isAr ? "جاري التحقق من بريدك..." : "Verifying Your Email...")}
           </h1>
-          <p className="text-sm text-slate-500 max-w-sm">
-            {t("verifyingSubtitle") || "Please wait while we confirm your email address with CoachSpace."}
+          <p className="text-xs text-slate-500 max-w-xs leading-relaxed">
+            {t("verifyingSubtitle") || (isAr ? "يرجى الانتظار لحظات لتأكيد حسابك في CoachSpace." : "Please wait a moment while we confirm your account.")}
           </p>
         </div>
       )}
 
       {/* STATE 2: Verification Succeeded */}
       {!verifying && verifiedSuccess && (
-        <div className="flex flex-col items-center text-center py-4">
-          <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
-            <CheckCircle2 size={36} />
+        <div className="flex flex-col items-center text-center py-2 animate-in zoom-in-95 duration-200">
+          <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-50 text-[#0F5244] border border-emerald-200 shadow-xs">
+            <CheckCircle2 size={32} className="text-[#0F5244]" />
           </div>
-          <h1 className="text-xl sm:text-2xl font-extrabold text-slate-900 mb-2">
-            {t("emailVerifiedTitle") || "Email Verified Successfully!"}
+          <h1 className="text-lg sm:text-xl font-extrabold text-slate-900 tracking-tight mb-1.5">
+            {t("emailVerifiedTitle") || (isAr ? "تم تأكيد البريد بنجاح!" : "Email Verified Successfully!")}
           </h1>
-          <p className="text-sm text-slate-600 mb-6 max-w-sm leading-relaxed">
-            {t("emailVerifiedSubtitle") || "Your account is now fully verified. You can log in and start using CoachSpace."}
+          <p className="text-xs text-slate-600 mb-5 max-w-xs leading-relaxed font-medium">
+            {t("emailVerifiedSubtitle") || (isAr ? "تم تفعيل حسابك بالكامل. يمكنك الآن تسجيل الدخول والبدء." : "Your account is now fully verified. You can log in.")}
           </p>
           <Link
             href={`/${locale}/login`}
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-md bg-[#0F5244] hover:bg-[#083A30] px-6 text-sm font-extrabold text-white shadow-md transition-all cursor-pointer"
+            className="group flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#0F5244] hover:bg-[#083A30] px-5 text-xs sm:text-sm font-extrabold text-white shadow-md transition-all active:scale-[0.99] cursor-pointer"
           >
-            <span>{t("login") || "Sign In"}</span>
+            <span>{t("login") || (isAr ? "تسجيل الدخول" : "Sign In")}</span>
             <ArrowRight
               size={16}
-              className={`transition-transform ${isAr ? "rotate-180" : ""}`}
+              className={`transition-transform group-hover:translate-x-1 rtl:group-hover:-translate-x-1 ${isAr ? "rotate-180" : ""}`}
             />
           </Link>
         </div>
       )}
 
       {/* STATE 3: Verification Failed */}
-      {!verifying && !verifiedSuccess && uid && token && (
-        <div className="flex flex-col items-center text-center py-2">
-          <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-100 text-red-600">
-            <XCircle size={36} />
+      {!verifying && !verifiedSuccess && token && (
+        <div className="flex flex-col items-center text-center py-2 animate-in fade-in duration-200">
+          <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-rose-50 text-rose-500 border border-rose-200 shadow-xs">
+            <XCircle size={32} />
           </div>
-          <h1 className="text-xl sm:text-2xl font-extrabold text-slate-900 mb-2">
-            {t("verificationFailedTitle") || "Verification Failed"}
+          <h1 className="text-lg sm:text-xl font-extrabold text-slate-900 tracking-tight mb-1.5">
+            {t("verificationFailedTitle") || (isAr ? "فشل تأكيد البريد" : "Verification Failed")}
           </h1>
-          <p className="text-sm text-red-600 font-medium mb-4 max-w-sm">
+          <p className="text-xs text-rose-600 font-semibold mb-4 max-w-xs leading-relaxed">
             {verifyError}
           </p>
-          <p className="text-xs text-slate-500 mb-6 max-w-sm">
-            {t("verificationFailedDesc") || "The link may be invalid or expired. You can request a new verification link below."}
-          </p>
 
-          <form onSubmit={handleResend} className="w-full space-y-3">
-            {resendSuccessMessage && (
-              <div className="flex items-center gap-2 rounded-md bg-emerald-50 p-3 text-xs font-semibold text-emerald-700 border border-emerald-200">
-                <CheckCircle2 size={16} className="shrink-0 text-emerald-600" />
-                <span>{resendSuccessMessage}</span>
-              </div>
-            )}
-            {resendErrorMessage && (
-              <div className="flex items-center gap-2 rounded-md bg-red-50 p-3 text-xs font-semibold text-red-600 border border-red-200">
-                <AlertCircle size={16} className="shrink-0 text-red-500" />
-                <span>{resendErrorMessage}</span>
-              </div>
-            )}
-
-            <div className="relative">
-              <input
-                type="email"
-                value={emailInput}
-                onChange={(e) => setEmailInput(e.target.value)}
-                placeholder={t("emailPlaceholder") || "Enter your email address"}
-                className="w-full h-11 rounded-md border border-slate-300 px-3 pl-9 text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:border-[#0F5244] focus:outline-none focus:ring-2 focus:ring-[#0F5244]/20"
-                required
-              />
-              <Mail size={16} className="absolute left-3 top-3.5 text-slate-400" />
-            </div>
-
-            <button
-              type="submit"
-              disabled={resending}
-              className="flex h-11 w-full items-center justify-center gap-2 rounded-md bg-[#0F5244] hover:bg-[#083A30] px-4 text-xs sm:text-sm font-extrabold text-white shadow transition-all disabled:opacity-70 cursor-pointer"
-            >
-              {resending ? (
-                <Loader2 size={16} className="animate-spin" />
-              ) : (
-                <>
-                  <RefreshCw size={15} />
-                  <span>{t("resendVerificationEmail") || "Resend Verification Link"}</span>
-                </>
-              )}
-            </button>
-          </form>
-        </div>
-      )}
-
-      {/* STATE 4: Pending Inbox Verification (Accessed without uid/token query params) */}
-      {!verifying && !verifiedSuccess && (!uid || !token) && (
-        <div className="flex flex-col items-center text-center py-2">
-          <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-50 text-[#0F5244] border border-emerald-200 shadow-xs">
-            <CheckCircle2 size={36} className="text-[#0F5244]" />
-          </div>
-          <h1 className="text-xl sm:text-2xl font-extrabold text-slate-900 mb-2 flex items-center justify-center gap-2">
-            <span>{isAr ? "تم إنشاء الحساب بنجاح!" : "Account Created Successfully!"}</span>
-            <CheckCircle2 size={22} className="text-[#0F5244] shrink-0" />
-          </h1>
-          <p className="text-xs sm:text-sm text-slate-600 mb-4 leading-relaxed max-w-sm font-medium">
-            {isAr
-              ? `تم تسجيل بياناتك (${emailInput}) بنجاح على منصة كوتش سبيس. يمكنك الآن تسجيل الدخول مباشرة والبدء لاستخدام حسابك.`
-              : `Your account (${emailInput}) has been successfully registered on Coach Space. You can now log in directly and start using the platform.`}
-          </p>
-
-          <Link
-            href={`/${locale}/login`}
-            className="mb-6 flex h-11 sm:h-12 w-full items-center justify-center gap-2 rounded-md bg-[#0F5244] hover:bg-[#083A30] px-6 text-xs sm:text-sm font-extrabold text-white shadow-md transition-all cursor-pointer"
-          >
-            <span>{isAr ? "الانتقال لتسجيل الدخول" : "Proceed to Sign In"}</span>
-            <ArrowRight size={16} className={isAr ? "rotate-180" : ""} />
-          </Link>
-
-          <form onSubmit={handleResend} className="w-full space-y-3 pt-2 border-t border-slate-100">
-            {resendSuccessMessage && (
-              <div className="flex items-center gap-2 rounded-md bg-emerald-50 p-3 text-xs font-semibold text-emerald-700 border border-emerald-200">
-                <CheckCircle2 size={16} className="shrink-0 text-emerald-600" />
-                <span>{resendSuccessMessage}</span>
-              </div>
-            )}
-            {resendErrorMessage && (
-              <div className="flex items-center gap-2 rounded-md bg-red-50 p-3 text-xs font-semibold text-red-600 border border-red-200">
-                <AlertCircle size={16} className="shrink-0 text-red-500" />
-                <span>{resendErrorMessage}</span>
-              </div>
-            )}
-
-            <div className="text-left dir-ltr">
-              <label className="block text-xs font-bold text-slate-700 mb-1">
-                {t("email") || "Email Address"}
+          {/* Email input for resending if no email is set */}
+          {!emailInput && (
+            <div className="w-full mb-3 text-start">
+              <label htmlFor="resend-email" className="block text-xs font-semibold text-slate-700 mb-1">
+                {isAr ? "أدخل بريدك لإعادة إرسال رابط التفعيل:" : "Enter your email to receive a new link:"}
               </label>
               <div className="relative">
                 <input
+                  id="resend-email"
                   type="email"
                   value={emailInput}
                   onChange={(e) => setEmailInput(e.target.value)}
                   placeholder="name@example.com"
-                  className="w-full h-11 rounded-md border border-slate-300 px-3 pl-9 text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:border-[#0F5244] focus:outline-none focus:ring-2 focus:ring-[#0F5244]/20"
-                  required
+                  className="w-full h-10 px-3 py-2 text-xs rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-[#0F5244]/20 focus:border-[#0F5244]"
                 />
-                <Mail size={16} className="absolute left-3 top-3.5 text-slate-400" />
               </div>
             </div>
+          )}
 
-            <button
-              type="submit"
-              disabled={resending}
-              className="flex h-11 w-full items-center justify-center gap-2 rounded-md bg-[#0F5244] hover:bg-[#083A30] px-4 text-xs sm:text-sm font-extrabold text-white shadow transition-all disabled:opacity-70 cursor-pointer"
+          <button
+            type="button"
+            disabled={resending}
+            onClick={() => handleResend()}
+            className="flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#0F5244] hover:bg-[#083A30] px-4 text-xs sm:text-sm font-extrabold text-white shadow-md transition-all disabled:opacity-70 cursor-pointer active:scale-[0.99]"
+          >
+            {resending ? (
+              <Loader2 size={16} className="animate-spin" />
+            ) : (
+              <>
+                <RefreshCw size={15} />
+                <span>{t("resendVerificationEmail") || (isAr ? "إعادة إرسال رابط التحقق" : "Resend Verification Link")}</span>
+              </>
+            )}
+          </button>
+
+          {resendSuccessMessage && (
+            <div className="mt-3 flex items-center justify-center gap-1.5 text-xs font-semibold text-emerald-700 bg-emerald-50 p-2.5 rounded-xl border border-emerald-200/80 w-full">
+              <CheckCircle2 size={15} className="shrink-0 text-emerald-600" />
+              <span>{resendSuccessMessage}</span>
+            </div>
+          )}
+          {resendErrorMessage && (
+            <div className="mt-3 flex items-center justify-center gap-1.5 text-xs font-semibold text-rose-700 bg-rose-50 p-2.5 rounded-xl border border-rose-200/80 w-full">
+              <AlertCircle size={15} className="shrink-0 text-rose-500" />
+              <span>{resendErrorMessage}</span>
+            </div>
+          )}
+
+          <div className="mt-4 pt-3 border-t border-slate-100 w-full">
+            <Link
+              href={`/${locale}/login`}
+              className="text-xs font-bold text-[#0F5244] hover:underline"
             >
-              {resending ? (
-                <Loader2 size={16} className="animate-spin" />
-              ) : (
-                <>
-                  <RefreshCw size={15} />
-                  <span>{t("resendVerificationEmail") || "Resend Verification Link"}</span>
-                </>
-              )}
-            </button>
-          </form>
+              {isAr ? "العودة لتسجيل الدخول" : "Back to Sign In"}
+            </Link>
+          </div>
         </div>
       )}
 
-      {/* Security badge & back to login */}
-      <div className="mt-6 border-t border-slate-200/80 pt-4 text-center">
-        <div className="flex items-center justify-center gap-1.5 text-[11px] text-slate-400 font-semibold mb-2">
-          <ShieldCheck size={13} className="text-[#0F5244]" />
-          <span>{t("encryptedConnection") || "Secure 256-bit SSL Encryption"}</span>
-        </div>
-        <div className="text-xs text-slate-500 font-medium">
+      {/* STATE 4: Pending Inbox Verification (Main Screen after Register or manual navigation) */}
+      {!verifying && !verifiedSuccess && !token && (
+        <div className="flex flex-col items-center text-center py-1 animate-in fade-in duration-200">
+          <div className="mb-3.5 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-50 text-[#0F5244] border border-emerald-200 shadow-xs">
+            <Mail size={30} className="text-[#0F5244]" />
+          </div>
+
+          <h1 className="text-lg sm:text-xl font-extrabold text-slate-900 tracking-tight mb-1.5">
+            {isAr ? "تحقق من بريدك الإلكتروني" : "Check Your Inbox"}
+          </h1>
+
+          <p className="text-xs text-slate-500 leading-relaxed max-w-xs mb-1">
+            {isAr
+              ? "لقد أرسلنا رسالة تحتوي على رابط التفعيل إلى بريدك:"
+              : "We've sent a verification link to your email:"}
+          </p>
+
+          {/* Clean Email Pill or Input */}
+          {emailInput ? (
+            <div className="my-2.5 inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-50 border border-slate-200 text-slate-700 text-xs font-semibold dir-ltr shadow-xs max-w-full truncate">
+              <span className="h-2 w-2 rounded-full bg-emerald-500 shrink-0" />
+              <span className="truncate">{emailInput}</span>
+            </div>
+          ) : (
+            <div className="w-full my-2.5 text-start">
+              <input
+                type="email"
+                value={emailInput}
+                onChange={(e) => setEmailInput(e.target.value)}
+                placeholder="name@example.com"
+                className="w-full h-10 px-3 py-2 text-xs rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-[#0F5244]/20 focus:border-[#0F5244]"
+              />
+            </div>
+          )}
+
+          <p className="text-[11px] sm:text-xs text-slate-400 mb-4 max-w-xs leading-relaxed">
+            {isAr
+              ? "يرجى فتح الرسالة والنقر على الرابط لتفعيل حسابك والبدء فوراً."
+              : "Please open the message and click the link to activate your account."}
+          </p>
+
+          {/* Primary Action Button */}
           <Link
             href={`/${locale}/login`}
-            className="font-bold text-[#0F5244] transition-colors hover:underline"
+            className="group mb-3.5 flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#0F5244] hover:bg-[#083A30] px-5 text-xs sm:text-sm font-extrabold text-white shadow-md transition-all active:scale-[0.99] cursor-pointer"
           >
-            {t("backToSignIn") || "Back to Sign In"}
+            <span>{isAr ? "الانتقال لتسجيل الدخول" : "Proceed to Sign In"}</span>
+            <ArrowRight
+              size={16}
+              className={`transition-transform group-hover:translate-x-1 rtl:group-hover:-translate-x-1 ${isAr ? "rotate-180" : ""}`}
+            />
           </Link>
+
+          {/* Inline One-Click Resend Link */}
+          <div className="w-full pt-3 border-t border-slate-100">
+            <div className="flex items-center justify-center gap-1.5 text-xs text-slate-500">
+              <span>{isAr ? "لم تصلك الرسالة؟" : "Didn't receive the email?"}</span>
+              <button
+                type="button"
+                disabled={resending}
+                onClick={() => handleResend()}
+                className="font-bold text-[#0F5244] hover:underline cursor-pointer disabled:opacity-50 inline-flex items-center gap-1"
+              >
+                {resending && <Loader2 size={12} className="animate-spin inline" />}
+                <span>{isAr ? "إعادة إرسال الرابط" : "Resend Link"}</span>
+              </button>
+            </div>
+
+            {resendSuccessMessage && (
+              <div className="mt-2.5 flex items-center justify-center gap-1.5 rounded-xl bg-emerald-50 p-2 text-xs font-semibold text-emerald-800 border border-emerald-200/70 animate-in fade-in duration-200">
+                <CheckCircle2 size={14} className="shrink-0 text-emerald-600" />
+                <span>{resendSuccessMessage}</span>
+              </div>
+            )}
+            {resendErrorMessage && (
+              <div className="mt-2.5 flex items-center justify-center gap-1.5 rounded-xl bg-rose-50 p-2 text-xs font-semibold text-rose-700 border border-rose-200/70 animate-in fade-in duration-200">
+                <AlertCircle size={14} className="shrink-0 text-rose-500" />
+                <span>{resendErrorMessage}</span>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Footer Security Badge */}
+      <div className="mt-4 border-t border-slate-100 pt-3 text-center">
+        <div className="flex items-center justify-center gap-1.5 text-[11px] text-slate-400 font-medium">
+          <ShieldCheck size={13} className="text-emerald-600" />
+          <span>{t("encryptedConnection") || (isAr ? "بياناتك محمية ومشفرة 100%" : "Secure 256-bit SSL Encryption")}</span>
         </div>
       </div>
     </div>

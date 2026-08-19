@@ -1,7 +1,7 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { RootState } from '@/lib/store';
 
-const rawBaseURL = process.env.NEXT_PUBLIC_API_URL || '';
+const rawBaseURL = process.env.NEXT_PUBLIC_API_URL || '/api';
 const baseURL = rawBaseURL.replace(/\/+$/, '');
 
 export const apiSlice = createApi({

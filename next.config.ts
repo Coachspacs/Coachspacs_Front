@@ -1,9 +1,11 @@
+import path from 'path';
 import createNextIntlPlugin from 'next-intl/plugin';
 import type { NextConfig } from 'next';
 
 const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
 
 const nextConfig: NextConfig = {
+  outputFileTracingRoot: path.join(__dirname),
   reactStrictMode: true,
   compress: true,
   onDemandEntries: {
@@ -12,6 +14,7 @@ const nextConfig: NextConfig = {
   },
   images: {
     formats: ['image/avif', 'image/webp'],
+    qualities: [75, 80, 85, 90, 100],
     minimumCacheTTL: 2592000,
     remotePatterns: [
       {
@@ -27,28 +30,26 @@ const nextConfig: NextConfig = {
   compiler: {
     removeConsole: process.env.NODE_ENV === 'production',
   },
-  experimental: {
-    optimizePackageImports: [
-      'lucide-react',
-      'clsx',
-      'tailwind-merge',
-      '@reduxjs/toolkit',
-      'next-intl',
-    ],
-  },
-  modularizeImports: {
-    'lucide-react': {
-      transform: 'lucide-react/dist/esm/icons/{{kebabCase member}}',
-      preventFullImport: true,
-    },
+  async redirects() {
+    return [
+      {
+        source: '/auth/verify-email',
+        destination: '/verify-email',
+        permanent: false,
+      },
+    ];
   },
   async rewrites() {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-    if (!apiUrl) return [];
+    const targetUrl =
+      process.env.BACKEND_API_URL ||
+      process.env.API_BASE_URL ||
+      (process.env.NEXT_PUBLIC_API_URL && process.env.NEXT_PUBLIC_API_URL !== '/api' ? process.env.NEXT_PUBLIC_API_URL : null) ||
+      'https://coachspace-back.onrender.com/api';
+
     return [
       {
         source: '/api/:path*',
-        destination: `${apiUrl.replace(/\/+$/, '')}/:path*`,
+        destination: `${targetUrl.replace(/\/+$/, '')}/:path*`,
       },
     ];
   },

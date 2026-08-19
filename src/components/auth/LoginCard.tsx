@@ -27,6 +27,8 @@ export function LoginCard({ lang }: LoginCardProps) {
 
   const [showPassword, setShowPassword] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
+  const [isUnverifiedError, setIsUnverifiedError] = useState(false);
+  const [lastSubmittedEmail, setLastSubmittedEmail] = useState("");
 
   const {
     register,
@@ -43,6 +45,8 @@ export function LoginCard({ lang }: LoginCardProps) {
 
   const onSubmit = async (data: LoginFormData) => {
     setFormError(null);
+    setIsUnverifiedError(false);
+    setLastSubmittedEmail(data.email);
 
     try {
       const res = await authService.login({
@@ -54,7 +58,8 @@ export function LoginCard({ lang }: LoginCardProps) {
       const refreshToken = res.refresh || res.refreshToken || (res.data && (res.data.refresh || res.data.refreshToken));
 
       if (!token) {
-        throw new Error(res.message || res.detail || "Authentication token not received");
+        const errDetail = Array.isArray(res.detail) ? res.detail.join(' ') : res.detail;
+        throw new Error(res.message || errDetail || "Authentication token not received");
       }
 
       const rawUser = res.user || (res.data && res.data.user) || (typeof res.data === 'object' ? res.data : {}) || {};
@@ -86,6 +91,18 @@ export function LoginCard({ lang }: LoginCardProps) {
         isAr
       );
       setFormError(errorMessage);
+
+      const rawErrStr = JSON.stringify(err?.response?.data || "").toLowerCase() + " " + errorMessage.toLowerCase();
+      if (
+        rawErrStr.includes("verify") ||
+        rawErrStr.includes("verified") ||
+        rawErrStr.includes("activation") ||
+        rawErrStr.includes("تفعيل") ||
+        rawErrStr.includes("تحقق") ||
+        err?.response?.status === 403
+      ) {
+        setIsUnverifiedError(true);
+      }
     }
   };
 
@@ -118,9 +135,25 @@ export function LoginCard({ lang }: LoginCardProps) {
       {/* Form Section */}
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-3" noValidate>
         {formError && (
-          <div className="flex items-center gap-2.5 rounded-md bg-red-50 p-3 text-xs font-semibold text-red-600 border border-red-200">
-            <AlertCircle size={16} className="shrink-0 text-red-500" />
-            <span>{formError}</span>
+          <div className="rounded-md bg-red-50 p-3 text-xs font-semibold text-red-600 border border-red-200 space-y-1.5">
+            <div className="flex items-center gap-2.5">
+              <AlertCircle size={16} className="shrink-0 text-red-500" />
+              <span>{formError}</span>
+            </div>
+            {isUnverifiedError && (
+              <div className="pt-1 border-t border-red-200/60">
+                <Link
+                  href={`/${locale}/verify-email?email=${encodeURIComponent(lastSubmittedEmail)}`}
+                  className="font-bold text-[#0F5244] underline hover:text-[#083A30] text-[11px] flex items-center gap-1"
+                >
+                  <span>
+                    {isAr
+                      ? "لم تقم بتأكيد البريد بعد؟ اضغط هنا لإعادة إرسال رابط التفعيل"
+                      : "Email not verified yet? Click here to resend verification link"}
+                  </span>
+                </Link>
+              </div>
+            )}
           </div>
         )}
 

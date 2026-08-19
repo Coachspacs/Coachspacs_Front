@@ -70,6 +70,7 @@ export function MasterYourCraftSection() {
                   src={course.image}
                   alt={course.title}
                   fill
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 33vw, 380px"
                   className="object-cover group-hover:scale-105 transition-transform duration-500"
                 />
                 
@@ -117,6 +118,7 @@ export function MasterYourCraftSection() {
                         src={course.instructorAvatar}
                         alt={course.instructorName}
                         fill
+                        sizes="28px"
                         className="object-cover"
                       />
                     </div>

@@ -12,19 +12,12 @@ import {
   GraduationCap,
   Camera,
   CheckCircle2,
-  Save,
   AlertCircle,
   Trash2,
-  Award,
-  BookOpen,
-  UserCheck,
-  Globe,
-  Mail,
-  Send,
-  X
 } from "lucide-react";
-import { Sidebar } from "@/components/layout/Sidebar";
 import { ChangeEmailModal } from "@/components/modals/ChangeEmailModal";
+
+type SettingsTab = "profile" | "learning" | "security" | "preferences";
 
 interface StudentSettingsViewProps {}
 
@@ -40,7 +33,7 @@ export function StudentSettingsView({}: StudentSettingsViewProps = {}) {
   const { user } = useSelector((state: RootState) => state.auth);
 
   // Active Tab
-  const [activeTab, setActiveTab] = useState<"profile" | "learning" | "security" | "preferences">("profile");
+  const [activeTab, setActiveTab] = useState<SettingsTab>("profile");
 
   // Avatar & File ref
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -202,7 +195,7 @@ export function StudentSettingsView({}: StudentSettingsViewProps = {}) {
                 <button
                   key={tab.id}
                   type="button"
-                  onClick={() => setActiveTab(tab.id as any)}
+                  onClick={() => setActiveTab(tab.id as SettingsTab)}
                   className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
                     active
                       ? "bg-[#0F5244] text-white shadow-xs"

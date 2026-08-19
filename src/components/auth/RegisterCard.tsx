@@ -19,6 +19,7 @@ import {
   GraduationCap,
   Briefcase,
   ShieldCheck,
+  CheckCircle2,
 } from "lucide-react";
 import { FormField } from "@/components/ui/FormField";
 import { PasswordStrength } from "@/components/ui/PasswordStrength";
@@ -26,7 +27,6 @@ import { Logo } from "@/components/ui/Logo";
 import { registerSchema, type RegisterFormData } from "@/features/auth/schemas/authSchemas";
 import { authService, getApiErrorMessage, type UserRoleType } from "@/services/auth";
 import { setCredentials } from "@/features/auth/slice";
-
 
 interface RegisterCardProps {
   lang?: "EN" | "AR";
@@ -41,6 +41,7 @@ export function RegisterCard({ lang }: RegisterCardProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [submittedEmail, setSubmittedEmail] = useState("");
+  const [isAccountCreatedWarning, setIsAccountCreatedWarning] = useState(false);
 
   const {
     register,
@@ -70,7 +71,8 @@ export function RegisterCard({ lang }: RegisterCardProps) {
 
   const onSubmit = async (data: RegisterFormData) => {
     setFormError(null);
-    setSubmittedEmail(data.email);
+    setIsAccountCreatedWarning(false);
+    setSubmittedEmail(data.email.trim());
 
     try {
       const rolePayload: UserRoleType =
@@ -84,7 +86,7 @@ export function RegisterCard({ lang }: RegisterCardProps) {
 
       const res = await authService.register({
         full_name: data.fullName,
-        email: data.email,
+        email: data.email.trim(),
         password: data.password,
         role: rolePayload,
       });
@@ -106,7 +108,7 @@ export function RegisterCard({ lang }: RegisterCardProps) {
         dispatch(setCredentials({ user, token, refreshToken }));
       }
 
-      router.push(`/${locale}/verify-email?email=${encodeURIComponent(data.email)}`);
+      router.push(`/${locale}/verify-email?email=${encodeURIComponent(data.email.trim())}`);
     } catch (err: any) {
       console.warn("[RegisterCard] Registration catch block error:", {
         message: err?.message,
@@ -121,6 +123,17 @@ export function RegisterCard({ lang }: RegisterCardProps) {
         t("unexpectedError") || "An error occurred during registration",
         isAr
       );
+
+      const errString = JSON.stringify(err?.response?.data || '').toLowerCase() + ' ' + errorMessage.toLowerCase();
+      if (
+        errString.includes('already exists') ||
+        errString.includes('مسجل بالفعل') ||
+        err?.response?.status === 500 ||
+        err?.code === 'ERR_NETWORK'
+      ) {
+        setIsAccountCreatedWarning(true);
+      }
+
       setFormError(errorMessage);
     }
   };
@@ -184,9 +197,36 @@ export function RegisterCard({ lang }: RegisterCardProps) {
       {/* Form Section */}
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-3" noValidate>
         {formError && (
-          <div className="rounded-md bg-red-50 p-3 text-xs font-semibold text-red-600 border border-red-200 flex items-start gap-2.5">
-            <AlertCircle size={16} className="shrink-0 text-red-500 mt-0.5" />
-            <span>{formError}</span>
+          <div className="rounded-md bg-red-50 p-3 text-xs font-semibold text-red-600 border border-red-200 space-y-2">
+            <div className="flex items-start gap-2">
+              <AlertCircle size={16} className="shrink-0 text-red-500 mt-0.5" />
+              <span>{formError}</span>
+            </div>
+
+            {isAccountCreatedWarning && submittedEmail && (
+              <div className="pt-2 border-t border-red-200/70 text-[11px] text-slate-700 space-y-1.5">
+                <p className="font-medium text-slate-600">
+                  {isAr
+                    ? "هل تم تسجيل هذا الحساب مسبقاً؟ يمكنك الانتقال لتسجيل الدخول أو صفحة تأكيد البريد:"
+                    : "Account already exists or created on server? You can log in or verify email:"}
+                </p>
+                <div className="flex items-center gap-2 font-bold">
+                  <Link
+                    href={`/${locale}/login`}
+                    className="text-[#0F5244] underline hover:text-[#083A30]"
+                  >
+                    {isAr ? "تسجيل الدخول" : "Sign In"}
+                  </Link>
+                  <span className="text-slate-300">|</span>
+                  <Link
+                    href={`/${locale}/verify-email?email=${encodeURIComponent(submittedEmail)}`}
+                    className="text-[#0F5244] underline hover:text-[#083A30]"
+                  >
+                    {isAr ? "صفحة تأكيد البريد" : "Verify Email Page"}
+                  </Link>
+                </div>
+              </div>
+            )}
           </div>
         )}
 

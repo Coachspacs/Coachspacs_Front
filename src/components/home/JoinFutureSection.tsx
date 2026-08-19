@@ -63,6 +63,7 @@ export function JoinFutureSection() {
               src="/images/join-instructors.png"
               alt={t("joinTitle")}
               fill
+              sizes="(max-width: 1024px) 100vw, 42vw"
               className="object-cover object-center"
             />
           </div>

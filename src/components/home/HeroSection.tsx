@@ -22,7 +22,12 @@ export function HeroSection() {
   const locale = useLocale();
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
+  const [mounted, setMounted] = useState(false);
   const { user, isAuthenticated } = useSelector((state: RootState) => state.auth);
+
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -44,7 +49,7 @@ export function HeroSection() {
           <div className="lg:col-span-6 flex flex-col items-start text-left rtl:text-right z-10">
             
             {/* Logged in Welcome Pill / Badge */}
-            {isAuthenticated ? (
+            {mounted && isAuthenticated ? (
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#0F5244] text-white shadow-md mb-6 text-xs sm:text-sm font-bold animate-in fade-in duration-300">
                 <Sparkles className="w-4 h-4 text-[#6CF8BB] shrink-0" />
                 <span>
