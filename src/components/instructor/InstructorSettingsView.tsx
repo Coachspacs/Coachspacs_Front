@@ -23,10 +23,8 @@ const ChangeEmailModal = dynamic(() => import("@/components/modals/ChangeEmailMo
 
 type SettingsTab = "profile" | "payout" | "media" | "security";
 
-interface InstructorSettingsViewProps {}
-
 // Instructor Settings View Component
-export function InstructorSettingsView({}: InstructorSettingsViewProps = {}) {
+export function InstructorSettingsView() {
   const t = useTranslations("account");
   const tInst = useTranslations("instructorSettings");
   const tStudent = useTranslations("studentSettings");

@@ -19,9 +19,7 @@ import { ChangeEmailModal } from "@/components/modals/ChangeEmailModal";
 
 type SettingsTab = "profile" | "learning" | "security" | "preferences";
 
-interface StudentSettingsViewProps {}
-
-export function StudentSettingsView({}: StudentSettingsViewProps = {}) {
+export function StudentSettingsView() {
   const t = useTranslations("account");
   const tStudent = useTranslations("studentSettings");
   const tChangeEmail = useTranslations("changeEmailModal");
