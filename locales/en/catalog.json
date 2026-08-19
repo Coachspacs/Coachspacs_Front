@@ -1,0 +1,66 @@
+{
+  "header": {
+    "browse": "Browse",
+    "myLearning": "My Learning",
+    "mentors": "Mentors",
+    "resources": "Resources",
+    "switchLanguage": "العربية",
+    "notifications": "Notifications",
+    "wishlist": "Wishlist",
+    "profile": "Profile"
+  },
+  "search": {
+    "placeholder": "Search courses...",
+    "resultsFound": "{count} results found",
+    "sortBy": "Sort by:",
+    "sortOptions": {
+      "most_popular": "Most Popular",
+      "highest_rated": "Highest Rated",
+      "newest": "Newest",
+      "price_low_to_high": "Price: Low to High",
+      "price_high_to_low": "Price: High to Low"
+    }
+  },
+  "filters": {
+    "title": "Filters",
+    "subtitle": "Refine your search",
+    "level": "Level",
+    "price": "Price",
+    "language": "Language",
+    "category": "Category",
+    "applyFilters": "Apply Filters",
+    "resetAll": "Reset All",
+    "allLevels": "All Levels",
+    "beginner": "Beginner",
+    "intermediate": "Intermediate",
+    "advanced": "Advanced",
+    "allPrices": "All Prices",
+    "free": "Free",
+    "paid": "Paid",
+    "under50": "Under $50",
+    "range50to100": "$50 - $100",
+    "above100": "$100+",
+    "allLanguages": "All Languages",
+    "english": "English",
+    "arabic": "Arabic"
+  },
+  "card": {
+    "bestseller": "Bestseller",
+    "new": "New",
+    "popular": "Popular",
+    "hours": "hours",
+    "hour": "hour",
+    "reviews": "reviews",
+    "bookmark": "Save course"
+  },
+  "pagination": {
+    "previous": "Previous",
+    "next": "Next",
+    "page": "Page"
+  },
+  "emptyState": {
+    "title": "No courses found",
+    "description": "Try adjusting your search terms or filters to find what you are looking for.",
+    "resetButton": "Reset Filters"
+  }
+}

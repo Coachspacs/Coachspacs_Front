@@ -2,8 +2,6 @@ import React from 'react';
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages } from 'next-intl/server';
 import StoreProvider from '@/components/StoreProvider';
-import { Navbar } from '@/components/Navbar';
-import { Footer } from '@/components/Footer';
 
 export default async function LocaleLayout({
   children,
@@ -17,16 +15,12 @@ export default async function LocaleLayout({
   const dir = locale === 'ar' ? 'rtl' : 'ltr';
 
   return (
-    <html lang={locale} dir={dir} className="dark">
-      <body className="bg-slate-950 text-slate-100 min-h-screen flex flex-col antialiased">
-        <StoreProvider>
-          <NextIntlClientProvider messages={messages} locale={locale}>
-            <Navbar />
-            <main className="flex-grow">{children}</main>
-            <Footer />
-          </NextIntlClientProvider>
-        </StoreProvider>
-      </body>
-    </html>
+    <div dir={dir} lang={locale} className="min-h-screen flex flex-col antialiased font-sans w-full">
+      <StoreProvider>
+        <NextIntlClientProvider messages={messages} locale={locale}>
+          <main className="flex-grow w-full">{children}</main>
+        </NextIntlClientProvider>
+      </StoreProvider>
+    </div>
   );
 }
