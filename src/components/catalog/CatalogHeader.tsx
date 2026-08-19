@@ -33,7 +33,7 @@ export function CatalogHeader({ currentLocale }: CatalogHeaderProps) {
 
   const navItems = [
     { key: "browse", labelKey: "browse", href: `/${currentLocale}/courses`, active: true },
-    { key: "myLearning", labelKey: "myLearning", href: `/${currentLocale}/my-courses`, active: false },
+    { key: "myLearning", labelKey: "myLearning", href: `/${currentLocale}/account`, active: false },
     { key: "mentors", labelKey: "mentors", href: `/${currentLocale}/mentors`, active: false },
     { key: "resources", labelKey: "resources", href: `/${currentLocale}/resources`, active: false },
   ];
@@ -49,7 +49,7 @@ export function CatalogHeader({ currentLocale }: CatalogHeaderProps) {
             className="flex items-center gap-2 text-xl sm:text-2xl font-extrabold tracking-tight text-[#0F5244] hover:opacity-90 transition-opacity"
           >
             <span className="bg-[#0F5244] text-white px-2 py-0.5 rounded-lg text-lg font-black shadow-xs">C</span>
-            <span>{brandT("brandName")}</span>
+            <span className="hidden sm:inline">{brandT("brandName")}</span>
           </Link>
         </div>
 

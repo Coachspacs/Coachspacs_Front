@@ -1,33 +1,30 @@
 import type { FooterLinkGroup, NavigationItem } from "@/types";
 
-export const SITE_NAME = "Coach Space";
-export const SITE_TAGLINE = "Premium mentorship and education platform for the modern professional.";
-export const SITE_TAGLINE_AR = "منصة التدريب والتطوير الأولى للمحترفين وقادة المستقبل.";
+export const SITE_NAME_KEY = "site.name";
+export const SITE_TAGLINE_KEY = "site.tagline";
 
 export const HEADER_NAV_ITEMS: NavigationItem[] = [
-  { label: "Home", labelAr: "الرئيسية", href: "/" },
-  { label: "Courses", labelAr: "الدورات والبرامج", href: "#courses" },
-  { label: "Categories", labelAr: "التخصصات", href: "#categories" },
-  { label: "Become Instructor", labelAr: "انضم كمدرب", href: "#become-instructor" },
+  { key: "nav.home", href: "/" },
+  { key: "nav.courses", href: "#courses" },
+  { key: "nav.categories", href: "#categories" },
+  { key: "nav.becomeInstructor", href: "#become-instructor" },
 ];
 
 export const FOOTER_LINK_GROUPS: FooterLinkGroup[] = [
   {
-    title: "COMPANY",
-    titleAr: "الشركة",
+    key: "footer.company",
     links: [
-      { label: "About Us", labelAr: "من نحن", href: "#about" },
-      { label: "Careers", labelAr: "الوظائف", href: "#careers" },
-      { label: "Blog", labelAr: "المدونة", href: "#blog" },
+      { key: "footer.aboutUs", href: "#about" },
+      { key: "footer.careers", href: "#careers" },
+      { key: "footer.blog", href: "#blog" },
     ],
   },
   {
-    title: "SUPPORT",
-    titleAr: "الدعم الفني",
+    key: "footer.support",
     links: [
-      { label: "Help Center", labelAr: "مركز المساعدة", href: "#help" },
-      { label: "Safety Center", labelAr: "مركز الأمان", href: "#safety" },
-      { label: "Contact", labelAr: "تواصل معنا", href: "#contact" },
+      { key: "footer.helpCenter", href: "#help" },
+      { key: "footer.safetyCenter", href: "#safety" },
+      { key: "footer.contact", href: "#contact" },
     ],
   },
 ];

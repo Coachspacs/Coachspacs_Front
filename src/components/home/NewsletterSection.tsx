@@ -62,7 +62,7 @@ export function NewsletterSection() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder={t("newsletterPlaceholder")}
-                    className="w-full bg-white/10 border border-white/20 rounded-2xl px-5 py-3.5 text-white placeholder:text-emerald-100/60 text-sm focus:outline-none focus:ring-2 focus:ring-[#6CF8BB] focus:bg-white/15 transition-all"
+                    className="h-11 sm:h-12 w-full bg-white/10 border border-white/20 rounded-xl sm:rounded-2xl px-4 sm:px-5 text-white placeholder:text-emerald-100/60 text-[16px] sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#6CF8BB] focus:bg-white/15 transition-all"
                   />
                 </div>
 

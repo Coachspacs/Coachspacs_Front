@@ -13,17 +13,24 @@ export const cartSlice = createSlice({
   name: 'cart',
   initialState,
   reducers: {
-    addToCart: (state, action: PayloadAction<Course>) => {
-      const exists = state.items.some((item) => item.course.id === action.payload.id);
+    addToCart: (state, action: PayloadAction<any>) => {
+      const course = action.payload.course || action.payload;
+      const courseId = course.id || action.payload.courseId;
+      const exists = state.items.some((item: any) => (item.course?.id || item.courseId || item.id) === courseId);
       if (!exists) {
         state.items.push({
-          course: action.payload,
+          id: courseId,
+          courseId: courseId,
+          course: course,
+          title: course.title || course.titleEn || course.titleAr || "",
+          price: course.price || 0,
+          image: course.image || course.coverImage || course.thumbnail || "",
           addedAt: new Date().toISOString(),
         });
       }
     },
     removeFromCart: (state, action: PayloadAction<string>) => {
-      state.items = state.items.filter((item) => item.course.id !== action.payload);
+      state.items = state.items.filter((item: any) => (item.course?.id || item.courseId || item.id) !== action.payload);
     },
     clearCart: (state) => {
       state.items = [];

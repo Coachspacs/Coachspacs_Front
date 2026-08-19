@@ -1,13 +1,15 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { RootState } from '@/lib/store';
 
-const baseURL = process.env.NEXT_PUBLIC_API_URL || 'https://api.coachspace.example.com';
+const rawBaseURL = process.env.NEXT_PUBLIC_API_URL || '/api';
+const baseURL = rawBaseURL.replace(/\/+$/, '');
 
 export const apiSlice = createApi({
   reducerPath: 'api',
   baseQuery: fetchBaseQuery({
     baseUrl: baseURL,
     prepareHeaders: (headers, { getState }) => {
+      headers.set('Content-Type', 'application/json');
       const token = (getState() as RootState).auth.token || (typeof window !== 'undefined' ? localStorage.getItem('token') : null);
       if (token) {
         headers.set('authorization', `Bearer ${token}`);

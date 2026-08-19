@@ -28,6 +28,7 @@ export function CourseCatalogView() {
   const [filters, setFilters] = useState<FilterState>(INITIAL_FILTERS);
   const [activeFilters, setActiveFilters] = useState<FilterState>(INITIAL_FILTERS);
   const [currentPage, setCurrentPage] = useState<number>(1);
+  const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
 
   // Instant Filter change handler
   const handleFilterChange = (newFilters: FilterState) => {
@@ -73,11 +74,11 @@ export function CourseCatalogView() {
       const q = activeFilters.searchQuery.toLowerCase();
       result = result.filter(
         (c) =>
-          c.title.toLowerCase().includes(q) ||
-          c.titleAr.includes(q) ||
-          c.instructorName.toLowerCase().includes(q) ||
-          c.instructorNameAr.includes(q) ||
-          c.category.toLowerCase().includes(q)
+          (c.title || "").toLowerCase().includes(q) ||
+          (c.titleAr || "").includes(q) ||
+          (c.instructorName || "").toLowerCase().includes(q) ||
+          (c.instructorNameAr || "").includes(q) ||
+          (c.category || "").toLowerCase().includes(q)
       );
     }
 
@@ -110,12 +111,12 @@ export function CourseCatalogView() {
 
     // 5. Language
     if (activeFilters.selectedLanguage !== "All") {
-      result = result.filter((c) => c.language === activeFilters.selectedLanguage);
+      result = result.filter((c) => (c.language || "English") === activeFilters.selectedLanguage);
     }
 
     // 6. Sorting
     if (activeFilters.sortBy === "most_popular") {
-      result.sort((a, b) => b.reviewsCount - a.reviewsCount);
+      result.sort((a, b) => (b.reviewsCount || 0) - (a.reviewsCount || 0));
     } else if (activeFilters.sortBy === "highest_rated") {
       result.sort((a, b) => b.rating - a.rating);
     } else if (activeFilters.sortBy === "newest") {
@@ -153,6 +154,8 @@ export function CourseCatalogView() {
             onApplyFilters={handleApplyFilters}
             onResetFilters={handleResetFilters}
             isAr={isAr}
+            mobileDrawerOpen={mobileDrawerOpen}
+            onMobileDrawerOpenChange={setMobileDrawerOpen}
           />
 
           {/* Main Catalog Content */}
@@ -166,6 +169,8 @@ export function CourseCatalogView() {
               sortBy={filters.sortBy}
               onSortChange={handleSortChange}
               isAr={isAr}
+              onOpenMobileFilters={() => setMobileDrawerOpen(true)}
+              selectedFiltersCount={filters.selectedCategories.length}
             />
 
             {/* Course Cards Grid */}
