@@ -1,9 +1,12 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useParams, useRouter, usePathname } from "next/navigation";
+import { useSelector } from "react-redux";
+import { RootState } from "@/lib/store";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
+import { Loader2 } from "lucide-react";
 
 export default function AuthLayout({
   children,
@@ -18,6 +21,43 @@ export default function AuthLayout({
   const isAr = locale === "ar";
   const lang = isAr ? "AR" : "EN";
 
+  const { user, isAuthenticated } = useSelector((state: RootState) => state.auth);
+  const [checkingAuth, setCheckingAuth] = useState(true);
+
+  const pathWithoutLocale = pathname.replace(/^\/(?:ar|en)/, "") || "/";
+  const authPages = ["/login", "/register", "/forgot-password", "/reset-password"];
+  const isAuthPage = authPages.some(
+    (page) => pathWithoutLocale === page || pathWithoutLocale.startsWith(`${page}/`)
+  );
+
+  useEffect(() => {
+    const localToken = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+    const localUserStr = typeof window !== "undefined" ? localStorage.getItem("user") : null;
+    let localUser = null;
+    try {
+      if (localUserStr) localUser = JSON.parse(localUserStr);
+    } catch {}
+
+    const isUserLoggedIn = isAuthenticated || Boolean(localToken && (user || localUser));
+    const activeUser = user || localUser;
+
+    if (isAuthPage && isUserLoggedIn && activeUser) {
+      const role = activeUser.role || "student";
+      const status = activeUser.approval_status || activeUser.approvalStatus || "";
+
+      let redirectPath = `/${locale}/student`;
+      if (role === "instructor") {
+        redirectPath =
+          status === "approved"
+            ? `/${locale}/instructor/dashboard`
+            : `/${locale}/instructor`;
+      }
+      router.replace(redirectPath);
+    } else {
+      setCheckingAuth(false);
+    }
+  }, [isAuthenticated, user, isAuthPage, locale, router]);
+
   const toggleLanguage = () => {
     const nextLocale = locale === "ar" ? "en" : "ar";
     let newPath = pathname;
@@ -28,6 +68,19 @@ export default function AuthLayout({
     }
     router.push(newPath);
   };
+
+  if (isAuthPage && checkingAuth) {
+    return (
+      <div
+        dir={isAr ? "rtl" : "ltr"}
+        className="flex min-h-screen w-full items-center justify-center bg-slate-50 font-sans"
+      >
+        <div className="flex flex-col items-center gap-3">
+          <Loader2 className="h-8 w-8 animate-spin text-[#0F5244]" />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div

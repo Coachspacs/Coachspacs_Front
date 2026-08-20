@@ -20,6 +20,8 @@ export interface SidebarNavItem {
   label: string;
   icon: React.ComponentType<{ className?: string }>;
   href?: string;
+  onClick?: (e: React.MouseEvent) => void;
+  disabled?: boolean;
 }
 
 export interface SidebarProps {
@@ -185,8 +187,10 @@ export function Sidebar({ activeTab, onTabChange, items, user }: SidebarProps) {
               const Icon = item?.icon || LayoutDashboard;
               const active = isItemActive(item.id, item.href);
 
-              const handleItemClick = () => {
-                if (onTabChange) {
+              const handleItemClick = (e: React.MouseEvent) => {
+                if (item.onClick) {
+                  item.onClick(e);
+                } else if (onTabChange) {
                   onTabChange(item.id);
                 }
                 setIsOpen(false);
@@ -202,7 +206,7 @@ export function Sidebar({ activeTab, onTabChange, items, user }: SidebarProps) {
                 </>
               );
 
-              if (onTabChange || !item.href) {
+              if (onTabChange || !item.href || item.onClick) {
                 return (
                   <button
                     key={item.id}
@@ -272,13 +276,19 @@ export function Sidebar({ activeTab, onTabChange, items, user }: SidebarProps) {
                 </>
               );
 
-              if (onTabChange || !item.href) {
+              if (onTabChange || !item.href || item.onClick) {
                 return (
                   <button
                     key={item.id}
                     type="button"
                     aria-current={active ? "page" : undefined}
-                    onClick={() => onTabChange && onTabChange(item.id)}
+                    onClick={(e) => {
+                      if (item.onClick) {
+                        item.onClick(e);
+                      } else if (onTabChange) {
+                        onTabChange(item.id);
+                      }
+                    }}
                     className={`group w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm transition-all cursor-pointer ${
                       active
                         ? "bg-emerald-600 text-white shadow-md shadow-emerald-600/30 ring-2 ring-emerald-500/20 scale-[1.01]"

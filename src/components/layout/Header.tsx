@@ -220,7 +220,11 @@ export function Header({ lang, onLanguageToggle, variant = "main" }: HeaderProps
                     </div>
 
                     <Link
-                      href={user?.role === "INSTRUCTOR" ? `/${locale}/instructor/profile` : `/${locale}/student/profile`}
+                      href={
+                        (user?.role || "").toLowerCase() === "instructor" || (user?.role || "").toLowerCase() === "coach"
+                          ? `/${locale}/instructor/settings`
+                          : `/${locale}/student/profile`
+                      }
                       onClick={() => setUserDropdownOpen(false)}
                       className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium hover:bg-slate-50 transition-colors mt-1 text-slate-700"
                     >
@@ -228,9 +232,15 @@ export function Header({ lang, onLanguageToggle, variant = "main" }: HeaderProps
                       <span>{tNav("account")}</span>
                     </Link>
 
-                    {isAuthenticated && (user?.role === "INSTRUCTOR" || user?.role === "ADMIN") && (
+                    {isAuthenticated && (
                       <Link
-                        href={`/${locale}/dashboard`}
+                        href={
+                          (user?.role || "").toLowerCase() === "instructor" || (user?.role || "").toLowerCase() === "coach"
+                            ? (user?.approval_status === "approved" || user?.approvalStatus === "approved"
+                                ? `/${locale}/instructor/dashboard`
+                                : `/${locale}/instructor`)
+                            : `/${locale}/student/courses`
+                        }
                         onClick={() => setUserDropdownOpen(false)}
                         className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium hover:bg-slate-50 transition-colors text-slate-700"
                       >

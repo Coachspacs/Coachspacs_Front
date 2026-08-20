@@ -16,6 +16,7 @@ import {
   ShieldCheck,
   Trash2,
   Building,
+  Clock,
 } from "lucide-react";
 import dynamic from "next/dynamic";
 
@@ -43,6 +44,12 @@ export function InstructorSettingsView() {
 
   // Email Change Modal State
   const [showEmailModal, setShowEmailModal] = useState(false);
+
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Form State
   const [formData, setFormData] = useState({
@@ -102,12 +109,14 @@ export function InstructorSettingsView() {
     const file = e.target.files?.[0];
     if (file) {
       if (file.size > 5 * 1024 * 1024) {
-        alert(tStudent("avatarSizeExceeded"));
+        setToastMessage(tStudent("avatarSizeError"));
         return;
       }
-      setAvatarPreview(URL.createObjectURL(file));
-      setToastMessage(tStudent("avatarUpdated"));
-      setTimeout(() => setToastMessage(null), 3000);
+      const reader = new FileReader();
+      reader.onload = () => {
+        setAvatarPreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
     }
   };
 
@@ -142,17 +151,23 @@ export function InstructorSettingsView() {
     setTimeout(() => setToastMessage(null), 3500);
   };
 
+  const approvalStatus = (user?.approval_status || user?.approvalStatus || "pending").toLowerCase();
+  const isApproved = approvalStatus === "approved";
+  const isRejected = approvalStatus === "rejected";
+  const isPending = !isApproved && !isRejected;
+
   return (
-    <div className="w-full space-y-6">
-      {/* Toast */}
+    <div className="w-full space-y-6 animate-in fade-in duration-200" dir={isAr ? "rtl" : "ltr"}>
+      
+      {/* Dynamic Toast Feedback Notification */}
       {toastMessage && (
-        <div className="fixed bottom-6 right-6 rtl:right-auto rtl:left-6 z-50 flex items-center gap-2.5 bg-[#0F5244] text-white px-5 py-3.5 rounded-2xl shadow-2xl animate-in slide-in-from-bottom-4 duration-200">
-          <CheckCircle2 className="h-4 w-4 text-emerald-300 shrink-0" />
-          <span className="text-xs sm:text-sm font-bold">{toastMessage}</span>
+        <div className="fixed top-6 right-6 rtl:right-auto rtl:left-6 z-50 bg-[#0F5244] text-white px-5 py-3 rounded-2xl shadow-xl flex items-center gap-3 text-xs sm:text-sm font-bold animate-in slide-in-from-top-4 duration-200">
+          <CheckCircle2 className="h-4 w-4 text-emerald-300" />
+          <span>{toastMessage}</span>
         </div>
       )}
 
-      {/* Email Verification Modal */}
+      {/* Change Email Modal */}
       <ChangeEmailModal
         isOpen={showEmailModal}
         onClose={() => setShowEmailModal(false)}
@@ -167,21 +182,54 @@ export function InstructorSettingsView() {
       {/* Account Approval Status Banner */}
       <div className="p-4 rounded-3xl bg-white border border-slate-200/80 shadow-2xs flex flex-col sm:flex-row items-center justify-between gap-4">
         <div className="flex items-center gap-3 text-center sm:text-start">
-          <div className="p-2.5 rounded-2xl bg-emerald-50 text-[#0F5244] border border-emerald-200 shrink-0">
-            <ShieldCheck className="h-5 w-5" />
+          <div
+            className={`p-2.5 rounded-2xl border shrink-0 ${
+              isApproved
+                ? "bg-emerald-50 text-[#0F5244] border-emerald-200"
+                : isRejected
+                ? "bg-rose-50 text-rose-700 border-rose-200"
+                : "bg-amber-50 text-amber-700 border-amber-200/80"
+            }`}
+          >
+            {isApproved ? (
+              <ShieldCheck className="h-5 w-5" />
+            ) : isRejected ? (
+              <AlertCircle className="h-5 w-5" />
+            ) : (
+              <Clock className="h-5 w-5" />
+            )}
           </div>
 
           <div>
-            <div className="flex items-center justify-center sm:justify-start gap-2">
+            <div className="flex items-center justify-center sm:justify-start gap-2 flex-wrap">
               <h4 className="text-xs sm:text-sm font-extrabold text-slate-900">
-                {tInst.has("approvalStatusTitle") ? tInst("approvalStatusTitle") : (isAr ? "حالة توثيق المدرب" : "Instructor Verification Status")}
+                {tInst("approvalStatusTitle")}
               </h4>
-              <span className="px-2.5 py-0.5 rounded-full bg-emerald-100 text-[#0F5244] text-[11px] font-extrabold">
-                {tInst.has("approvedBadge") ? tInst("approvedBadge") : (isAr ? "موثق ونشط" : "Verified & Active")}
-              </span>
+              {isApproved ? (
+                <span className="px-2.5 py-0.5 rounded-full bg-emerald-100 text-[#0F5244] border border-emerald-200 text-[11px] font-extrabold inline-flex items-center gap-1">
+                  <CheckCircle2 className="h-3 w-3 text-emerald-600" />
+                  <span>{tInst("approvedBadge")}</span>
+                </span>
+              ) : isRejected ? (
+                <span className="px-2.5 py-0.5 rounded-full bg-rose-100 text-rose-800 border border-rose-200 text-[11px] font-extrabold inline-flex items-center gap-1">
+                  <AlertCircle className="h-3 w-3 text-rose-600" />
+                  <span>{tInst("rejectedBadge")}</span>
+                </span>
+              ) : (
+                <span className="px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200/90 text-[11px] font-bold inline-flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+                  <span>{isAr ? "قيد المراجعة" : "Under Review"}</span>
+                </span>
+              )}
             </div>
             <p className="text-xs text-slate-500 font-medium mt-0.5">
-              {tInst.has("approvedDescription") ? tInst("approvedDescription") : (isAr ? "حسابك كمدرب موثق وجاهز لنشر الدورات واستلام المستحقات المالية." : "Your instructor account is verified and ready to publish courses and receive payouts.")}
+              {isApproved
+                ? tInst("approvedDescription")
+                : isRejected
+                ? tInst("rejectedDescription")
+                : (isAr
+                    ? "طلب انضمامك كمدرب قيد التدقيق حالياً من قبل الإدارة. ستصلك رسالة تأكيد عبر البريد فور الاعتماد."
+                    : tInst("pendingDescription"))}
             </p>
           </div>
         </div>
@@ -243,8 +291,8 @@ export function InstructorSettingsView() {
                     {avatarPreview ? (
                       <img src={avatarPreview} alt="Avatar" className="w-full h-full object-cover" />
                     ) : (
-                      <span className="select-none font-black text-3xl sm:text-4xl text-[#0F5244]">
-                        {formData.fullName.charAt(0)}
+                      <span suppressHydrationWarning className="select-none font-black text-3xl sm:text-4xl text-[#0F5244]">
+                        {(mounted ? formData.fullName : "").charAt(0) || "U"}
                       </span>
                     )}
 

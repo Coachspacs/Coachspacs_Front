@@ -1,6 +1,21 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { User, AuthState } from '@/types';
 
+function syncAuthCookies(token: string | null, user: User | null) {
+  if (typeof document === 'undefined') return;
+  if (token && user) {
+    const maxAge = 60 * 60 * 24 * 7; // 7 days
+    document.cookie = `auth_token=${encodeURIComponent(token)}; path=/; max-age=${maxAge}; SameSite=Lax`;
+    document.cookie = `user_role=${encodeURIComponent(user.role || 'student')}; path=/; max-age=${maxAge}; SameSite=Lax`;
+    const status = (user as any)?.approval_status || (user as any)?.approvalStatus || '';
+    document.cookie = `user_status=${encodeURIComponent(status)}; path=/; max-age=${maxAge}; SameSite=Lax`;
+  } else {
+    document.cookie = 'auth_token=; path=/; max-age=0; SameSite=Lax';
+    document.cookie = 'user_role=; path=/; max-age=0; SameSite=Lax';
+    document.cookie = 'user_status=; path=/; max-age=0; SameSite=Lax';
+  }
+}
+
 const getInitialState = (): AuthState => {
   if (typeof window === 'undefined') {
     return {
@@ -23,6 +38,7 @@ const getInitialState = (): AuthState => {
     localStorage.removeItem('user');
     token = null;
     refreshToken = null;
+    syncAuthCookies(null, null);
   } else {
     try {
       const storedUser = localStorage.getItem('user');
@@ -32,6 +48,12 @@ const getInitialState = (): AuthState => {
     } catch (e) {
       user = null;
     }
+  }
+
+  if (token && user) {
+    syncAuthCookies(token, user);
+  } else {
+    syncAuthCookies(null, null);
   }
 
   return {
@@ -67,6 +89,7 @@ export const authSlice = createSlice({
         if (action.payload.user) {
           localStorage.setItem('user', JSON.stringify(action.payload.user));
         }
+        syncAuthCookies(action.payload.token, action.payload.user);
       }
     },
     logout: (state) => {
@@ -78,6 +101,7 @@ export const authSlice = createSlice({
         localStorage.removeItem('token');
         localStorage.removeItem('refreshToken');
         localStorage.removeItem('user');
+        syncAuthCookies(null, null);
       }
     },
     updateUser: (state, action: PayloadAction<Partial<User>>) => {
@@ -85,6 +109,7 @@ export const authSlice = createSlice({
         state.user = { ...state.user, ...action.payload };
         if (typeof window !== 'undefined') {
           localStorage.setItem('user', JSON.stringify(state.user));
+          syncAuthCookies(state.token, state.user);
         }
       }
     },

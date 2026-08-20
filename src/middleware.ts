@@ -48,6 +48,63 @@ export default function middleware(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
+  const currentLocaleMatch = pathname.match(/^\/(ar|en)/);
+  const currentLocale = currentLocaleMatch ? currentLocaleMatch[1] : 'en';
+  const pathWithoutLocale = pathname.replace(/^\/(?:ar|en)/, '') || '/';
+
+  // 5. Auth Guest Guard: Prevent logged-in users from accessing login, register, forgot-password, reset-password
+  const authToken = request.cookies.get('auth_token')?.value;
+  const isAuthenticated = Boolean(authToken && authToken !== 'undefined' && authToken !== 'null');
+
+  if (isAuthenticated) {
+    const authPages = ['/login', '/register', '/forgot-password', '/reset-password'];
+    const isAuthPage = authPages.some(page => pathWithoutLocale === page || pathWithoutLocale.startsWith(`${page}/`));
+
+    if (isAuthPage) {
+      const userRole = decodeURIComponent(request.cookies.get('user_role')?.value || 'student');
+      const userStatus = decodeURIComponent(request.cookies.get('user_status')?.value || '');
+
+      let redirectPath = `/${currentLocale}/student`;
+      if (userRole === 'instructor') {
+        redirectPath = userStatus === 'approved'
+          ? `/${currentLocale}/instructor/dashboard`
+          : `/${currentLocale}/instructor`;
+      }
+
+      const url = request.nextUrl.clone();
+      url.pathname = redirectPath;
+      url.search = '';
+      return NextResponse.redirect(url);
+    }
+  }
+
+  // 6. Protected Routes Guard: Protect instructor, student, account, and profile pages
+  const isInstructorRoute = pathWithoutLocale.startsWith('/instructor');
+  const isStudentRoute = pathWithoutLocale.startsWith('/student');
+  const isAccountRoute = pathWithoutLocale === '/account' || pathWithoutLocale.startsWith('/account/');
+  const isProfileRoute = pathWithoutLocale === '/profile' || pathWithoutLocale.startsWith('/profile/');
+
+  const isProtectedRoute = isInstructorRoute || isStudentRoute || isAccountRoute || isProfileRoute;
+
+  if (isProtectedRoute) {
+    // 6.1 If unauthenticated, redirect to login with return path
+    if (!isAuthenticated) {
+      const url = request.nextUrl.clone();
+      url.pathname = `/${currentLocale}/login`;
+      url.search = `?redirect=${encodeURIComponent(pathname + (search || ''))}`;
+      return NextResponse.redirect(url);
+    }
+
+    // 6.2 Role-Based Access: Students cannot access instructor routes
+    const userRole = decodeURIComponent(request.cookies.get('user_role')?.value || 'student');
+    if (isInstructorRoute && userRole === 'student') {
+      const url = request.nextUrl.clone();
+      url.pathname = `/${currentLocale}/student`;
+      url.search = '';
+      return NextResponse.redirect(url);
+    }
+  }
+
   return intlMiddleware(request);
 }
 

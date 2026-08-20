@@ -20,7 +20,10 @@ import {
   UserCheck,
   Trash2,
   Building,
+  Clock,
 } from "lucide-react";
+import { useSelector } from "react-redux";
+import { RootState } from "@/lib/store";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { Sidebar } from "@/components/layout/Sidebar";
@@ -40,6 +43,12 @@ export function InstructorSettingsView({ onRoleSwitch }: InstructorSettingsViewP
   const router = useRouter();
   const pathname = usePathname();
 
+  const { user } = useSelector((state: RootState) => state.auth);
+
+  const approvalStatus = (user?.approval_status || user?.approvalStatus || "pending").toLowerCase();
+  const isApproved = approvalStatus === "approved";
+  const isRejected = approvalStatus === "rejected";
+  const isPending = !isApproved && !isRejected;
 
   // Active Tab
   const [activeTab, setActiveTab] = useState<"profile" | "payout" | "media" | "security">("profile");
@@ -53,36 +62,29 @@ export function InstructorSettingsView({ onRoleSwitch }: InstructorSettingsViewP
 
   // Form State
   const [formData, setFormData] = useState({
-    fullName: tInst("defaultFullName"),
-    email: "tarek.mansoor@example.com",
+    fullName: user?.fullName || user?.name || tInst("defaultFullName"),
+    email: user?.email || "tarek.mansoor@example.com",
     phone: "+966 50 987 6543",
-    headline: tInst("defaultHeadline"),
+    headline: user?.headline || tInst("defaultHeadline"),
     specialization: "Data Science & AI",
-    experienceYears: "8",
-    hourlyRate: "120",
-    bio: tInst("defaultBio"),
-
-    // Payout
+    experienceYears: 10,
+    hourlyRate: 85,
+    bio: user?.bio || tInst("defaultBio"),
     payoutMethod: "bank",
-    bankIban: "SA03 8000 0000 6080 1010 1000",
-    paypalEmail: "tarek.mansoor@example.com",
+    bankIban: "SA0380000000608010167519",
+    paypalEmail: user?.email || "instructor@paypal.com",
     autoPayout: true,
-
-    // Media & Links
-    introVideoUrl: "https://youtube.com/watch?v=demo123",
-    website: "https://tarekmansoor.ai",
+    introVideoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+    website: "https://tarek-mansoor.com",
     linkedin: "https://linkedin.com/in/tarekmansoor",
-    twitter: "https://x.com/tarekmansoor",
-
-    // Security
     currentPassword: "",
     newPassword: "",
     confirmPassword: "",
   });
 
-  const [isSaving, setIsSaving] = useState(false);
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [passwordError, setPasswordError] = useState<string | null>(null);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target;
@@ -114,13 +116,6 @@ export function InstructorSettingsView({ onRoleSwitch }: InstructorSettingsViewP
     }
   };
 
-
-  const handleLanguageSwitch = (newLang: string) => {
-    if (newLang === locale) return;
-    const newPath = pathname.replace(`/${locale}`, `/${newLang}`);
-    router.push(newPath);
-  };
-
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     setPasswordError(null);
@@ -128,12 +123,10 @@ export function InstructorSettingsView({ onRoleSwitch }: InstructorSettingsViewP
     if (formData.newPassword || formData.confirmPassword) {
       if (formData.newPassword !== formData.confirmPassword) {
         setPasswordError(t("passwordsDoNotMatch"));
-        setActiveTab("security");
         return;
       }
       if (formData.newPassword.length < 8) {
         setPasswordError(t("passwordMinLength"));
-        setActiveTab("security");
         return;
       }
     }
@@ -163,8 +156,7 @@ export function InstructorSettingsView({ onRoleSwitch }: InstructorSettingsViewP
         <ChangeEmailModal
           isOpen={showEmailModal}
           onClose={() => setShowEmailModal(false)}
-          currentEmail={formData.email}
-          onConfirmEmailChange={(newEmail) => {
+          onConfirmEmailChange={(newEmail: string) => {
             setFormData((prev) => ({ ...prev, email: newEmail }));
             setToastMessage(tChangeEmail("success"));
             setTimeout(() => setToastMessage(null), 4000);
@@ -174,21 +166,54 @@ export function InstructorSettingsView({ onRoleSwitch }: InstructorSettingsViewP
         {/* Account Approval Status Banner */}
         <div className="p-4 rounded-3xl bg-white border border-slate-200/80 shadow-2xs flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-3 text-center sm:text-start">
-            <div className="p-2.5 rounded-2xl bg-emerald-50 text-[#0F5244] border border-emerald-200 shrink-0">
-              <ShieldCheck className="h-5 w-5" />
+            <div
+              className={`p-2.5 rounded-2xl border shrink-0 ${
+                isApproved
+                  ? "bg-emerald-50 text-[#0F5244] border-emerald-200"
+                  : isRejected
+                  ? "bg-rose-50 text-rose-700 border-rose-200"
+                  : "bg-amber-50 text-amber-700 border-amber-200/80"
+              }`}
+            >
+              {isApproved ? (
+                <ShieldCheck className="h-5 w-5" />
+              ) : isRejected ? (
+                <AlertCircle className="h-5 w-5" />
+              ) : (
+                <Clock className="h-5 w-5" />
+              )}
             </div>
 
             <div>
-              <div className="flex items-center justify-center sm:justify-start gap-2">
+              <div className="flex items-center justify-center sm:justify-start gap-2 flex-wrap">
                 <h4 className="text-xs sm:text-sm font-extrabold text-slate-900">
                   {tInst("approvalStatusTitle")}
                 </h4>
-                <span className="px-2.5 py-0.5 rounded-full bg-emerald-100 text-[#0F5244] text-[11px] font-extrabold">
-                  {tInst("approvedBadge")}
-                </span>
+                {isApproved ? (
+                  <span className="px-2.5 py-0.5 rounded-full bg-emerald-100 text-[#0F5244] border border-emerald-200 text-[11px] font-extrabold inline-flex items-center gap-1">
+                    <CheckCircle2 className="h-3 w-3 text-emerald-600" />
+                    <span>{tInst("approvedBadge")}</span>
+                  </span>
+                ) : isRejected ? (
+                  <span className="px-2.5 py-0.5 rounded-full bg-rose-100 text-rose-800 border border-rose-200 text-[11px] font-extrabold inline-flex items-center gap-1">
+                    <AlertCircle className="h-3 w-3 text-rose-600" />
+                    <span>{tInst("rejectedBadge")}</span>
+                  </span>
+                ) : (
+                  <span className="px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200/90 text-[11px] font-bold inline-flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+                    <span>{isAr ? "قيد المراجعة" : "Under Review"}</span>
+                  </span>
+                )}
               </div>
               <p className="text-xs text-slate-500 font-medium mt-0.5">
-                {tInst("approvedDescription")}
+                {isApproved
+                  ? tInst("approvedDescription")
+                  : isRejected
+                  ? tInst("rejectedDescription")
+                  : (isAr
+                      ? "طلب انضمامك كمدرب قيد التدقيق حالياً من قبل الإدارة. ستصلك رسالة تأكيد عبر البريد فور الاعتماد."
+                      : tInst("pendingDescription"))}
               </p>
             </div>
           </div>
@@ -266,7 +291,7 @@ export function InstructorSettingsView({ onRoleSwitch }: InstructorSettingsViewP
                       {avatarPreview ? (
                         <img src={avatarPreview} alt="Avatar" className="w-full h-full object-cover" />
                       ) : (
-                        <span className="select-none font-black text-3xl sm:text-4xl text-[#0F5244]">
+                        <span suppressHydrationWarning className="select-none font-black text-3xl sm:text-4xl text-[#0F5244]">
                           {formData.fullName.charAt(0)}
                         </span>
                       )}

@@ -1,61 +1,51 @@
 import arMessages from '../../messages/ar.json';
 import enMessages from '../../messages/en.json';
 
-const DJANGO_ARABIC_TRANSLATIONS: Record<string, string> = {
-  'No active account found with the given credentials.':
-    'البريد الإلكتروني أو كلمة المرور غير صحيحة، أو لم يتم تفعيل الحساب بعد.',
-  'This verification link is invalid or has expired.':
-    'رابط التحقق غير صالح أو انتهت صلاحيته. يرجى طلب رابط جديد.',
-  'This password is too common.':
-    'كلمة المرور هذه شائعة وسهلة التخمين، يرجى اختيار كلمة مرور أقوى.',
-  'This password is too short. It must contain at least 8 characters.':
-    'كلمة المرور قصيرة جداً، يجب أن تتكون من 8 خانات على الأقل.',
-  'This password is too similar to the email.':
-    'كلمة المرور مطابقة أو شديدة الشبه بالبريد الإلكتروني، يرجى تغييرها.',
-  'A user with that email already exists.':
-    'يوجد حساب مسجل بهذا البريد الإلكتروني بالفعل.',
-  'user with this email already exists.':
-    'يوجد حساب مسجل بهذا البريد الإلكتروني بالفعل.',
-  'Custom user with this email already exists.':
-    'يوجد حساب مسجل بهذا البريد الإلكتروني بالفعل.',
-  'Token is invalid or expired':
-    'الرمز غير صالح أو انتهت صلاحيته.',
-  'Invalid token':
-    'رمز غير صالح أو منتهي الصلاحية.',
-  'Given token not valid for any token type':
-    'انتهت صلاحية الجلسة، يرجى تسجيل الدخول مجدداً.',
-};
-
 /**
  * Standardized API Error Parser for LMS Frontend
- * Handles:
- * - Network Errors & Server Offline (sourced from JSON translations)
- * - 500 Internal Server Errors (sourced from JSON translations)
- * - 404 Not Found & HTML Error responses (sourced from JSON translations)
- * - Django REST Framework validation errors (field errors, non_field_errors, detail, message)
- * - Bilingual Arabic & English messages loaded from messages/*.json
+ * All translations and error messages are loaded dynamically from JSON translation files:
+ * - messages/ar.json -> apiErrors
+ * - messages/en.json -> apiErrors
  */
 export function getApiErrorMessage(
   error: any,
   fallbackMessage?: string,
   isAr: boolean = false
 ): string {
-  const dictionary = isAr ? arMessages?.apiErrors : enMessages?.apiErrors;
+  const dictionary = (isAr ? arMessages?.apiErrors : enMessages?.apiErrors) || {};
+  const rawTranslations = (dictionary as any)?.translations;
   const defaultFallback = fallbackMessage || dictionary?.fallback || '';
 
   if (!error) return defaultFallback;
 
   const translateMsg = (msg: string): string => {
-    if (!isAr || !msg) return msg;
+    if (!msg || typeof msg !== 'string') return '';
     const trimmed = msg.trim();
-    if (DJANGO_ARABIC_TRANSLATIONS[trimmed]) {
-      return DJANGO_ARABIC_TRANSLATIONS[trimmed];
-    }
-    for (const [enPattern, arTranslation] of Object.entries(DJANGO_ARABIC_TRANSLATIONS)) {
-      if (trimmed.toLowerCase().includes(enPattern.toLowerCase())) {
-        return arTranslation;
+    const trimmedLower = trimmed.toLowerCase();
+
+    // 1. Array of { pattern, message }
+    if (Array.isArray(rawTranslations)) {
+      for (const item of rawTranslations) {
+        if (item?.pattern && trimmedLower.includes(item.pattern.toLowerCase())) {
+          return item.message;
+        }
+      }
+    } else if (typeof rawTranslations === 'object' && rawTranslations !== null) {
+      // 2. Direct / substring match in key-value map
+      if (rawTranslations[trimmed]) {
+        return rawTranslations[trimmed];
+      }
+      const trimmedWithoutDot = trimmed.replace(/\.+$/, '');
+      if (rawTranslations[trimmedWithoutDot]) {
+        return rawTranslations[trimmedWithoutDot];
+      }
+      for (const [enPattern, translated] of Object.entries(rawTranslations)) {
+        if (trimmedLower.includes(enPattern.toLowerCase())) {
+          return translated as string;
+        }
       }
     }
+
     return msg;
   };
 

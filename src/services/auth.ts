@@ -263,6 +263,28 @@ export async function changePassword(data: ChangePasswordRequest): Promise<AuthA
 }
 
 /**
+ * Safely decodes JWT payload claims from a Bearer token.
+ */
+export function decodeJwt<T = any>(token?: string | null): T | null {
+  try {
+    if (!token || typeof token !== 'string') return null;
+    const parts = token.split('.');
+    if (parts.length < 2) return null;
+    const base64Url = parts[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split('')
+        .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+        .join('')
+    );
+    return JSON.parse(jsonPayload);
+  } catch (e) {
+    return null;
+  }
+}
+
+/**
  * Get Instructor Dashboard (Access check for approved/pending instructors)
  * GET /api/auth/instructor/dashboard
  */
@@ -272,12 +294,159 @@ export async function getInstructorDashboard(): Promise<any> {
 }
 
 /**
- * Fetch current user profile
+ * Fetch current user profile with automatic fallback
  * GET /api/auth/profile
  */
 export async function getProfile(): Promise<AuthApiResponse> {
-  const response = await axiosInstance.get<AuthApiResponse>('/auth/profile');
-  return response.data;
+  try {
+    const response = await axiosInstance.get<AuthApiResponse>('/auth/profile');
+    return response.data;
+  } catch (err: any) {
+    if (err?.response?.status === 404) {
+      try {
+        const instRes = await axiosInstance.get<AuthApiResponse>('/instructor/profile');
+        return { ...instRes.data, role: 'instructor' };
+      } catch (iErr) {
+        try {
+          const studRes = await axiosInstance.get<AuthApiResponse>('/student/profile');
+          return { ...studRes.data, role: 'student' };
+        } catch (sErr) {
+          throw err;
+        }
+      }
+    }
+    throw err;
+  }
+}
+
+/**
+ * Synchronizes and normalizes the current user's profile and approval status
+ * directly from backend database API & JWT claims.
+ */
+export async function syncCurrentUserProfile(
+  token?: string | null,
+  loginResponse?: AuthApiResponse
+): Promise<{ user: any; approval_status: 'approved' | 'pending' | 'rejected' }> {
+  const activeToken = token || (typeof window !== 'undefined' ? localStorage.getItem('token') : null);
+  const decoded = decodeJwt<any>(activeToken);
+
+  let rawUser: any = loginResponse?.user || (loginResponse?.data && loginResponse.data.user) || (typeof loginResponse?.data === 'object' ? loginResponse.data : {}) || {};
+  let dbProfile: any = null;
+  let instructorAccessOk: boolean | null = null;
+
+  // 1. Fetch live user profile from database
+  try {
+    const profileRes = await getProfile();
+    dbProfile = profileRes.user || profileRes.data || profileRes;
+    if (dbProfile && typeof dbProfile === 'object') {
+      rawUser = { ...rawUser, ...dbProfile };
+    }
+  } catch (err: any) {
+    console.warn('[authService.syncCurrentUserProfile] Profile fetch info:', err?.message);
+  }
+
+  // 2. Check candidate role indications
+  const candidateRole = (
+    rawUser.role ||
+    rawUser.role_name ||
+    rawUser.user_type ||
+    rawUser.account_type ||
+    decoded?.role ||
+    decoded?.role_name ||
+    decoded?.user_type ||
+    (rawUser.is_instructor ? 'instructor' : undefined) ||
+    (decoded?.is_instructor ? 'instructor' : undefined) ||
+    (loginResponse?.role ? loginResponse.role : undefined) ||
+    ''
+  ).toLowerCase();
+
+  // 3. Test Instructor dashboard endpoint for live verification
+  try {
+    const dashRes = await getInstructorDashboard();
+    if (dashRes) {
+      instructorAccessOk = true;
+    }
+  } catch (dErr: any) {
+    if (dErr?.response?.status === 403 || dErr?.response?.status === 401) {
+      instructorAccessOk = false;
+    }
+  }
+
+  // 4. Determine final normalized role
+  let role: 'student' | 'instructor' = 'student';
+  if (
+    candidateRole.includes('instructor') ||
+    candidateRole.includes('coach') ||
+    candidateRole.includes('teacher') ||
+    rawUser.is_instructor === true ||
+    decoded?.is_instructor === true ||
+    instructorAccessOk === true ||
+    instructorAccessOk === false
+  ) {
+    role = 'instructor';
+  } else if (candidateRole.includes('student') || rawUser.is_student === true || decoded?.is_student === true) {
+    role = 'student';
+  }
+
+  // 5. Determine final approval status
+  let approval_status: 'approved' | 'pending' | 'rejected' = 'approved';
+  if (role === 'instructor') {
+    const candidateStatus = (
+      rawUser.approval_status ||
+      rawUser.approvalStatus ||
+      rawUser.status ||
+      decoded?.approval_status ||
+      decoded?.approvalStatus ||
+      loginResponse?.approval_status ||
+      loginResponse?.approvalStatus ||
+      ''
+    ).toLowerCase();
+
+    if (candidateStatus === 'rejected') {
+      approval_status = 'rejected';
+    } else if (candidateStatus === 'approved' || instructorAccessOk === true) {
+      approval_status = 'approved';
+    } else if (candidateStatus === 'pending' || instructorAccessOk === false) {
+      approval_status = 'pending';
+    } else {
+      // Default for newly registered/unapproved instructor is pending
+      approval_status = 'pending';
+    }
+  }
+
+  const email = rawUser.email || decoded?.email || (loginResponse as any)?.email || '';
+  const fullName =
+    rawUser.fullName ||
+    rawUser.full_name ||
+    rawUser.name ||
+    decoded?.name ||
+    decoded?.full_name ||
+    decoded?.username ||
+    (email ? email.split('@')[0] : 'User');
+
+  const normalizedUser = {
+    id: String(rawUser.id || rawUser.pk || decoded?.user_id || decoded?.id || decoded?.sub || '1'),
+    email,
+    fullName,
+    name: fullName,
+    role,
+    avatar: rawUser.avatar || rawUser.profile_picture || rawUser.image || null,
+    headline: rawUser.headline || rawUser.title || (role === 'instructor' ? 'Certified Instructor' : 'Student & Lifelong Learner'),
+    bio: rawUser.bio || rawUser.description || '',
+    phone: rawUser.phone || rawUser.phone_number || '',
+    specialization: rawUser.specialization || '',
+    approval_status,
+    approvalStatus: approval_status,
+  };
+
+  if (typeof window !== 'undefined') {
+    localStorage.setItem('user', JSON.stringify(normalizedUser));
+  }
+
+  return {
+    user: normalizedUser,
+    approval_status,
+  };
 }
 
 /**
@@ -317,6 +486,8 @@ export const authService = {
   changePassword,
   getInstructorDashboard,
   getProfile,
+  decodeJwt,
+  syncCurrentUserProfile,
   getApiErrorMessage,
 };
 

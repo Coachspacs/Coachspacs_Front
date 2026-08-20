@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { useLocale } from "next-intl";
 import { useSelector } from "react-redux";
 import { RootState } from "@/lib/store";
@@ -9,20 +9,36 @@ import { RootState } from "@/lib/store";
 export default function AccountRedirectPage() {
   const router = useRouter();
   const locale = useLocale() || "en";
+  const pathname = usePathname() || "";
   const searchParams = useSearchParams();
   const tab = searchParams.get("tab");
-  const { user } = useSelector((state: RootState) => state.auth);
+  const { user, isAuthenticated } = useSelector((state: RootState) => state.auth);
 
   useEffect(() => {
+    const localToken = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+    const localUserStr = typeof window !== "undefined" ? localStorage.getItem("user") : null;
+    let localUser = null;
+    try {
+      if (localUserStr) localUser = JSON.parse(localUserStr);
+    } catch {}
+
+    const isUserLoggedIn = isAuthenticated || Boolean(localToken && (user || localUser));
+    const activeUser = user || localUser;
+
+    if (!isUserLoggedIn || !activeUser) {
+      router.replace(`/${locale}/login?redirect=${encodeURIComponent(pathname + (tab ? `?tab=${tab}` : ""))}`);
+      return;
+    }
+
     const query = tab ? `?tab=${tab}` : "";
-    const roleLower = (user?.role || "").toLowerCase();
-    
-    if (roleLower === "instructor") {
+    const roleLower = (activeUser.role || "").toLowerCase();
+
+    if (roleLower === "instructor" || roleLower === "coach") {
       router.replace(`/${locale}/instructor/settings${query}`);
     } else {
       router.replace(`/${locale}/student/settings${query}`);
     }
-  }, [user, locale, router, tab]);
+  }, [user, isAuthenticated, locale, router, tab, pathname]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#FAFCFB]">
