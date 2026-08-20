@@ -362,7 +362,21 @@
     "joinTitle": "انضم إلى مستقبل التعلم",
     "joinSubtitle": "هل أنت خبير في مجالك؟ شارك معرفتك مع جمهور عالمي واكسب من تدريس ما تحب. انضم إلى مجتمعنا الذي يضم أكثر من 400 مدرب عالمي.",
     "startTeaching": "ابدأ التدريس اليوم",
-    "learnMore": "معرفة المزيد"
+    "learnMore": "معرفة المزيد",
+    "welcomeStudent": "مرحباً بك مجدداً، {name}!",
+    "welcomeInstructor": "مرحباً بك كوتش {name}!",
+    "myLearning": "متابعة دوراتي",
+    "instructorDashboardBtn": "لوحة تحكم المدرب",
+    "createCourseBtn": "إنشاء دورة جديدة",
+    "studentBadge": "حساب طالب",
+    "instructorBadge": "حساب مدرب معتمد",
+    "startLearningFree": "ابدأ الآن مجاناً",
+    "exploreMoreCourses": "استكشف دورات جديدة",
+    "instructorHubBadge": "مركز المدربين",
+    "instructorHubTitle": "جاهز لنشر دورتك القادمة ومشاركة خبراتك؟",
+    "instructorHubSubtitle": "قم بإدارة مناهجك، ومتابعة مبيعاتك وتفاعل طلابك مباشرة من استوديو المدربين المتقدم.",
+    "openInstructorDashboard": "فتح لوحة التحكم",
+    "openCourseStudio": "استوديو بناء الكورسات"
   },
   "course": {
     "buyNow": "شراء الآن",

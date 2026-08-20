@@ -48,14 +48,17 @@ export function HeroSection() {
           {/* Content */}
           <div className="lg:col-span-6 flex flex-col items-start text-left rtl:text-right z-10">
             
-            {/* Logged in Welcome Pill / Badge */}
+            {/* Dynamic Welcome Pill / Badge */}
             {mounted && isAuthenticated ? (
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#0F5244] text-white shadow-md mb-6 text-xs sm:text-sm font-bold animate-in fade-in duration-300">
                 <Sparkles className="w-4 h-4 text-[#6CF8BB] shrink-0" />
                 <span>
-                  {locale === "ar"
-                    ? `مرحباً بك مجدداً، ${displayName}!`
-                    : `Welcome back, ${displayName}!`}
+                  {user?.role === "instructor"
+                    ? t("welcomeInstructor", { name: displayName })
+                    : t("welcomeStudent", { name: displayName })}
+                </span>
+                <span className="hidden sm:inline-block px-2 py-0.5 rounded-full bg-white/15 text-[10px] font-bold text-emerald-200">
+                  {user?.role === "instructor" ? t("instructorBadge") : t("studentBadge")}
                 </span>
               </div>
             ) : (
@@ -99,14 +102,71 @@ export function HeroSection() {
               </button>
             </form>
 
-            {/* CTA */}
-            <Link
-              href={`/${locale}/courses`}
-              className="inline-flex items-center gap-3 bg-[#0F5244] hover:bg-[#0c4337] text-white font-bold text-base px-8 py-3.5 rounded-full shadow-lg shadow-[#0F5244]/20 hover:shadow-xl hover:shadow-[#0F5244]/30 transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0 group"
-            >
-              <span>{t("exploreCourses")}</span>
-              <ArrowRight className="w-5 h-5 rtl:rotate-180 group-hover:translate-x-1 rtl:group-hover:-translate-x-1 transition-transform" />
-            </Link>
+            {/* Dynamic CTAs Row */}
+            <div className="flex flex-wrap items-center gap-3.5 sm:gap-4">
+              {mounted && isAuthenticated ? (
+                user?.role === "instructor" ? (
+                  <>
+                    <Link
+                      href={
+                        (user?.approval_status || (user as any)?.approvalStatus) === "approved"
+                          ? `/${locale}/instructor/dashboard`
+                          : `/${locale}/instructor/settings`
+                      }
+                      className="inline-flex items-center gap-2.5 bg-[#0F5244] hover:bg-[#0c4337] text-white font-bold text-sm sm:text-base px-7 py-3.5 rounded-full shadow-lg shadow-[#0F5244]/20 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0 group cursor-pointer"
+                    >
+                      <span>{t("instructorDashboardBtn")}</span>
+                      <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 rtl:rotate-180 group-hover:translate-x-1 rtl:group-hover:-translate-x-1 transition-transform" />
+                    </Link>
+
+                    <Link
+                      href={
+                        (user?.approval_status || (user as any)?.approvalStatus) === "approved"
+                          ? `/${locale}/instructor/courses/new`
+                          : `/${locale}/instructor/settings`
+                      }
+                      className="inline-flex items-center gap-2 bg-white hover:bg-slate-50 text-[#0F5244] border-2 border-[#0F5244]/30 hover:border-[#0F5244] font-bold text-sm sm:text-base px-6 py-3.5 rounded-full shadow-xs transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer"
+                    >
+                      <span>{t("createCourseBtn")}</span>
+                    </Link>
+                  </>
+                ) : (
+                  <>
+                    <Link
+                      href={`/${locale}/student/courses`}
+                      className="inline-flex items-center gap-2.5 bg-[#0F5244] hover:bg-[#0c4337] text-white font-bold text-sm sm:text-base px-7 py-3.5 rounded-full shadow-lg shadow-[#0F5244]/20 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0 group cursor-pointer"
+                    >
+                      <span>{t("myLearning")}</span>
+                      <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 rtl:rotate-180 group-hover:translate-x-1 rtl:group-hover:-translate-x-1 transition-transform" />
+                    </Link>
+
+                    <Link
+                      href={`/${locale}/courses`}
+                      className="inline-flex items-center gap-2 bg-white hover:bg-slate-50 text-[#0F5244] border-2 border-[#0F5244]/30 hover:border-[#0F5244] font-bold text-sm sm:text-base px-6 py-3.5 rounded-full shadow-xs transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer"
+                    >
+                      <span>{t("exploreMoreCourses")}</span>
+                    </Link>
+                  </>
+                )
+              ) : (
+                <>
+                  <Link
+                    href={`/${locale}/courses`}
+                    className="inline-flex items-center gap-3 bg-[#0F5244] hover:bg-[#0c4337] text-white font-bold text-sm sm:text-base px-8 py-3.5 rounded-full shadow-lg shadow-[#0F5244]/20 hover:shadow-xl hover:shadow-[#0F5244]/30 transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0 group cursor-pointer"
+                  >
+                    <span>{t("exploreCourses")}</span>
+                    <ArrowRight className="w-5 h-5 rtl:rotate-180 group-hover:translate-x-1 rtl:group-hover:-translate-x-1 transition-transform" />
+                  </Link>
+
+                  <Link
+                    href={`/${locale}/register`}
+                    className="inline-flex items-center gap-2 bg-white hover:bg-slate-50 text-[#0F5244] border-2 border-[#0F5244]/30 hover:border-[#0F5244] font-bold text-sm sm:text-base px-6 py-3.5 rounded-full shadow-xs transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer"
+                  >
+                    <span>{t("startLearningFree")}</span>
+                  </Link>
+                </>
+              )}
+            </div>
 
           </div>
 

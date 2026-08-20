@@ -362,7 +362,21 @@
     "joinTitle": "Join the Future of Learning",
     "joinSubtitle": "Are you an expert in your field? Share your knowledge with a global audience and earn by teaching what you love. Join our community of 400+ world-class instructors.",
     "startTeaching": "Start Teaching Today",
-    "learnMore": "Learn More"
+    "learnMore": "Learn More",
+    "welcomeStudent": "Welcome back, {name}!",
+    "welcomeInstructor": "Welcome back, Coach {name}!",
+    "myLearning": "My Courses",
+    "instructorDashboardBtn": "Instructor Dashboard",
+    "createCourseBtn": "Create New Course",
+    "studentBadge": "Student Account",
+    "instructorBadge": "Verified Instructor",
+    "startLearningFree": "Start for Free",
+    "exploreMoreCourses": "Explore New Courses",
+    "instructorHubBadge": "Instructor Hub",
+    "instructorHubTitle": "Ready to publish your next course & share your expertise?",
+    "instructorHubSubtitle": "Manage your curriculum, track sales, and engage with your students directly from your advanced instructor studio.",
+    "openInstructorDashboard": "Open Dashboard",
+    "openCourseStudio": "Course Builder Studio"
   },
   "course": {
     "buyNow": "Buy Now",
