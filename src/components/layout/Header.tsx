@@ -6,7 +6,18 @@ import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useTranslations, useLocale } from "next-intl";
 import { useSelector, useDispatch } from "react-redux";
-import { Globe, Menu, X, User as UserIcon, LogOut, LayoutDashboard, ShoppingCart } from "lucide-react";
+import {
+  Globe,
+  Menu,
+  X,
+  User as UserIcon,
+  LogOut,
+  LayoutDashboard,
+  ShoppingCart,
+  BookOpen,
+  Settings,
+  PlusCircle,
+} from "lucide-react";
 import { RootState } from "@/lib/store";
 import { logout } from "@/features/auth/slice";
 import { Logo } from "@/components/ui/Logo";
@@ -33,6 +44,15 @@ export function Header({ lang, onLanguageToggle, variant = "main" }: HeaderProps
   const { user, isAuthenticated } = useSelector((state: RootState) => state.auth);
   const cartItems = useSelector((state: RootState) => state.cart?.items || []);
 
+  const userRole = (user?.role || "").toLowerCase();
+  const isInstructor = userRole === "instructor" || userRole === "coach";
+  const isApproved =
+    (user?.approval_status || user?.approvalStatus || "").toLowerCase() === "approved";
+
+  const instructorDashboardUrl = isApproved
+    ? `/${locale}/instructor/dashboard`
+    : `/${locale}/instructor`;
+
   useEffect(() => {
     setMounted(true);
   }, []);
@@ -55,6 +75,7 @@ export function Header({ lang, onLanguageToggle, variant = "main" }: HeaderProps
   const handleLogout = () => {
     dispatch(logout());
     setUserDropdownOpen(false);
+    setMobileMenuOpen(false);
     router.push(`/${locale}/login`);
   };
 
@@ -62,7 +83,6 @@ export function Header({ lang, onLanguageToggle, variant = "main" }: HeaderProps
   const isActive = (targetPath: string) => {
     let current = pathname || "/";
 
-    // Strip locale prefix if present (e.g., /ar or /en)
     if (current === `/${locale}` || current === `/${locale}/`) {
       current = "/";
     } else if (current.startsWith(`/${locale}/`)) {
@@ -79,7 +99,6 @@ export function Header({ lang, onLanguageToggle, variant = "main" }: HeaderProps
 
     return current === targetPath || current.startsWith(targetPath + "/");
   };
-
 
   // ----------------------------------------------------
   // AUTH HEADER VARIANT (For Login, Register, Auth pages)
@@ -157,16 +176,31 @@ export function Header({ lang, onLanguageToggle, variant = "main" }: HeaderProps
             {tNav("courses")}
           </Link>
 
-          <Link
-            href={`/${locale}/become-instructor`}
-            className={`transition-colors py-1 text-sm ${
-              isActive("/become-instructor")
-                ? "text-slate-950 font-extrabold"
-                : "text-slate-500 hover:text-slate-900 font-medium"
-            }`}
-          >
-            {tNav("becomeInstructor")}
-          </Link>
+          {/* Role-Specific CTA Link in Navbar */}
+          {mounted && isAuthenticated && isInstructor ? (
+            <Link
+              href={instructorDashboardUrl}
+              className={`transition-colors py-1 text-sm inline-flex items-center gap-1.5 ${
+                isActive("/instructor")
+                  ? "text-[#0F5244] font-extrabold"
+                  : "text-slate-600 hover:text-[#0F5244] font-bold"
+              }`}
+            >
+              <LayoutDashboard className="h-4 w-4 text-[#0F5244]" />
+              <span>{isAr ? "مساحة المدرب" : "Instructor Studio"}</span>
+            </Link>
+          ) : (
+            <Link
+              href={`/${locale}/become-instructor`}
+              className={`transition-colors py-1 text-sm ${
+                isActive("/become-instructor")
+                  ? "text-slate-950 font-extrabold"
+                  : "text-slate-500 hover:text-slate-900 font-medium"
+              }`}
+            >
+              {tNav("becomeInstructor")}
+            </Link>
+          )}
         </nav>
 
         {/* Right Section: Language Toggle | Divider | Avatar */}
@@ -211,75 +245,128 @@ export function Header({ lang, onLanguageToggle, variant = "main" }: HeaderProps
 
             {/* Dropdown Menu */}
             {userDropdownOpen && (
-              <div className="absolute right-0 rtl:left-0 rtl:right-auto mt-2 w-56 rounded-xl bg-white p-2 shadow-xl border border-slate-100 text-slate-700 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
+              <div className="absolute right-0 rtl:left-0 rtl:right-auto mt-2 w-60 rounded-2xl bg-white p-2 shadow-xl border border-slate-100 text-slate-700 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
                 {mounted && isAuthenticated ? (
                   <>
-                    <div className="px-3 py-2 border-b border-slate-100">
-                      <p className="text-sm font-bold text-slate-900 truncate">{user?.name || "User"}</p>
-                      <p className="text-xs text-slate-500 truncate">{user?.email}</p>
+                    {/* User Header & Role Badge */}
+                    <div className="px-3 py-2.5 border-b border-slate-100">
+                      <div className="flex items-center justify-between gap-2">
+                        <p className="text-sm font-bold text-slate-900 truncate">
+                          {user?.name || user?.fullName || "User"}
+                        </p>
+                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold shrink-0 ${
+                          isInstructor ? "bg-amber-100 text-amber-800" : "bg-emerald-100 text-[#0F5244]"
+                        }`}>
+                          {isInstructor ? (isAr ? "مدرب" : "Instructor") : (isAr ? "طالب" : "Student")}
+                        </span>
+                      </div>
+                      <p className="text-xs text-slate-500 truncate mt-0.5">{user?.email}</p>
                     </div>
 
-                    <Link
-                      href={
-                        (user?.role || "").toLowerCase() === "instructor" || (user?.role || "").toLowerCase() === "coach"
-                          ? `/${locale}/instructor/settings`
-                          : `/${locale}/student/profile`
-                      }
-                      onClick={() => setUserDropdownOpen(false)}
-                      className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium hover:bg-slate-50 transition-colors mt-1 text-slate-700"
-                    >
-                      <UserIcon className="h-4 w-4 text-[#0F5244]" />
-                      <span>{tNav("account")}</span>
-                    </Link>
+                    <div className="py-1 space-y-0.5">
+                      {/* INSTRUCTOR SPECIFIC LINKS */}
+                      {isInstructor ? (
+                        <>
+                          <Link
+                            href={instructorDashboardUrl}
+                            onClick={() => setUserDropdownOpen(false)}
+                            className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs sm:text-sm font-bold hover:bg-slate-50 transition-colors text-slate-700"
+                          >
+                            <LayoutDashboard className="h-4 w-4 text-[#0F5244]" />
+                            <span>{isAr ? "لوحة تحكم المدرب" : "Instructor Dashboard"}</span>
+                          </Link>
 
-                    {isAuthenticated && (
-                      <Link
-                        href={
-                          (user?.role || "").toLowerCase() === "instructor" || (user?.role || "").toLowerCase() === "coach"
-                            ? (user?.approval_status === "approved" || user?.approvalStatus === "approved"
-                                ? `/${locale}/instructor/dashboard`
-                                : `/${locale}/instructor`)
-                            : `/${locale}/student/courses`
-                        }
-                        onClick={() => setUserDropdownOpen(false)}
-                        className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium hover:bg-slate-50 transition-colors text-slate-700"
-                      >
-                        <LayoutDashboard className="h-4 w-4 text-[#0F5244]" />
-                        <span>{tNav("dashboard")}</span>
-                      </Link>
-                    )}
+                          <Link
+                            href={`/${locale}/instructor/courses`}
+                            onClick={() => setUserDropdownOpen(false)}
+                            className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs sm:text-sm font-bold hover:bg-slate-50 transition-colors text-slate-700"
+                          >
+                            <BookOpen className="h-4 w-4 text-[#0F5244]" />
+                            <span>{isAr ? "إدارة وتعديل الدورات" : "Manage Courses"}</span>
+                          </Link>
 
-                    <Link
-                      href={`/${locale}/cart`}
-                      onClick={() => setUserDropdownOpen(false)}
-                      className="flex justify-between items-center rounded-lg px-3 py-2 text-sm font-medium hover:bg-slate-50 transition-colors text-slate-700"
-                    >
-                      <span className="flex items-center gap-2.5">
-                        <ShoppingCart className="h-4 w-4 text-[#0F5244]" />
-                        <span>{tNav("cart")}</span>
-                      </span>
-                      {cartItems.length > 0 && (
-                        <span className="rounded-full bg-[#0F5244] px-2 py-0.5 text-xs text-white font-bold">
-                          {cartItems.length}
-                        </span>
+                          <Link
+                            href={`/${locale}/instructor/courses/new`}
+                            onClick={() => setUserDropdownOpen(false)}
+                            className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs sm:text-sm font-bold hover:bg-slate-50 transition-colors text-slate-700"
+                          >
+                            <PlusCircle className="h-4 w-4 text-[#0F5244]" />
+                            <span>{isAr ? "إنشاء دورة جديدة" : "Create New Course"}</span>
+                          </Link>
+
+                          <Link
+                            href={`/${locale}/instructor/settings`}
+                            onClick={() => setUserDropdownOpen(false)}
+                            className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs sm:text-sm font-bold hover:bg-slate-50 transition-colors text-slate-700"
+                          >
+                            <Settings className="h-4 w-4 text-[#0F5244]" />
+                            <span>{isAr ? "إعدادات الحساب والملف" : "Profile & Settings"}</span>
+                          </Link>
+                        </>
+                      ) : (
+                        /* STUDENT SPECIFIC LINKS */
+                        <>
+                          <Link
+                            href={`/${locale}/student/courses`}
+                            onClick={() => setUserDropdownOpen(false)}
+                            className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs sm:text-sm font-bold hover:bg-slate-50 transition-colors text-slate-700"
+                          >
+                            <BookOpen className="h-4 w-4 text-[#0F5244]" />
+                            <span>{isAr ? "دوراتي التعليمية" : "My Learning"}</span>
+                          </Link>
+
+                          <Link
+                            href={`/${locale}/student/profile`}
+                            onClick={() => setUserDropdownOpen(false)}
+                            className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs sm:text-sm font-bold hover:bg-slate-50 transition-colors text-slate-700"
+                          >
+                            <UserIcon className="h-4 w-4 text-[#0F5244]" />
+                            <span>{isAr ? "الملف الشخصي" : "Profile"}</span>
+                          </Link>
+
+                          <Link
+                            href={`/${locale}/student/settings`}
+                            onClick={() => setUserDropdownOpen(false)}
+                            className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs sm:text-sm font-bold hover:bg-slate-50 transition-colors text-slate-700"
+                          >
+                            <Settings className="h-4 w-4 text-[#0F5244]" />
+                            <span>{isAr ? "إعدادات الحساب" : "Account Settings"}</span>
+                          </Link>
+
+                          <Link
+                            href={`/${locale}/cart`}
+                            onClick={() => setUserDropdownOpen(false)}
+                            className="flex justify-between items-center rounded-xl px-3 py-2 text-xs sm:text-sm font-bold hover:bg-slate-50 transition-colors text-slate-700"
+                          >
+                            <span className="flex items-center gap-2.5">
+                              <ShoppingCart className="h-4 w-4 text-[#0F5244]" />
+                              <span>{tNav("cart")}</span>
+                            </span>
+                            {cartItems.length > 0 && (
+                              <span className="rounded-full bg-[#0F5244] px-2 py-0.5 text-xs text-white font-bold">
+                                {cartItems.length}
+                              </span>
+                            )}
+                          </Link>
+                        </>
                       )}
-                    </Link>
+                    </div>
 
                     <button
                       type="button"
                       onClick={handleLogout}
-                      className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50 transition-colors mt-1 border-t border-slate-100"
+                      className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-xs sm:text-sm font-bold text-red-600 hover:bg-red-50 transition-colors mt-1 border-t border-slate-100 cursor-pointer"
                     >
                       <LogOut className="h-4 w-4" />
                       <span>{tNav("logout")}</span>
                     </button>
                   </>
                 ) : (
-                  <div className="space-y-1">
+                  <div className="space-y-1 p-1">
                     <Link
                       href={`/${locale}/login`}
                       onClick={() => setUserDropdownOpen(false)}
-                      className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium hover:bg-slate-50 transition-colors text-slate-700"
+                      className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-bold hover:bg-slate-50 transition-colors text-slate-700"
                     >
                       <UserIcon className="h-4 w-4 text-[#0F5244]" />
                       <span>{tNav("login")}</span>
@@ -287,7 +374,7 @@ export function Header({ lang, onLanguageToggle, variant = "main" }: HeaderProps
                     <Link
                       href={`/${locale}/register`}
                       onClick={() => setUserDropdownOpen(false)}
-                      className="flex items-center justify-center rounded-lg bg-[#0F5244] px-3 py-2 text-sm font-bold text-white hover:bg-[#0c4337] transition-colors"
+                      className="flex items-center justify-center rounded-xl bg-[#0F5244] px-3 py-2.5 text-sm font-extrabold text-white hover:bg-[#0c4337] transition-colors shadow-xs"
                     >
                       <span>{tNav("register")}</span>
                     </Link>
@@ -362,17 +449,31 @@ export function Header({ lang, onLanguageToggle, variant = "main" }: HeaderProps
               {tNav("courses")}
             </Link>
 
-            <Link
-              href={`/${locale}/become-instructor`}
-              onClick={() => setMobileMenuOpen(false)}
-              className={`px-3 py-2 rounded-lg transition-colors text-sm ${
-                isActive("/become-instructor")
-                  ? "text-slate-950 font-extrabold"
-                  : "hover:bg-slate-50 font-medium text-slate-600"
-              }`}
-            >
-              {tNav("becomeInstructor")}
-            </Link>
+            {mounted && isAuthenticated && isInstructor ? (
+              <Link
+                href={instructorDashboardUrl}
+                onClick={() => setMobileMenuOpen(false)}
+                className={`px-3 py-2 rounded-lg transition-colors text-sm ${
+                  isActive("/instructor")
+                    ? "text-[#0F5244] font-extrabold"
+                    : "hover:bg-slate-50 font-bold text-[#0F5244]"
+                }`}
+              >
+                {isAr ? "مساحة المدرب" : "Instructor Studio"}
+              </Link>
+            ) : (
+              <Link
+                href={`/${locale}/become-instructor`}
+                onClick={() => setMobileMenuOpen(false)}
+                className={`px-3 py-2 rounded-lg transition-colors text-sm ${
+                  isActive("/become-instructor")
+                    ? "text-slate-950 font-extrabold"
+                    : "hover:bg-slate-50 font-medium text-slate-600"
+                }`}
+              >
+                {tNav("becomeInstructor")}
+              </Link>
+            )}
           </nav>
 
           <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
@@ -399,7 +500,7 @@ export function Header({ lang, onLanguageToggle, variant = "main" }: HeaderProps
             {mounted && isAuthenticated ? (
               <button
                 onClick={handleLogout}
-                className="rounded-lg bg-red-50 p-2 text-red-600 hover:bg-red-100"
+                className="rounded-lg bg-red-50 p-2 text-red-600 hover:bg-red-100 cursor-pointer"
               >
                 <LogOut className="h-5 w-5" />
               </button>

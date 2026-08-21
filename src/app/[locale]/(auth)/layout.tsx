@@ -8,6 +8,8 @@ import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { Loader2 } from "lucide-react";
 
+import { tokenManager } from "@/lib/tokenManager";
+
 export default function AuthLayout({
   children,
 }: {
@@ -31,14 +33,14 @@ export default function AuthLayout({
   );
 
   useEffect(() => {
-    const localToken = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+    const hasToken = tokenManager.hasSession();
     const localUserStr = typeof window !== "undefined" ? localStorage.getItem("user") : null;
     let localUser = null;
     try {
       if (localUserStr) localUser = JSON.parse(localUserStr);
     } catch {}
 
-    const isUserLoggedIn = isAuthenticated || Boolean(localToken && (user || localUser));
+    const isUserLoggedIn = isAuthenticated || Boolean(hasToken && (user || localUser));
     const activeUser = user || localUser;
 
     if (isAuthPage && isUserLoggedIn && activeUser) {

@@ -46,6 +46,7 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
   const cartItems = useSelector((state: RootState) => state.cart?.items || []);
 
   // State checks
+  const isInstructor = Boolean(isAuthenticated && ((user?.role || "").toLowerCase() === "instructor" || (user?.role || "").toLowerCase() === "coach"));
   const isFree = course.price === 0 || course.priceFormatted === "Free" || course.priceFormatted === "مجاني";
   const isInCart = cartItems.some((item: any) => (item.course?.id || item.courseId || item.id) === course.id);
   
@@ -522,8 +523,21 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
               {/* DYNAMIC ACTION BUTTON STATES (BASED ON USER RULES) */}
               <div className="space-y-3">
                 
-                {/* CASE 1: Student already enrolled in this course */}
-                {isEnrolled ? (
+                {/* CASE 0: User is logged in as Instructor (separated in MVP) */}
+                {isInstructor ? (
+                  <div className="w-full py-4 px-4 rounded-xl bg-emerald-50 border border-emerald-200 text-center space-y-2">
+                    <p className="text-xs font-bold text-emerald-900">
+                      {isAr ? "أنت مسجل بحساب مدرب (عمليات الشراء مخصصة للطلاب فقط)" : "You are logged in as an Instructor"}
+                    </p>
+                    <Link
+                      href={`/${locale}/instructor/dashboard`}
+                      className="inline-block px-4 py-2 rounded-lg bg-[#0F5244] text-white text-xs font-bold hover:bg-[#07382E] transition-colors"
+                    >
+                      {isAr ? "الذهاب إلى لوحة تحكم المدرب" : "Go to Instructor Dashboard"}
+                    </Link>
+                  </div>
+                ) : isEnrolled ? (
+                  /* CASE 1: Student already enrolled in this course */
                   <button
                     type="button"
                     onClick={handleGoToCourse}

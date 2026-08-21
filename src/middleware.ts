@@ -52,20 +52,20 @@ export default function middleware(request: NextRequest) {
   const currentLocale = currentLocaleMatch ? currentLocaleMatch[1] : 'en';
   const pathWithoutLocale = pathname.replace(/^\/(?:ar|en)/, '') || '/';
 
-  // 5. Auth Guest Guard: Prevent logged-in users from accessing login, register, forgot-password, reset-password
   const authToken = request.cookies.get('auth_token')?.value;
   const isAuthenticated = Boolean(authToken && authToken !== 'undefined' && authToken !== 'null');
+  const userRole = decodeURIComponent(request.cookies.get('user_role')?.value || 'student').toLowerCase();
+  const userStatus = decodeURIComponent(request.cookies.get('user_status')?.value || '').toLowerCase();
+  const isInstructor = userRole === 'instructor' || userRole === 'coach';
 
+  // 5. Auth Guest Guard: Prevent logged-in users from accessing login, register, forgot-password, reset-password
   if (isAuthenticated) {
     const authPages = ['/login', '/register', '/forgot-password', '/reset-password'];
     const isAuthPage = authPages.some(page => pathWithoutLocale === page || pathWithoutLocale.startsWith(`${page}/`));
 
     if (isAuthPage) {
-      const userRole = decodeURIComponent(request.cookies.get('user_role')?.value || 'student');
-      const userStatus = decodeURIComponent(request.cookies.get('user_status')?.value || '');
-
       let redirectPath = `/${currentLocale}/student`;
-      if (userRole === 'instructor') {
+      if (isInstructor) {
         redirectPath = userStatus === 'approved'
           ? `/${currentLocale}/instructor/dashboard`
           : `/${currentLocale}/instructor`;
@@ -78,13 +78,23 @@ export default function middleware(request: NextRequest) {
     }
   }
 
-  // 6. Protected Routes Guard: Protect instructor, student, account, and profile pages
+  // 6. Protected Routes Guard: Protect instructor, student, cart, checkout, account, and profile pages
   const isInstructorRoute = pathWithoutLocale.startsWith('/instructor');
   const isStudentRoute = pathWithoutLocale.startsWith('/student');
+  const isCartOrCheckoutRoute =
+    pathWithoutLocale === '/cart' ||
+    pathWithoutLocale.startsWith('/cart/') ||
+    pathWithoutLocale === '/checkout' ||
+    pathWithoutLocale.startsWith('/checkout/');
   const isAccountRoute = pathWithoutLocale === '/account' || pathWithoutLocale.startsWith('/account/');
   const isProfileRoute = pathWithoutLocale === '/profile' || pathWithoutLocale.startsWith('/profile/');
 
-  const isProtectedRoute = isInstructorRoute || isStudentRoute || isAccountRoute || isProfileRoute;
+  const isProtectedRoute =
+    isInstructorRoute ||
+    isStudentRoute ||
+    (isCartOrCheckoutRoute && !isStudentRoute) ||
+    isAccountRoute ||
+    isProfileRoute;
 
   if (isProtectedRoute) {
     // 6.1 If unauthenticated, redirect to login with return path
@@ -95,12 +105,31 @@ export default function middleware(request: NextRequest) {
       return NextResponse.redirect(url);
     }
 
-    // 6.2 Role-Based Access: Students cannot access instructor routes
-    const userRole = decodeURIComponent(request.cookies.get('user_role')?.value || 'student');
-    if (isInstructorRoute && userRole === 'student') {
+    // 6.2 Strict Role Separation (MVP):
+    // Students cannot access instructor routes
+    if (isInstructorRoute && !isInstructor) {
       const url = request.nextUrl.clone();
       url.pathname = `/${currentLocale}/student`;
       url.search = '';
+      return NextResponse.redirect(url);
+    }
+
+    // Instructors cannot access student routes, cart, or checkout
+    if ((isStudentRoute || isCartOrCheckoutRoute) && isInstructor) {
+      const url = request.nextUrl.clone();
+      url.pathname = userStatus === 'approved'
+        ? `/${currentLocale}/instructor/dashboard`
+        : `/${currentLocale}/instructor`;
+      url.search = '';
+      return NextResponse.redirect(url);
+    }
+
+    // Direct /account and /profile redirects based on role
+    if (isAccountRoute || isProfileRoute) {
+      const url = request.nextUrl.clone();
+      url.pathname = isInstructor
+        ? `/${currentLocale}/instructor/settings`
+        : `/${currentLocale}/student/settings`;
       return NextResponse.redirect(url);
     }
   }

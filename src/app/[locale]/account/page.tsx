@@ -6,6 +6,8 @@ import { useLocale } from "next-intl";
 import { useSelector } from "react-redux";
 import { RootState } from "@/lib/store";
 
+import { tokenManager } from "@/lib/tokenManager";
+
 export default function AccountRedirectPage() {
   const router = useRouter();
   const locale = useLocale() || "en";
@@ -15,14 +17,14 @@ export default function AccountRedirectPage() {
   const { user, isAuthenticated } = useSelector((state: RootState) => state.auth);
 
   useEffect(() => {
-    const localToken = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+    const hasToken = tokenManager.hasSession();
     const localUserStr = typeof window !== "undefined" ? localStorage.getItem("user") : null;
     let localUser = null;
     try {
       if (localUserStr) localUser = JSON.parse(localUserStr);
     } catch {}
 
-    const isUserLoggedIn = isAuthenticated || Boolean(localToken && (user || localUser));
+    const isUserLoggedIn = isAuthenticated || Boolean(hasToken && (user || localUser));
     const activeUser = user || localUser;
 
     if (!isUserLoggedIn || !activeUser) {

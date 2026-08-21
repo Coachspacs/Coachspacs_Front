@@ -36,6 +36,13 @@ export function StudentLayoutClient({ children }: { children: React.ReactNode })
       return;
     }
 
+    const userRole = (activeUser.role || "").toLowerCase();
+    if (userRole === "instructor" || userRole === "coach") {
+      const status = (activeUser.approval_status || activeUser.approvalStatus || "").toLowerCase();
+      router.replace(status === "approved" ? `/${locale}/instructor/dashboard` : `/${locale}/instructor`);
+      return;
+    }
+
     setCheckingAuth(false);
   }, [isAuthenticated, user, locale, pathname, router]);
 
@@ -64,10 +71,7 @@ export function StudentLayoutClient({ children }: { children: React.ReactNode })
     );
   }
 
-  const normalizedRole = (user?.role || "").toLowerCase();
-  const isInstructorUser = normalizedRole === "instructor" || normalizedRole === "coach";
-
-  const fullName = user?.fullName || user?.name || (isAr ? "ليلى حسن" : "Alex Johnson");
+  const fullName = user?.fullName || user?.name || (isAr ? "طالب كوتش سبيس" : "Student User");
   const email = user?.email || "student@coachspace.com";
   const avatarPreview = user?.avatar || null;
   const headline = user?.headline || tStudent("defaultHeadline");
@@ -96,7 +100,7 @@ export function StudentLayoutClient({ children }: { children: React.ReactNode })
                 <div className="flex items-center justify-center sm:justify-start gap-2 flex-wrap">
                   <h1 className="text-base sm:text-lg font-black text-slate-900">{fullName}</h1>
                   <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-[#0F5244] text-[10px] font-extrabold">
-                    {isInstructorUser ? (isAr ? "حساب مدرب" : "Instructor Account") : tWs("studentAccount")}
+                    {tWs("studentAccount")}
                   </span>
                 </div>
                 <p className="text-xs text-slate-500 font-medium">{headline}</p>
@@ -111,7 +115,7 @@ export function StudentLayoutClient({ children }: { children: React.ReactNode })
               <Sidebar
                 user={{
                   name: fullName,
-                  role: isInstructorUser ? (isAr ? "مدرب" : "Instructor") : tStudent("roleStudent"),
+                  role: tStudent("roleStudent"),
                   avatarUrl: avatarPreview,
                 }}
               />

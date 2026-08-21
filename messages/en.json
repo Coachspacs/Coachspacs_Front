@@ -859,5 +859,14 @@
     "statusStillPending": "Your application is still under review by our administration.",
     "statusCheckError": "Your application is currently under review.",
     "close": "Close"
+  },
+  "errorPages": {
+    "somethingWentWrong": "Something went wrong",
+    "errorDescription": "An unexpected error occurred while processing your request. Please try again or return to the homepage.",
+    "tryAgain": "Try Again",
+    "backToHome": "Return to Home",
+    "pageNotFound": "Page Not Found",
+    "pageNotFoundDesc": "The page you are looking for does not exist or has been moved.",
+    "errorDetails": "Error details: {message}"
   }
 }

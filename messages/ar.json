@@ -859,5 +859,14 @@
     "statusStillPending": "طلبك ما زال قيد المراجعة والتدقيق من قبل الإدارة.",
     "statusCheckError": "طلبك قيد المراجعة حالياً.",
     "close": "إغلاق"
+  },
+  "errorPages": {
+    "somethingWentWrong": "حدث خطأ غير متوقع",
+    "errorDescription": "حدث خطأ غير متوقع أثناء معالجة طلبك. يمكنك إعادة المحاولة أو العودة إلى الصفحة الرئيسية.",
+    "tryAgain": "إعادة المحاولة",
+    "backToHome": "العودة للرئيسية",
+    "pageNotFound": "الصفحة غير موجودة",
+    "pageNotFoundDesc": "الصفحة التي تبحث عنها غير متوفرة أو قد تم نقلها.",
+    "errorDetails": "تفاصيل الخطأ: {message}"
   }
 }

@@ -72,7 +72,7 @@ export function LoginCard({ lang }: LoginCardProps) {
       }
 
       // Fetch authentic user profile & verify approval status directly from backend database API
-      const { user, approval_status } = await authService.syncCurrentUserProfile(token, res);
+      const { user, approval_status } = await authService.syncCurrentUserProfile(token, res, data.email);
 
       // Save verified user credentials in Redux & localStorage
       dispatch(setCredentials({ user, token, refreshToken }));

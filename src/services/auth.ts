@@ -1,4 +1,5 @@
 import axiosInstance from '@/lib/axios';
+import { tokenManager } from '@/lib/tokenManager';
 import { getApiErrorMessage } from '@/utils/apiErrorHandler';
 
 export type UserRoleType = 'student' | 'instructor';
@@ -223,10 +224,17 @@ export async function resetPassword(data: ResetPasswordRequest): Promise<AuthApi
  * Refresh JWT access token
  * POST /api/auth/refresh
  */
-export async function refreshToken(refresh: string): Promise<{ access: string }> {
+export async function refreshToken(refresh?: string): Promise<{ access: string }> {
+  const tokenToUse = refresh || tokenManager.getRefreshToken();
+  if (!tokenToUse) {
+    throw new Error('No refresh token available');
+  }
   const response = await axiosInstance.post<{ access: string }>('/auth/refresh', {
-    refresh,
+    refresh: tokenToUse,
   });
+  if (response.data?.access) {
+    tokenManager.setAccessToken(response.data.access);
+  }
   return response.data;
 }
 
@@ -236,18 +244,18 @@ export async function refreshToken(refresh: string): Promise<{ access: string }>
  */
 export async function logout(refresh?: string): Promise<AuthApiResponse> {
   try {
-    const tokenToBlacklist = refresh || (typeof window !== 'undefined' ? localStorage.getItem('refreshToken') : null);
+    const tokenToBlacklist = refresh || tokenManager.getRefreshToken();
     if (tokenToBlacklist) {
-      const response = await axiosInstance.post<AuthApiResponse>('/auth/logout', {
+      await axiosInstance.post<AuthApiResponse>('/auth/logout', {
         refresh: tokenToBlacklist,
       });
-      return response.data;
     }
-    return { success: true };
   } catch (err: any) {
-    // Logout shouldn't block local clearing even if backend returns an error
-    return { success: true };
+    // Silent catch so client-side logout completes cleanly
+  } finally {
+    tokenManager.clearTokens();
   }
+  return { success: true };
 }
 
 /**
@@ -325,9 +333,10 @@ export async function getProfile(): Promise<AuthApiResponse> {
  */
 export async function syncCurrentUserProfile(
   token?: string | null,
-  loginResponse?: AuthApiResponse
+  loginResponse?: AuthApiResponse,
+  loginEmail?: string
 ): Promise<{ user: any; approval_status: 'approved' | 'pending' | 'rejected' }> {
-  const activeToken = token || (typeof window !== 'undefined' ? localStorage.getItem('token') : null);
+  const activeToken = token || tokenManager.getAccessToken();
   const decoded = decodeJwt<any>(activeToken);
 
   let rawUser: any = loginResponse?.user || (loginResponse?.data && loginResponse.data.user) || (typeof loginResponse?.data === 'object' ? loginResponse.data : {}) || {};
@@ -414,7 +423,21 @@ export async function syncCurrentUserProfile(
     }
   }
 
-  const email = rawUser.email || decoded?.email || (loginResponse as any)?.email || '';
+  const email =
+    rawUser.email ||
+    decoded?.email ||
+    (loginResponse as any)?.email ||
+    loginEmail ||
+    (typeof window !== 'undefined' ? localStorage.getItem('loginEmail') : '') ||
+    '';
+
+  if (email && typeof window !== 'undefined') {
+    localStorage.setItem('loginEmail', email);
+  }
+
+  const emailPrefix = email ? email.split('@')[0] : '';
+  const formattedPrefix = emailPrefix ? emailPrefix.charAt(0).toUpperCase() + emailPrefix.slice(1) : 'User';
+
   const fullName =
     rawUser.fullName ||
     rawUser.full_name ||
@@ -422,7 +445,7 @@ export async function syncCurrentUserProfile(
     decoded?.name ||
     decoded?.full_name ||
     decoded?.username ||
-    (email ? email.split('@')[0] : 'User');
+    formattedPrefix;
 
   const normalizedUser = {
     id: String(rawUser.id || rawUser.pk || decoded?.user_id || decoded?.id || decoded?.sub || '1'),

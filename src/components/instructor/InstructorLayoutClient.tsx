@@ -11,6 +11,7 @@ import { Footer } from "@/components/layout/Footer";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Award, Clock, Plus, LayoutDashboard, BookOpen, Users, CreditCard, Settings } from "lucide-react";
 import { InstructorPendingModal } from "@/components/modals/InstructorPendingModal";
+import { tokenManager } from "@/lib/tokenManager";
 import { useRouter } from "next/navigation";
 
 export function InstructorLayoutClient({ children }: { children: React.ReactNode }) {
@@ -31,14 +32,14 @@ export function InstructorLayoutClient({ children }: { children: React.ReactNode
 
   React.useEffect(() => {
     setMounted(true);
-    const localToken = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+    const hasToken = tokenManager.hasSession();
     const localUserStr = typeof window !== "undefined" ? localStorage.getItem("user") : null;
     let localUser = null;
     try {
       if (localUserStr) localUser = JSON.parse(localUserStr);
     } catch {}
 
-    const isUserLoggedIn = isAuthenticated || Boolean(localToken && (user || localUser));
+    const isUserLoggedIn = isAuthenticated || Boolean(hasToken && (user || localUser));
     const activeUser = user || localUser;
 
     if (!isUserLoggedIn || !activeUser) {
