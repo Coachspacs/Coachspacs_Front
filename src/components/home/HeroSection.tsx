@@ -39,6 +39,9 @@ export function HeroSection() {
   };
 
   const displayName = user?.name || user?.fullName || user?.email?.split("@")[0] || "";
+  const isInstructor = (user?.role || "").toLowerCase() === "instructor" || (user?.role || "").toLowerCase() === "coach";
+  const approvalStatus = (user?.approval_status || (user as any)?.approvalStatus || "").toLowerCase();
+  const isApproved = approvalStatus === "approved";
 
   return (
     <section className="relative w-full overflow-hidden bg-gradient-to-b from-slate-50/80 via-white to-slate-50/40 pt-12 md:pt-16 lg:pt-20 pb-6 sm:pb-8 lg:pb-10">
@@ -53,12 +56,22 @@ export function HeroSection() {
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#0F5244] text-white shadow-md mb-6 text-xs sm:text-sm font-bold animate-in fade-in duration-300">
                 <Sparkles className="w-4 h-4 text-[#6CF8BB] shrink-0" />
                 <span>
-                  {user?.role === "instructor"
+                  {isInstructor
                     ? t("welcomeInstructor", { name: displayName })
                     : t("welcomeStudent", { name: displayName })}
                 </span>
-                <span className="hidden sm:inline-block px-2 py-0.5 rounded-full bg-white/15 text-[10px] font-bold text-emerald-200">
-                  {user?.role === "instructor" ? t("instructorBadge") : t("studentBadge")}
+                <span
+                  className={`hidden sm:inline-block px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                    isInstructor && !isApproved
+                      ? "bg-amber-400/25 text-amber-200"
+                      : "bg-white/15 text-emerald-200"
+                  }`}
+                >
+                  {isInstructor
+                    ? isApproved
+                      ? t("instructorBadge")
+                      : t("instructorPendingBadge")
+                    : t("studentBadge")}
                 </span>
               </div>
             ) : (
@@ -105,11 +118,11 @@ export function HeroSection() {
             {/* Dynamic CTAs Row */}
             <div className="flex flex-wrap items-center gap-3.5 sm:gap-4">
               {mounted && isAuthenticated ? (
-                user?.role === "instructor" ? (
+                isInstructor ? (
                   <>
                     <Link
                       href={
-                        (user?.approval_status || (user as any)?.approvalStatus) === "approved"
+                        isApproved
                           ? `/${locale}/instructor/dashboard`
                           : `/${locale}/instructor/settings`
                       }
@@ -121,7 +134,7 @@ export function HeroSection() {
 
                     <Link
                       href={
-                        (user?.approval_status || (user as any)?.approvalStatus) === "approved"
+                        isApproved
                           ? `/${locale}/instructor/courses/new`
                           : `/${locale}/instructor/settings`
                       }

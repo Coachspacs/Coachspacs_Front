@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useTranslations, useLocale } from "next-intl";
 import { useSelector } from "react-redux";
 import { RootState } from "@/lib/store";
-import { ChevronRight, Sparkles, LayoutDashboard, PlusCircle, ArrowRight } from "lucide-react";
+import { ChevronRight, Sparkles } from "lucide-react";
 
 export function JoinFutureSection() {
   const t = useTranslations("home");
@@ -18,8 +18,10 @@ export function JoinFutureSection() {
     setMounted(true);
   }, []);
 
-  const isInstructor = mounted && isAuthenticated && user?.role === "instructor";
-  const isApproved = (user?.approval_status || (user as any)?.approvalStatus) === "approved";
+  // Hide bottom instructor CTA banner when user is logged in (student or instructor)
+  if (mounted && isAuthenticated && user) {
+    return null;
+  }
 
   return (
     <section className="w-full bg-[#FAFCFC] py-12 sm:py-16 border-t border-slate-200/60 font-sans">
@@ -36,65 +38,35 @@ export function JoinFutureSection() {
             {/* Pill Badge */}
             <div className="inline-flex items-center gap-2 self-start bg-[#0F5244]/10 border border-[#0F5244]/15 px-3.5 py-1.5 rounded-full text-[#0F5244] text-xs font-extrabold tracking-wide">
               <Sparkles className="w-3.5 h-3.5 text-[#0F5244]" />
-              <span>{isInstructor ? t("instructorHubBadge") : t("becomeInstructor")}</span>
+              <span>{t("becomeInstructor")}</span>
             </div>
 
             <h2 className="text-2xl sm:text-4xl lg:text-5xl font-black text-slate-900 leading-[1.2] tracking-tight">
-              {isInstructor ? t("instructorHubTitle") : t("joinTitle")}
+              {t("joinTitle")}
             </h2>
 
             <p className="text-slate-600 text-sm sm:text-base font-medium leading-relaxed max-w-xl">
-              {isInstructor ? t("instructorHubSubtitle") : t("joinSubtitle")}
+              {t("joinSubtitle")}
             </p>
 
             {/* Buttons Row */}
             <div className="flex flex-wrap items-center gap-4 sm:gap-6 pt-2">
-              {isInstructor ? (
-                <>
-                  <Link
-                    href={
-                      isApproved
-                        ? `/${locale}/instructor/dashboard`
-                        : `/${locale}/instructor/settings`
-                    }
-                    className="bg-[#0F5244] hover:bg-[#08382E] active:scale-95 text-white text-sm sm:text-base font-black px-8 py-3.5 rounded-full transition-all duration-200 shadow-md hover:shadow-xl inline-flex items-center justify-center gap-2 cursor-pointer"
-                  >
-                    <LayoutDashboard className="w-4 h-4" />
-                    <span>{t("openInstructorDashboard")}</span>
-                  </Link>
+              <Link
+                href={`/${locale}/become-instructor`}
+                className="bg-[#0F5244] hover:bg-[#08382E] active:scale-95 text-white text-sm sm:text-base font-black px-8 py-3.5 rounded-full transition-all duration-200 shadow-md hover:shadow-xl inline-flex items-center justify-center cursor-pointer"
+              >
+                {t("startTeaching")}
+              </Link>
 
-                  <Link
-                    href={
-                      isApproved
-                        ? `/${locale}/instructor/courses/new`
-                        : `/${locale}/instructor/settings`
-                    }
-                    className="bg-white hover:bg-slate-50 text-[#0F5244] border border-[#0F5244]/30 hover:border-[#0F5244] text-sm sm:text-base font-bold px-6 py-3.5 rounded-full transition-all duration-200 shadow-xs inline-flex items-center gap-2 cursor-pointer"
-                  >
-                    <PlusCircle className="w-4 h-4 text-[#0F5244]" />
-                    <span>{t("openCourseStudio")}</span>
-                  </Link>
-                </>
-              ) : (
-                <>
-                  <Link
-                    href={`/${locale}/become-instructor`}
-                    className="bg-[#0F5244] hover:bg-[#08382E] active:scale-95 text-white text-sm sm:text-base font-black px-8 py-3.5 rounded-full transition-all duration-200 shadow-md hover:shadow-xl inline-flex items-center justify-center cursor-pointer"
-                  >
-                    {t("startTeaching")}
-                  </Link>
-
-                  <Link
-                    href={`/${locale}/become-instructor`}
-                    aria-label={`${t("learnMore")} - ${t("becomeInstructor")}`}
-                    title={`${t("learnMore")} - ${t("becomeInstructor")}`}
-                    className="text-[#0F5244] hover:text-[#08382E] text-sm sm:text-base font-bold transition-colors inline-flex items-center gap-1.5 group cursor-pointer"
-                  >
-                    <span>{t("learnMore")}</span>
-                    <ChevronRight className="w-4 h-4 rtl:rotate-180 group-hover:translate-x-1 rtl:group-hover:-translate-x-1 transition-transform" />
-                  </Link>
-                </>
-              )}
+              <Link
+                href={`/${locale}/become-instructor`}
+                aria-label={`${t("learnMore")} - ${t("becomeInstructor")}`}
+                title={`${t("learnMore")} - ${t("becomeInstructor")}`}
+                className="text-[#0F5244] hover:text-[#08382E] text-sm sm:text-base font-bold transition-colors inline-flex items-center gap-1.5 group cursor-pointer"
+              >
+                <span>{t("learnMore")}</span>
+                <ChevronRight className="w-4 h-4 rtl:rotate-180 group-hover:translate-x-1 rtl:group-hover:-translate-x-1 transition-transform" />
+              </Link>
             </div>
           </div>
 
@@ -102,7 +74,7 @@ export function JoinFutureSection() {
           <div className="hidden lg:block lg:col-span-5 relative w-full h-full lg:min-h-[420px] z-10 overflow-hidden">
             <Image
               src="/images/join-instructors.png"
-              alt={isInstructor ? t("instructorHubTitle") : t("joinTitle")}
+              alt={t("joinTitle")}
               fill
               sizes="(max-width: 1024px) 100vw, 42vw"
               className="object-cover object-center"

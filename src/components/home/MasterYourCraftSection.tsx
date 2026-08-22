@@ -1,12 +1,22 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
+import { useSelector } from "react-redux";
+import { RootState } from "@/lib/store";
 import { Star } from "lucide-react";
 
 export function MasterYourCraftSection() {
   const t = useTranslations("home");
+  const [mounted, setMounted] = useState(false);
+  const { user, isAuthenticated } = useSelector((state: RootState) => state.auth);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const isStudent = mounted && isAuthenticated && (user?.role || "").toLowerCase() === "student";
 
   const courses = [
     {
@@ -45,15 +55,16 @@ export function MasterYourCraftSection() {
   ];
 
   return (
-    <section className="w-full bg-[#F0F3FF] py-12 sm:py-16">
+    <section className="w-full bg-[#F0F3FF] py-12 sm:py-16 font-sans">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-14">
           <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight">
-            {t("masterYourCraftTitle")}
+            {isStudent ? t("recommendedForYouTitle") : t("masterYourCraftTitle")}
           </h2>
           <p className="mt-3 text-slate-500 text-sm sm:text-base font-medium">
-            {t("masterYourCraftSubtitle")}
+            {isStudent ? t("recommendedForYouSubtitle") : t("masterYourCraftSubtitle")}
           </p>
         </div>
 
@@ -135,7 +146,7 @@ export function MasterYourCraftSection() {
                   </span>
                   
                   <button
-                    className="bg-[#004442] hover:bg-[#003331] active:scale-95 text-white font-medium text-xs sm:text-sm px-4 py-2.5 rounded-lg transition-all duration-200 shadow-xs"
+                    className="bg-[#004442] hover:bg-[#003331] active:scale-95 text-white font-medium text-xs sm:text-sm px-4 py-2.5 rounded-lg transition-all duration-200 shadow-xs cursor-pointer"
                   >
                     {t("addToCart")}
                   </button>

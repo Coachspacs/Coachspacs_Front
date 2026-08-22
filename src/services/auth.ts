@@ -363,43 +363,47 @@ export async function syncCurrentUserProfile(
     decoded?.role ||
     decoded?.role_name ||
     decoded?.user_type ||
-    (rawUser.is_instructor ? 'instructor' : undefined) ||
-    (decoded?.is_instructor ? 'instructor' : undefined) ||
     (loginResponse?.role ? loginResponse.role : undefined) ||
     ''
   ).toLowerCase();
 
-  // 3. Test Instructor dashboard endpoint for live verification
-  try {
-    const dashRes = await getInstructorDashboard();
-    if (dashRes) {
-      instructorAccessOk = true;
-    }
-  } catch (dErr: any) {
-    if (dErr?.response?.status === 403 || dErr?.response?.status === 401) {
-      instructorAccessOk = false;
-    }
-  }
+  const isExplicitStudent =
+    candidateRole === 'student' ||
+    candidateRole.startsWith('student') ||
+    rawUser.is_student === true ||
+    decoded?.is_student === true;
 
-  // 4. Determine final normalized role
-  let role: 'student' | 'instructor' = 'student';
-  if (
+  const isExplicitInstructor =
     candidateRole.includes('instructor') ||
     candidateRole.includes('coach') ||
     candidateRole.includes('teacher') ||
     rawUser.is_instructor === true ||
-    decoded?.is_instructor === true ||
-    instructorAccessOk === true ||
-    instructorAccessOk === false
-  ) {
+    decoded?.is_instructor === true;
+
+  // 3. Determine final normalized role
+  let role: 'student' | 'instructor' = 'student';
+  if (isExplicitStudent && !isExplicitInstructor) {
+    role = 'student';
+  } else if (isExplicitInstructor) {
     role = 'instructor';
-  } else if (candidateRole.includes('student') || rawUser.is_student === true || decoded?.is_student === true) {
+  } else {
     role = 'student';
   }
 
-  // 5. Determine final approval status
+  // 4. If instructor, verify approval status and live dashboard access
   let approval_status: 'approved' | 'pending' | 'rejected' = 'approved';
   if (role === 'instructor') {
+    try {
+      const dashRes = await getInstructorDashboard();
+      if (dashRes) {
+        instructorAccessOk = true;
+      }
+    } catch (dErr: any) {
+      if (dErr?.response?.status === 403 || dErr?.response?.status === 401) {
+        instructorAccessOk = false;
+      }
+    }
+
     const candidateStatus = (
       rawUser.approval_status ||
       rawUser.approvalStatus ||
@@ -418,7 +422,6 @@ export async function syncCurrentUserProfile(
     } else if (candidateStatus === 'pending' || instructorAccessOk === false) {
       approval_status = 'pending';
     } else {
-      // Default for newly registered/unapproved instructor is pending
       approval_status = 'pending';
     }
   }
