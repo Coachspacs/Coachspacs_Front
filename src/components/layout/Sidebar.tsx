@@ -4,6 +4,8 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useTranslations, useLocale } from "next-intl";
+import { useDispatch } from "react-redux";
+import { logout } from "@/features/auth/slice";
 import {
   LayoutDashboard,
   Search,
@@ -125,12 +127,15 @@ export function Sidebar({ activeTab, onTabChange, items, user }: SidebarProps) {
     return false;
   };
 
+  const dispatch = useDispatch();
+
   const handleSignOut = () => {
+    dispatch(logout());
     router.push(`/${locale}/login`);
   };
 
   const defaultUser = {
-    name: user?.name || (isAr ? "ليلى حسن" : "Alex Johnson"),
+    name: user?.name || (isAr ? "مستخدم" : "User"),
     role: user?.role || (isAr ? "طالب" : "Student"),
     avatarUrl: user?.avatarUrl,
   };

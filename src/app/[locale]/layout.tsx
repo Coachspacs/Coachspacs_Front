@@ -2,6 +2,7 @@ import React from 'react';
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages } from 'next-intl/server';
 import StoreProvider from '@/components/StoreProvider';
+import { AuthInitializer } from '@/components/auth/AuthInitializer';
 
 export default async function LocaleLayout({
   children,
@@ -18,6 +19,7 @@ export default async function LocaleLayout({
     <div dir={dir} lang={locale} className="min-h-screen flex flex-col antialiased font-sans w-full">
       <StoreProvider>
         <NextIntlClientProvider messages={messages} locale={locale}>
+          <AuthInitializer />
           <main className="flex-grow w-full">{children}</main>
         </NextIntlClientProvider>
       </StoreProvider>

@@ -35,6 +35,16 @@ const nextConfig: NextConfig = {
         destination: '/verify-email',
         permanent: false,
       },
+      {
+        source: '/account/confirm-email',
+        destination: '/confirm-email',
+        permanent: false,
+      },
+      {
+        source: '/auth/confirm-email',
+        destination: '/confirm-email',
+        permanent: false,
+      },
     ];
   },
   async rewrites() {

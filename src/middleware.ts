@@ -11,14 +11,27 @@ const intlMiddleware = createMiddleware({
 export default function middleware(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
 
-  // 1. Handle /auth/verify-email or /verify-email links sent from backend
-  if (pathname.includes('/auth/verify-email')) {
+  // 1. Handle /account/confirm-email, /confirm-email, /auth/confirm-email links sent from backend
+  if (
+    pathname.includes('/account/confirm-email') ||
+    pathname.includes('/auth/confirm-email') ||
+    pathname === '/confirm-email'
+  ) {
+    const targetLocale = pathname.startsWith('/ar') ? 'ar' : 'en';
     const url = request.nextUrl.clone();
-    url.pathname = pathname.replace('/auth/verify-email', '/verify-email');
+    url.pathname = `/${targetLocale}/confirm-email`;
     return NextResponse.redirect(url);
   }
 
-  // 2. Handle Django /account-confirm-email/<key> links
+  // 2. Handle /auth/verify-email or /verify-email links sent from backend
+  if (pathname.includes('/auth/verify-email') || pathname === '/verify-email') {
+    const targetLocale = pathname.startsWith('/ar') ? 'ar' : 'en';
+    const url = request.nextUrl.clone();
+    url.pathname = `/${targetLocale}/verify-email`;
+    return NextResponse.redirect(url);
+  }
+
+  // 3. Handle Django /account-confirm-email/<key> links
   const accountConfirmMatch = pathname.match(/(?:\/(?:ar|en))?(?:\/auth)?\/account-confirm-email\/([^/]+)/);
   if (accountConfirmMatch) {
     const key = accountConfirmMatch[1];
@@ -28,7 +41,7 @@ export default function middleware(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  // 3. Handle /auth/reset-password or /auth/password/reset
+  // 4. Handle /auth/reset-password or /auth/password/reset
   if (pathname.includes('/auth/reset-password') || pathname.includes('/auth/password/reset')) {
     const url = request.nextUrl.clone();
     url.pathname = pathname
@@ -37,7 +50,7 @@ export default function middleware(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  // 4. Handle Django password reset confirmation links: /password-reset/confirm/<uid>/<token>
+  // 5. Handle Django password reset confirmation links: /password-reset/confirm/<uid>/<token>
   const pwResetMatch = pathname.match(/(?:\/(?:ar|en))?(?:\/auth)?\/password-reset\/confirm\/([^/]+)\/([^/]+)/);
   if (pwResetMatch) {
     const uid = pwResetMatch[1];
@@ -86,7 +99,9 @@ export default function middleware(request: NextRequest) {
     pathWithoutLocale.startsWith('/cart/') ||
     pathWithoutLocale === '/checkout' ||
     pathWithoutLocale.startsWith('/checkout/');
-  const isAccountRoute = pathWithoutLocale === '/account' || pathWithoutLocale.startsWith('/account/');
+  const isAccountRoute =
+    (pathWithoutLocale === '/account' || pathWithoutLocale.startsWith('/account/')) &&
+    !pathWithoutLocale.includes('/confirm-email');
   const isProfileRoute = pathWithoutLocale === '/profile' || pathWithoutLocale.startsWith('/profile/');
 
   const isProtectedRoute =

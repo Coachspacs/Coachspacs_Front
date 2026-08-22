@@ -8,17 +8,61 @@ export interface User {
   fullName: string;
   name?: string;
   email: string;
+  pendingEmail?: string | null;
+  pending_email?: string | null;
   role: UserRole;
   avatar?: string | null;
   phone?: string;
+  phoneNumber?: string;
+  phone_number?: string;
   headline?: string;
   bio?: string;
   specialization?: string;
   hourlyRate?: number;
+  preferredLanguage?: string;
+  preferred_language?: string;
   approval_status?: 'pending' | 'approved' | 'rejected' | string;
   approvalStatus?: 'pending' | 'approved' | 'rejected' | string;
   createdAt?: string;
 }
+
+export interface UserProfileResponse {
+  id: number | string;
+  full_name: string;
+  email: string;
+  pending_email?: string | null;
+  phone_number?: string | null;
+  preferred_language?: string;
+  avatar?: string | null;
+  role: 'student' | 'instructor' | string;
+  approval_status?: 'pending' | 'approved' | 'rejected' | string;
+}
+
+export interface UpdateProfileRequest {
+  full_name?: string;
+  phone_number?: string;
+  preferred_language?: string;
+}
+
+export interface AvatarUploadResponse {
+  avatar: string;
+}
+
+export interface EmailChangeRequest {
+  new_email: string;
+}
+
+export interface EmailConfirmRequest {
+  uid: string;
+  token: string;
+}
+
+export interface CategoryItem {
+  id: number | string;
+  name: string;
+  icon?: string | null;
+}
+
 
 export interface AuthState {
   user: User | null;

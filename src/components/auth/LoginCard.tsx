@@ -13,6 +13,7 @@ import { Logo } from "@/components/ui/Logo";
 import { loginSchema, type LoginFormData } from "@/features/auth/schemas/authSchemas";
 import { authService, getApiErrorMessage } from "@/services/auth";
 import { setCredentials } from "@/features/auth/slice";
+import { tokenManager } from "@/lib/tokenManager";
 
 interface LoginCardProps {
   lang?: "EN" | "AR";
@@ -63,12 +64,13 @@ export function LoginCard({ lang }: LoginCardProps) {
         throw new Error(res.message || errDetail || "Authentication token not received");
       }
 
-      // Immediately store tokens so Axios attaches Authorization headers for subsequent profile calls
-      if (typeof window !== "undefined") {
-        localStorage.setItem("token", token);
-        if (refreshToken) {
-          localStorage.setItem("refreshToken", refreshToken);
-        }
+      const initialRole = (res.role || res.user?.role || "student").toLowerCase();
+      const initialStatus = (res.approval_status || res.user?.approval_status || "approved").toLowerCase();
+
+      // Immediately store tokens & session cookies so Axios and Middleware have authorization
+      tokenManager.setAccessToken(token, initialRole, initialStatus);
+      if (refreshToken) {
+        tokenManager.setRefreshToken(refreshToken);
       }
 
       // Fetch authentic user profile & verify approval status directly from backend database API

@@ -302,29 +302,92 @@ export async function getInstructorDashboard(): Promise<any> {
 }
 
 /**
- * Fetch current user profile with automatic fallback
- * GET /api/auth/profile
+ * Fetch current user profile from /api/users/me (with graceful legacy fallbacks)
+ * GET /api/users/me
  */
 export async function getProfile(): Promise<AuthApiResponse> {
   try {
-    const response = await axiosInstance.get<AuthApiResponse>('/auth/profile');
+    const response = await axiosInstance.get<AuthApiResponse>('/users/me');
     return response.data;
   } catch (err: any) {
     if (err?.response?.status === 404) {
       try {
-        const instRes = await axiosInstance.get<AuthApiResponse>('/instructor/profile');
-        return { ...instRes.data, role: 'instructor' };
-      } catch (iErr) {
+        const authProfRes = await axiosInstance.get<AuthApiResponse>('/auth/profile');
+        return authProfRes.data;
+      } catch (aErr) {
         try {
-          const studRes = await axiosInstance.get<AuthApiResponse>('/student/profile');
-          return { ...studRes.data, role: 'student' };
-        } catch (sErr) {
-          throw err;
+          const instRes = await axiosInstance.get<AuthApiResponse>('/instructor/profile');
+          return { ...instRes.data, role: 'instructor' };
+        } catch (iErr) {
+          try {
+            const studRes = await axiosInstance.get<AuthApiResponse>('/student/profile');
+            return { ...studRes.data, role: 'student' };
+          } catch (sErr) {
+            throw err;
+          }
         }
       }
     }
     throw err;
   }
+}
+
+/**
+ * Update current user profile
+ * PUT /api/users/me
+ */
+export async function updateProfile(data: {
+  full_name?: string;
+  phone_number?: string;
+  preferred_language?: string;
+}): Promise<AuthApiResponse> {
+  const response = await axiosInstance.put<AuthApiResponse>('/users/me', data);
+  return response.data;
+}
+
+/**
+ * Upload avatar image
+ * POST /api/users/me/avatar
+ */
+export async function uploadAvatar(file: File): Promise<{ avatar: string }> {
+  const formData = new FormData();
+  formData.append('avatar', file);
+  const response = await axiosInstance.post<{ avatar: string }>('/users/me/avatar', formData);
+  return response.data;
+}
+
+/**
+ * Request changing account email address
+ * POST /api/users/me/email/change
+ */
+export async function requestEmailChange(newEmail: string): Promise<AuthApiResponse> {
+  try {
+    const response = await axiosInstance.post<AuthApiResponse>('/users/me/email/change', {
+      new_email: newEmail,
+    });
+    return response.data;
+  } catch (err: any) {
+    if (err?.response?.status === 404 || err?.response?.status === 405) {
+      const fallbackRes = await axiosInstance.post<AuthApiResponse>('/auth/change-email', {
+        email: newEmail,
+        new_email: newEmail,
+      });
+      return fallbackRes.data;
+    }
+    throw err;
+  }
+}
+
+/**
+ * Confirm changing account email address
+ * POST /api/users/me/email/confirm
+ */
+export async function confirmEmailChange(params: { uid: string; token: string }): Promise<AuthApiResponse> {
+  const response = await axiosInstance.post<AuthApiResponse>('/users/me/email/confirm', {
+    uid: params.uid,
+    token: params.token,
+  });
+  return response.data;
 }
 
 /**
@@ -343,7 +406,7 @@ export async function syncCurrentUserProfile(
   let dbProfile: any = null;
   let instructorAccessOk: boolean | null = null;
 
-  // 1. Fetch live user profile from database
+  // 1. Fetch live user profile from database (/api/users/me)
   try {
     const profileRes = await getProfile();
     dbProfile = profileRes.user || profileRes.data || profileRes;
@@ -453,6 +516,8 @@ export async function syncCurrentUserProfile(
   const normalizedUser = {
     id: String(rawUser.id || rawUser.pk || decoded?.user_id || decoded?.id || decoded?.sub || '1'),
     email,
+    pendingEmail: rawUser.pending_email || rawUser.pendingEmail || null,
+    pending_email: rawUser.pending_email || rawUser.pendingEmail || null,
     fullName,
     name: fullName,
     role,
@@ -460,6 +525,10 @@ export async function syncCurrentUserProfile(
     headline: rawUser.headline || rawUser.title || (role === 'instructor' ? 'Certified Instructor' : 'Student & Lifelong Learner'),
     bio: rawUser.bio || rawUser.description || '',
     phone: rawUser.phone || rawUser.phone_number || '',
+    phoneNumber: rawUser.phone_number || rawUser.phone || '',
+    phone_number: rawUser.phone_number || rawUser.phone || '',
+    preferredLanguage: rawUser.preferred_language || rawUser.preferredLanguage || 'en',
+    preferred_language: rawUser.preferred_language || rawUser.preferredLanguage || 'en',
     specialization: rawUser.specialization || '',
     approval_status,
     approvalStatus: approval_status,
@@ -475,28 +544,6 @@ export async function syncCurrentUserProfile(
   };
 }
 
-/**
- * Request changing account email address
- * POST /api/auth/change-email (or profile update)
- */
-export async function requestEmailChange(newEmail: string): Promise<AuthApiResponse> {
-  try {
-    const response = await axiosInstance.post<AuthApiResponse>('/auth/change-email', {
-      email: newEmail,
-      new_email: newEmail,
-    });
-    return response.data;
-  } catch (err: any) {
-    if (err?.response?.status === 404 || err?.response?.status === 405) {
-      const fallbackRes = await axiosInstance.put<AuthApiResponse>('/auth/profile', {
-        email: newEmail,
-      });
-      return fallbackRes.data;
-    }
-    throw err;
-  }
-}
-
 export { getApiErrorMessage };
 
 export const authService = {
@@ -507,9 +554,12 @@ export const authService = {
   verifyEmail,
   resendVerificationEmail,
   requestEmailChange,
+  confirmEmailChange,
   refreshToken,
   logout,
   changePassword,
+  updateProfile,
+  uploadAvatar,
   getInstructorDashboard,
   getProfile,
   decodeJwt,
@@ -518,3 +568,4 @@ export const authService = {
 };
 
 export default authService;
+

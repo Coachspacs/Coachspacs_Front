@@ -30,17 +30,41 @@ const processQueue = (error: unknown, token: string | null = null) => {
   failedQueue = [];
 };
 
+// Helper to detect current active locale
+function getCurrentLocale(): string {
+  if (typeof document !== 'undefined') {
+    const htmlLang = document.documentElement?.lang;
+    if (htmlLang && (htmlLang === 'ar' || htmlLang === 'en')) {
+      return htmlLang;
+    }
+    const pathLocale = window.location.pathname.split('/')[1];
+    if (pathLocale === 'ar' || pathLocale === 'en') {
+      return pathLocale;
+    }
+  }
+  return 'ar';
+}
+
 // ----------------------------------------------------
-// Request Interceptor: Attach in-memory Bearer Token
+// Request Interceptor: Attach Bearer Token & Accept-Language
 // ----------------------------------------------------
 axiosInstance.interceptors.request.use(
   (config) => {
     config.headers = config.headers || {};
-    if (!config.headers["Content-Type"]) {
-      config.headers["Content-Type"] = "application/json";
+
+    // Do not set application/json for FormData so browser can set boundary
+    if (typeof FormData !== 'undefined' && config.data instanceof FormData) {
+      delete config.headers['Content-Type'];
+    } else if (!config.headers['Content-Type']) {
+      config.headers['Content-Type'] = 'application/json';
     }
-    if (!config.headers["Accept"]) {
-      config.headers["Accept"] = "application/json";
+
+    if (!config.headers['Accept']) {
+      config.headers['Accept'] = 'application/json';
+    }
+
+    if (!config.headers['Accept-Language']) {
+      config.headers['Accept-Language'] = getCurrentLocale();
     }
 
     const token = tokenManager.getAccessToken();
@@ -48,7 +72,7 @@ axiosInstance.interceptors.request.use(
       config.headers.Authorization = `Bearer ${token}`;
     }
 
-    const fullUrl = (config.baseURL || "").replace(/\/+$/, "") + (config.url || "");
+    const fullUrl = (config.baseURL || '').replace(/\/+$/, '') + (config.url || '');
     console.log(`[Axios Request] ${config.method?.toUpperCase()} -> ${fullUrl}`, {
       headers: config.headers,
     });
