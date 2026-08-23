@@ -28,25 +28,6 @@ const nextConfig: NextConfig = {
   compiler: {
     removeConsole: process.env.NODE_ENV === 'production',
   },
-  async redirects() {
-    return [
-      {
-        source: '/auth/verify-email',
-        destination: '/verify-email',
-        permanent: false,
-      },
-      {
-        source: '/account/confirm-email',
-        destination: '/confirm-email',
-        permanent: false,
-      },
-      {
-        source: '/auth/confirm-email',
-        destination: '/confirm-email',
-        permanent: false,
-      },
-    ];
-  },
   async rewrites() {
     const targetUrl =
       process.env.BACKEND_API_URL ||

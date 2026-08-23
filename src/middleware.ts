@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from 'next/server';
 const intlMiddleware = createMiddleware({
   locales: ['en', 'ar'],
   defaultLocale: 'en',
-  localePrefix: 'as-needed',
+  localePrefix: 'always',
   localeDetection: false,
 });
 
@@ -35,18 +35,18 @@ export default function middleware(request: NextRequest) {
   const accountConfirmMatch = pathname.match(/(?:\/(?:ar|en))?(?:\/auth)?\/account-confirm-email\/([^/]+)/);
   if (accountConfirmMatch) {
     const key = accountConfirmMatch[1];
+    const targetLocale = pathname.startsWith('/ar') ? 'ar' : 'en';
     const url = request.nextUrl.clone();
-    url.pathname = '/verify-email';
+    url.pathname = `/${targetLocale}/verify-email`;
     url.search = `?token=${encodeURIComponent(key)}&key=${encodeURIComponent(key)}`;
     return NextResponse.redirect(url);
   }
 
   // 4. Handle /auth/reset-password or /auth/password/reset
   if (pathname.includes('/auth/reset-password') || pathname.includes('/auth/password/reset')) {
+    const targetLocale = pathname.startsWith('/ar') ? 'ar' : 'en';
     const url = request.nextUrl.clone();
-    url.pathname = pathname
-      .replace('/auth/reset-password', '/reset-password')
-      .replace('/auth/password/reset', '/reset-password');
+    url.pathname = `/${targetLocale}/reset-password`;
     return NextResponse.redirect(url);
   }
 
@@ -55,8 +55,9 @@ export default function middleware(request: NextRequest) {
   if (pwResetMatch) {
     const uid = pwResetMatch[1];
     const token = pwResetMatch[2];
+    const targetLocale = pathname.startsWith('/ar') ? 'ar' : 'en';
     const url = request.nextUrl.clone();
-    url.pathname = '/reset-password';
+    url.pathname = `/${targetLocale}/reset-password`;
     url.search = `?uid=${encodeURIComponent(uid)}&token=${encodeURIComponent(token)}`;
     return NextResponse.redirect(url);
   }
