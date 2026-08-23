@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useTranslations, useLocale } from "next-intl";
 import {
@@ -11,13 +11,16 @@ import {
   Brain,
   ArrowRight,
   Sparkles,
+  Layers,
+  BookOpen,
 } from "lucide-react";
+import { categoryService } from "@/services/categoryService";
 
 export function TopCategoriesSection() {
   const t = useTranslations("home");
   const locale = useLocale();
 
-  const categories = [
+  const defaultCategories = [
     {
       id: "design",
       title: t("categoryDesign"),
@@ -49,6 +52,33 @@ export function TopCategoriesSection() {
       href: `/${locale}/catalog?category=Leadership`,
     },
   ];
+
+  const [categories, setCategories] = useState(defaultCategories);
+
+  useEffect(() => {
+    let isMounted = true;
+    categoryService
+      .getCategories(locale)
+      .then((data) => {
+        if (isMounted && data && Array.isArray(data) && data.length > 0) {
+          const iconPool = [PenTool, Code, BarChart3, Target, Brain, Layers, BookOpen];
+          const dynamicItems = data.slice(0, 5).map((item, idx) => ({
+            id: String(item.id),
+            title: item.name,
+            icon: iconPool[idx % iconPool.length],
+            href: `/${locale}/catalog?category=${encodeURIComponent(item.name)}`,
+          }));
+          setCategories(dynamicItems);
+        }
+      })
+      .catch(() => {
+        // Fallback to default categories
+      });
+    return () => {
+      isMounted = false;
+    };
+  }, [locale]);
+
 
   return (
     <section className="w-full bg-white pt-8 pb-16 sm:pb-24">

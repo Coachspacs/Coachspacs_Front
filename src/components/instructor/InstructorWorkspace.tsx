@@ -46,6 +46,7 @@ import { Sidebar } from "@/components/layout/Sidebar";
 
 const ArchiveCourseModal = dynamic(() => import("@/components/modals/ArchiveCourseModal").then((mod) => mod.ArchiveCourseModal), { ssr: false });
 const ChangeEmailModal = dynamic(() => import("@/components/modals/ChangeEmailModal").then((mod) => mod.ChangeEmailModal), { ssr: false });
+const InstructorPendingModal = dynamic(() => import("@/components/modals/InstructorPendingModal").then((mod) => mod.InstructorPendingModal), { ssr: false });
 import {
   mockInstructorWorkspaceCourses,
   mockInstructorWorkspaceStudents,
@@ -68,11 +69,6 @@ export function InstructorWorkspace({ initialTab = "overview", hideSidebar = tru
 
   const authUser = useSelector((state: RootState) => state.auth.user);
 
-  // Active Workspace Section
-  const [activeTab, setActiveTab] = useState<"overview" | "courses" | "students" | "payout" | "settings">(initialTab);
-  const [studentSearch, setStudentSearch] = useState("");
-  const [courseFilter, setCourseFilter] = useState<"all" | "active" | "archived">("active");
-
   // Account Approval Status (US-02)
   const initialStatus = (authUser?.approval_status === "pending" || authUser?.approvalStatus === "pending")
     ? "pending"
@@ -82,9 +78,17 @@ export function InstructorWorkspace({ initialTab = "overview", hideSidebar = tru
 
   const [approvalStatus, setApprovalStatus] = useState<"approved" | "pending" | "rejected">(initialStatus);
 
+  // Active Workspace Section - default to settings if not approved
+  const defaultTab = (initialStatus !== "approved" && initialTab !== "settings") ? "settings" : initialTab;
+  const [activeTab, setActiveTab] = useState<"overview" | "courses" | "students" | "payout" | "settings">(defaultTab);
+  const [studentSearch, setStudentSearch] = useState("");
+  const [courseFilter, setCourseFilter] = useState<"all" | "active" | "archived">("active");
+
   // Toast & Modals
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [showEmailModal, setShowEmailModal] = useState(false);
+  const [showPendingModal, setShowPendingModal] = useState(false);
+  const [pendingFeatureName, setPendingFeatureName] = useState<string | undefined>(undefined);
 
   // Modal State for Course Editor & Curriculum Builder
   const [showCourseModal, setShowCourseModal] = useState(false);
@@ -308,20 +312,57 @@ export function InstructorWorkspace({ initialTab = "overview", hideSidebar = tru
       {/* Status Approval Banner (US-02) */}
       <div className="p-4 rounded-2xl sm:rounded-3xl bg-white border border-slate-200/80 shadow-2xs flex flex-col sm:flex-row items-center justify-between gap-4">
         <div className="flex items-center gap-3 text-center sm:text-start">
-          <div className="p-2 rounded-2xl bg-emerald-50 text-[#0F5244] border border-emerald-200 shrink-0">
-            <ShieldCheck className="h-5 w-5" />
+          <div
+            className={`p-2 rounded-2xl border shrink-0 ${
+              approvalStatus === "approved"
+                ? "bg-emerald-50 text-[#0F5244] border-emerald-200"
+                : approvalStatus === "rejected"
+                ? "bg-rose-50 text-rose-700 border-rose-200"
+                : "bg-amber-50 text-amber-800 border-amber-200"
+            }`}
+          >
+            {approvalStatus === "approved" ? (
+              <ShieldCheck className="h-5 w-5" />
+            ) : approvalStatus === "rejected" ? (
+              <AlertCircle className="h-5 w-5" />
+            ) : (
+              <Clock className="h-5 w-5" />
+            )}
           </div>
           <div>
-            <div className="flex items-center justify-center sm:justify-start gap-2">
+            <div className="flex items-center justify-center sm:justify-start gap-2 flex-wrap">
               <h4 className="text-xs sm:text-sm font-extrabold text-slate-900">
                 {tInst("approvalStatusTitle")}
               </h4>
-              <span className="px-2.5 py-0.5 rounded-full bg-emerald-100 text-[#0F5244] text-[11px] font-extrabold">
-                {tInst("approvedBadge")}
+              <span
+                className={`px-2.5 py-0.5 rounded-full text-[11px] font-extrabold ${
+                  approvalStatus === "approved"
+                    ? "bg-emerald-100 text-[#0F5244] border border-emerald-200"
+                    : approvalStatus === "rejected"
+                    ? "bg-rose-100 text-rose-800 border border-rose-200"
+                    : "bg-amber-50 text-amber-800 border border-amber-200/90 inline-flex items-center gap-1.5"
+                }`}
+              >
+                {approvalStatus === "pending" && (
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+                )}
+                <span>
+                  {approvalStatus === "approved"
+                    ? tInst("approvedBadge")
+                    : approvalStatus === "rejected"
+                    ? tInst("rejectedBadge")
+                    : (isAr ? "قيد المراجعة" : "Under Review")}
+                </span>
               </span>
             </div>
             <p className="text-xs text-slate-500 font-medium mt-0.5">
-              {tInst("approvedDescription")}
+              {approvalStatus === "approved"
+                ? tInst("approvedDescription")
+                : approvalStatus === "rejected"
+                ? tInst("rejectedDescription")
+                : (isAr
+                    ? "طلب انضمامك كمدرب قيد التدقيق حالياً من قبل الإدارة. ستصلك رسالة تأكيد عبر البريد فور الاعتماد."
+                    : tInst("pendingDescription"))}
             </p>
           </div>
         </div>
@@ -332,7 +373,20 @@ export function InstructorWorkspace({ initialTab = "overview", hideSidebar = tru
         {!hideSidebar && (
           <Sidebar
             activeTab={activeTab}
-            onTabChange={(tabId: string) => setActiveTab(tabId as any)}
+            onTabChange={(tabId: string) => {
+              if (approvalStatus !== "approved" && tabId !== "settings") {
+                const tabLabels: Record<string, string> = {
+                  overview: tInst("analyticsRevenue"),
+                  courses: tInst("courseLifecycle"),
+                  students: tInst("enrolledStudentsNav"),
+                  payout: tInst("payoutAndBilling"),
+                };
+                setPendingFeatureName(tabLabels[tabId] || tabId);
+                setShowPendingModal(true);
+                return;
+              }
+              setActiveTab(tabId as any);
+            }}
             items={[
               { id: "overview", label: tInst("analyticsRevenue"), icon: LayoutDashboard },
               { id: "courses", label: tInst("courseLifecycle"), icon: BookOpen },
@@ -639,6 +693,12 @@ export function InstructorWorkspace({ initialTab = "overview", hideSidebar = tru
         courseTitle={
           courses.find((c) => c.id === archiveModalCourseId)?.[isAr ? "titleAr" : "titleEn"]
         }
+      />
+
+      <InstructorPendingModal
+        isOpen={showPendingModal}
+        onClose={() => setShowPendingModal(false)}
+        featureName={pendingFeatureName}
       />
     </div>
   );

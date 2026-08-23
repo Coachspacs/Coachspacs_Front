@@ -82,6 +82,26 @@ export const authApi = apiSlice.injectEndpoints({
         },
       }),
     }),
+    changePassword: builder.mutation<{ message?: string }, { current_password: string; new_password: string }>({
+      query: (body) => ({
+        url: '/auth/password/change',
+        method: 'PUT',
+        body,
+      }),
+    }),
+    getInstructorDashboard: builder.query<any, void>({
+      query: () => ({
+        url: '/auth/instructor/dashboard',
+        method: 'GET',
+      }),
+    }),
+    logout: builder.mutation<{ success?: boolean }, { refresh: string }>({
+      query: (body) => ({
+        url: '/auth/logout',
+        method: 'POST',
+        body,
+      }),
+    }),
   }),
 });
 
@@ -92,4 +112,8 @@ export const {
   useResendVerificationEmailMutation,
   useForgotPasswordMutation,
   useResetPasswordMutation,
+  useChangePasswordMutation,
+  useGetInstructorDashboardQuery,
+  useLogoutMutation,
 } = authApi;
+

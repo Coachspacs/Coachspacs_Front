@@ -1,5 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { User, AuthState } from '@/types';
+import { tokenManager } from '@/lib/tokenManager';
 
 const getInitialState = (): AuthState => {
   if (typeof window === 'undefined') {
@@ -12,33 +13,31 @@ const getInitialState = (): AuthState => {
     };
   }
 
-  let token = localStorage.getItem('token');
-  let refreshToken = localStorage.getItem('refreshToken');
+  const token = tokenManager.getAccessToken();
+  const refreshToken = tokenManager.getRefreshToken();
   let user: User | null = null;
 
-  // Clear legacy mock session tokens if present
-  if (token && (token.includes('session') || token.includes('local') || token.includes('registered'))) {
-    localStorage.removeItem('token');
-    localStorage.removeItem('refreshToken');
-    localStorage.removeItem('user');
-    token = null;
-    refreshToken = null;
-  } else {
-    try {
-      const storedUser = localStorage.getItem('user');
-      if (storedUser) {
-        user = JSON.parse(storedUser);
-      }
-    } catch (e) {
-      user = null;
+  try {
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      user = JSON.parse(storedUser);
     }
+  } catch (e) {
+    user = null;
+  }
+
+  const isAuthenticated = Boolean(token && user);
+
+  if (isAuthenticated && user && token) {
+    const status = (user as any)?.approval_status || (user as any)?.approvalStatus || '';
+    tokenManager.setAccessToken(token, user.role, status);
   }
 
   return {
     user,
     token,
     refreshToken,
-    isAuthenticated: Boolean(token && user),
+    isAuthenticated,
     isLoading: false,
   };
 };
@@ -59,14 +58,15 @@ export const authSlice = createSlice({
         state.refreshToken = action.payload.refreshToken;
       }
       state.isAuthenticated = true;
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('token', action.payload.token);
-        if (action.payload.refreshToken) {
-          localStorage.setItem('refreshToken', action.payload.refreshToken);
-        }
-        if (action.payload.user) {
-          localStorage.setItem('user', JSON.stringify(action.payload.user));
-        }
+
+      const status = (action.payload.user as any)?.approval_status || (action.payload.user as any)?.approvalStatus || '';
+      tokenManager.setAccessToken(action.payload.token, action.payload.user.role, status);
+      if (action.payload.refreshToken) {
+        tokenManager.setRefreshToken(action.payload.refreshToken);
+      }
+
+      if (typeof window !== 'undefined' && action.payload.user) {
+        localStorage.setItem('user', JSON.stringify(action.payload.user));
       }
     },
     logout: (state) => {
@@ -74,15 +74,13 @@ export const authSlice = createSlice({
       state.token = null;
       state.refreshToken = null;
       state.isAuthenticated = false;
-      if (typeof window !== 'undefined') {
-        localStorage.removeItem('token');
-        localStorage.removeItem('refreshToken');
-        localStorage.removeItem('user');
-      }
+      tokenManager.clearTokens();
     },
     updateUser: (state, action: PayloadAction<Partial<User>>) => {
       if (state.user) {
         state.user = { ...state.user, ...action.payload };
+        const status = (state.user as any)?.approval_status || (state.user as any)?.approvalStatus || '';
+        tokenManager.setAccessToken(state.token, state.user.role, status);
         if (typeof window !== 'undefined') {
           localStorage.setItem('user', JSON.stringify(state.user));
         }
@@ -93,4 +91,3 @@ export const authSlice = createSlice({
 
 export const { setCredentials, logout, updateUser } = authSlice.actions;
 export default authSlice.reducer;
-

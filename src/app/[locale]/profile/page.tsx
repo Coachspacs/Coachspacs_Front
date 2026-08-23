@@ -1,25 +1,43 @@
 "use client";
 
 import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { useLocale } from "next-intl";
 import { useSelector } from "react-redux";
 import { RootState } from "@/lib/store";
 
+import { tokenManager } from "@/lib/tokenManager";
+
 export default function ProfileRedirectPage() {
   const router = useRouter();
   const locale = useLocale() || "en";
-  const { user } = useSelector((state: RootState) => state.auth);
+  const pathname = usePathname() || "";
+  const { user, isAuthenticated } = useSelector((state: RootState) => state.auth);
 
   useEffect(() => {
-    const roleLower = (user?.role || "").toLowerCase();
-    
-    if (roleLower === "instructor") {
-      router.replace(`/${locale}/instructor/profile`);
+    const hasToken = tokenManager.hasSession();
+    const localUserStr = typeof window !== "undefined" ? localStorage.getItem("user") : null;
+    let localUser = null;
+    try {
+      if (localUserStr) localUser = JSON.parse(localUserStr);
+    } catch {}
+
+    const isUserLoggedIn = isAuthenticated || Boolean(hasToken && (user || localUser));
+    const activeUser = user || localUser;
+
+    if (!isUserLoggedIn || !activeUser) {
+      router.replace(`/${locale}/login?redirect=${encodeURIComponent(pathname)}`);
+      return;
+    }
+
+    const roleLower = (activeUser.role || "").toLowerCase();
+
+    if (roleLower === "instructor" || roleLower === "coach") {
+      router.replace(`/${locale}/instructor/settings`);
     } else {
       router.replace(`/${locale}/student/profile`);
     }
-  }, [user, locale, router]);
+  }, [user, isAuthenticated, locale, router, pathname]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#FAFCFB]">

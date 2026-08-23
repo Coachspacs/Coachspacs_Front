@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { ChevronDown, ChevronUp, Layers, DollarSign, Globe2, Grid, RotateCcw, Filter, X } from "lucide-react";
-import { Category, Level, PriceFilter, CourseLanguage, FilterState } from "@/types/catalog";
+import { Category, Level, PriceFilter, CourseLanguage, FilterState, CategoryItem } from "@/types/catalog";
+import { categoryService } from "@/services/categoryService";
 
 interface FilterSidebarProps {
   filters: FilterState;
@@ -37,7 +38,7 @@ export function FilterSidebar({
   const [langOpen, setLangOpen] = useState(false);
   const [categoryOpen, setCategoryOpen] = useState(true);
 
-  const categories: Category[] = [
+  const defaultCategories: Category[] = [
     "Leadership",
     "Management",
     "Communication",
@@ -47,6 +48,28 @@ export function FilterSidebar({
     "Development",
     "Data Science",
   ];
+
+  const [categoriesList, setCategoriesList] = useState<{ id: string; name: string }[]>(
+    defaultCategories.map((c) => ({ id: c, name: c }))
+  );
+
+  useEffect(() => {
+    let isMounted = true;
+    categoryService
+      .getCategories(isAr ? "ar" : "en")
+      .then((data) => {
+        if (isMounted && data && Array.isArray(data) && data.length > 0) {
+          setCategoriesList(data.map((item) => ({ id: String(item.name || item.id), name: item.name })));
+        }
+      })
+      .catch(() => {
+        // graceful fallback to default categories
+      });
+    return () => {
+      isMounted = false;
+    };
+  }, [isAr]);
+
 
   const levels: { value: Level; labelKey: string }[] = [
     { value: "All Levels", labelKey: "allLevels" },
@@ -120,20 +143,21 @@ export function FilterSidebar({
 
             {categoryOpen && (
               <div className="mt-2.5 space-y-1.5 animate-in fade-in duration-150">
-                {categories.map((cat) => {
-                  const isSelected = filters.selectedCategories.includes(cat);
+                {categoriesList.map((cat) => {
+                  const isSelected = filters.selectedCategories.includes(cat.id) || filters.selectedCategories.includes(cat.name);
+                  const translatedLabel = t.has(`categories.${cat.id}`) ? t(`categories.${cat.id}`) : cat.name;
                   return (
                     <label
-                      key={cat}
+                      key={cat.id}
                       className="flex items-center gap-2 text-xs font-medium text-slate-600 hover:text-slate-900 cursor-pointer select-none py-0.5"
                     >
                       <input
                         type="checkbox"
                         checked={isSelected}
-                        onChange={() => handleCategoryToggle(cat)}
+                        onChange={() => handleCategoryToggle(cat.id)}
                         className="h-3.5 w-3.5 rounded border-slate-300 text-[#0F5244] focus:ring-2 focus:ring-[#0F5244]/20 accent-[#0F5244] cursor-pointer"
                       />
-                      <span>{t(`categories.${cat}`)}</span>
+                      <span>{translatedLabel}</span>
                     </label>
                   );
                 })}
