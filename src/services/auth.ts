@@ -1,4 +1,5 @@
 import axiosInstance from '@/lib/axios';
+import { tokenManager } from '@/lib/tokenManager';
 import { getApiErrorMessage } from '@/utils/apiErrorHandler';
 
 export type UserRoleType = 'student' | 'instructor';
@@ -223,10 +224,17 @@ export async function resetPassword(data: ResetPasswordRequest): Promise<AuthApi
  * Refresh JWT access token
  * POST /api/auth/refresh
  */
-export async function refreshToken(refresh: string): Promise<{ access: string }> {
+export async function refreshToken(refresh?: string): Promise<{ access: string }> {
+  const tokenToUse = refresh || tokenManager.getRefreshToken();
+  if (!tokenToUse) {
+    throw new Error('No refresh token available');
+  }
   const response = await axiosInstance.post<{ access: string }>('/auth/refresh', {
-    refresh,
+    refresh: tokenToUse,
   });
+  if (response.data?.access) {
+    tokenManager.setAccessToken(response.data.access);
+  }
   return response.data;
 }
 
@@ -236,18 +244,18 @@ export async function refreshToken(refresh: string): Promise<{ access: string }>
  */
 export async function logout(refresh?: string): Promise<AuthApiResponse> {
   try {
-    const tokenToBlacklist = refresh || (typeof window !== 'undefined' ? localStorage.getItem('refreshToken') : null);
+    const tokenToBlacklist = refresh || tokenManager.getRefreshToken();
     if (tokenToBlacklist) {
-      const response = await axiosInstance.post<AuthApiResponse>('/auth/logout', {
+      await axiosInstance.post<AuthApiResponse>('/auth/logout', {
         refresh: tokenToBlacklist,
       });
-      return response.data;
     }
-    return { success: true };
   } catch (err: any) {
-    // Logout shouldn't block local clearing even if backend returns an error
-    return { success: true };
+    // Silent catch so client-side logout completes cleanly
+  } finally {
+    tokenManager.clearTokens();
   }
+  return { success: true };
 }
 
 /**
@@ -263,6 +271,28 @@ export async function changePassword(data: ChangePasswordRequest): Promise<AuthA
 }
 
 /**
+ * Safely decodes JWT payload claims from a Bearer token.
+ */
+export function decodeJwt<T = any>(token?: string | null): T | null {
+  try {
+    if (!token || typeof token !== 'string') return null;
+    const parts = token.split('.');
+    if (parts.length < 2) return null;
+    const base64Url = parts[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split('')
+        .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+        .join('')
+    );
+    return JSON.parse(jsonPayload);
+  } catch (e) {
+    return null;
+  }
+}
+
+/**
  * Get Instructor Dashboard (Access check for approved/pending instructors)
  * GET /api/auth/instructor/dashboard
  */
@@ -272,34 +302,246 @@ export async function getInstructorDashboard(): Promise<any> {
 }
 
 /**
- * Fetch current user profile
- * GET /api/auth/profile
+ * Fetch current user profile from /api/users/me (with graceful legacy fallbacks)
+ * GET /api/users/me
  */
 export async function getProfile(): Promise<AuthApiResponse> {
-  const response = await axiosInstance.get<AuthApiResponse>('/auth/profile');
+  try {
+    const response = await axiosInstance.get<AuthApiResponse>('/users/me');
+    return response.data;
+  } catch (err: any) {
+    if (err?.response?.status === 404) {
+      try {
+        const authProfRes = await axiosInstance.get<AuthApiResponse>('/auth/profile');
+        return authProfRes.data;
+      } catch (aErr) {
+        try {
+          const instRes = await axiosInstance.get<AuthApiResponse>('/instructor/profile');
+          return { ...instRes.data, role: 'instructor' };
+        } catch (iErr) {
+          try {
+            const studRes = await axiosInstance.get<AuthApiResponse>('/student/profile');
+            return { ...studRes.data, role: 'student' };
+          } catch (sErr) {
+            throw err;
+          }
+        }
+      }
+    }
+    throw err;
+  }
+}
+
+/**
+ * Update current user profile
+ * PUT /api/users/me
+ */
+export async function updateProfile(data: {
+  full_name?: string;
+  phone_number?: string;
+  preferred_language?: string;
+}): Promise<AuthApiResponse> {
+  const response = await axiosInstance.put<AuthApiResponse>('/users/me', data);
+  return response.data;
+}
+
+/**
+ * Upload avatar image
+ * POST /api/users/me/avatar
+ */
+export async function uploadAvatar(file: File): Promise<{ avatar: string }> {
+  const formData = new FormData();
+  formData.append('avatar', file);
+  const response = await axiosInstance.post<{ avatar: string }>('/users/me/avatar', formData);
   return response.data;
 }
 
 /**
  * Request changing account email address
- * POST /api/auth/change-email (or profile update)
+ * POST /api/users/me/email/change
  */
 export async function requestEmailChange(newEmail: string): Promise<AuthApiResponse> {
   try {
-    const response = await axiosInstance.post<AuthApiResponse>('/auth/change-email', {
-      email: newEmail,
+    const response = await axiosInstance.post<AuthApiResponse>('/users/me/email/change', {
       new_email: newEmail,
     });
     return response.data;
   } catch (err: any) {
     if (err?.response?.status === 404 || err?.response?.status === 405) {
-      const fallbackRes = await axiosInstance.put<AuthApiResponse>('/auth/profile', {
+      const fallbackRes = await axiosInstance.post<AuthApiResponse>('/auth/change-email', {
         email: newEmail,
+        new_email: newEmail,
       });
       return fallbackRes.data;
     }
     throw err;
   }
+}
+
+/**
+ * Confirm changing account email address
+ * POST /api/users/me/email/confirm
+ */
+export async function confirmEmailChange(params: { uid: string; token: string }): Promise<AuthApiResponse> {
+  const response = await axiosInstance.post<AuthApiResponse>('/users/me/email/confirm', {
+    uid: params.uid,
+    token: params.token,
+  });
+  return response.data;
+}
+
+/**
+ * Synchronizes and normalizes the current user's profile and approval status
+ * directly from backend database API & JWT claims.
+ */
+export async function syncCurrentUserProfile(
+  token?: string | null,
+  loginResponse?: AuthApiResponse,
+  loginEmail?: string
+): Promise<{ user: any; approval_status: 'approved' | 'pending' | 'rejected' }> {
+  const activeToken = token || tokenManager.getAccessToken();
+  const decoded = decodeJwt<any>(activeToken);
+
+  let rawUser: any = loginResponse?.user || (loginResponse?.data && loginResponse.data.user) || (typeof loginResponse?.data === 'object' ? loginResponse.data : {}) || {};
+  let dbProfile: any = null;
+  let instructorAccessOk: boolean | null = null;
+
+  // 1. Fetch live user profile from database (/api/users/me)
+  try {
+    const profileRes = await getProfile();
+    dbProfile = profileRes.user || profileRes.data || profileRes;
+    if (dbProfile && typeof dbProfile === 'object') {
+      rawUser = { ...rawUser, ...dbProfile };
+    }
+  } catch (err: any) {
+    console.warn('[authService.syncCurrentUserProfile] Profile fetch info:', err?.message);
+  }
+
+  // 2. Check candidate role indications
+  const candidateRole = (
+    rawUser.role ||
+    rawUser.role_name ||
+    rawUser.user_type ||
+    rawUser.account_type ||
+    decoded?.role ||
+    decoded?.role_name ||
+    decoded?.user_type ||
+    (loginResponse?.role ? loginResponse.role : undefined) ||
+    ''
+  ).toLowerCase();
+
+  const isExplicitStudent =
+    candidateRole === 'student' ||
+    candidateRole.startsWith('student') ||
+    rawUser.is_student === true ||
+    decoded?.is_student === true;
+
+  const isExplicitInstructor =
+    candidateRole.includes('instructor') ||
+    candidateRole.includes('coach') ||
+    candidateRole.includes('teacher') ||
+    rawUser.is_instructor === true ||
+    decoded?.is_instructor === true;
+
+  // 3. Determine final normalized role
+  let role: 'student' | 'instructor' = 'student';
+  if (isExplicitStudent && !isExplicitInstructor) {
+    role = 'student';
+  } else if (isExplicitInstructor) {
+    role = 'instructor';
+  } else {
+    role = 'student';
+  }
+
+  // 4. If instructor, verify approval status and live dashboard access
+  let approval_status: 'approved' | 'pending' | 'rejected' = 'approved';
+  if (role === 'instructor') {
+    try {
+      const dashRes = await getInstructorDashboard();
+      if (dashRes) {
+        instructorAccessOk = true;
+      }
+    } catch (dErr: any) {
+      if (dErr?.response?.status === 403 || dErr?.response?.status === 401) {
+        instructorAccessOk = false;
+      }
+    }
+
+    const candidateStatus = (
+      rawUser.approval_status ||
+      rawUser.approvalStatus ||
+      rawUser.status ||
+      decoded?.approval_status ||
+      decoded?.approvalStatus ||
+      loginResponse?.approval_status ||
+      loginResponse?.approvalStatus ||
+      ''
+    ).toLowerCase();
+
+    if (candidateStatus === 'rejected') {
+      approval_status = 'rejected';
+    } else if (candidateStatus === 'approved' || instructorAccessOk === true) {
+      approval_status = 'approved';
+    } else if (candidateStatus === 'pending' || instructorAccessOk === false) {
+      approval_status = 'pending';
+    } else {
+      approval_status = 'pending';
+    }
+  }
+
+  const email =
+    rawUser.email ||
+    decoded?.email ||
+    (loginResponse as any)?.email ||
+    loginEmail ||
+    (typeof window !== 'undefined' ? localStorage.getItem('loginEmail') : '') ||
+    '';
+
+  if (email && typeof window !== 'undefined') {
+    localStorage.setItem('loginEmail', email);
+  }
+
+  const emailPrefix = email ? email.split('@')[0] : '';
+  const formattedPrefix = emailPrefix ? emailPrefix.charAt(0).toUpperCase() + emailPrefix.slice(1) : 'User';
+
+  const fullName =
+    rawUser.fullName ||
+    rawUser.full_name ||
+    rawUser.name ||
+    decoded?.name ||
+    decoded?.full_name ||
+    decoded?.username ||
+    formattedPrefix;
+
+  const normalizedUser = {
+    id: String(rawUser.id || rawUser.pk || decoded?.user_id || decoded?.id || decoded?.sub || '1'),
+    email,
+    pendingEmail: rawUser.pending_email || rawUser.pendingEmail || null,
+    pending_email: rawUser.pending_email || rawUser.pendingEmail || null,
+    fullName,
+    name: fullName,
+    role,
+    avatar: rawUser.avatar || rawUser.profile_picture || rawUser.image || null,
+    headline: rawUser.headline || rawUser.title || (role === 'instructor' ? 'Certified Instructor' : 'Student & Lifelong Learner'),
+    bio: rawUser.bio || rawUser.description || '',
+    phone: rawUser.phone || rawUser.phone_number || '',
+    phoneNumber: rawUser.phone_number || rawUser.phone || '',
+    phone_number: rawUser.phone_number || rawUser.phone || '',
+    preferredLanguage: rawUser.preferred_language || rawUser.preferredLanguage || 'en',
+    preferred_language: rawUser.preferred_language || rawUser.preferredLanguage || 'en',
+    specialization: rawUser.specialization || '',
+    approval_status,
+    approvalStatus: approval_status,
+  };
+
+  if (typeof window !== 'undefined') {
+    localStorage.setItem('user', JSON.stringify(normalizedUser));
+  }
+
+  return {
+    user: normalizedUser,
+    approval_status,
+  };
 }
 
 export { getApiErrorMessage };
@@ -312,12 +554,18 @@ export const authService = {
   verifyEmail,
   resendVerificationEmail,
   requestEmailChange,
+  confirmEmailChange,
   refreshToken,
   logout,
   changePassword,
+  updateProfile,
+  uploadAvatar,
   getInstructorDashboard,
   getProfile,
+  decodeJwt,
+  syncCurrentUserProfile,
   getApiErrorMessage,
 };
 
 export default authService;
+

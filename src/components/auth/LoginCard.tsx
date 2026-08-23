@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations, useLocale } from "next-intl";
 import { useDispatch } from "react-redux";
 import { useForm } from "react-hook-form";
@@ -13,6 +13,7 @@ import { Logo } from "@/components/ui/Logo";
 import { loginSchema, type LoginFormData } from "@/features/auth/schemas/authSchemas";
 import { authService, getApiErrorMessage } from "@/services/auth";
 import { setCredentials } from "@/features/auth/slice";
+import { tokenManager } from "@/lib/tokenManager";
 
 interface LoginCardProps {
   lang?: "EN" | "AR";
@@ -23,6 +24,7 @@ export function LoginCard({ lang }: LoginCardProps) {
   const locale = useLocale() || "en";
   const isAr = locale === "ar";
   const router = useRouter();
+  const searchParams = useSearchParams();
   const dispatch = useDispatch();
 
   const [showPassword, setShowPassword] = useState(false);
@@ -62,27 +64,46 @@ export function LoginCard({ lang }: LoginCardProps) {
         throw new Error(res.message || errDetail || "Authentication token not received");
       }
 
-      const rawUser = res.user || (res.data && res.data.user) || (typeof res.data === 'object' ? res.data : {}) || {};
-      const approvalStatus = res.approval_status || res.approvalStatus || rawUser.approval_status || rawUser.approvalStatus || (rawUser.role === 'instructor' ? 'pending' : 'approved');
+      const initialRole = (res.role || res.user?.role || "student").toLowerCase();
+      const initialStatus = (res.approval_status || res.user?.approval_status || "approved").toLowerCase();
 
-      const user = {
-        id: String(rawUser.id || rawUser.pk || '1'),
-        email: rawUser.email || data.email,
-        fullName: rawUser.fullName || rawUser.full_name || rawUser.name || data.email.split('@')[0],
-        name: rawUser.name || rawUser.full_name || rawUser.fullName || data.email.split('@')[0],
-        role: rawUser.role || (data.email.includes('coach') || data.email.includes('instructor') ? 'instructor' : 'student'),
-        avatar: rawUser.avatar || '',
-        bio: rawUser.bio || '',
-        approval_status: approvalStatus,
-        approvalStatus: approvalStatus,
-      };
+      // Immediately store tokens & session cookies so Axios and Middleware have authorization
+      tokenManager.setAccessToken(token, initialRole, initialStatus);
+      if (refreshToken) {
+        tokenManager.setRefreshToken(refreshToken);
+      }
 
+      // Fetch authentic user profile & verify approval status directly from backend database API
+      const { user, approval_status } = await authService.syncCurrentUserProfile(token, res, data.email);
+
+      // Save verified user credentials in Redux & localStorage
       dispatch(setCredentials({ user, token, refreshToken }));
 
-      if (user.role === 'instructor') {
-        router.push(`/${locale}/instructor`);
+      // 1. Check for redirect query parameter from Protected Route guard
+      const redirectParam = searchParams.get("redirect");
+      if (redirectParam && redirectParam.startsWith("/") && !redirectParam.startsWith("//")) {
+        const isTargetingInstructor = redirectParam.includes("/instructor");
+        if (isTargetingInstructor && user.role !== "instructor") {
+          router.push(`/${locale}/student`);
+          return;
+        }
+        router.push(redirectParam);
+        return;
+      }
+
+      // 2. Role & Approval Status Navigation:
+      // - If Instructor:
+      //    - If Approved -> Go to Instructor Dashboard (/instructor/dashboard)
+      //    - If Pending / Not Approved -> Go to Instructor Workspace with Pending Review state (/instructor)
+      // - If Student -> Go to Student Portal (/student)
+      if (user.role === "instructor") {
+        if (approval_status === "approved") {
+          router.push(`/${locale}/instructor/dashboard`);
+        } else {
+          router.push(`/${locale}/instructor`);
+        }
       } else {
-        router.push(`/${locale}`);
+        router.push(`/${locale}/student`);
       }
     } catch (err: any) {
       const errorMessage = getApiErrorMessage(

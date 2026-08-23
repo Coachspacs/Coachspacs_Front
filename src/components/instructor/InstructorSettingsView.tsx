@@ -2,8 +2,11 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import { useTranslations, useLocale } from "next-intl";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@/lib/store";
+import { updateUser } from "@/features/auth/slice";
+import { userService } from "@/services/userService";
+import { authService, getApiErrorMessage } from "@/services/auth";
 import {
   User,
   Lock,
@@ -16,6 +19,8 @@ import {
   ShieldCheck,
   Trash2,
   Building,
+  Clock,
+  Loader2,
 } from "lucide-react";
 import dynamic from "next/dynamic";
 
@@ -25,6 +30,7 @@ type SettingsTab = "profile" | "payout" | "media" | "security";
 
 // Instructor Settings View Component
 export function InstructorSettingsView() {
+  const dispatch = useDispatch();
   const t = useTranslations("account");
   const tInst = useTranslations("instructorSettings");
   const tStudent = useTranslations("studentSettings");
@@ -40,27 +46,34 @@ export function InstructorSettingsView() {
   // Avatar & File ref
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
 
   // Email Change Modal State
   const [showEmailModal, setShowEmailModal] = useState(false);
 
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   // Form State
   const [formData, setFormData] = useState({
-    fullName: user?.fullName || user?.name || tInst("defaultFullName"),
-    email: user?.email || "instructor@coachspace.com",
-    phone: "+966 50 987 6543",
-    headline: tInst("defaultHeadline"),
-    specialization: "Data Science & AI",
-    experienceYears: 10,
-    hourlyRate: 85,
-    bio: tInst("defaultBio"),
+    fullName: user?.fullName || user?.name || "",
+    email: user?.email || "",
+    phone: user?.phone || user?.phone_number || "",
+    headline: user?.headline || "",
+    specialization: user?.specialization || "",
+    experienceYears: (user as any)?.experienceYears || 0,
+    hourlyRate: (user as any)?.hourlyRate || 0,
+    bio: user?.bio || "",
     payoutMethod: "bank",
-    bankIban: "SA0380000000608010167519",
-    paypalEmail: user?.email || "instructor@paypal.com",
+    bankIban: (user as any)?.bankIban || "",
+    paypalEmail: user?.email || "",
     autoPayout: true,
-    introVideoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-    website: "https://tarek-mansoor.com",
-    linkedin: "https://linkedin.com/in/tarekmansoor",
+    introVideoUrl: (user as any)?.introVideoUrl || "",
+    website: (user as any)?.website || "",
+    linkedin: (user as any)?.linkedin || "",
 
     // Security
     currentPassword: "",
@@ -68,24 +81,87 @@ export function InstructorSettingsView() {
     confirmPassword: "",
   });
 
+  const profileFetchedRef = useRef(false);
+
   useEffect(() => {
-    if (user) {
-      const userFullName = user.fullName || user.name || user.email?.split("@")[0] || "";
+    let isMounted = true;
+
+    // 1. Initial sync from Redux state on first mount
+    if (user && !profileFetchedRef.current) {
+      const userFullName = user.fullName || user.name || (user.email ? user.email.split("@")[0] : "");
       const userEmail = user.email || "";
+      const userPhone = user.phone || user.phone_number || "";
       setFormData((prev) => ({
         ...prev,
-        fullName: userFullName || prev.fullName,
-        email: userEmail || prev.email,
-        paypalEmail: userEmail || prev.paypalEmail,
+        fullName: prev.fullName || userFullName,
+        email: prev.email || userEmail,
+        phone: prev.phone || userPhone,
+        paypalEmail: prev.paypalEmail || userEmail,
+        headline: prev.headline || user.headline || "",
+        bio: prev.bio || user.bio || "",
+        specialization: prev.specialization || user.specialization || "",
       }));
       if (user.avatar) {
         setAvatarPreview(user.avatar);
       }
     }
-  }, [user]);
+
+    // 2. Fetch authentic database profile ONCE from backend API
+    if (!profileFetchedRef.current) {
+      profileFetchedRef.current = true;
+      userService
+        .getMyProfile()
+        .then((profileRes) => {
+          if (!isMounted || !profileRes) return;
+          const profData = (profileRes as any)?.user || profileRes;
+          if (profData) {
+            const profFullName = profData.full_name || profData.fullName || profData.name || "";
+            const profEmail = profData.email || "";
+            const profPhone = profData.phone_number || profData.phone || "";
+            const profAvatar = profData.avatar || null;
+
+            setFormData((prev) => ({
+              ...prev,
+              fullName: profFullName || prev.fullName,
+              email: profEmail || prev.email,
+              phone: profPhone || prev.phone,
+              paypalEmail: profEmail || prev.paypalEmail,
+              headline: profData.headline || prev.headline,
+              bio: profData.bio || prev.bio,
+              specialization: profData.specialization || prev.specialization,
+            }));
+
+            if (profAvatar) {
+              setAvatarPreview(profAvatar);
+            }
+
+            dispatch(
+              updateUser({
+                fullName: profFullName,
+                name: profFullName,
+                email: profEmail,
+                phone: profPhone,
+                phone_number: profPhone,
+                avatar: profAvatar,
+                preferred_language: profData.preferred_language,
+                preferredLanguage: profData.preferred_language,
+              })
+            );
+          }
+        })
+        .catch((err) => {
+          console.warn("[InstructorSettingsView] getMyProfile fetch info:", err?.message);
+        });
+    }
+
+    return () => {
+      isMounted = false;
+    };
+  }, [dispatch]);
 
   const [isSaving, setIsSaving] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [passwordError, setPasswordError] = useState<string | null>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -98,21 +174,44 @@ export function InstructorSettingsView() {
     }
   };
 
-  const handleAvatarFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAvatarFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      if (file.size > 5 * 1024 * 1024) {
-        alert(tStudent("avatarSizeExceeded"));
-        return;
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      setToastMessage(tStudent("avatarSizeError"));
+      return;
+    }
+
+    // Local instant preview
+    const localUrl = URL.createObjectURL(file);
+    setAvatarPreview(localUrl);
+    setIsUploadingAvatar(true);
+
+    try {
+      const res = await userService.uploadAvatar(file);
+      if (res?.avatar) {
+        setAvatarPreview(res.avatar);
+        dispatch(updateUser({ avatar: res.avatar }));
+        setToastMessage(tStudent("avatarUpdated") || (isAr ? "تم تحديث الصورة الشخصية بنجاح" : "Avatar updated successfully"));
       }
-      setAvatarPreview(URL.createObjectURL(file));
-      setToastMessage(tStudent("avatarUpdated"));
-      setTimeout(() => setToastMessage(null), 3000);
+    } catch (err: any) {
+      const msg = getApiErrorMessage(
+        err,
+        isAr ? "فشل رفع الصورة الشخصية. يرجى التأكد من الصيغة والحجم." : "Failed to upload avatar. Please check file format and size.",
+        isAr
+      );
+      setErrorMessage(msg);
+      setTimeout(() => setErrorMessage(null), 4000);
+    } finally {
+      setIsUploadingAvatar(false);
+      setTimeout(() => setToastMessage(null), 3500);
     }
   };
 
   const handleRemoveAvatar = () => {
     setAvatarPreview(null);
+    dispatch(updateUser({ avatar: null }));
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
@@ -121,7 +220,9 @@ export function InstructorSettingsView() {
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     setPasswordError(null);
+    setErrorMessage(null);
 
+    // Password validation if changing password
     if (formData.newPassword || formData.confirmPassword) {
       if (formData.newPassword !== formData.confirmPassword) {
         setPasswordError(t("passwordsDoNotMatch"));
@@ -136,23 +237,85 @@ export function InstructorSettingsView() {
     }
 
     setIsSaving(true);
-    await new Promise((resolve) => setTimeout(resolve, 600));
-    setIsSaving(false);
-    setToastMessage(t("changesSaved"));
-    setTimeout(() => setToastMessage(null), 3500);
+
+    try {
+      // 1. Password change request if new password provided
+      if (formData.currentPassword && formData.newPassword) {
+        await authService.changePassword({
+          current_password: formData.currentPassword,
+          new_password: formData.newPassword,
+        });
+        setFormData((prev) => ({
+          ...prev,
+          currentPassword: "",
+          newPassword: "",
+          confirmPassword: "",
+        }));
+      }
+
+      // 2. Profile update request (PUT /api/users/me)
+      const updatedProfile = await userService.updateMyProfile({
+        full_name: formData.fullName.trim(),
+        phone_number: formData.phone.trim(),
+        preferred_language: locale,
+      });
+
+      // Update Redux state
+      dispatch(
+        updateUser({
+          fullName: updatedProfile.full_name || formData.fullName,
+          name: updatedProfile.full_name || formData.fullName,
+          phone: updatedProfile.phone_number || formData.phone,
+          phoneNumber: updatedProfile.phone_number || formData.phone,
+          preferredLanguage: updatedProfile.preferred_language || locale,
+          headline: formData.headline,
+          bio: formData.bio,
+          specialization: formData.specialization,
+          hourlyRate: formData.hourlyRate,
+        })
+      );
+
+      setToastMessage(t("changesSaved"));
+      setTimeout(() => setToastMessage(null), 3500);
+    } catch (err: any) {
+      const msg = getApiErrorMessage(
+        err,
+        isAr ? "فشل حفظ التعديلات. يرجى المحاولة مرة أخرى." : "Failed to save changes. Please try again.",
+        isAr
+      );
+      setErrorMessage(msg);
+      setTimeout(() => setErrorMessage(null), 5000);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
+  const approvalStatus = (user?.approval_status || user?.approvalStatus || "pending").toLowerCase();
+  const isApproved = approvalStatus === "approved";
+  const isRejected = approvalStatus === "rejected";
+  const isPending = !isApproved && !isRejected;
+
+
   return (
-    <div className="w-full space-y-6">
-      {/* Toast */}
+    <div className="w-full space-y-6 animate-in fade-in duration-200" dir={isAr ? "rtl" : "ltr"}>
+      
+      {/* Dynamic Toast Feedback Notification */}
       {toastMessage && (
-        <div className="fixed bottom-6 right-6 rtl:right-auto rtl:left-6 z-50 flex items-center gap-2.5 bg-[#0F5244] text-white px-5 py-3.5 rounded-2xl shadow-2xl animate-in slide-in-from-bottom-4 duration-200">
-          <CheckCircle2 className="h-4 w-4 text-emerald-300 shrink-0" />
-          <span className="text-xs sm:text-sm font-bold">{toastMessage}</span>
+        <div className="fixed top-6 right-6 rtl:right-auto rtl:left-6 z-50 bg-[#0F5244] text-white px-5 py-3 rounded-2xl shadow-xl flex items-center gap-3 text-xs sm:text-sm font-bold animate-in slide-in-from-top-4 duration-200">
+          <CheckCircle2 className="h-4 w-4 text-emerald-300" />
+          <span>{toastMessage}</span>
         </div>
       )}
 
-      {/* Email Verification Modal */}
+      {errorMessage && (
+        <div className="fixed top-6 right-6 rtl:right-auto rtl:left-6 z-50 bg-red-600 text-white px-5 py-3 rounded-2xl shadow-xl flex items-center gap-3 text-xs sm:text-sm font-bold animate-in slide-in-from-top-4 duration-200">
+          <AlertCircle className="h-4 w-4 text-white" />
+          <span>{errorMessage}</span>
+        </div>
+      )}
+
+
+      {/* Change Email Modal */}
       <ChangeEmailModal
         isOpen={showEmailModal}
         onClose={() => setShowEmailModal(false)}
@@ -167,21 +330,54 @@ export function InstructorSettingsView() {
       {/* Account Approval Status Banner */}
       <div className="p-4 rounded-3xl bg-white border border-slate-200/80 shadow-2xs flex flex-col sm:flex-row items-center justify-between gap-4">
         <div className="flex items-center gap-3 text-center sm:text-start">
-          <div className="p-2.5 rounded-2xl bg-emerald-50 text-[#0F5244] border border-emerald-200 shrink-0">
-            <ShieldCheck className="h-5 w-5" />
+          <div
+            className={`p-2.5 rounded-2xl border shrink-0 ${
+              isApproved
+                ? "bg-emerald-50 text-[#0F5244] border-emerald-200"
+                : isRejected
+                ? "bg-rose-50 text-rose-700 border-rose-200"
+                : "bg-amber-50 text-amber-700 border-amber-200/80"
+            }`}
+          >
+            {isApproved ? (
+              <ShieldCheck className="h-5 w-5" />
+            ) : isRejected ? (
+              <AlertCircle className="h-5 w-5" />
+            ) : (
+              <Clock className="h-5 w-5" />
+            )}
           </div>
 
           <div>
-            <div className="flex items-center justify-center sm:justify-start gap-2">
+            <div className="flex items-center justify-center sm:justify-start gap-2 flex-wrap">
               <h4 className="text-xs sm:text-sm font-extrabold text-slate-900">
-                {tInst.has("approvalStatusTitle") ? tInst("approvalStatusTitle") : (isAr ? "حالة توثيق المدرب" : "Instructor Verification Status")}
+                {tInst("approvalStatusTitle")}
               </h4>
-              <span className="px-2.5 py-0.5 rounded-full bg-emerald-100 text-[#0F5244] text-[11px] font-extrabold">
-                {tInst.has("approvedBadge") ? tInst("approvedBadge") : (isAr ? "موثق ونشط" : "Verified & Active")}
-              </span>
+              {isApproved ? (
+                <span className="px-2.5 py-0.5 rounded-full bg-emerald-100 text-[#0F5244] border border-emerald-200 text-[11px] font-extrabold inline-flex items-center gap-1">
+                  <CheckCircle2 className="h-3 w-3 text-emerald-600" />
+                  <span>{tInst("approvedBadge")}</span>
+                </span>
+              ) : isRejected ? (
+                <span className="px-2.5 py-0.5 rounded-full bg-rose-100 text-rose-800 border border-rose-200 text-[11px] font-extrabold inline-flex items-center gap-1">
+                  <AlertCircle className="h-3 w-3 text-rose-600" />
+                  <span>{tInst("rejectedBadge")}</span>
+                </span>
+              ) : (
+                <span className="px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200/90 text-[11px] font-bold inline-flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+                  <span>{isAr ? "قيد المراجعة" : "Under Review"}</span>
+                </span>
+              )}
             </div>
             <p className="text-xs text-slate-500 font-medium mt-0.5">
-              {tInst.has("approvedDescription") ? tInst("approvedDescription") : (isAr ? "حسابك كمدرب موثق وجاهز لنشر الدورات واستلام المستحقات المالية." : "Your instructor account is verified and ready to publish courses and receive payouts.")}
+              {isApproved
+                ? tInst("approvedDescription")
+                : isRejected
+                ? tInst("rejectedDescription")
+                : (isAr
+                    ? "طلب انضمامك كمدرب قيد التدقيق حالياً من قبل الإدارة. ستصلك رسالة تأكيد عبر البريد فور الاعتماد."
+                    : tInst("pendingDescription"))}
             </p>
           </div>
         </div>
@@ -243,8 +439,8 @@ export function InstructorSettingsView() {
                     {avatarPreview ? (
                       <img src={avatarPreview} alt="Avatar" className="w-full h-full object-cover" />
                     ) : (
-                      <span className="select-none font-black text-3xl sm:text-4xl text-[#0F5244]">
-                        {formData.fullName.charAt(0)}
+                      <span suppressHydrationWarning className="select-none font-black text-3xl sm:text-4xl text-[#0F5244]">
+                        {(mounted ? formData.fullName : "").charAt(0) || "U"}
                       </span>
                     )}
 

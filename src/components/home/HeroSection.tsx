@@ -39,6 +39,9 @@ export function HeroSection() {
   };
 
   const displayName = user?.name || user?.fullName || user?.email?.split("@")[0] || "";
+  const isInstructor = (user?.role || "").toLowerCase() === "instructor" || (user?.role || "").toLowerCase() === "coach";
+  const approvalStatus = (user?.approval_status || (user as any)?.approvalStatus || "").toLowerCase();
+  const isApproved = approvalStatus === "approved";
 
   return (
     <section className="relative w-full overflow-hidden bg-gradient-to-b from-slate-50/80 via-white to-slate-50/40 pt-12 md:pt-16 lg:pt-20 pb-6 sm:pb-8 lg:pb-10">
@@ -48,14 +51,27 @@ export function HeroSection() {
           {/* Content */}
           <div className="lg:col-span-6 flex flex-col items-start text-left rtl:text-right z-10">
             
-            {/* Logged in Welcome Pill / Badge */}
+            {/* Dynamic Welcome Pill / Badge */}
             {mounted && isAuthenticated ? (
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#0F5244] text-white shadow-md mb-6 text-xs sm:text-sm font-bold animate-in fade-in duration-300">
                 <Sparkles className="w-4 h-4 text-[#6CF8BB] shrink-0" />
                 <span>
-                  {locale === "ar"
-                    ? `مرحباً بك مجدداً، ${displayName}!`
-                    : `Welcome back, ${displayName}!`}
+                  {isInstructor
+                    ? t("welcomeInstructor", { name: displayName })
+                    : t("welcomeStudent", { name: displayName })}
+                </span>
+                <span
+                  className={`hidden sm:inline-block px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                    isInstructor && !isApproved
+                      ? "bg-amber-400/25 text-amber-200"
+                      : "bg-white/15 text-emerald-200"
+                  }`}
+                >
+                  {isInstructor
+                    ? isApproved
+                      ? t("instructorBadge")
+                      : t("instructorPendingBadge")
+                    : t("studentBadge")}
                 </span>
               </div>
             ) : (
@@ -99,14 +115,71 @@ export function HeroSection() {
               </button>
             </form>
 
-            {/* CTA */}
-            <Link
-              href={`/${locale}/courses`}
-              className="inline-flex items-center gap-3 bg-[#0F5244] hover:bg-[#0c4337] text-white font-bold text-base px-8 py-3.5 rounded-full shadow-lg shadow-[#0F5244]/20 hover:shadow-xl hover:shadow-[#0F5244]/30 transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0 group"
-            >
-              <span>{t("exploreCourses")}</span>
-              <ArrowRight className="w-5 h-5 rtl:rotate-180 group-hover:translate-x-1 rtl:group-hover:-translate-x-1 transition-transform" />
-            </Link>
+            {/* Dynamic CTAs Row */}
+            <div className="flex flex-wrap items-center gap-3.5 sm:gap-4">
+              {mounted && isAuthenticated ? (
+                isInstructor ? (
+                  <>
+                    <Link
+                      href={
+                        isApproved
+                          ? `/${locale}/instructor/dashboard`
+                          : `/${locale}/instructor/settings`
+                      }
+                      className="inline-flex items-center gap-2.5 bg-[#0F5244] hover:bg-[#0c4337] text-white font-bold text-sm sm:text-base px-7 py-3.5 rounded-full shadow-lg shadow-[#0F5244]/20 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0 group cursor-pointer"
+                    >
+                      <span>{t("instructorDashboardBtn")}</span>
+                      <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 rtl:rotate-180 group-hover:translate-x-1 rtl:group-hover:-translate-x-1 transition-transform" />
+                    </Link>
+
+                    <Link
+                      href={
+                        isApproved
+                          ? `/${locale}/instructor/courses/new`
+                          : `/${locale}/instructor/settings`
+                      }
+                      className="inline-flex items-center gap-2 bg-white hover:bg-slate-50 text-[#0F5244] border-2 border-[#0F5244]/30 hover:border-[#0F5244] font-bold text-sm sm:text-base px-6 py-3.5 rounded-full shadow-xs transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer"
+                    >
+                      <span>{t("createCourseBtn")}</span>
+                    </Link>
+                  </>
+                ) : (
+                  <>
+                    <Link
+                      href={`/${locale}/student/courses`}
+                      className="inline-flex items-center gap-2.5 bg-[#0F5244] hover:bg-[#0c4337] text-white font-bold text-sm sm:text-base px-7 py-3.5 rounded-full shadow-lg shadow-[#0F5244]/20 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0 group cursor-pointer"
+                    >
+                      <span>{t("myLearning")}</span>
+                      <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 rtl:rotate-180 group-hover:translate-x-1 rtl:group-hover:-translate-x-1 transition-transform" />
+                    </Link>
+
+                    <Link
+                      href={`/${locale}/courses`}
+                      className="inline-flex items-center gap-2 bg-white hover:bg-slate-50 text-[#0F5244] border-2 border-[#0F5244]/30 hover:border-[#0F5244] font-bold text-sm sm:text-base px-6 py-3.5 rounded-full shadow-xs transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer"
+                    >
+                      <span>{t("exploreMoreCourses")}</span>
+                    </Link>
+                  </>
+                )
+              ) : (
+                <>
+                  <Link
+                    href={`/${locale}/courses`}
+                    className="inline-flex items-center gap-3 bg-[#0F5244] hover:bg-[#0c4337] text-white font-bold text-sm sm:text-base px-8 py-3.5 rounded-full shadow-lg shadow-[#0F5244]/20 hover:shadow-xl hover:shadow-[#0F5244]/30 transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0 group cursor-pointer"
+                  >
+                    <span>{t("exploreCourses")}</span>
+                    <ArrowRight className="w-5 h-5 rtl:rotate-180 group-hover:translate-x-1 rtl:group-hover:-translate-x-1 transition-transform" />
+                  </Link>
+
+                  <Link
+                    href={`/${locale}/register`}
+                    className="inline-flex items-center gap-2 bg-white hover:bg-slate-50 text-[#0F5244] border-2 border-[#0F5244]/30 hover:border-[#0F5244] font-bold text-sm sm:text-base px-6 py-3.5 rounded-full shadow-xs transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer"
+                  >
+                    <span>{t("startLearningFree")}</span>
+                  </Link>
+                </>
+              )}
+            </div>
 
           </div>
 

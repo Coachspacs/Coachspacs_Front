@@ -3,8 +3,11 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { useRouter, usePathname } from "next/navigation";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@/lib/store";
+import { updateUser } from "@/features/auth/slice";
+import { userService } from "@/services/userService";
+import { authService, getApiErrorMessage } from "@/services/auth";
 import {
   User,
   Lock,
@@ -14,12 +17,14 @@ import {
   CheckCircle2,
   AlertCircle,
   Trash2,
+  Loader2,
 } from "lucide-react";
 import { ChangeEmailModal } from "@/components/modals/ChangeEmailModal";
 
 type SettingsTab = "profile" | "learning" | "security" | "preferences";
 
 export function StudentSettingsView() {
+  const dispatch = useDispatch();
   const t = useTranslations("account");
   const tStudent = useTranslations("studentSettings");
   const tChangeEmail = useTranslations("changeEmailModal");
@@ -36,20 +41,21 @@ export function StudentSettingsView() {
   // Avatar & File ref
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
 
   // Email Change Modal State
   const [showEmailModal, setShowEmailModal] = useState(false);
 
   // Form State
   const [formData, setFormData] = useState({
-    fullName: user?.fullName || user?.name || tStudent("defaultFullName"),
-    email: user?.email || "student@coachspace.com",
-    phone: "+966 55 123 4567",
-    headline: tStudent("defaultHeadline"),
-    learningGoal: tStudent("defaultLearningGoal"),
-    preferredCategory: "Data Science",
+    fullName: user?.fullName || user?.name || "",
+    email: user?.email || "",
+    phone: user?.phone || user?.phone_number || "",
+    headline: user?.headline || "",
+    learningGoal: "",
+    preferredCategory: "",
     videoSpeed: "1x",
-    certificateName: user?.fullName || user?.name || tStudent("defaultCertificateName"),
+    certificateName: user?.fullName || user?.name || "",
     publicProfile: true,
 
     // Security
@@ -62,24 +68,83 @@ export function StudentSettingsView() {
     emailPromotions: true,
   });
 
+  const profileFetchedRef = useRef(false);
+
   useEffect(() => {
-    if (user) {
-      const userFullName = user.fullName || user.name || user.email?.split("@")[0] || "";
+    let isMounted = true;
+
+    // 1. Initial sync from Redux state on first mount
+    if (user && !profileFetchedRef.current) {
+      const userFullName = user.fullName || user.name || (user.email ? user.email.split("@")[0] : "");
       const userEmail = user.email || "";
+      const userPhone = user.phone || user.phone_number || "";
       setFormData((prev) => ({
         ...prev,
-        fullName: userFullName || prev.fullName,
-        email: userEmail || prev.email,
-        certificateName: userFullName || prev.certificateName,
+        fullName: prev.fullName || userFullName,
+        email: prev.email || userEmail,
+        phone: prev.phone || userPhone,
+        certificateName: prev.certificateName || userFullName,
+        headline: prev.headline || user.headline || "",
       }));
       if (user.avatar) {
         setAvatarPreview(user.avatar);
       }
     }
-  }, [user]);
+
+    // 2. Fetch authentic database profile ONCE from backend API
+    if (!profileFetchedRef.current) {
+      profileFetchedRef.current = true;
+      userService
+        .getMyProfile()
+        .then((profileRes) => {
+          if (!isMounted || !profileRes) return;
+          const profData = (profileRes as any)?.user || profileRes;
+          if (profData) {
+            const profFullName = profData.full_name || profData.fullName || profData.name || "";
+            const profEmail = profData.email || "";
+            const profPhone = profData.phone_number || profData.phone || "";
+            const profAvatar = profData.avatar || null;
+
+            setFormData((prev) => ({
+              ...prev,
+              fullName: profFullName || prev.fullName,
+              email: profEmail || prev.email,
+              phone: profPhone || prev.phone,
+              certificateName: profFullName || prev.certificateName,
+              headline: profData.headline || prev.headline,
+            }));
+
+            if (profAvatar) {
+              setAvatarPreview(profAvatar);
+            }
+
+            dispatch(
+              updateUser({
+                fullName: profFullName,
+                name: profFullName,
+                email: profEmail,
+                phone: profPhone,
+                phone_number: profPhone,
+                avatar: profAvatar,
+                preferred_language: profData.preferred_language,
+                preferredLanguage: profData.preferred_language,
+              })
+            );
+          }
+        })
+        .catch((err) => {
+          console.warn("[StudentSettingsView] getMyProfile fetch info:", err?.message);
+        });
+    }
+
+    return () => {
+      isMounted = false;
+    };
+  }, [dispatch]);
 
   const [isSaving, setIsSaving] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [passwordError, setPasswordError] = useState<string | null>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -93,21 +158,43 @@ export function StudentSettingsView() {
   };
 
   // Avatar File Change (Supports JPG, PNG, WebP up to 5MB - US-05)
-  const handleAvatarFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAvatarFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      if (file.size > 5 * 1024 * 1024) {
-        alert(tStudent("avatarSizeExceeded"));
-        return;
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      setToastMessage(tStudent("avatarSizeExceeded"));
+      return;
+    }
+
+    const localUrl = URL.createObjectURL(file);
+    setAvatarPreview(localUrl);
+    setIsUploadingAvatar(true);
+
+    try {
+      const res = await userService.uploadAvatar(file);
+      if (res?.avatar) {
+        setAvatarPreview(res.avatar);
+        dispatch(updateUser({ avatar: res.avatar }));
+        setToastMessage(tStudent("avatarUpdated") || (isAr ? "تم تحديث الصورة الشخصية بنجاح" : "Avatar updated successfully"));
       }
-      setAvatarPreview(URL.createObjectURL(file));
-      setToastMessage(tStudent("avatarUpdated"));
+    } catch (err: any) {
+      const msg = getApiErrorMessage(
+        err,
+        isAr ? "فشل رفع الصورة الشخصية. يرجى التحقق من الملف والمحاولة مرة أخرى." : "Failed to upload avatar. Please try again.",
+        isAr
+      );
+      setErrorMessage(msg);
+      setTimeout(() => setErrorMessage(null), 4000);
+    } finally {
+      setIsUploadingAvatar(false);
       setTimeout(() => setToastMessage(null), 3000);
     }
   };
 
   const handleRemoveAvatar = () => {
     setAvatarPreview(null);
+    dispatch(updateUser({ avatar: null }));
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
@@ -123,7 +210,9 @@ export function StudentSettingsView() {
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     setPasswordError(null);
+    setErrorMessage(null);
 
+    // Password validation if changing password
     if (formData.newPassword || formData.confirmPassword) {
       if (formData.newPassword !== formData.confirmPassword) {
         setPasswordError(t("passwordsDoNotMatch"));
@@ -138,10 +227,54 @@ export function StudentSettingsView() {
     }
 
     setIsSaving(true);
-    await new Promise((resolve) => setTimeout(resolve, 600));
-    setIsSaving(false);
-    setToastMessage(t("changesSaved"));
-    setTimeout(() => setToastMessage(null), 3500);
+
+    try {
+      // 1. Password change request
+      if (formData.currentPassword && formData.newPassword) {
+        await authService.changePassword({
+          current_password: formData.currentPassword,
+          new_password: formData.newPassword,
+        });
+        setFormData((prev) => ({
+          ...prev,
+          currentPassword: "",
+          newPassword: "",
+          confirmPassword: "",
+        }));
+      }
+
+      // 2. Profile update request (PUT /api/users/me)
+      const updatedProfile = await userService.updateMyProfile({
+        full_name: formData.fullName.trim(),
+        phone_number: formData.phone.trim(),
+        preferred_language: locale,
+      });
+
+      // Update Redux state
+      dispatch(
+        updateUser({
+          fullName: updatedProfile.full_name || formData.fullName,
+          name: updatedProfile.full_name || formData.fullName,
+          phone: updatedProfile.phone_number || formData.phone,
+          phoneNumber: updatedProfile.phone_number || formData.phone,
+          preferredLanguage: updatedProfile.preferred_language || locale,
+          headline: formData.headline,
+        })
+      );
+
+      setToastMessage(t("changesSaved"));
+      setTimeout(() => setToastMessage(null), 3500);
+    } catch (err: any) {
+      const msg = getApiErrorMessage(
+        err,
+        isAr ? "فشل حفظ التعديلات. يرجى المحاولة مرة أخرى." : "Failed to save changes. Please try again.",
+        isAr
+      );
+      setErrorMessage(msg);
+      setTimeout(() => setErrorMessage(null), 5000);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -153,6 +286,14 @@ export function StudentSettingsView() {
           <span className="text-xs sm:text-sm font-bold">{toastMessage}</span>
         </div>
       )}
+
+      {errorMessage && (
+        <div className="fixed bottom-6 right-6 rtl:right-auto rtl:left-6 z-50 flex items-center gap-2.5 bg-red-600 text-white px-5 py-3.5 rounded-2xl shadow-2xl animate-in slide-in-from-bottom-4 duration-200">
+          <AlertCircle className="h-4 w-4 text-white shrink-0" />
+          <span className="text-xs sm:text-sm font-bold">{errorMessage}</span>
+        </div>
+      )}
+
 
       {/* Email Verification Modal (US-05) */}
       <ChangeEmailModal
