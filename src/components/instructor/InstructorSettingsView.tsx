@@ -29,8 +29,6 @@ import {
   Github,
   Mail,
   Briefcase,
-  Award,
-  Sparkles,
   HelpCircle,
   Eye,
   MapPin,
@@ -592,24 +590,21 @@ export function InstructorSettingsView() {
                   />
                 </div>
 
-                {/* Years of Experience */}
+                {/* Location (Optional) */}
                 <div className="space-y-1.5">
                   <label className="block text-xs font-bold text-slate-700">
-                    {tInst("experienceYearsLabel")} *
+                    {tInst("locationLabel")}
                   </label>
                   <div className="relative">
                     <input
-                      type="number"
-                      name="experienceYears"
-                      min={0}
-                      max={60}
-                      value={formData.experienceYears}
+                      type="text"
+                      name="location"
+                      value={formData.location}
                       onChange={handleChange}
-                      required
-                      placeholder="e.g. 8"
-                      className="w-full h-11 rounded-xl border border-slate-200 bg-slate-50/50 pl-3.5 pr-10 rtl:pr-3.5 rtl:pl-10 text-xs font-semibold text-slate-900 focus:bg-white focus:border-[#0F5244] focus:outline-none focus:ring-2 focus:ring-[#0F5244]/10 transition-all"
+                      placeholder={tInst("locationPlaceholder")}
+                      className="w-full h-11 rounded-xl border border-slate-200 bg-slate-50/50 pl-3.5 pr-10 rtl:pr-3.5 rtl:pl-10 text-xs font-semibold text-slate-900 focus:bg-white focus:border-[#0F5244] focus:outline-none transition-all"
                     />
-                    <Award className="h-4 w-4 text-amber-500 absolute right-3 rtl:right-auto rtl:left-3 top-3.5 pointer-events-none" />
+                    <MapPin className="h-4 w-4 text-slate-400 absolute right-3 rtl:right-auto rtl:left-3 top-3.5 pointer-events-none" />
                   </div>
                 </div>
 
@@ -648,39 +643,6 @@ export function InstructorSettingsView() {
                     readOnly
                     className="w-full h-11 rounded-xl border border-slate-200 bg-slate-100/70 px-3.5 text-xs font-semibold text-slate-600 cursor-not-allowed"
                   />
-                </div>
-
-                {/* Hourly Rate (Optional) */}
-                <div className="space-y-1.5">
-                  <label className="block text-xs font-bold text-slate-700">
-                    {tInst("hourlyRateLabel")}
-                  </label>
-                  <input
-                    type="text"
-                    name="hourlyRate"
-                    value={formData.hourlyRate}
-                    onChange={handleChange}
-                    placeholder={tInst("hourlyRatePlaceholder")}
-                    className="w-full h-11 rounded-xl border border-slate-200 bg-slate-50/50 px-3.5 text-xs font-semibold text-slate-900 focus:bg-white focus:border-[#0F5244] focus:outline-none transition-all"
-                  />
-                </div>
-
-                {/* Location (Optional) */}
-                <div className="space-y-1.5">
-                  <label className="block text-xs font-bold text-slate-700">
-                    {tInst("locationLabel")}
-                  </label>
-                  <div className="relative">
-                    <input
-                      type="text"
-                      name="location"
-                      value={formData.location}
-                      onChange={handleChange}
-                      placeholder={tInst("locationPlaceholder")}
-                      className="w-full h-11 rounded-xl border border-slate-200 bg-slate-50/50 pl-3.5 pr-10 rtl:pr-3.5 rtl:pl-10 text-xs font-semibold text-slate-900 focus:bg-white focus:border-[#0F5244] focus:outline-none transition-all"
-                    />
-                    <MapPin className="h-4 w-4 text-slate-400 absolute right-3 rtl:right-auto rtl:left-3 top-3.5 pointer-events-none" />
-                  </div>
                 </div>
 
               </div>
