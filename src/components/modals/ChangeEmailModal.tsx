@@ -220,3 +220,5 @@ export function ChangeEmailModal({
     </div>
   );
 }
+
+export default ChangeEmailModal;

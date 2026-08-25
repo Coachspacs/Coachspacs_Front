@@ -30,19 +30,37 @@ const processQueue = (error: unknown, token: string | null = null) => {
   failedQueue = [];
 };
 
-// Helper to detect current active locale
-function getCurrentLocale(): string {
-  if (typeof document !== 'undefined') {
+// Helper to detect current active locale dynamically
+export function getCurrentLocale(): string {
+  if (typeof window !== 'undefined') {
+    // 1. Prioritize active URL locale prefix: /ar/... or /en/...
+    const pathSegments = window.location.pathname.split('/').filter(Boolean);
+    if (pathSegments.length > 0) {
+      const firstSegment = pathSegments[0].toLowerCase();
+      if (firstSegment === 'ar' || firstSegment === 'en') {
+        return firstSegment;
+      }
+    }
+
+    // 2. Check localized container lang attribute
+    const containerLang = document.querySelector('[lang]')?.getAttribute('lang');
+    if (containerLang && (containerLang === 'ar' || containerLang === 'en')) {
+      return containerLang;
+    }
+
+    // 3. Check document.documentElement lang
     const htmlLang = document.documentElement?.lang;
     if (htmlLang && (htmlLang === 'ar' || htmlLang === 'en')) {
       return htmlLang;
     }
-    const pathLocale = window.location.pathname.split('/')[1];
-    if (pathLocale === 'ar' || pathLocale === 'en') {
-      return pathLocale;
+
+    // 4. Check cookies (e.g. NEXT_LOCALE)
+    const cookieMatch = document.cookie.match(/(?:^|;\s*)(?:NEXT_LOCALE|locale)=([^;]+)/);
+    if (cookieMatch && (cookieMatch[1] === 'ar' || cookieMatch[1] === 'en')) {
+      return cookieMatch[1];
     }
   }
-  return 'ar';
+  return 'en';
 }
 
 // ----------------------------------------------------
@@ -63,17 +81,26 @@ axiosInstance.interceptors.request.use(
       config.headers['Accept'] = 'application/json';
     }
 
-    if (!config.headers['Accept-Language']) {
-      config.headers['Accept-Language'] = getCurrentLocale();
+    // Dynamically and explicitly attach Accept-Language header based on current active locale
+    const currentLocale = getCurrentLocale();
+    if (typeof (config.headers as any).set === 'function') {
+      (config.headers as any).set('Accept-Language', currentLocale);
+    } else {
+      config.headers['Accept-Language'] = currentLocale;
     }
 
     const token = tokenManager.getAccessToken();
     if (token && !config.headers.Authorization) {
-      config.headers.Authorization = `Bearer ${token}`;
+      if (typeof (config.headers as any).set === 'function') {
+        (config.headers as any).set('Authorization', `Bearer ${token}`);
+      } else {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
     }
 
     const fullUrl = (config.baseURL || '').replace(/\/+$/, '') + (config.url || '');
     console.log(`[Axios Request] ${config.method?.toUpperCase()} -> ${fullUrl}`, {
+      locale: currentLocale,
       headers: config.headers,
     });
 

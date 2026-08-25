@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { useTranslations, useLocale } from "next-intl";
 import {
@@ -10,48 +10,40 @@ import {
   CreditCard,
   Settings,
   Plus,
-  TrendingUp,
-  DollarSign,
   Star,
   Award,
   CheckCircle2,
   Clock,
-  XCircle,
   ShieldCheck,
   Archive,
-  Send,
-  Edit,
-  Trash2,
-  Search,
-  ChevronLeft,
-  ChevronRight,
-  GripVertical,
-  PlayCircle,
   AlertTriangle,
   X,
-  Camera,
-  Briefcase,
-  Building,
-  Video,
-  Mail,
   AlertCircle,
-  Eye,
-  EyeOff,
-  RotateCcw
+  Search,
 } from "lucide-react";
 import dynamic from "next/dynamic";
 import { useSelector } from "react-redux";
 import { RootState } from "@/lib/store";
 import { Sidebar } from "@/components/layout/Sidebar";
-
-const ArchiveCourseModal = dynamic(() => import("@/components/modals/ArchiveCourseModal").then((mod) => mod.ArchiveCourseModal), { ssr: false });
-const ChangeEmailModal = dynamic(() => import("@/components/modals/ChangeEmailModal").then((mod) => mod.ChangeEmailModal), { ssr: false });
-const InstructorPendingModal = dynamic(() => import("@/components/modals/InstructorPendingModal").then((mod) => mod.InstructorPendingModal), { ssr: false });
 import {
   mockInstructorWorkspaceCourses,
   mockInstructorWorkspaceStudents,
   mockInstructorWorkspaceProfile,
 } from "@/lib/mockData";
+import { getSavedInstructorOverrides, normalizeInstructorSlug } from "@/lib/mockInstructors";
+
+const ArchiveCourseModal = dynamic(
+  () => import("@/components/modals/ArchiveCourseModal").then((mod) => mod.ArchiveCourseModal),
+  { ssr: false }
+);
+const ChangeEmailModal = dynamic(
+  () => import("@/components/modals/ChangeEmailModal").then((mod) => mod.ChangeEmailModal),
+  { ssr: false }
+);
+const InstructorPendingModal = dynamic(
+  () => import("@/components/modals/InstructorPendingModal").then((mod) => mod.InstructorPendingModal),
+  { ssr: false }
+);
 
 interface InstructorWorkspaceProps {
   initialTab?: "overview" | "courses" | "students" | "payout" | "settings";
@@ -70,16 +62,17 @@ export function InstructorWorkspace({ initialTab = "overview", hideSidebar = tru
   const authUser = useSelector((state: RootState) => state.auth.user);
 
   // Account Approval Status (US-02)
-  const initialStatus = (authUser?.approval_status === "pending" || authUser?.approvalStatus === "pending")
-    ? "pending"
-    : (authUser?.approval_status === "rejected" || authUser?.approvalStatus === "rejected")
-    ? "rejected"
-    : "approved";
+  const initialStatus =
+    authUser?.approval_status === "pending" || authUser?.approvalStatus === "pending"
+      ? "pending"
+      : authUser?.approval_status === "rejected" || authUser?.approvalStatus === "rejected"
+      ? "rejected"
+      : "approved";
 
   const [approvalStatus, setApprovalStatus] = useState<"approved" | "pending" | "rejected">(initialStatus);
 
   // Active Workspace Section - default to settings if not approved
-  const defaultTab = (initialStatus !== "approved" && initialTab !== "settings") ? "settings" : initialTab;
+  const defaultTab = initialStatus !== "approved" && initialTab !== "settings" ? "settings" : initialTab;
   const [activeTab, setActiveTab] = useState<"overview" | "courses" | "students" | "payout" | "settings">(defaultTab);
   const [studentSearch, setStudentSearch] = useState("");
   const [courseFilter, setCourseFilter] = useState<"all" | "active" | "archived">("active");
@@ -89,21 +82,17 @@ export function InstructorWorkspace({ initialTab = "overview", hideSidebar = tru
   const [showEmailModal, setShowEmailModal] = useState(false);
   const [showPendingModal, setShowPendingModal] = useState(false);
   const [pendingFeatureName, setPendingFeatureName] = useState<string | undefined>(undefined);
-
-  // Modal State for Course Editor & Curriculum Builder
-  const [showCourseModal, setShowCourseModal] = useState(false);
-  const [editingCourseId, setEditingCourseId] = useState<string | null>(null);
   const [archiveModalCourseId, setArchiveModalCourseId] = useState<string | null>(null);
 
-  // Instructor Courses State (US-08)
+  // Instructor Courses State
   const [courses, setCourses] = useState(() =>
     mockInstructorWorkspaceCourses.map((c) => ({
       ...c,
-      rejectionReason: isAr ? (c.rejectionReasonAr || "") : (c.rejectionReasonEn || ""),
+      rejectionReason: isAr ? c.rejectionReasonAr || "" : c.rejectionReasonEn || "",
     }))
   );
 
-  // Enrolled Students Data (US-17)
+  // Enrolled Students Data
   const [students] = useState(() =>
     mockInstructorWorkspaceStudents.map((s) => ({
       id: s.id,
@@ -115,15 +104,11 @@ export function InstructorWorkspace({ initialTab = "overview", hideSidebar = tru
     }))
   );
 
-  // Pagination (US-17)
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 3;
-
-  // Avatar State
+  // Avatar & Profile State
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
 
-  // Form State (Full Settings)
+  // Form State
   const [formData, setFormData] = useState({
     fullName: isAr ? mockInstructorWorkspaceProfile.fullNameAr : mockInstructorWorkspaceProfile.fullNameEn,
     email: mockInstructorWorkspaceProfile.email,
@@ -146,11 +131,27 @@ export function InstructorWorkspace({ initialTab = "overview", hideSidebar = tru
   });
 
   const [isSaving, setIsSaving] = useState(false);
-  const [passwordError, setPasswordError] = useState<string | null>(null);
 
-  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
-  const [showNewPassword, setShowNewPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  useEffect(() => {
+    const activeSlug = normalizeInstructorSlug(authUser?.fullName || authUser?.name || "Mohammed Katanani");
+    const overrides = {
+      ...getSavedInstructorOverrides("global"),
+      ...(activeSlug ? getSavedInstructorOverrides(activeSlug) : {}),
+      ...(activeSlug ? getSavedInstructorOverrides(`inst-${activeSlug}`) : {}),
+    };
+
+    if (overrides.name || authUser?.fullName || authUser?.name) {
+      setFormData((prev) => ({
+        ...prev,
+        fullName: overrides.name || authUser?.fullName || authUser?.name || prev.fullName,
+        headline: overrides.headline || authUser?.headline || prev.headline,
+        email: authUser?.email || prev.email,
+      }));
+    }
+    if (overrides.avatar || authUser?.avatar) {
+      setAvatarPreview(overrides.avatar || authUser?.avatar || null);
+    }
+  }, [authUser]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target;
@@ -162,45 +163,12 @@ export function InstructorWorkspace({ initialTab = "overview", hideSidebar = tru
     }
   };
 
-  const handleAvatarFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      if (file.size > 5 * 1024 * 1024) {
-        alert(tStudent("avatarSizeExceeded"));
-        return;
-      }
-      setAvatarPreview(URL.createObjectURL(file));
-      setToastMessage(tStudent("avatarUpdated"));
-      setTimeout(() => setToastMessage(null), 3000);
-    }
-  };
-
-  const handleRemoveAvatar = () => {
-    setAvatarPreview(null);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
-  };
-
   const handleSaveSettings = async (e: React.FormEvent) => {
     e.preventDefault();
-    setPasswordError(null);
-
-    if (formData.newPassword || formData.confirmPassword) {
-      if (formData.newPassword !== formData.confirmPassword) {
-        setPasswordError(t("passwordsDoNotMatch"));
-        return;
-      }
-      if (formData.newPassword.length < 8) {
-        setPasswordError(t("passwordMinLength"));
-        return;
-      }
-    }
-
     setIsSaving(true);
     await new Promise((resolve) => setTimeout(resolve, 600));
     setIsSaving(false);
-    setToastMessage(t("changesSaved"));
+    setToastMessage(tInst("profileSavedToast"));
     setTimeout(() => setToastMessage(null), 3500);
   };
 
@@ -239,19 +207,31 @@ export function InstructorWorkspace({ initialTab = "overview", hideSidebar = tru
     setTimeout(() => setToastMessage(null), 3500);
   };
 
+  const getCourseStatusLabel = (status: string) => {
+    switch (status) {
+      case "published":
+        return tInst("statusPublished");
+      case "pending_review":
+        return tInst("statusPendingReview");
+      case "draft":
+        return tInst("statusDraft");
+      case "rejected":
+        return tInst("statusRejected");
+      case "archived":
+        return tInst("statusArchived");
+      default:
+        return status;
+    }
+  };
+
   const filteredStudents = students.filter(
     (s) =>
       s.name.toLowerCase().includes(studentSearch.toLowerCase()) ||
       s.course.toLowerCase().includes(studentSearch.toLowerCase())
   );
-  const totalPages = Math.ceil(filteredStudents.length / itemsPerPage);
-  const paginatedStudents = filteredStudents.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
 
   return (
-    <div className="w-full space-y-4 sm:space-y-6">
+    <div className="w-full space-y-4 sm:space-y-6 font-sans" dir={isAr ? "rtl" : "ltr"}>
       {/* Toast Notification */}
       {toastMessage && (
         <div className="fixed bottom-6 right-6 rtl:right-auto rtl:left-6 z-50 flex items-center gap-3 bg-slate-900/95 text-white px-5 py-3.5 rounded-2xl shadow-2xl border border-slate-800 backdrop-blur-md animate-in slide-in-from-bottom-4 duration-200">
@@ -284,11 +264,11 @@ export function InstructorWorkspace({ initialTab = "overview", hideSidebar = tru
         <div className="bg-white rounded-2xl sm:rounded-3xl border border-slate-200/80 p-4 sm:p-8 shadow-2xs flex flex-col md:flex-row items-center justify-between gap-4 sm:gap-6">
           <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-5 text-center sm:text-start">
             <div className="relative group shrink-0">
-              <div className="w-16 h-16 sm:w-24 sm:h-24 rounded-full bg-[#E8F3F1] border-2 border-emerald-200/80 overflow-hidden shadow-2xs flex items-center justify-center">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-[#E6F3EF] border-2 border-slate-200 overflow-hidden shadow-2xs flex items-center justify-center">
                 {avatarPreview ? (
-                  <img src={avatarPreview} alt="Instructor" className="w-full h-full object-cover" />
+                  <img src={avatarPreview} alt="Instructor" className="w-full h-full object-cover rounded-full" />
                 ) : (
-                  <span className="font-black text-2xl sm:text-3xl text-[#0F5244]">{formData.fullName.charAt(0)}</span>
+                  <span className="font-extrabold text-2xl text-[#0F5244]">{formData.fullName.charAt(0)}</span>
                 )}
               </div>
               <span className="absolute bottom-0 right-0 rtl:right-auto rtl:left-0 w-3.5 h-3.5 bg-emerald-500 border-2 border-white rounded-full" />
@@ -309,7 +289,7 @@ export function InstructorWorkspace({ initialTab = "overview", hideSidebar = tru
         </div>
       )}
 
-      {/* Status Approval Banner (US-02) */}
+      {/* Status Approval Banner */}
       <div className="p-4 rounded-2xl sm:rounded-3xl bg-white border border-slate-200/80 shadow-2xs flex flex-col sm:flex-row items-center justify-between gap-4">
         <div className="flex items-center gap-3 text-center sm:text-start">
           <div
@@ -351,7 +331,7 @@ export function InstructorWorkspace({ initialTab = "overview", hideSidebar = tru
                     ? tInst("approvedBadge")
                     : approvalStatus === "rejected"
                     ? tInst("rejectedBadge")
-                    : (isAr ? "قيد المراجعة" : "Under Review")}
+                    : tInst("underReviewBadge")}
                 </span>
               </span>
             </div>
@@ -360,9 +340,7 @@ export function InstructorWorkspace({ initialTab = "overview", hideSidebar = tru
                 ? tInst("approvedDescription")
                 : approvalStatus === "rejected"
                 ? tInst("rejectedDescription")
-                : (isAr
-                    ? "طلب انضمامك كمدرب قيد التدقيق حالياً من قبل الإدارة. ستصلك رسالة تأكيد عبر البريد فور الاعتماد."
-                    : tInst("pendingDescription"))}
+                : tInst("pendingNotice")}
             </p>
           </div>
         </div>
@@ -510,7 +488,7 @@ export function InstructorWorkspace({ initialTab = "overview", hideSidebar = tru
                                     : "bg-slate-200 text-slate-700"
                                 }`}
                               >
-                                {c.status}
+                                {getCourseStatusLabel(c.status)}
                               </span>
                             </div>
 
@@ -600,7 +578,7 @@ export function InstructorWorkspace({ initialTab = "overview", hideSidebar = tru
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 bg-white">
-                    {paginatedStudents.map((student) => (
+                    {filteredStudents.map((student) => (
                       <tr key={student.id} className="hover:bg-slate-50/60 transition-colors">
                         <td className="px-4 py-3 font-bold text-slate-900">{student.name}</td>
                         <td className="px-4 py-3 text-slate-600">{student.course}</td>

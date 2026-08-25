@@ -22,13 +22,17 @@ import {
   ShoppingCart, 
   Check, 
   Play,
-  User as UserIcon
+  User as UserIcon,
+  ExternalLink,
+  ShieldCheck,
+  Award as AwardIcon
 } from "lucide-react";
 import { Course } from "@/types/catalog";
 import { RootState } from "@/lib/store";
 import { addToCart } from "@/features/cart/cartSlice";
 import { VideoPreviewModal } from "./VideoPreviewModal";
 import { LockedLessonModal } from "./LockedLessonModal";
+import { normalizeInstructorSlug, getPublicInstructorByIdOrSlug } from "@/lib/mockInstructors";
 
 interface CourseDetailsViewProps {
   course: Course;
@@ -40,6 +44,9 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
   const isAr = locale === "ar";
   const router = useRouter();
   const dispatch = useDispatch();
+
+  const instructorSlug = normalizeInstructorSlug(course.instructorName || "tariq-al-mansoor");
+  const instructorObj = getPublicInstructorByIdOrSlug(instructorSlug);
 
   // Redux Auth & Cart states
   const { user, isAuthenticated } = useSelector((state: RootState) => state.auth);
@@ -54,7 +61,7 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
   const [isEnrolled, setIsEnrolled] = useState(false);
 
   // Tabs state
-  const [activeTab, setActiveTab] = useState<"curriculum" | "description" | "reviews">("curriculum");
+  const [activeTab, setActiveTab] = useState<"curriculum" | "description" | "instructor" | "reviews">("curriculum");
 
   // Accordion state
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({
@@ -263,24 +270,36 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
 
               {/* Instructor & Rating Row */}
               <div className="flex flex-wrap items-center gap-4 sm:gap-6 pt-2 text-xs sm:text-sm text-slate-600 font-medium">
-                {/* Instructor */}
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-full bg-slate-200 overflow-hidden relative border border-slate-300">
-                    <img
-                      src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=200&q=80"
-                      alt={isAr ? course.instructorNameAr : course.instructorName}
-                      className="w-full h-full object-cover"
-                    />
+                {/* Instructor Link */}
+                <Link
+                  href={`/${locale}/instructors/${instructorSlug}`}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    router.push(`/${locale}/instructors/${instructorSlug}`);
+                  }}
+                  className="flex items-center gap-2.5 group/inst hover:opacity-90 transition-all cursor-pointer"
+                  title={isAr ? "عرض الملف الشخصي للمدرب" : "View Instructor Profile"}
+                >
+                  <div className="w-9 h-9 rounded-full bg-emerald-50 overflow-hidden relative border border-emerald-200/80 group-hover/inst:ring-2 group-hover/inst:ring-[#0F5244] group-hover/inst:scale-105 transition-all flex items-center justify-center text-xs font-black text-[#0F5244]">
+                    {instructorObj?.avatar || course.instructorAvatar ? (
+                      <img
+                        src={instructorObj?.avatar || course.instructorAvatar}
+                        alt={isAr ? (instructorObj?.nameAr || course.instructorNameAr || course.instructorName || "") : (instructorObj?.name || course.instructorName || "")}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <span>{((isAr ? (instructorObj?.nameAr || course.instructorNameAr || course.instructorName) : (instructorObj?.name || course.instructorName)) || "U").trim().charAt(0).toUpperCase()}</span>
+                    )}
                   </div>
                   <div>
-                    <span className="font-extrabold text-slate-900 block leading-none">
-                      {isAr ? course.instructorNameAr : course.instructorName}
+                    <span className="font-extrabold text-slate-900 block leading-none group-hover/inst:text-[#0F5244] group-hover/inst:underline transition-colors">
+                      {isAr ? (instructorObj?.nameAr || course.instructorNameAr || course.instructorName) : (instructorObj?.name || course.instructorName)}
                     </span>
-                    <span className="text-[11px] text-slate-400 font-medium">
-                      {isAr ? (course.instructorRoleAr || t("leadRole")) : (course.instructorRole || t("leadRole"))}
+                    <span className="text-[11px] text-slate-400 font-medium group-hover/inst:text-slate-600 transition-colors">
+                      {isAr ? (course.instructorRoleAr || instructorObj?.headlineAr || t("leadRole")) : (course.instructorRole || instructorObj?.headline || t("leadRole"))}
                     </span>
                   </div>
-                </div>
+                </Link>
 
                 {/* Rating */}
                 <div className="flex items-center gap-1.5 bg-amber-50 border border-amber-200/60 px-2.5 py-1 rounded-lg">
@@ -330,6 +349,21 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
                 >
                   {t("description")}
                   {activeTab === "description" && (
+                    <span className="absolute bottom-0 left-0 right-0 h-1 bg-[#0F5244] rounded-t-full" />
+                  )}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setActiveTab("instructor")}
+                  className={`pb-3 text-sm sm:text-base font-extrabold transition-all relative ${
+                    activeTab === "instructor"
+                      ? "text-[#0F5244]"
+                      : "text-slate-500 hover:text-slate-800"
+                  }`}
+                >
+                  {t("instructor")}
+                  {activeTab === "instructor" && (
                     <span className="absolute bottom-0 left-0 right-0 h-1 bg-[#0F5244] rounded-t-full" />
                   )}
                 </button>
@@ -476,7 +510,81 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
               </div>
             )}
 
-            {/* Tab 3: REVIEWS */}
+            {/* Tab 3: INSTRUCTOR PROFILE SPOTLIGHT */}
+            {activeTab === "instructor" && (
+              <div className="bg-gradient-to-br from-white via-emerald-50/20 to-white rounded-3xl p-6 sm:p-8 border border-emerald-950/10 shadow-sm space-y-6 animate-in fade-in duration-300">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 pb-6 border-b border-slate-100">
+                  <Link
+                    href={`/${locale}/instructors/${instructorSlug}`}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      router.push(`/${locale}/instructors/${instructorSlug}`);
+                    }}
+                    className="flex items-center gap-4 sm:gap-5 group/tabinst cursor-pointer"
+                    title={isAr ? "عرض الملف الشخصي للمدرب" : "View Instructor Profile"}
+                  >
+                    <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-white p-1 overflow-hidden relative border-2 border-emerald-500/30 shadow-md shrink-0 ring-4 ring-emerald-500/10 group-hover/tabinst:ring-emerald-500/30 group-hover/tabinst:scale-105 transition-all duration-300 flex items-center justify-center">
+                      {instructorObj?.avatar || course.instructorAvatar ? (
+                        <img
+                          src={instructorObj?.avatar || course.instructorAvatar}
+                          alt={isAr ? (instructorObj?.nameAr || course.instructorNameAr || course.instructorName || "") : (instructorObj?.name || course.instructorName || "")}
+                          className="w-full h-full object-cover rounded-xl"
+                        />
+                      ) : (
+                        <div className="w-full h-full rounded-xl bg-gradient-to-br from-emerald-50 via-slate-50 to-emerald-100/70 flex items-center justify-center border border-emerald-100/80 text-xl sm:text-2xl font-black text-[#0F5244]">
+                          {((isAr ? (instructorObj?.nameAr || course.instructorNameAr || course.instructorName) : (instructorObj?.name || course.instructorName)) || "U").trim().charAt(0).toUpperCase()}
+                        </div>
+                      )}
+                    </div>
+                    <div className="space-y-1.5">
+                      <div className="flex items-center gap-2">
+                        <h3 className="text-lg sm:text-2xl font-black text-slate-900 group-hover/tabinst:text-[#0F5244] group-hover/tabinst:underline transition-colors tracking-tight">
+                          {isAr ? (instructorObj?.nameAr || course.instructorNameAr || course.instructorName) : (instructorObj?.name || course.instructorName)}
+                        </h3>
+                        <span className="inline-flex items-center text-emerald-600 bg-emerald-50 p-1 rounded-full border border-emerald-200/60">
+                          <ShieldCheck className="h-4 w-4" />
+                        </span>
+                      </div>
+                      <p className="text-xs sm:text-sm font-bold text-slate-500">
+                        {isAr ? (course.instructorRoleAr || instructorObj?.headlineAr || t("leadRole")) : (course.instructorRole || instructorObj?.headline || t("leadRole"))}
+                      </p>
+                      <div className="flex flex-wrap items-center gap-2.5 pt-0.5 text-xs text-slate-600 font-bold">
+                        <span className="inline-flex items-center gap-1 text-amber-800 bg-amber-50 px-2 py-0.5 rounded-md border border-amber-200/60">
+                          <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
+                          {(instructorObj?.rating || course.rating).toFixed(1)}
+                        </span>
+                        <span className="inline-flex items-center gap-1 text-[#0F5244] bg-[#E8F3F1] px-2 py-0.5 rounded-md">
+                          <Users className="h-3.5 w-3.5" />
+                          <span>{instructorObj?.totalStudentsFormatted || "15k+"} {isAr ? "طالب" : "Students"}</span>
+                        </span>
+                      </div>
+                    </div>
+                  </Link>
+
+                  <Link
+                    href={`/${locale}/instructors/${instructorSlug}`}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      router.push(`/${locale}/instructors/${instructorSlug}`);
+                    }}
+                    className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#0F5244] hover:bg-[#07382E] text-white font-black text-xs sm:text-sm shadow-md hover:shadow-lg transition-all active:scale-95 cursor-pointer group/btn"
+                  >
+                    <span>{isAr ? "عرض الملف الشخصي الكامل" : "View Full Profile"}</span>
+                    <ArrowRight className="h-4 w-4 rtl:rotate-180 group-hover/btn:translate-x-0.5 rtl:group-hover/btn:-translate-x-0.5 transition-transform" />
+                  </Link>
+                </div>
+
+                <div className="space-y-3 text-sm text-slate-700 font-medium leading-relaxed bg-white/70 p-4 sm:p-5 rounded-2xl border border-slate-100">
+                  <p>
+                    {isAr
+                      ? (instructorObj?.bioAr || "مدرب معتمد وخبير متميز في مجاله بخبرة طويلة في تقديم محتوى عملي ومبسط يساعد الطلاب على تحقيق أهدافهم المهنية وبناء مهارات متقدمة.")
+                      : (instructorObj?.bio || "Senior verified instructor and industry veteran dedicated to practical, high-impact learning experiences designed to help you excel professionally.")}
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* Tab 4: REVIEWS */}
             {activeTab === "reviews" && (
               <div className="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-2xs space-y-4 animate-in fade-in duration-200">
                 <div className="flex items-center gap-4">

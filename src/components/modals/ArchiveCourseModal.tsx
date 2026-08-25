@@ -93,3 +93,5 @@ export function ArchiveCourseModal({
     </div>
   );
 }
+
+export default ArchiveCourseModal;

@@ -2,13 +2,16 @@
 
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
-import { useTranslations } from "next-intl";
+import Link from "next/link";
+import { useTranslations, useLocale } from "next-intl";
 import { useSelector } from "react-redux";
 import { RootState } from "@/lib/store";
 import { Star } from "lucide-react";
+import { normalizeInstructorSlug } from "@/lib/mockInstructors";
 
 export function MasterYourCraftSection() {
   const t = useTranslations("home");
+  const locale = useLocale() || "en";
   const [mounted, setMounted] = useState(false);
   const { user, isAuthenticated } = useSelector((state: RootState) => state.auth);
 
@@ -123,8 +126,12 @@ export function MasterYourCraftSection() {
                   </h3>
 
                   {/* Instructor Info */}
-                  <div className="flex items-center gap-2.5 pt-1">
-                    <div className="relative w-7 h-7 rounded-full overflow-hidden shrink-0 border border-slate-200">
+                  <Link
+                    href={`/${locale}/instructors/${normalizeInstructorSlug(course.instructorName)}`}
+                    className="flex items-center gap-2.5 pt-1 w-fit group/inst cursor-pointer"
+                    title={course.instructorName}
+                  >
+                    <div className="relative w-7 h-7 rounded-full overflow-hidden shrink-0 border border-slate-200 group-hover/inst:ring-2 group-hover/inst:ring-[#004442] transition-all">
                       <Image
                         src={course.instructorAvatar}
                         alt={course.instructorName}
@@ -133,10 +140,10 @@ export function MasterYourCraftSection() {
                         className="object-cover"
                       />
                     </div>
-                    <span className="text-xs font-medium text-slate-600">
+                    <span className="text-xs font-medium text-slate-600 group-hover/inst:text-[#004442] group-hover/inst:underline transition-colors">
                       {course.instructorName}
                     </span>
-                  </div>
+                  </Link>
                 </div>
 
                 {/* Price & Add to Cart Button */}

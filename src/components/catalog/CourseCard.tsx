@@ -3,9 +3,11 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { Star, Clock, User } from "lucide-react";
 import { Course } from "@/types/catalog";
+import { normalizeInstructorSlug } from "@/lib/mockInstructors";
 
 interface CourseCardProps {
   course: Course;
@@ -14,6 +16,7 @@ interface CourseCardProps {
 
 export function CourseCard({ course, isAr = false }: CourseCardProps) {
   const locale = useLocale() || "en";
+  const router = useRouter();
   const t = useTranslations("catalog.card");
 
   const [imgSrc, setImgSrc] = useState(
@@ -78,9 +81,17 @@ export function CourseCard({ course, isAr = false }: CourseCardProps) {
             </h3>
 
             {/* Instructor Name with Icon */}
-            <div className="flex items-center gap-1.5 text-xs font-medium text-slate-500 pt-0.5">
-              <User className="h-3.5 w-3.5 text-slate-400" />
-              <span>{isAr ? course.instructorNameAr : course.instructorName}</span>
+            <div
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                router.push(`/${locale}/instructors/${normalizeInstructorSlug(course.instructorName || "")}`);
+              }}
+              className="flex items-center gap-1.5 text-xs font-medium text-slate-500 hover:text-[#0F5244] pt-0.5 w-fit cursor-pointer transition-colors group/inst"
+              title={isAr ? "عرض الملف الشخصي للمدرب" : "View Instructor Profile"}
+            >
+              <User className="h-3.5 w-3.5 text-slate-400 group-hover/inst:text-[#0F5244] transition-colors" />
+              <span className="hover:underline font-semibold">{isAr ? course.instructorNameAr : course.instructorName}</span>
             </div>
           </div>
 

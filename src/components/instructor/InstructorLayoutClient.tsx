@@ -1,23 +1,22 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { useSelector } from "react-redux";
 import { RootState } from "@/lib/store";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { Sidebar } from "@/components/layout/Sidebar";
-import { Award, Clock, Plus, LayoutDashboard, BookOpen, Users, CreditCard, Settings } from "lucide-react";
+import { Award, Clock, LayoutDashboard, BookOpen, Users, CreditCard, Settings } from "lucide-react";
 import { InstructorPendingModal } from "@/components/modals/InstructorPendingModal";
 import { tokenManager } from "@/lib/tokenManager";
-import { useRouter } from "next/navigation";
+import { getSavedInstructorOverrides, normalizeInstructorSlug } from "@/lib/mockInstructors";
 
 export function InstructorLayoutClient({ children }: { children: React.ReactNode }) {
   const pathname = usePathname() || "";
   const locale = useLocale() || "en";
-  const isAr = locale === "ar";
   const router = useRouter();
   const t = useTranslations("account");
   const tInst = useTranslations("instructorSettings");
@@ -25,12 +24,13 @@ export function InstructorLayoutClient({ children }: { children: React.ReactNode
 
   const { user, isAuthenticated } = useSelector((state: RootState) => state.auth);
 
-  const [mounted, setMounted] = React.useState(false);
-  const [checkingAuth, setCheckingAuth] = React.useState(true);
-  const [isPendingModalOpen, setIsPendingModalOpen] = React.useState(false);
-  const [pendingFeatureName, setPendingFeatureName] = React.useState<string | undefined>(undefined);
+  const [mounted, setMounted] = useState(false);
+  const [checkingAuth, setCheckingAuth] = useState(true);
+  const [isPendingModalOpen, setIsPendingModalOpen] = useState(false);
+  const [pendingFeatureName, setPendingFeatureName] = useState<string | undefined>(undefined);
+  const [localOverrides, setLocalOverrides] = useState<any>({});
 
-  React.useEffect(() => {
+  useEffect(() => {
     setMounted(true);
     const hasToken = tokenManager.hasSession();
     const localUserStr = typeof window !== "undefined" ? localStorage.getItem("user") : null;
@@ -52,6 +52,15 @@ export function InstructorLayoutClient({ children }: { children: React.ReactNode
       return;
     }
 
+    // Sync saved instructor profile overrides from localStorage
+    const activeSlug = normalizeInstructorSlug(activeUser.fullName || activeUser.name || "Mohammed Katanani");
+    const overrides = {
+      ...getSavedInstructorOverrides("global"),
+      ...(activeSlug ? getSavedInstructorOverrides(activeSlug) : {}),
+      ...(activeSlug ? getSavedInstructorOverrides(`inst-${activeSlug}`) : {}),
+    };
+    setLocalOverrides(overrides);
+
     setCheckingAuth(false);
   }, [isAuthenticated, user, locale, pathname, router]);
 
@@ -63,17 +72,24 @@ export function InstructorLayoutClient({ children }: { children: React.ReactNode
   const isStudioPage = pathname.includes("/instructor/courses/new") || pathname.includes("/instructor/courses/create");
 
   // If instructor is not approved and navigates to a restricted route, redirect to settings and open modal
-  React.useEffect(() => {
+  useEffect(() => {
     if (mounted && !checkingAuth && !isApproved && !isSettingsPage) {
       setIsPendingModalOpen(true);
       router.replace(`/${locale}/instructor/settings`);
     }
   }, [mounted, checkingAuth, isApproved, isSettingsPage, locale, router]);
 
-  const fullName = (mounted ? (user?.fullName || user?.name) : "") || tDash("defaultInstructorName");
+  const fullName =
+    localOverrides.name ||
+    (mounted ? user?.fullName || user?.name : "") ||
+    tDash("defaultInstructorName");
+
   const email = (mounted ? user?.email : "") || "instructor@coachspace.com";
-  const avatarPreview = mounted ? (user?.avatar || null) : null;
-  const headline = (mounted ? user?.headline : "") || tInst("defaultHeadline");
+  const avatarPreview = localOverrides.avatar || (mounted ? user?.avatar || null : null);
+  const headline =
+    localOverrides.headline ||
+    (mounted ? user?.headline : "") ||
+    tInst("defaultHeadline");
 
   const handleRestrictedClick = (featureLabel: string) => (e: React.MouseEvent) => {
     e.preventDefault();
@@ -150,19 +166,27 @@ export function InstructorLayoutClient({ children }: { children: React.ReactNode
           <div className="bg-white rounded-2xl sm:rounded-3xl border border-slate-200/80 p-4 sm:p-6 shadow-2xs flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-5 text-center sm:text-start">
               <div className="relative group shrink-0">
-                <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-slate-100 border-2 border-slate-200 overflow-hidden shadow-2xs flex items-center justify-center">
+                <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-[#E6F3EF] border-2 border-slate-200/90 overflow-hidden shadow-2xs flex items-center justify-center">
                   {avatarPreview ? (
                     <img src={avatarPreview} alt="Instructor" className="w-full h-full object-cover" />
                   ) : (
-                    <span suppressHydrationWarning className="font-black text-xl text-slate-700">{fullName.charAt(0)}</span>
+                    <span suppressHydrationWarning className="font-extrabold text-xl text-[#0F5244]">
+                      {fullName.trim().charAt(0).toUpperCase() || "I"}
+                    </span>
                   )}
                 </div>
-                <span className={`absolute bottom-0 right-0 rtl:right-auto rtl:left-0 w-3.5 h-3.5 border-2 border-white rounded-full ${isApproved ? "bg-emerald-500" : "bg-amber-400"}`} />
+                <span
+                  className={`absolute bottom-0 right-0 rtl:right-auto rtl:left-0 w-3.5 h-3.5 border-2 border-white rounded-full ${
+                    isApproved ? "bg-emerald-500" : "bg-amber-400"
+                  }`}
+                />
               </div>
 
               <div className="space-y-0.5">
                 <div className="flex items-center justify-center sm:justify-start gap-2 flex-wrap">
-                  <h1 suppressHydrationWarning className="text-base sm:text-lg font-black text-slate-900">{fullName}</h1>
+                  <h1 suppressHydrationWarning className="text-base sm:text-lg font-black text-slate-900">
+                    {fullName}
+                  </h1>
                   {isApproved ? (
                     <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-[#0F5244] text-[10px] font-extrabold flex items-center gap-1">
                       <Award className="h-3 w-3 text-emerald-600 shrink-0" />
@@ -171,7 +195,7 @@ export function InstructorLayoutClient({ children }: { children: React.ReactNode
                   ) : (
                     <span className="px-2 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200/80 text-[10px] font-bold flex items-center gap-1">
                       <Clock className="h-3 w-3 text-amber-600 shrink-0" />
-                      <span>{isAr ? "قيد المراجعة" : "Under Review"}</span>
+                      <span>{tInst("underReviewBadge")}</span>
                     </span>
                   )}
                 </div>

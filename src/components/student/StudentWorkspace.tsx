@@ -36,6 +36,7 @@ import {
 } from "lucide-react";
 import dynamic from "next/dynamic";
 import { Sidebar } from "@/components/layout/Sidebar";
+import { normalizeInstructorSlug } from "@/lib/mockInstructors";
 
 const CartView = dynamic(() => import("@/components/cart/CartView").then((mod) => mod.CartView));
 const OrderHistoryView = dynamic(() => import("@/components/orders/OrderHistoryView").then((mod) => mod.OrderHistoryView));
@@ -430,7 +431,13 @@ export function StudentWorkspace({ initialTab = "overview", hideSidebar = true }
 
                         <div className="space-y-1 min-h-[3.25rem] flex flex-col justify-start">
                           <h3 className="text-base font-extrabold text-slate-900 line-clamp-2 leading-snug">{course.title}</h3>
-                          <p className="text-xs text-slate-500 font-medium">{course.instructor}</p>
+                          <Link
+                            href={`/${locale}/instructors/${normalizeInstructorSlug(course.instructor)}`}
+                            className="text-xs text-slate-500 hover:text-[#0F5244] hover:underline font-medium w-fit transition-colors"
+                            title={course.instructor}
+                          >
+                            {course.instructor}
+                          </Link>
                         </div>
                       </div>
 

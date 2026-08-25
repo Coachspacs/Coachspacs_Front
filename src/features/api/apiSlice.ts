@@ -1,5 +1,6 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { RootState } from '@/lib/store';
+import { getCurrentLocale } from '@/lib/axios';
 
 const rawBaseURL = process.env.NEXT_PUBLIC_API_URL || '/api';
 const baseURL = rawBaseURL.replace(/\/+$/, '');
@@ -10,6 +11,7 @@ export const apiSlice = createApi({
     baseUrl: baseURL,
     prepareHeaders: (headers, { getState }) => {
       headers.set('Content-Type', 'application/json');
+      headers.set('Accept-Language', getCurrentLocale());
       const token = (getState() as RootState).auth.token || (typeof window !== 'undefined' ? localStorage.getItem('token') : null);
       if (token) {
         headers.set('authorization', `Bearer ${token}`);
