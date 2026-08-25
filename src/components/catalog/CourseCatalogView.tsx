@@ -1,13 +1,14 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { useLocale } from "next-intl";
 import { FilterSidebar } from "./FilterSidebar";
 import { SearchSortBar } from "./SearchSortBar";
 import { CourseGrid } from "./CourseGrid";
 import { CatalogPagination } from "./CatalogPagination";
 import { MOCK_COURSES } from "@/lib/mockCatalogData";
-import { FilterState, SortOption } from "@/types/catalog";
+import { FilterState, SortOption, CatalogCourse } from "@/types/catalog";
+import { courseService } from "@/services/courseService";
 import { Compass, Sparkles } from "lucide-react";
 
 const ITEMS_PER_PAGE = 6;
@@ -25,10 +26,59 @@ export function CourseCatalogView() {
   const locale = useLocale() || "en";
   const isAr = locale === "ar";
 
+  const [allCourses, setAllCourses] = useState<CatalogCourse[]>(MOCK_COURSES);
+  const [isLoading, setIsLoading] = useState(false);
+
   const [filters, setFilters] = useState<FilterState>(INITIAL_FILTERS);
   const [activeFilters, setActiveFilters] = useState<FilterState>(INITIAL_FILTERS);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
+
+  // Fetch live courses from Backend API
+  useEffect(() => {
+    async function loadCatalog() {
+      setIsLoading(true);
+      try {
+        const data = await courseService.getCourses();
+        const results = Array.isArray(data) ? data : data?.results || [];
+
+        if (results.length > 0) {
+          const liveCourses: CatalogCourse[] = results.map((c: any) => ({
+            id: String(c.id),
+            title: c.title || "Course",
+            titleAr: c.title_ar || c.title || "دورة",
+            description: c.description || "",
+            descriptionAr: c.description_ar || c.description || "",
+            instructorName: c.instructor?.full_name || "Mohammed Katanani",
+            instructorNameAr: c.instructor?.full_name_ar || c.instructor?.full_name || "محمد قطناني",
+            instructorAvatar: c.instructor?.avatar || "",
+            category: c.category?.name || "Business Coaching",
+            level: c.level === "beginner" ? "Beginner" : c.level === "intermediate" ? "Intermediate" : c.level === "advanced" ? "Advanced" : "All Levels",
+            price: Number(c.price) || 0,
+            isFree: Boolean(c.is_free || Number(c.price) === 0),
+            language: c.language === "ar" ? "Arabic" : "English",
+            rating: c.rating || 4.9,
+            reviewsCount: c.reviews_count || 120,
+            studentsCount: c.students_count || 0,
+            image: c.cover_image || "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&auto=format&fit=crop&q=80",
+            badge: c.is_new ? "New" : undefined,
+          }));
+
+          // Merge live courses with sample mock courses
+          const mockFallback = MOCK_COURSES.filter(
+            (mc) => !liveCourses.some((lc) => lc.id === mc.id || lc.title.toLowerCase() === mc.title.toLowerCase())
+          );
+
+          setAllCourses([...liveCourses, ...mockFallback]);
+        }
+      } catch (err) {
+        console.warn("Could not fetch live catalog courses, using sample catalog:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    loadCatalog();
+  }, []);
 
   // Instant Filter change handler
   const handleFilterChange = (newFilters: FilterState) => {
@@ -67,7 +117,7 @@ export function CourseCatalogView() {
 
   // Filter & Sort logic
   const filteredCourses = useMemo(() => {
-    let result = [...MOCK_COURSES];
+    let result = [...allCourses];
 
     // 1. Search Query
     if (activeFilters.searchQuery.trim()) {

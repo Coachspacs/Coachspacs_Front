@@ -23,6 +23,9 @@ import {
   Star,
   Layers,
 } from "lucide-react";
+import { useSelector } from "react-redux";
+import { RootState } from "@/lib/store";
+import { instructorCourseService } from "@/services/instructorCourseService";
 import { PublicInstructor } from "@/types/publicInstructor";
 import { CourseCard } from "@/components/catalog/CourseCard";
 import {
@@ -41,6 +44,7 @@ export function PublicInstructorProfileView({ instructor: initialInstructor }: P
   const locale = useLocale() || "en";
   const isAr = locale === "ar";
   const t = useTranslations("publicInstructorProfile");
+  const authUser = useSelector((state: RootState) => state.auth.user);
 
   const [instructor, setInstructor] = useState<PublicInstructor>(initialInstructor || ({} as any));
   const [copied, setCopied] = useState(false);
@@ -87,7 +91,56 @@ export function PublicInstructorProfileView({ instructor: initialInstructor }: P
         },
       }));
     }
-  }, [initialInstructor]);
+
+    // If viewing current instructor's profile, fetch their real courses from API
+    if (
+      authUser?.fullName === initialInstructor.name ||
+      initialInstructor.slug === "mohammed-katanani" ||
+      initialInstructor.id === "inst-mohammed-katanani"
+    ) {
+      instructorCourseService
+        .getMyCourses()
+        .then((data) => {
+          const list = Array.isArray(data) ? data : data?.results || [];
+          if (list.length > 0) {
+            const realCourses = list.map((c: any) => ({
+              id: String(c.id),
+              title: c.title_en || c.title || "Course",
+              titleAr: c.title_ar || c.title || "دورة",
+              slug: String(c.id),
+              description: c.description_en || c.description || "",
+              descriptionAr: c.description_ar || c.description || "",
+              instructor: {
+                id: initialInstructor.id || "inst-mohammed-katanani",
+                name: prev.name,
+                nameAr: prev.nameAr,
+                avatar: prev.avatar,
+              },
+              rating: c.rating || 5.0,
+              reviewsCount: c.reviews_count || 0,
+              studentsCount: c.students_count || 0,
+              price: Number(c.price) || 0,
+              level: c.level || "Beginner",
+              category: c.category_name || "General",
+              image:
+                c.cover_image ||
+                c.image ||
+                "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&auto=format&fit=crop&q=80",
+            }));
+
+            const fallbackSampleCourses = (initialInstructor.courses || []).filter(
+              (ic) => !realCourses.some((rc) => rc.id === ic.id || rc.title.toLowerCase() === ic.title.toLowerCase())
+            );
+
+            setInstructor((prev) => ({
+              ...prev,
+              courses: [...realCourses, ...fallbackSampleCourses],
+            }));
+          }
+        })
+        .catch((e) => console.warn("Could not fetch real instructor profile courses:", e));
+    }
+  }, [initialInstructor, authUser]);
 
   const handleShare = async () => {
     if (typeof window !== "undefined") {

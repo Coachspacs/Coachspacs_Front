@@ -73,6 +73,7 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
   // Modal states
   const [previewModalOpen, setPreviewModalOpen] = useState(false);
   const [previewTitle, setPreviewTitle] = useState("");
+  const [previewVideoUrl, setPreviewVideoUrl] = useState<string | undefined>(undefined);
   const [lockedModalOpen, setLockedModalOpen] = useState(false);
   const [lockedLessonTitle, setLockedLessonTitle] = useState("");
 
@@ -99,8 +100,9 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
     router.push(`/${locale}/account`);
   };
 
-  const handleOpenPreview = (title: string) => {
+  const handleOpenPreview = (title: string, videoUrl?: string) => {
     setPreviewTitle(title);
+    setPreviewVideoUrl(videoUrl);
     setPreviewModalOpen(true);
   };
 
@@ -110,77 +112,79 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
   };
 
   // Curriculum Data Structure
-  const curriculumSections = [
-    {
-      id: "section1",
-      titleEn: "Section 1: Getting Started",
-      titleAr: "القسم الأول: البدء والأساسيات",
-      durationEn: "3 lectures • 45 min",
-      durationAr: "3 دروس • 45 دقيقة",
-      lessons: [
+  const curriculumSections = course.isRealBackend
+    ? course.sections || []
+    : [
         {
-          id: "l-1",
-          titleEn: "Introduction to Modern UI Patterns",
-          titleAr: "مقدمة في أنماط واجهات المستخدم الحديثة",
-          duration: "12:35",
-          isPreview: true,
+          id: "section1",
+          titleEn: "Section 1: Getting Started",
+          titleAr: "القسم الأول: البدء والأساسيات",
+          durationEn: "3 lectures • 45 min",
+          durationAr: "3 دروس • 45 دقيقة",
+          lessons: [
+            {
+              id: "l-1",
+              titleEn: "Introduction to Modern UI Patterns",
+              titleAr: "مقدمة في أنماط واجهات المستخدم الحديثة",
+              duration: "12:35",
+              isPreview: true,
+            },
+            {
+              id: "l-2",
+              titleEn: "Setting up your Figma Workspace",
+              titleAr: "إعداد ومواصفات مساحة العمل في فيجما",
+              duration: "18:45",
+              isPreview: true,
+            },
+            {
+              id: "l-3",
+              titleEn: "Understanding Design Tokens & Color Systems",
+              titleAr: "فهم ترميز أنظمة الألوان ومتغيرات التصميم",
+              duration: "14:10",
+              isPreview: false,
+            },
+          ],
         },
         {
-          id: "l-2",
-          titleEn: "Setting up your Figma Workspace",
-          titleAr: "إعداد ومواصفات مساحة العمل في فيجما",
-          duration: "18:45",
-          isPreview: true,
+          id: "section2",
+          titleEn: "Section 2: Core Concepts & Layout Architecture",
+          titleAr: "القسم الثاني: المفاهيم الأساسية وهيكلة الواجهات",
+          durationEn: "5 lectures • 1 hr 20 min",
+          durationAr: "5 دروس • ساعة و20 دقيقة",
+          lessons: [
+            {
+              id: "l-4",
+              titleEn: "Mastering Auto-Layout & Dynamic Spacing",
+              titleAr: "احتراف التخطيط التلقائي المسافات الديناميكية",
+              duration: "22:15",
+              isPreview: false,
+            },
+            {
+              id: "l-5",
+              titleEn: "Typography Hierarchies & Readability Rules",
+              titleAr: "تسلسل الخطوط والطباعة وقواعد المقروئية",
+              duration: "19:40",
+              isPreview: false,
+            },
+          ],
         },
         {
-          id: "l-3",
-          titleEn: "Understanding Design Tokens & Color Systems",
-          titleAr: "فهم ترميز أنظمة الألوان ومتغيرات التصميم",
-          duration: "14:10",
-          isPreview: false,
+          id: "section3",
+          titleEn: "Section 3: Building a Real Project & Micro-interactions",
+          titleAr: "القسم الثالث: بناء مشروع حقيقي والتفاعلات الدقيقة",
+          durationEn: "4 lectures • 2 hrs 15 min",
+          durationAr: "4 دروس • ساعتان و15 دقيقة",
+          lessons: [
+            {
+              id: "l-6",
+              titleEn: "Prototyping Complex Component States",
+              titleAr: "بناء النماذج التفاعلية المعقدة للمكونات",
+              duration: "35:10",
+              isPreview: false,
+            },
+          ],
         },
-      ],
-    },
-    {
-      id: "section2",
-      titleEn: "Section 2: Core Concepts & Layout Architecture",
-      titleAr: "القسم الثاني: المفاهيم الأساسية وهيكلة الواجهات",
-      durationEn: "5 lectures • 1 hr 20 min",
-      durationAr: "5 دروس • ساعة و20 دقيقة",
-      lessons: [
-        {
-          id: "l-4",
-          titleEn: "Mastering Auto-Layout & Dynamic Spacing",
-          titleAr: "احتراف التخطيط التلقائي المسافات الديناميكية",
-          duration: "22:15",
-          isPreview: false,
-        },
-        {
-          id: "l-5",
-          titleEn: "Typography Hierarchies & Readability Rules",
-          titleAr: "تسلسل الخطوط والطباعة وقواعد المقروئية",
-          duration: "19:40",
-          isPreview: false,
-        },
-      ],
-    },
-    {
-      id: "section3",
-      titleEn: "Section 3: Building a Real Project & Micro-interactions",
-      titleAr: "القسم الثالث: بناء مشروع حقيقي والتفاعلات الدقيقة",
-      durationEn: "4 lectures • 2 hrs 15 min",
-      durationAr: "4 دروس • ساعتان و15 دقيقة",
-      lessons: [
-        {
-          id: "l-6",
-          titleEn: "Prototyping Complex Component States",
-          titleAr: "بناء النماذج التفاعلية المعقدة للمكونات",
-          duration: "35:10",
-          isPreview: false,
-        },
-      ],
-    },
-  ];
+      ];
 
   return (
     <div dir={isAr ? "rtl" : "ltr"} className="w-full bg-[#FAFBFB] min-h-screen py-6 sm:py-10">
@@ -190,6 +194,7 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
         isOpen={previewModalOpen}
         onClose={() => setPreviewModalOpen(false)}
         title={previewTitle}
+        videoUrl={previewVideoUrl}
       />
 
       <LockedLessonModal
@@ -208,11 +213,11 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
           </Link>
           <span>/</span>
           <span className="hover:text-[#0F5244] transition-colors">
-            {isAr ? course.categoryAr : course.category}
+            {isAr ? course.categoryAr || course.category : course.category}
           </span>
           <span>/</span>
           <span className="text-slate-900 font-bold truncate max-w-xs sm:max-w-md">
-            {isAr ? course.titleAr : course.title}
+            {isAr ? course.titleAr || course.title : course.title}
           </span>
         </nav>
 
@@ -226,7 +231,7 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
             <div className="relative w-full aspect-[16/9] rounded-2xl sm:rounded-3xl overflow-hidden bg-slate-900 shadow-xl border border-slate-200/80 group">
               <img
                 src={course.coverImage || "https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1200&q=80"}
-                alt={isAr ? course.titleAr : course.title}
+                alt={isAr ? course.titleAr || course.title : course.title}
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-90"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-slate-950/20 to-transparent" />
@@ -234,8 +239,16 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
               {/* Play Overlay Button */}
               <button
                 type="button"
-                onClick={() => handleOpenPreview(isAr ? "معاينة الدورة" : "Course Preview")}
-                className="absolute inset-0 flex items-center justify-center group/btn"
+                onClick={() => {
+                  const firstPreviewLesson = curriculumSections
+                    .flatMap((s: any) => s.lessons || [])
+                    .find((l: any) => l.isPreview && (l.videoUrl || l.video_url));
+                  handleOpenPreview(
+                    isAr ? "معاينة الدورة" : "Course Preview",
+                    firstPreviewLesson?.videoUrl || firstPreviewLesson?.video_url
+                  );
+                }}
+                className="absolute inset-0 flex items-center justify-center group/btn cursor-pointer"
                 aria-label="Play Preview"
               >
                 <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-white/90 text-[#0F5244] shadow-2xl flex items-center justify-center group-hover/btn:scale-110 group-hover/btn:bg-white transition-all duration-300 backdrop-blur-xs">
@@ -248,25 +261,29 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
             <div className="space-y-4">
               {/* Badges */}
               <div className="flex items-center gap-2.5">
-                <span className="bg-[#45D1B4] text-slate-900 text-xs font-black px-3 py-1 rounded-md uppercase tracking-wider shadow-2xs">
-                  {isAr ? "الأكثر مبيعاً" : "Bestseller"}
-                </span>
-                <span className="bg-emerald-100 text-[#0F5244] text-xs font-black px-3 py-1 rounded-md tracking-wider">
-                  {isAr ? "تحديث أكتوبر 2025" : "Updated Oct 2025"}
-                </span>
+                {course.badge && (
+                  <span className="bg-[#45D1B4] text-slate-900 text-xs font-black px-3 py-1 rounded-md uppercase tracking-wider shadow-2xs">
+                    {course.badge}
+                  </span>
+                )}
+                {course.isRealBackend && (
+                  <span className="bg-emerald-100 text-[#0F5244] text-xs font-black px-3 py-1 rounded-md tracking-wider">
+                    {isAr ? "دورة حقيقية معتمدة" : "Verified Course"}
+                  </span>
+                )}
               </div>
 
               {/* Title */}
               <h1 className="text-2xl sm:text-4xl font-black text-slate-900 tracking-tight leading-tight">
-                {isAr ? course.titleAr : course.title}
+                {isAr ? course.titleAr || course.title : course.title}
               </h1>
 
-              {/* Subtitle */}
-              <p className="text-sm sm:text-base text-slate-600 font-medium leading-relaxed">
-                {isAr
-                  ? "احترف فن إنشاء واجهات مستخدم بديهية وعالية التحويل باستخدام المبادئ النفسية الحديثة وأنظمة التصميم المتقدمة."
-                  : "Master the art of creating intuitive, high-converting user interfaces using modern psychological principles and cutting-edge design systems."}
-              </p>
+              {/* Subtitle / Real Course Description */}
+              {(course.description || course.descriptionAr) && (
+                <p className="text-sm sm:text-base text-slate-600 font-medium leading-relaxed">
+                  {isAr ? course.descriptionAr || course.description : course.description || course.descriptionAr}
+                </p>
+              )}
 
               {/* Instructor & Rating Row */}
               <div className="flex flex-wrap items-center gap-4 sm:gap-6 pt-2 text-xs sm:text-sm text-slate-600 font-medium">
@@ -315,7 +332,11 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
                 {/* Enrolled Count */}
                 <div className="flex items-center gap-1.5 text-slate-600 font-semibold">
                   <Users className="h-4 w-4 text-slate-400" />
-                  <span>15,302 {t("enrolled")}</span>
+                  <span>
+                    {course.isRealBackend
+                      ? `${course.studentsCount || 0} ${t("enrolled")}`
+                      : `15,302 ${t("enrolled")}`}
+                  </span>
                 </div>
               </div>
             </div>
@@ -388,90 +409,113 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
             {/* Tab 1: CURRICULUM SECTION */}
             {activeTab === "curriculum" && (
               <div className="space-y-4 animate-in fade-in duration-200">
-                {curriculumSections.map((sec) => {
-                  const isOpen = openSections[sec.id] ?? false;
-                  return (
-                    <div
-                      key={sec.id}
-                      className="rounded-2xl border border-slate-200/80 bg-white overflow-hidden shadow-2xs transition-all"
-                    >
-                      {/* Section Accordion Header */}
-                      <button
-                        type="button"
-                        onClick={() => toggleSection(sec.id)}
-                        className="w-full p-4 sm:p-5 flex items-center justify-between bg-slate-50/70 hover:bg-slate-100/70 transition-colors text-left rtl:text-right"
+                {curriculumSections.length === 0 ? (
+                  <div className="p-8 text-center bg-white rounded-2xl border border-slate-200/80 shadow-2xs space-y-2">
+                    <Tv className="w-10 h-10 text-slate-300 mx-auto" />
+                    <p className="text-sm font-extrabold text-slate-800">
+                      {isAr ? "لم تتم إضافة دروس للمنهج بعد" : "No curriculum lessons added yet"}
+                    </p>
+                    <p className="text-xs text-slate-400 font-medium">
+                      {isAr ? "سيقوم المدرب بنشر دروس الدورة قريباً." : "The instructor will publish course lessons soon."}
+                    </p>
+                  </div>
+                ) : (
+                  curriculumSections.map((sec: any) => {
+                    const isOpen = openSections[sec.id] ?? true;
+                    return (
+                      <div
+                        key={sec.id}
+                        className="rounded-2xl border border-slate-200/80 bg-white overflow-hidden shadow-2xs transition-all"
                       >
-                        <div>
-                          <h3 className="text-sm sm:text-base font-black text-slate-900">
-                            {isAr ? sec.titleAr : sec.titleEn}
-                          </h3>
-                          <p className="text-xs font-semibold text-slate-400 mt-0.5">
-                            {isAr ? sec.durationAr : sec.durationEn}
-                          </p>
-                        </div>
-                        {isOpen ? (
-                          <ChevronUp className="h-5 w-5 text-slate-500" />
-                        ) : (
-                          <ChevronDown className="h-5 w-5 text-slate-500" />
-                        )}
-                      </button>
+                        {/* Section Accordion Header */}
+                        <button
+                          type="button"
+                          onClick={() => toggleSection(sec.id)}
+                          className="w-full p-4 sm:p-5 flex items-center justify-between bg-slate-50/70 hover:bg-slate-100/70 transition-colors text-left rtl:text-right"
+                        >
+                          <div>
+                            <h3 className="text-sm sm:text-base font-black text-slate-900">
+                              {isAr ? sec.titleAr || sec.titleEn || sec.title : sec.titleEn || sec.titleAr || sec.title}
+                            </h3>
+                            <p className="text-xs font-semibold text-slate-400 mt-0.5">
+                              {isAr ? sec.durationAr || `${sec.lessons?.length || 0} دروس` : sec.durationEn || `${sec.lessons?.length || 0} lessons`}
+                            </p>
+                          </div>
+                          {isOpen ? (
+                            <ChevronUp className="h-5 w-5 text-slate-500" />
+                          ) : (
+                            <ChevronDown className="h-5 w-5 text-slate-500" />
+                          )}
+                        </button>
 
-                      {/* Lesson Items */}
-                      {isOpen && (
-                        <div className="divide-y divide-slate-100 border-t border-slate-100">
-                          {sec.lessons.map((lesson) => (
-                            <div
-                              key={lesson.id}
-                              className="p-4 sm:p-4 flex items-center justify-between hover:bg-slate-50/50 transition-colors group cursor-pointer"
-                              onClick={() => {
-                                if (lesson.isPreview) {
-                                  handleOpenPreview(isAr ? lesson.titleAr : lesson.titleEn);
-                                } else {
-                                  handleOpenLocked(isAr ? lesson.titleAr : lesson.titleEn);
-                                }
-                              }}
-                            >
-                              <div className="flex items-center gap-3">
-                                {lesson.isPreview ? (
-                                  <div className="w-8 h-8 rounded-full bg-emerald-50 text-[#0F5244] flex items-center justify-center shrink-0">
-                                    <Play className="h-4 w-4 fill-[#0F5244] ml-0.5 rtl:mr-0.5 rtl:ml-0" />
-                                  </div>
-                                ) : (
-                                  <div className="w-8 h-8 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center shrink-0">
-                                    <Lock className="h-4 w-4" />
-                                  </div>
-                                )}
-
-                                <div>
-                                  <div className="flex items-center gap-2">
-                                    <span className="text-xs sm:text-sm font-bold text-slate-800 group-hover:text-[#0F5244] transition-colors">
-                                      {isAr ? lesson.titleAr : lesson.titleEn}
-                                    </span>
-                                    {lesson.isPreview && (
-                                      <span className="bg-[#E8F3F1] text-[#0F5244] text-[10px] font-black uppercase px-2 py-0.5 rounded-full border border-[#0F5244]/10">
-                                        {t("previewBadge")}
-                                      </span>
-                                    )}
-                                  </div>
-                                  <span className="text-[11px] font-medium text-slate-400">
-                                    {t("videoLabel")} • {lesson.duration}
-                                  </span>
-                                </div>
+                        {/* Lesson Items */}
+                        {isOpen && (
+                          <div className="divide-y divide-slate-100 border-t border-slate-100">
+                            {(sec.lessons || []).length === 0 ? (
+                              <div className="p-4 text-center text-xs text-slate-400 font-medium">
+                                {isAr ? "لا توجد دروس مضافة في هذا القسم بعد" : "No lessons in this section yet"}
                               </div>
+                            ) : (
+                              sec.lessons.map((lesson: any) => (
+                                <div
+                                  key={lesson.id}
+                                  className="p-4 sm:p-4 flex items-center justify-between hover:bg-slate-50/50 transition-colors group cursor-pointer"
+                                  onClick={() => {
+                                    if (lesson.isPreview) {
+                                      handleOpenPreview(
+                                        isAr ? lesson.titleAr || lesson.titleEn || lesson.title : lesson.titleEn || lesson.titleAr || lesson.title,
+                                        lesson.videoUrl || lesson.video_url
+                                      );
+                                    } else {
+                                      handleOpenLocked(
+                                        isAr ? lesson.titleAr || lesson.titleEn || lesson.title : lesson.titleEn || lesson.titleAr || lesson.title
+                                      );
+                                    }
+                                  }}
+                                >
+                                  <div className="flex items-center gap-3">
+                                    {lesson.isPreview ? (
+                                      <div className="w-8 h-8 rounded-full bg-emerald-50 text-[#0F5244] flex items-center justify-center shrink-0">
+                                        <Play className="h-4 w-4 fill-[#0F5244] ml-0.5 rtl:mr-0.5 rtl:ml-0" />
+                                      </div>
+                                    ) : (
+                                      <div className="w-8 h-8 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center shrink-0">
+                                        <Lock className="h-4 w-4" />
+                                      </div>
+                                    )}
 
-                              <button
-                                type="button"
-                                className="text-xs font-bold text-[#0F5244] hover:underline opacity-0 group-hover:opacity-100 transition-opacity"
-                              >
-                                {lesson.isPreview ? t("playPreview") : t("lockedLesson")}
-                              </button>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
+                                    <div>
+                                      <div className="flex items-center gap-2">
+                                        <span className="text-xs sm:text-sm font-bold text-slate-800 group-hover:text-[#0F5244] transition-colors">
+                                          {isAr ? lesson.titleAr || lesson.titleEn || lesson.title : lesson.titleEn || lesson.titleAr || lesson.title}
+                                        </span>
+                                        {lesson.isPreview && (
+                                          <span className="bg-[#E8F3F1] text-[#0F5244] text-[10px] font-black uppercase px-2 py-0.5 rounded-full border border-[#0F5244]/10">
+                                            {t("previewBadge")}
+                                          </span>
+                                        )}
+                                      </div>
+                                      <span className="text-[11px] font-medium text-slate-400">
+                                        {t("videoLabel")} • {lesson.duration}
+                                      </span>
+                                    </div>
+                                  </div>
+
+                                  <button
+                                    type="button"
+                                    className="text-xs font-bold text-[#0F5244] hover:underline opacity-0 group-hover:opacity-100 transition-opacity"
+                                  >
+                                    {lesson.isPreview ? t("playPreview") : t("lockedLesson")}
+                                  </button>
+                                </div>
+                              ))
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })
+                )}
               </div>
             )}
 
@@ -479,34 +523,37 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
             {activeTab === "description" && (
               <div className="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-2xs space-y-4 text-slate-600 text-sm leading-relaxed animate-in fade-in duration-200">
                 <h3 className="text-lg font-bold text-slate-900">
-                  {t("whatYouWillLearn")}
+                  {t("description")}
                 </h3>
                 <p>
                   {isAr
-                    ? (course.descriptionAr || t("defaultDescription"))
-                    : (course.description || t("defaultDescription"))}
+                    ? (course.descriptionAr || course.description || t("defaultDescription"))
+                    : (course.description || course.descriptionAr || t("defaultDescription"))}
                 </p>
-                <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-2">
-                  {(isAr
-                    ? (course.whatYouWillLearnAr || [
+                {/* Only display learning points if available, never inject fake mock points on real courses */}
+                {((isAr ? course.whatYouWillLearnAr : course.whatYouWillLearn) || (!course.isRealBackend ? [
+                  t("learnItem1"),
+                  t("learnItem2"),
+                  t("learnItem3"),
+                  t("learnItem4"),
+                ] : []))?.length > 0 && (
+                  <div className="pt-3 border-t border-slate-100">
+                    <h4 className="text-sm font-extrabold text-slate-900 mb-2">{t("whatYouWillLearn")}</h4>
+                    <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      {((isAr ? course.whatYouWillLearnAr : course.whatYouWillLearn) || [
                         t("learnItem1"),
                         t("learnItem2"),
                         t("learnItem3"),
                         t("learnItem4"),
-                      ])
-                    : (course.whatYouWillLearn || [
-                        t("learnItem1"),
-                        t("learnItem2"),
-                        t("learnItem3"),
-                        t("learnItem4"),
-                      ])
-                  ).map((item: string, idx: number) => (
-                    <li key={idx} className="flex items-center gap-2 text-xs font-semibold text-slate-700">
-                      <Check className="h-4 w-4 text-emerald-600 shrink-0" />
-                      <span>{item}</span>
-                    </li>
-                  ))}
-                </ul>
+                      ]).map((item: string, idx: number) => (
+                        <li key={idx} className="flex items-center gap-2 text-xs font-semibold text-slate-700">
+                          <Check className="h-4 w-4 text-emerald-600 shrink-0" />
+                          <span>{item}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
               </div>
             )}
 
@@ -555,7 +602,11 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
                         </span>
                         <span className="inline-flex items-center gap-1 text-[#0F5244] bg-[#E8F3F1] px-2 py-0.5 rounded-md">
                           <Users className="h-3.5 w-3.5" />
-                          <span>{instructorObj?.totalStudentsFormatted || "15k+"} {isAr ? "طالب" : "Students"}</span>
+                          <span>
+                            {course.isRealBackend
+                              ? `${course.studentsCount || 0} ${isAr ? "طالب" : "Students"}`
+                              : `${instructorObj?.totalStudentsFormatted || "15k+"} ${isAr ? "طالب" : "Students"}`}
+                          </span>
                         </span>
                       </div>
                     </div>
@@ -588,7 +639,7 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
             {activeTab === "reviews" && (
               <div className="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-2xs space-y-4 animate-in fade-in duration-200">
                 <div className="flex items-center gap-4">
-                  <div className="text-3xl font-black text-slate-900">{course.rating.toFixed(1)}</div>
+                  <div className="text-3xl font-black text-slate-900">{course.rating ? course.rating.toFixed(1) : "5.0"}</div>
                   <div>
                     <div className="flex text-amber-400">
                       {[...Array(5)].map((_, i) => (
@@ -596,7 +647,11 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
                       ))}
                     </div>
                     <span className="text-xs font-medium text-slate-500">
-                      {t("basedOnReviews")}
+                      {course.reviewsCount && course.reviewsCount > 0
+                        ? `${course.reviewsCount} ${t("reviewsCount")}`
+                        : isAr
+                        ? "دورة جديدة - لا توجد تقييمات بعد"
+                        : "New Course - No reviews submitted yet"}
                     </span>
                   </div>
                 </div>
@@ -618,10 +673,10 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
                   {isFree ? (
                     <span className="text-emerald-600 font-extrabold">{isAr ? "مجاني" : "Free"}</span>
                   ) : (
-                    course.priceFormatted
+                    course.priceFormatted || `$${course.price}`
                   )}
                 </span>
-                {!isFree && (
+                {!isFree && !course.isRealBackend && (
                   <span className="text-base font-semibold text-slate-400 line-through">
                     $199.99
                   </span>
