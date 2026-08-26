@@ -169,7 +169,6 @@
     "twitterUrlLabel": "رابط إكس / تويتر (Twitter / X)",
     "publicEmailLabel": "بريد التواصل العام",
     "githubUrlLabel": "رابط جيت هاب (GitHub)",
-    "paypalEmailLabel": "البريد الإلكتروني لحساب PayPal:",
     "saveNotice": "يتم حفظ وتحديث التعديلات فوراً على صفحتك العامة.",
     "savingBtn": "جاري الحفظ...",
     "saveChangesBtn": "حفظ التعديلات",
@@ -248,15 +247,27 @@
   "nav": {
     "home": "الرئيسية",
     "courses": "الدورات",
-    "catalog": "الكتالوج",
+    "catalog": "الدورات",
     "categories": "التصنيفات",
-    "becomeInstructor": "كن مدرباً",
+    "becomeInstructor": "انضم كمدرب",
+    "instructorStudio": "مساحة المدرب",
+    "instructorDashboard": "لوحة تحكم المدرب",
+    "manageCourses": "إدارة الدورات",
+    "createCourse": "إنشاء دورة جديدة",
+    "enrolledStudents": "الطلاب المسجلون",
+    "earnings": "المبيعات والطلبات",
     "myCourses": "دوراتي",
-    "dashboard": "لوحة المدرب",
+    "myLearning": "دوراتي التعليمية",
+    "dashboard": "لوحة التحكم",
+    "cart": "سلة المشتريات",
+    "orders": "سجل الطلبات",
+    "certificates": "الشهادات",
+    "profile": "الملف الشخصي",
+    "account": "حسابي",
+    "settings": "الإعدادات",
+    "accountSettings": "إعدادات الحساب",
     "login": "تسجيل الدخول",
     "register": "ابدأ الآن",
-    "cart": "السلة",
-    "account": "حسابي",
     "logout": "تسجيل الخروج"
   },
   "auth": {
@@ -690,9 +701,15 @@
     "connect": "تابعنا"
   },
   "header": {
-    "brandName": "مساحة المدرب",
+    "brandName": "Coach Space",
     "switchLanguage": "English",
-    "switchLanguageLabel": "Switch to English"
+    "switchLanguageLabel": "تبديل اللغة إلى الإنجليزية",
+    "studentRole": "طالب",
+    "instructorRole": "مدرب",
+    "cartAria": "سلة المشتريات",
+    "userMenu": "قائمة المستخدم",
+    "menu": "القائمة",
+    "closeMenu": "إغلاق القائمة"
   },
   "catalog": {
     "title": "دليل الدورات التدريبية",

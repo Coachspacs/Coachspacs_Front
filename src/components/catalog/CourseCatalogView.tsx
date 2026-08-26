@@ -66,7 +66,14 @@ export function CourseCatalogView() {
 
           // Merge live courses with sample mock courses
           const mockFallback = MOCK_COURSES.filter(
-            (mc) => !liveCourses.some((lc) => lc.id === mc.id || lc.title.toLowerCase() === mc.title.toLowerCase())
+            (mc) =>
+              !liveCourses.some(
+                (lc) =>
+                  lc.id === mc.id ||
+                  (Boolean(lc.title) &&
+                    Boolean(mc.title) &&
+                    lc.title!.toLowerCase() === mc.title!.toLowerCase())
+              )
           );
 
           setAllCourses([...liveCourses, ...mockFallback]);

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { Mail, X, Send, AlertCircle, CheckCircle2, Loader2 } from "lucide-react";
 import { authService, getApiErrorMessage } from "@/services/auth";
@@ -28,6 +28,15 @@ export function ChangeEmailModal({
   const [isSuccess, setIsSuccess] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
+  const handleClose = useCallback(() => {
+    setNewEmail("");
+    setError(null);
+    setIsSending(false);
+    setIsSuccess(false);
+    setSuccessMessage(null);
+    onClose();
+  }, [onClose]);
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
@@ -38,16 +47,7 @@ export function ChangeEmailModal({
       window.addEventListener("keydown", handleKeyDown);
     }
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isOpen]);
-
-  const handleClose = () => {
-    setNewEmail("");
-    setError(null);
-    setIsSending(false);
-    setIsSuccess(false);
-    setSuccessMessage(null);
-    onClose();
-  };
+  }, [isOpen, handleClose]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

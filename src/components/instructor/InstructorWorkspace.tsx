@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect, useCallback } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { useTranslations, useLocale } from "next-intl";
 import {
@@ -359,7 +360,14 @@ export function InstructorWorkspace({ initialTab = "courses", hideSidebar = true
             <div className="relative group shrink-0">
               <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-[#E6F3EF] border-2 border-slate-200 overflow-hidden shadow-2xs flex items-center justify-center">
                 {avatarPreview ? (
-                  <img src={avatarPreview} alt="Instructor" className="w-full h-full object-cover rounded-full" />
+                  <Image
+                    src={avatarPreview}
+                    alt="Instructor"
+                    width={80}
+                    height={80}
+                    unoptimized={avatarPreview.startsWith("data:") || avatarPreview.startsWith("blob:")}
+                    className="w-full h-full object-cover rounded-full"
+                  />
                 ) : (
                   <span className="font-extrabold text-2xl text-[#0F5244]">{formData.fullName.charAt(0)}</span>
                 )}
@@ -593,9 +601,12 @@ export function InstructorWorkspace({ initialTab = "courses", hideSidebar = true
                       <div key={c.id} className="p-4 sm:p-6 rounded-3xl border border-slate-200/80 bg-slate-50/40 hover:bg-white transition-all space-y-4 shadow-2xs">
                         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                           <div className="flex items-center gap-4">
-                            <img
+                            <Image
                               src={c.image}
                               alt={c.titleEn || c.title}
+                              width={80}
+                              height={80}
+                              quality={80}
                               className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl object-cover shrink-0 border border-slate-200"
                             />
                             <div>

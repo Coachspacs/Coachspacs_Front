@@ -23,6 +23,7 @@ export interface User {
   preferred_language?: string;
   approval_status?: 'pending' | 'approved' | 'rejected' | string;
   approvalStatus?: 'pending' | 'approved' | 'rejected' | string;
+  instructorStatus?: string;
   createdAt?: string;
 }
 

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter, useParams, useSearchParams } from "next/navigation";
 import { useTranslations, useLocale } from "next-intl";
@@ -46,6 +47,7 @@ interface Lesson {
   video_url?: string;
   video_public_id?: string;
   is_preview?: boolean;
+  isFreePreview?: boolean;
   warning?: string;
 }
 
@@ -400,7 +402,7 @@ export function CreateCourseStudio() {
     const { sectionId, isNew } = editingLessonInfo;
 
     const isPreviewVal = Boolean(updatedLesson.is_preview || updatedLesson.isFreePreview);
-    let finalLesson = {
+    const finalLesson = {
       ...updatedLesson,
       is_preview: isPreviewVal,
       isFreePreview: isPreviewVal,
@@ -792,13 +794,12 @@ export function CreateCourseStudio() {
                 >
                   {coverPreview ? (
                     <div className="relative w-full h-64 rounded-xl overflow-hidden group">
-                      <img
+                      <Image
                         src={coverPreview}
                         alt="Course Cover"
                         width={600}
                         height={340}
-                        loading="lazy"
-                        decoding="async"
+                        unoptimized={coverPreview.startsWith("data:") || coverPreview.startsWith("blob:")}
                         className="w-full h-full object-cover"
                       />
                       <div className="absolute inset-0 bg-slate-900/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
@@ -1036,13 +1037,12 @@ export function CreateCourseStudio() {
                   >
                     {coverPreview ? (
                       <div className="relative w-full h-32 rounded-lg overflow-hidden group">
-                        <img
+                        <Image
                           src={coverPreview}
                           alt="Cover Preview"
                           width={400}
                           height={160}
-                          loading="lazy"
-                          decoding="async"
+                          unoptimized={coverPreview.startsWith("data:") || coverPreview.startsWith("blob:")}
                           className="w-full h-full object-cover"
                         />
                         <div className="absolute inset-0 bg-slate-900/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">

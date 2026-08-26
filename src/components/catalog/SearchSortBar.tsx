@@ -41,16 +41,17 @@ export function SearchSortBar({
   const currentOption = sortOptionsList.find((opt) => opt.value === sortBy) || sortOptionsList[0];
 
   useEffect(() => {
+    if (!isOpen) return;
     function handleClickOutside(event: MouseEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setIsOpen(false);
       }
     }
-    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside, { passive: true });
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, []);
+  }, [isOpen]);
 
   return (
     <div className="flex flex-col md:flex-row items-center justify-between gap-3 sm:gap-4 p-3.5 sm:p-4 rounded-2xl bg-white border border-slate-200/80 shadow-2xs w-full">

@@ -202,7 +202,7 @@ export function useLessonVideoUpload(courseId?: string | number) {
 
         // Step 3: Create or update lesson on backend (if sectionId or lessonId provided)
         let resolvedLesson: any = null;
-        let finalVideoUrl = uploadedUrl;
+        let finalVideoUrl: string = uploadedUrl || "";
 
         if (options?.sectionId || options?.lessonId) {
           setUploadStatus("saving");
@@ -263,7 +263,7 @@ export function useLessonVideoUpload(courseId?: string | number) {
         }
 
         // Success
-        setVideoUrl(finalVideoUrl);
+        setVideoUrl(finalVideoUrl || null);
         setProgress(100);
         setUploadStatus("success");
 

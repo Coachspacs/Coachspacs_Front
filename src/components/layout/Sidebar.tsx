@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useTranslations, useLocale } from "next-intl";
 import { useDispatch } from "react-redux";
@@ -257,10 +258,10 @@ export function Sidebar({ activeTab, onTabChange, items, user }: SidebarProps) {
         <div className="space-y-6">
           {/* Brand Header Logo */}
           <div className="space-y-0.5 px-2 pb-3 border-b border-slate-100">
-            <h1 className="text-xl sm:text-2xl font-black text-[#0F5244] tracking-tight">
+            <h2 className="text-xl sm:text-2xl font-black text-[#0F5244] tracking-tight">
               {t("brandTitle")}
-            </h1>
-            <p className="text-[11px] font-semibold text-slate-400 tracking-normal">
+            </h2>
+            <p className="text-[11px] font-semibold text-slate-500 tracking-normal">
               {t("brandSubtitle")}
             </p>
           </div>
@@ -328,9 +329,11 @@ export function Sidebar({ activeTab, onTabChange, items, user }: SidebarProps) {
           {/* User Profile Card */}
           <div className="flex items-center gap-3 p-3 rounded-2xl bg-slate-50/80 border border-slate-200/60 shadow-2xs">
             {defaultUser.avatarUrl ? (
-              <img
+              <Image
                 src={defaultUser.avatarUrl}
                 alt={defaultUser.name}
+                width={40}
+                height={40}
                 className="w-10 h-10 rounded-full object-cover border border-slate-200 shadow-2xs shrink-0"
               />
             ) : (

@@ -8,6 +8,8 @@ import { RootState } from "@/lib/store";
 import { updateUser } from "@/features/auth/slice";
 import { userService } from "@/services/userService";
 import { authService, getApiErrorMessage } from "@/services/auth";
+import Image from "next/image";
+import dynamic from "next/dynamic";
 import {
   User,
   Lock,
@@ -19,7 +21,11 @@ import {
   Trash2,
   Loader2,
 } from "lucide-react";
-import { ChangeEmailModal } from "@/components/modals/ChangeEmailModal";
+
+const ChangeEmailModal = dynamic(
+  () => import("@/components/modals/ChangeEmailModal").then((mod) => mod.ChangeEmailModal),
+  { ssr: false }
+);
 
 type SettingsTab = "profile" | "learning" | "security" | "preferences";
 
@@ -140,7 +146,7 @@ export function StudentSettingsView() {
     return () => {
       isMounted = false;
     };
-  }, [dispatch]);
+  }, [dispatch, user]);
 
   const [isSaving, setIsSaving] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -359,7 +365,14 @@ export function StudentSettingsView() {
                     className="relative group w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-slate-100 border-2 border-slate-200/80 overflow-hidden shrink-0 shadow-2xs cursor-pointer flex items-center justify-center"
                   >
                     {avatarPreview ? (
-                      <img src={avatarPreview} alt="Avatar" className="w-full h-full object-cover" />
+                      <Image
+                        src={avatarPreview}
+                        alt="Avatar"
+                        width={112}
+                        height={112}
+                        unoptimized={avatarPreview.startsWith("data:") || avatarPreview.startsWith("blob:")}
+                        className="w-full h-full object-cover"
+                      />
                     ) : (
                       <span className="select-none font-black text-3xl sm:text-4xl text-[#0F5244]">
                         {formData.fullName.charAt(0)}

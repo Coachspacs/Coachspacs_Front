@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { useTranslations, useLocale } from "next-intl";
 import {
@@ -382,9 +383,12 @@ export function InstructorDashboardView() {
                 className="bg-white rounded-3xl border border-slate-200/80 p-6 shadow-2xs flex flex-col md:flex-row items-start md:items-center justify-between gap-6"
               >
                 <div className="flex items-start md:items-center gap-5 w-full md:w-auto">
-                  <img
+                  <Image
                     src={course.image}
                     alt={course.titleKey ? tDash(course.titleKey) : (isAr ? course.titleAr : course.titleEn)}
+                    width={96}
+                    height={96}
+                    quality={80}
                     className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl object-cover shrink-0 border border-slate-100 shadow-2xs"
                   />
                   

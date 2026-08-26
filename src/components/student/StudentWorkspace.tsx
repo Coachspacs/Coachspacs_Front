@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { useTranslations, useLocale } from "next-intl";
 import { useRouter, usePathname } from "next/navigation";
@@ -269,7 +270,14 @@ export function StudentWorkspace({ initialTab = "overview", hideSidebar = true }
             <div className="relative group shrink-0">
               <div className="w-16 h-16 sm:w-24 sm:h-24 rounded-full bg-[#E8F3F1] border-2 border-emerald-200/80 overflow-hidden shadow-2xs flex items-center justify-center">
                 {avatarPreview ? (
-                  <img src={avatarPreview} alt="Student" className="w-full h-full object-cover" />
+                  <Image
+                    src={avatarPreview}
+                    alt="Student"
+                    width={96}
+                    height={96}
+                    unoptimized={avatarPreview.startsWith("data:") || avatarPreview.startsWith("blob:")}
+                    className="w-full h-full object-cover"
+                  />
                 ) : (
                   <span className="font-black text-2xl sm:text-3xl text-[#0F5244]">{formData.fullName.charAt(0)}</span>
                 )}
@@ -419,7 +427,14 @@ export function StudentWorkspace({ initialTab = "overview", hideSidebar = true }
                     >
                       <div className="space-y-4">
                         <div className="relative h-44 rounded-2xl overflow-hidden bg-slate-100 shrink-0">
-                          <img src={course.image} alt={course.title} className="w-full h-full object-cover" />
+                          <Image
+                            src={course.image}
+                            alt={course.title}
+                            width={384}
+                            height={176}
+                            quality={80}
+                            className="w-full h-full object-cover"
+                          />
                           <span
                             className={`absolute top-3 right-3 rtl:right-auto rtl:left-3 px-3 py-1 rounded-full text-white text-[11px] font-bold shadow-xs ${
                               course.isCompleted ? "bg-emerald-600" : "bg-slate-900/80"
@@ -550,7 +565,14 @@ export function StudentWorkspace({ initialTab = "overview", hideSidebar = true }
                   className="relative group w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-[#E8F3F1] border-2 border-emerald-200/80 overflow-hidden shrink-0 shadow-2xs cursor-pointer flex items-center justify-center"
                 >
                   {avatarPreview ? (
-                    <img src={avatarPreview} alt="Avatar" className="w-full h-full object-cover" />
+                    <Image
+                      src={avatarPreview}
+                      alt="Avatar"
+                      width={112}
+                      height={112}
+                      unoptimized={avatarPreview.startsWith("data:") || avatarPreview.startsWith("blob:")}
+                      className="w-full h-full object-cover"
+                    />
                   ) : (
                     <span className="font-black text-3xl sm:text-4xl text-[#0F5244]">
                       {formData.fullName.charAt(0)}

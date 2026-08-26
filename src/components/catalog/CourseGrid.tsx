@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { CourseCard } from "./CourseCard";
 import { Course } from "@/types/catalog";
@@ -22,9 +23,12 @@ export function CourseGrid({ courses, onResetFilters, isAr = false }: CourseGrid
         {/* Soft Card Container containing Illustration Graphic */}
         <div className="w-full max-w-xs sm:max-w-sm rounded-3xl bg-[#F4F8F7] border border-[#E1EEEA] p-6 sm:p-8 flex flex-col items-center justify-center text-center mb-6 shadow-2xs">
           <div className="w-48 sm:w-56 h-auto flex items-center justify-center mix-blend-multiply overflow-hidden rounded-xl">
-            <img
+            <Image
               src="/images/no-courses-illustration.jpg"
               alt={t("headline")}
+              width={224}
+              height={160}
+              quality={80}
               className="w-full h-auto object-contain"
             />
           </div>

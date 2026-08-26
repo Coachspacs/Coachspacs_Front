@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useTranslations, useLocale } from "next-intl";
 import { useSelector, useDispatch } from "react-redux";
@@ -32,9 +33,16 @@ import {
   HelpCircle,
   Eye,
   MapPin,
+  Sparkles,
 } from "lucide-react";
 import dynamic from "next/dynamic";
-import { SkillSelector } from "@/components/ui/SkillSelector";
+const SkillSelector = dynamic(
+  () => import("@/components/ui/SkillSelector").then((mod) => mod.SkillSelector),
+  {
+    ssr: false,
+    loading: () => <div className="h-28 rounded-2xl bg-slate-50 border border-slate-200/60 animate-pulse" />,
+  }
+);
 
 const ChangeEmailModal = dynamic(
   () => import("@/components/modals/ChangeEmailModal").then((mod) => mod.ChangeEmailModal),
@@ -446,7 +454,7 @@ export function InstructorSettingsView() {
         <form onSubmit={handleSave} className="space-y-8">
           
           {/* Calm Underline Tabs */}
-          <div className="flex items-center gap-6 border-b border-slate-100 pb-3 overflow-x-auto">
+          <div role="tablist" aria-label="Settings Tabs" className="flex items-center gap-6 border-b border-slate-100 pb-3 overflow-x-auto">
             {[
               { id: "profile", label: tInst("tabBasicInfo"), icon: User },
               { id: "socials", label: tInst("tabSocialLinks"), icon: Globe },
@@ -458,6 +466,10 @@ export function InstructorSettingsView() {
               return (
                 <button
                   key={tab.id}
+                  id={`tab-${tab.id}`}
+                  role="tab"
+                  aria-selected={active}
+                  aria-controls={`tabpanel-${tab.id}`}
                   type="button"
                   onClick={() => setActiveTab(tab.id as SettingsTab)}
                   className={`flex items-center gap-2 pb-2 text-xs sm:text-sm font-bold transition-all relative cursor-pointer whitespace-nowrap ${
@@ -487,7 +499,13 @@ export function InstructorSettingsView() {
                   className="relative group w-20 h-20 rounded-full bg-[#E6F3EF] border-2 border-slate-200 shadow-2xs overflow-hidden shrink-0 cursor-pointer flex items-center justify-center"
                 >
                   {avatarPreview ? (
-                    <img src={avatarPreview} alt="Avatar" className="w-full h-full object-cover rounded-full" />
+                    <Image
+                      src={avatarPreview}
+                      alt="Avatar"
+                      width={80}
+                      height={80}
+                      className="w-full h-full object-cover rounded-full"
+                    />
                   ) : (
                     <span suppressHydrationWarning className="select-none font-bold text-2xl text-[#0F5244]">
                       {(mounted ? formData.fullName : "").trim().charAt(0).toUpperCase() || "U"}
@@ -542,11 +560,12 @@ export function InstructorSettingsView() {
                 
                 {/* Full Name */}
                 <div className="space-y-1.5">
-                  <label className="block text-xs font-bold text-slate-700">
+                  <label htmlFor="fullName" className="block text-xs font-bold text-slate-700">
                     {tInst("fullNameLabel")} *
                   </label>
                   <input
                     type="text"
+                    id="fullName"
                     name="fullName"
                     value={formData.fullName}
                     onChange={handleChange}
@@ -558,12 +577,13 @@ export function InstructorSettingsView() {
 
                 {/* Specialization */}
                 <div className="space-y-1.5">
-                  <label className="block text-xs font-bold text-slate-700">
+                  <label htmlFor="specialization" className="block text-xs font-bold text-slate-700">
                     {tInst("specializationLabel")} *
                   </label>
                   <div className="relative">
                     <input
                       type="text"
+                      id="specialization"
                       name="specialization"
                       value={formData.specialization}
                       onChange={handleChange}
@@ -577,11 +597,12 @@ export function InstructorSettingsView() {
 
                 {/* Headline */}
                 <div className="space-y-1.5">
-                  <label className="block text-xs font-bold text-slate-700">
+                  <label htmlFor="headline" className="block text-xs font-bold text-slate-700">
                     {tInst("headlineLabel")}
                   </label>
                   <input
                     type="text"
+                    id="headline"
                     name="headline"
                     value={formData.headline}
                     onChange={handleChange}
@@ -592,12 +613,13 @@ export function InstructorSettingsView() {
 
                 {/* Location (Optional) */}
                 <div className="space-y-1.5">
-                  <label className="block text-xs font-bold text-slate-700">
+                  <label htmlFor="location" className="block text-xs font-bold text-slate-700">
                     {tInst("locationLabel")}
                   </label>
                   <div className="relative">
                     <input
                       type="text"
+                      id="location"
                       name="location"
                       value={formData.location}
                       onChange={handleChange}
@@ -610,11 +632,12 @@ export function InstructorSettingsView() {
 
                 {/* Phone */}
                 <div className="space-y-1.5">
-                  <label className="block text-xs font-bold text-slate-700">
+                  <label htmlFor="phone" className="block text-xs font-bold text-slate-700">
                     {t("phoneNumber")}
                   </label>
                   <input
                     type="tel"
+                    id="phone"
                     name="phone"
                     value={formData.phone}
                     onChange={handleChange}
@@ -625,7 +648,7 @@ export function InstructorSettingsView() {
                 {/* Account Email */}
                 <div className="space-y-1.5">
                   <div className="flex items-center justify-between">
-                    <label className="block text-xs font-bold text-slate-700">
+                    <label htmlFor="email" className="block text-xs font-bold text-slate-700">
                       {t("emailAddress")} (Login)
                     </label>
                     <button
@@ -638,6 +661,7 @@ export function InstructorSettingsView() {
                   </div>
                   <input
                     type="email"
+                    id="email"
                     name="email"
                     value={formData.email}
                     readOnly
@@ -658,10 +682,11 @@ export function InstructorSettingsView() {
 
               {/* Bio Textarea */}
               <div className="space-y-1.5">
-                <label className="block text-xs font-bold text-slate-700">
+                <label htmlFor="bio" className="block text-xs font-bold text-slate-700">
                   {tInst("bioLabel")} *
                 </label>
                 <textarea
+                  id="bio"
                   name="bio"
                   rows={4}
                   value={formData.bio}
@@ -690,12 +715,13 @@ export function InstructorSettingsView() {
                 
                 {/* Website */}
                 <div className="space-y-1.5">
-                  <label className="block text-xs font-bold text-slate-700">
+                  <label htmlFor="website" className="block text-xs font-bold text-slate-700">
                     {tInst("websiteUrlLabel")}
                   </label>
                   <div className="relative">
                     <input
                       type="url"
+                      id="website"
                       name="website"
                       value={formData.website}
                       onChange={handleChange}
@@ -708,12 +734,13 @@ export function InstructorSettingsView() {
 
                 {/* LinkedIn */}
                 <div className="space-y-1.5">
-                  <label className="block text-xs font-bold text-slate-700">
+                  <label htmlFor="linkedin" className="block text-xs font-bold text-slate-700">
                     {tInst("linkedinUrlLabel")}
                   </label>
                   <div className="relative">
                     <input
                       type="url"
+                      id="linkedin"
                       name="linkedin"
                       value={formData.linkedin}
                       onChange={handleChange}
@@ -726,12 +753,13 @@ export function InstructorSettingsView() {
 
                 {/* Twitter */}
                 <div className="space-y-1.5">
-                  <label className="block text-xs font-bold text-slate-700">
+                  <label htmlFor="twitter" className="block text-xs font-bold text-slate-700">
                     {tInst("twitterUrlLabel")}
                   </label>
                   <div className="relative">
                     <input
                       type="url"
+                      id="twitter"
                       name="twitter"
                       value={formData.twitter}
                       onChange={handleChange}
@@ -744,12 +772,13 @@ export function InstructorSettingsView() {
 
                 {/* Public Email */}
                 <div className="space-y-1.5">
-                  <label className="block text-xs font-bold text-slate-700">
+                  <label htmlFor="socialEmail" className="block text-xs font-bold text-slate-700">
                     {tInst("publicEmailLabel")}
                   </label>
                   <div className="relative">
                     <input
                       type="email"
+                      id="socialEmail"
                       name="socialEmail"
                       value={formData.socialEmail}
                       onChange={handleChange}
@@ -762,12 +791,13 @@ export function InstructorSettingsView() {
 
                 {/* GitHub */}
                 <div className="space-y-1.5">
-                  <label className="block text-xs font-bold text-slate-700">
+                  <label htmlFor="github" className="block text-xs font-bold text-slate-700">
                     {tInst("githubUrlLabel")}
                   </label>
                   <div className="relative">
                     <input
                       type="url"
+                      id="github"
                       name="github"
                       value={formData.github}
                       onChange={handleChange}
@@ -836,11 +866,12 @@ export function InstructorSettingsView() {
 
               {formData.payoutMethod === "bank" ? (
                 <div className="space-y-1.5">
-                  <label className="block text-xs font-bold text-slate-700">
+                  <label htmlFor="bankIban" className="block text-xs font-bold text-slate-700">
                     {tInst("bankIbanLabel")}
                   </label>
                   <input
                     type="text"
+                    id="bankIban"
                     name="bankIban"
                     value={formData.bankIban}
                     onChange={handleChange}
@@ -849,11 +880,12 @@ export function InstructorSettingsView() {
                 </div>
               ) : (
                 <div className="space-y-1.5">
-                  <label className="block text-xs font-bold text-slate-700">
+                  <label htmlFor="paypalEmail" className="block text-xs font-bold text-slate-700">
                     {tInst("paypalEmailLabel")}
                   </label>
                   <input
                     type="email"
+                    id="paypalEmail"
                     name="paypalEmail"
                     value={formData.paypalEmail}
                     onChange={handleChange}
@@ -877,11 +909,12 @@ export function InstructorSettingsView() {
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
                 <div className="space-y-1.5">
-                  <label className="block text-xs font-bold text-slate-700">
+                  <label htmlFor="currentPassword" className="block text-xs font-bold text-slate-700">
                     {t("currentPassword")}
                   </label>
                   <input
                     type="password"
+                    id="currentPassword"
                     name="currentPassword"
                     value={formData.currentPassword}
                     onChange={handleChange}
@@ -891,11 +924,12 @@ export function InstructorSettingsView() {
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="block text-xs font-bold text-slate-700">
+                  <label htmlFor="newPassword" className="block text-xs font-bold text-slate-700">
                     {t("newPassword")}
                   </label>
                   <input
                     type="password"
+                    id="newPassword"
                     name="newPassword"
                     value={formData.newPassword}
                     onChange={handleChange}
@@ -905,11 +939,12 @@ export function InstructorSettingsView() {
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="block text-xs font-bold text-slate-700">
+                  <label htmlFor="confirmPassword" className="block text-xs font-bold text-slate-700">
                     {t("confirmPassword")}
                   </label>
                   <input
                     type="password"
+                    id="confirmPassword"
                     name="confirmPassword"
                     value={formData.confirmPassword}
                     onChange={handleChange}
@@ -925,7 +960,7 @@ export function InstructorSettingsView() {
 
           {/* Action Footer */}
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-1">
-            <p className="text-xs text-slate-400 font-medium order-2 sm:order-1">
+            <p className="text-xs text-slate-500 font-medium order-2 sm:order-1">
               {tInst("saveNotice")}
             </p>
 

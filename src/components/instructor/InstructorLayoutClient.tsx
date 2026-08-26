@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { useSelector } from "react-redux";
@@ -10,9 +11,14 @@ import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Award, Clock, LayoutDashboard, BookOpen, Users, CreditCard, Settings } from "lucide-react";
-import { InstructorPendingModal } from "@/components/modals/InstructorPendingModal";
+import dynamic from "next/dynamic";
 import { tokenManager } from "@/lib/tokenManager";
 import { getSavedInstructorOverrides, normalizeInstructorSlug } from "@/lib/mockInstructors";
+
+const InstructorPendingModal = dynamic(
+  () => import("@/components/modals/InstructorPendingModal").then((mod) => mod.InstructorPendingModal),
+  { ssr: false }
+);
 
 export function InstructorLayoutClient({ children }: { children: React.ReactNode }) {
   const pathname = usePathname() || "";
@@ -168,7 +174,13 @@ export function InstructorLayoutClient({ children }: { children: React.ReactNode
               <div className="relative group shrink-0">
                 <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-[#E6F3EF] border-2 border-slate-200/90 overflow-hidden shadow-2xs flex items-center justify-center">
                   {avatarPreview ? (
-                    <img src={avatarPreview} alt="Instructor" className="w-full h-full object-cover" />
+                    <Image
+                      src={avatarPreview}
+                      alt="Instructor"
+                      width={64}
+                      height={64}
+                      className="w-full h-full object-cover"
+                    />
                   ) : (
                     <span suppressHydrationWarning className="font-extrabold text-xl text-[#0F5244]">
                       {fullName.trim().charAt(0).toUpperCase() || "I"}

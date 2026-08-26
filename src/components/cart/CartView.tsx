@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { useTranslations, useLocale } from "next-intl";
 import { Trash2, ArrowRight, ShoppingBag, Search } from "lucide-react";
@@ -80,13 +81,12 @@ export function CartView({ items, onRemoveItem, onCheckout }: CartViewProps) {
         <div className="bg-white rounded-3xl border border-slate-200/80 p-8 sm:p-14 text-center space-y-6 shadow-2xs max-w-2xl mx-auto">
           {/* Centered Mint Green Shopping Bag Image */}
           <div className="flex justify-center">
-            <img
+            <Image
               src="/images/empty-cart-bag.png"
               alt="Empty Cart Bag"
               width={224}
               height={176}
-              loading="lazy"
-              decoding="async"
+              quality={80}
               className="w-44 h-36 sm:w-56 sm:h-44 object-contain shrink-0"
             />
           </div>
@@ -124,13 +124,12 @@ export function CartView({ items, onRemoveItem, onCheckout }: CartViewProps) {
               >
                 {/* Course Image & Metadata */}
                 <div className="flex items-center gap-4 sm:gap-5 w-full sm:w-auto">
-                  <img
+                  <Image
                     src={item.image}
                     alt={item.title}
                     width={128}
                     height={80}
-                    loading="lazy"
-                    decoding="async"
+                    quality={80}
                     className="w-24 h-16 sm:w-32 sm:h-20 rounded-2xl object-cover border border-slate-100 shrink-0 shadow-2xs"
                   />
                   <div className="space-y-1 min-w-0">

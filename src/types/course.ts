@@ -134,5 +134,6 @@ export interface Course {
   whatYouWillLearn?: string[];
   whatYouWillLearnAr?: string[];
   isSaved?: boolean;
+  isRealBackend?: boolean;
   updatedAt?: string;
 }

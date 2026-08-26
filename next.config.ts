@@ -5,7 +5,11 @@ const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  poweredByHeader: false,
   compress: true,
+  experimental: {
+    optimizePackageImports: ['lucide-react', 'framer-motion', 'date-fns'],
+  },
   onDemandEntries: {
     maxInactiveAge: 60 * 1000,
     pagesBufferLength: 4,
@@ -27,6 +31,41 @@ const nextConfig: NextConfig = {
   },
   compiler: {
     removeConsole: process.env.NODE_ENV === 'production',
+  },
+  async headers() {
+    return [
+      {
+        source: '/_next/static/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
+      {
+        source: '/images/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
+      {
+        source: '/:path*',
+        headers: [
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff',
+          },
+          {
+            key: 'Referrer-Policy',
+            value: 'strict-origin-when-cross-origin',
+          },
+        ],
+      },
+    ];
   },
   async rewrites() {
     const targetUrl =

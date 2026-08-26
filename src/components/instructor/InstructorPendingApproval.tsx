@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
@@ -116,7 +117,14 @@ export function InstructorPendingApproval() {
               <div className="relative shrink-0">
                 <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-[#E6F3EF] border-2 border-slate-200/90 shadow-2xs flex items-center justify-center overflow-hidden">
                   {avatarPreview ? (
-                    <img src={avatarPreview} alt={fullName} className="w-full h-full object-cover rounded-full" />
+                    <Image
+                      src={avatarPreview}
+                      alt={fullName}
+                      width={64}
+                      height={64}
+                      unoptimized={avatarPreview.startsWith("data:") || avatarPreview.startsWith("blob:")}
+                      className="w-full h-full object-cover rounded-full"
+                    />
                   ) : (
                     <span suppressHydrationWarning className="font-extrabold text-xl text-[#0F5244]">
                       {fullName.trim().charAt(0).toUpperCase() || "I"}

@@ -169,7 +169,6 @@
     "twitterUrlLabel": "Twitter / X Profile URL",
     "publicEmailLabel": "Public Contact Email",
     "githubUrlLabel": "GitHub Profile URL",
-    "paypalEmailLabel": "PayPal Account Email:",
     "saveNotice": "Changes are updated immediately on your public profile.",
     "savingBtn": "Saving...",
     "saveChangesBtn": "Save Changes",
@@ -248,16 +247,28 @@
   "nav": {
     "home": "Home",
     "courses": "Courses",
-    "catalog": "Catalog",
+    "catalog": "Courses",
     "categories": "Categories",
-    "becomeInstructor": "Become Instructor",
+    "becomeInstructor": "Become an Instructor",
+    "instructorStudio": "Instructor Studio",
+    "instructorDashboard": "Instructor Dashboard",
+    "manageCourses": "Manage Courses",
+    "createCourse": "Create New Course",
+    "enrolledStudents": "Enrolled Students",
+    "earnings": "Earnings & Orders",
     "myCourses": "My Courses",
-    "dashboard": "Instructor Panel",
+    "myLearning": "My Learning",
+    "dashboard": "Dashboard",
+    "cart": "Cart",
+    "orders": "Order History",
+    "certificates": "Certificates",
+    "profile": "Profile",
+    "account": "Account",
+    "settings": "Settings",
+    "accountSettings": "Account Settings",
     "login": "Sign In",
     "register": "Get Started",
-    "cart": "Cart",
-    "account": "Account",
-    "logout": "Log Out"
+    "logout": "Sign Out"
   },
   "auth": {
     "loginTitle": "Welcome Back to CoachSpace",
@@ -692,7 +703,13 @@
   "header": {
     "brandName": "Coach Space",
     "switchLanguage": "العربية",
-    "switchLanguageLabel": "Switch to Arabic"
+    "switchLanguageLabel": "Switch Language to Arabic",
+    "studentRole": "Student",
+    "instructorRole": "Instructor",
+    "cartAria": "Shopping Cart",
+    "userMenu": "User menu",
+    "menu": "Menu",
+    "closeMenu": "Close menu"
   },
   "catalog": {
     "title": "Explore Course Catalog",

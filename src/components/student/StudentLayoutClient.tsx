@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { useSelector } from "react-redux";
@@ -88,7 +89,14 @@ export function StudentLayoutClient({ children }: { children: React.ReactNode })
               <div className="relative group shrink-0">
                 <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-[#E8F3F1] border-2 border-emerald-200/80 overflow-hidden shadow-2xs flex items-center justify-center">
                   {avatarPreview ? (
-                    <img src={avatarPreview} alt="Profile" className="w-full h-full object-cover" />
+                    <Image
+                      src={avatarPreview}
+                      alt="Profile"
+                      width={64}
+                      height={64}
+                      unoptimized={avatarPreview.startsWith("data:") || avatarPreview.startsWith("blob:")}
+                      className="w-full h-full object-cover"
+                    />
                   ) : (
                     <span className="font-black text-xl text-[#0F5244]">{fullName.charAt(0)}</span>
                   )}
