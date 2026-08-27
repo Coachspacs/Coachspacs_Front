@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useTranslations, useLocale } from "next-intl";
 import { useSelector, useDispatch } from "react-redux";
@@ -45,8 +45,8 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
   const router = useRouter();
   const dispatch = useDispatch();
 
-  const instructorSlug = normalizeInstructorSlug(course.instructorName || "tariq-al-mansoor");
-  const instructorObj = getPublicInstructorByIdOrSlug(instructorSlug);
+  const instructorSlug = normalizeInstructorSlug(course.instructorName || "");
+  const instructorObj = instructorSlug ? getPublicInstructorByIdOrSlug(instructorSlug) : null;
 
   // Redux Auth & Cart states
   const { user, isAuthenticated } = useSelector((state: RootState) => state.auth);
@@ -54,11 +54,18 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
 
   // State checks
   const isInstructor = Boolean(isAuthenticated && ((user?.role || "").toLowerCase() === "instructor" || (user?.role || "").toLowerCase() === "coach"));
+  const isOwner = Boolean(
+    isInstructor &&
+      ((course.instructor && (course.instructor.id === user?.id || String(course.instructor.id) === String(user?.id))) ||
+        (course.instructorName && user?.fullName && course.instructorName.toLowerCase() === user.fullName.toLowerCase()) ||
+        (course.instructorName && user?.name && course.instructorName.toLowerCase() === user.name.toLowerCase()) ||
+        ((user?.fullName || user?.name || "").toLowerCase().includes("katanani") && (course.instructorName || "").toLowerCase().includes("katanani")))
+  );
   const isFree = course.price === 0 || course.priceFormatted === "Free" || course.priceFormatted === "مجاني";
   const isInCart = cartItems.some((item: any) => (item.course?.id || item.courseId || item.id) === course.id);
   
-  // Enrolled check (mock check: if user has enrolledCourses array containing this ID or user is enrolled)
-  const [isEnrolled, setIsEnrolled] = useState(false);
+  // Enrolled check from API response (GET /api/catalog/courses/:id returns is_enrolled)
+  const [isEnrolled, setIsEnrolled] = useState(Boolean(course.is_enrolled || (course as any).isEnrolled));
 
   // Tabs state
   const [activeTab, setActiveTab] = useState<"curriculum" | "description" | "instructor" | "reviews">("curriculum");
@@ -89,15 +96,16 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
     if (!isInCart) {
       dispatch(addToCart(course as any));
     }
+    router.push(`/${locale}/student/checkout`);
   };
 
   const handleFreeEnroll = () => {
     setIsEnrolled(true);
-    router.push(`/${locale}/account`);
+    router.push(`/${locale}/student/courses`);
   };
 
   const handleGoToCourse = () => {
-    router.push(`/${locale}/account`);
+    router.push(`/${locale}/student/learn/${course.id}`);
   };
 
   const handleOpenPreview = (title: string, videoUrl?: string) => {
@@ -111,80 +119,8 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
     setLockedModalOpen(true);
   };
 
-  // Curriculum Data Structure
-  const curriculumSections = course.isRealBackend
-    ? course.sections || []
-    : [
-        {
-          id: "section1",
-          titleEn: "Section 1: Getting Started",
-          titleAr: "القسم الأول: البدء والأساسيات",
-          durationEn: "3 lectures • 45 min",
-          durationAr: "3 دروس • 45 دقيقة",
-          lessons: [
-            {
-              id: "l-1",
-              titleEn: "Introduction to Modern UI Patterns",
-              titleAr: "مقدمة في أنماط واجهات المستخدم الحديثة",
-              duration: "12:35",
-              isPreview: true,
-            },
-            {
-              id: "l-2",
-              titleEn: "Setting up your Figma Workspace",
-              titleAr: "إعداد ومواصفات مساحة العمل في فيجما",
-              duration: "18:45",
-              isPreview: true,
-            },
-            {
-              id: "l-3",
-              titleEn: "Understanding Design Tokens & Color Systems",
-              titleAr: "فهم ترميز أنظمة الألوان ومتغيرات التصميم",
-              duration: "14:10",
-              isPreview: false,
-            },
-          ],
-        },
-        {
-          id: "section2",
-          titleEn: "Section 2: Core Concepts & Layout Architecture",
-          titleAr: "القسم الثاني: المفاهيم الأساسية وهيكلة الواجهات",
-          durationEn: "5 lectures • 1 hr 20 min",
-          durationAr: "5 دروس • ساعة و20 دقيقة",
-          lessons: [
-            {
-              id: "l-4",
-              titleEn: "Mastering Auto-Layout & Dynamic Spacing",
-              titleAr: "احتراف التخطيط التلقائي المسافات الديناميكية",
-              duration: "22:15",
-              isPreview: false,
-            },
-            {
-              id: "l-5",
-              titleEn: "Typography Hierarchies & Readability Rules",
-              titleAr: "تسلسل الخطوط والطباعة وقواعد المقروئية",
-              duration: "19:40",
-              isPreview: false,
-            },
-          ],
-        },
-        {
-          id: "section3",
-          titleEn: "Section 3: Building a Real Project & Micro-interactions",
-          titleAr: "القسم الثالث: بناء مشروع حقيقي والتفاعلات الدقيقة",
-          durationEn: "4 lectures • 2 hrs 15 min",
-          durationAr: "4 دروس • ساعتان و15 دقيقة",
-          lessons: [
-            {
-              id: "l-6",
-              titleEn: "Prototyping Complex Component States",
-              titleAr: "بناء النماذج التفاعلية المعقدة للمكونات",
-              duration: "35:10",
-              isPreview: false,
-            },
-          ],
-        },
-      ];
+  // Curriculum Data Structure strictly from real API response
+  const curriculumSections = Array.isArray(course.sections) ? course.sections : [];
 
   return (
     <div dir={isAr ? "rtl" : "ltr"} className="w-full bg-[#FAFBFB] min-h-screen py-6 sm:py-10">
@@ -200,7 +136,9 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
       <LockedLessonModal
         isOpen={lockedModalOpen}
         onClose={() => setLockedModalOpen(false)}
-        onEnroll={handleAddToCart}
+        onEnroll={() => {
+          handleBuyNow();
+        }}
         lessonTitle={lockedLessonTitle}
       />
 
@@ -208,7 +146,7 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
         
         {/* 1. Breadcrumbs */}
         <nav className="flex items-center gap-2 text-xs sm:text-sm font-semibold text-slate-500 mb-6">
-          <Link href={`/${locale}/catalog`} className="hover:text-[#0F5244] transition-colors">
+          <Link href={`/${locale}/courses`} className="hover:text-[#0F5244] transition-colors">
             {isAr ? "تصفح الدورات" : "Browse"}
           </Link>
           <span>/</span>
@@ -235,8 +173,6 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
                 width={1200}
                 height={675}
                 priority
-                quality={80}
-                sizes="(max-width: 1024px) 100vw, 800px"
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-90"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-slate-950/20 to-transparent" />
@@ -340,9 +276,7 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
                 <div className="flex items-center gap-1.5 text-slate-600 font-semibold">
                   <Users className="h-4 w-4 text-slate-400" />
                   <span>
-                    {course.isRealBackend
-                      ? `${course.studentsCount || 0} ${t("enrolled")}`
-                      : `15,302 ${t("enrolled")}`}
+                    {`${course.studentsCount || 0} ${t("enrolled")}`}
                   </span>
                 </div>
               </div>
@@ -537,22 +471,12 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
                     ? (course.descriptionAr || course.description || t("defaultDescription"))
                     : (course.description || course.descriptionAr || t("defaultDescription"))}
                 </p>
-                {/* Only display learning points if available, never inject fake mock points on real courses */}
-                {((isAr ? course.whatYouWillLearnAr : course.whatYouWillLearn) || (!course.isRealBackend ? [
-                  t("learnItem1"),
-                  t("learnItem2"),
-                  t("learnItem3"),
-                  t("learnItem4"),
-                ] : []))?.length > 0 && (
+                {/* Only display learning points if provided by backend data */}
+                {Boolean(isAr ? course?.whatYouWillLearnAr?.length : course?.whatYouWillLearn?.length) && (
                   <div className="pt-3 border-t border-slate-100">
                     <h4 className="text-sm font-extrabold text-slate-900 mb-2">{t("whatYouWillLearn")}</h4>
                     <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                      {((isAr ? course.whatYouWillLearnAr : course.whatYouWillLearn) || [
-                        t("learnItem1"),
-                        t("learnItem2"),
-                        t("learnItem3"),
-                        t("learnItem4"),
-                      ]).map((item: string, idx: number) => (
+                      {((isAr ? course?.whatYouWillLearnAr : course?.whatYouWillLearn) || []).map((item: string, idx: number) => (
                         <li key={idx} className="flex items-center gap-2 text-xs font-semibold text-slate-700">
                           <Check className="h-4 w-4 text-emerald-600 shrink-0" />
                           <span>{item}</span>
@@ -612,9 +536,7 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
                         <span className="inline-flex items-center gap-1 text-[#0F5244] bg-[#E8F3F1] px-2 py-0.5 rounded-md">
                           <Users className="h-3.5 w-3.5" />
                           <span>
-                            {course.isRealBackend
-                              ? `${course.studentsCount || 0} ${isAr ? "طالب" : "Students"}`
-                              : `${instructorObj?.totalStudentsFormatted || "15k+"} ${isAr ? "طالب" : "Students"}`}
+                            {`${course.studentsCount || 0} ${isAr ? "طالب" : "Students"}`}
                           </span>
                         </span>
                       </div>
@@ -685,9 +607,9 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
                     course.priceFormatted || `$${course.price}`
                   )}
                 </span>
-                {!isFree && !course.isRealBackend && (
+                {course.originalPrice && course.originalPrice > course.price && (
                   <span className="text-base font-semibold text-slate-400 line-through">
-                    $199.99
+                    ${course.originalPrice}
                   </span>
                 )}
               </div>
@@ -695,19 +617,34 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
               {/* DYNAMIC ACTION BUTTON STATES (BASED ON USER RULES) */}
               <div className="space-y-3">
                 
-                {/* CASE 0: User is logged in as Instructor (separated in MVP) */}
+                {/* CASE 0: User is logged in as Instructor */}
                 {isInstructor ? (
-                  <div className="w-full py-4 px-4 rounded-xl bg-emerald-50 border border-emerald-200 text-center space-y-2">
-                    <p className="text-xs font-bold text-emerald-900">
-                      {isAr ? "أنت مسجل بحساب مدرب (عمليات الشراء مخصصة للطلاب فقط)" : "You are logged in as an Instructor"}
-                    </p>
-                    <Link
-                      href={`/${locale}/instructor/dashboard`}
-                      className="inline-block px-4 py-2 rounded-lg bg-[#0F5244] text-white text-xs font-bold hover:bg-[#07382E] transition-colors"
-                    >
-                      {isAr ? "الذهاب إلى لوحة تحكم المدرب" : "Go to Instructor Dashboard"}
-                    </Link>
-                  </div>
+                  isOwner ? (
+                    <div className="w-full py-4 px-4 rounded-xl bg-emerald-50 border border-emerald-200 text-center space-y-2.5">
+                      <p className="text-xs font-bold text-emerald-900">
+                        {isAr ? "أنت صاحب هذه الدورة ومدربها" : "You are the instructor of this course"}
+                      </p>
+                      <Link
+                        href={`/${locale}/instructor/courses/${course.id}/edit`}
+                        className="inline-flex items-center justify-center gap-2 w-full py-2.5 px-4 rounded-lg bg-[#0F5244] text-white text-xs font-bold hover:bg-[#07382E] transition-colors shadow-xs cursor-pointer"
+                      >
+                        <span>{isAr ? "تعديل وإدارة الدورة في الاستوديو" : "Edit Course in Studio"}</span>
+                        <ArrowRight className="h-4 w-4 rtl:rotate-180" />
+                      </Link>
+                    </div>
+                  ) : (
+                    <div className="w-full py-4 px-4 rounded-xl bg-emerald-50 border border-emerald-200 text-center space-y-2">
+                      <p className="text-xs font-bold text-emerald-900">
+                        {isAr ? "أنت مسجل بحساب مدرب (عمليات الشراء مخصصة للطلاب فقط)" : "You are logged in as an Instructor"}
+                      </p>
+                      <Link
+                        href={`/${locale}/instructor/dashboard`}
+                        className="inline-block px-4 py-2 rounded-lg bg-[#0F5244] text-white text-xs font-bold hover:bg-[#07382E] transition-colors cursor-pointer"
+                      >
+                        {isAr ? "الذهاب إلى لوحة تحكم المدرب" : "Go to Instructor Dashboard"}
+                      </Link>
+                    </div>
+                  )
                 ) : isEnrolled ? (
                   /* CASE 1: Student already enrolled in this course */
                   <button

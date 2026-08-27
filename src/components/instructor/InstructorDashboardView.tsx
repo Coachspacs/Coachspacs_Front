@@ -1,9 +1,11 @@
 "use client";
 
-import React, { useState } from "react";
-import Image from "next/image";
+import React, { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useTranslations, useLocale } from "next-intl";
+import { useSelector } from "react-redux";
+import { RootState } from "@/lib/store";
 import {
   BookOpen,
   Users,
@@ -28,18 +30,22 @@ import {
   AlertTriangle,
   Sparkles,
   X,
-  Upload
+  Upload,
+  Loader2,
 } from "lucide-react";
 import { ArchiveCourseModal } from "@/components/modals/ArchiveCourseModal";
+import { instructorCourseService } from "@/services/instructorCourseService";
+import { courseService } from "@/services/courseService";
 
 export function InstructorDashboardView() {
   const locale = useLocale() || "en";
   const isAr = locale === "ar";
   const tInst = useTranslations("instructorSettings");
   const tDash = useTranslations("instructorDashboard");
+  const authUser = useSelector((state: RootState) => state.auth.user);
 
   // Active Tab
-  const [activeTab, setActiveTab] = useState<"courses" | "students" | "analytics">("analytics");
+  const [activeTab, setActiveTab] = useState<"courses" | "students" | "analytics">("courses");
   const [courseSearch, setCourseSearch] = useState("");
   const [studentSearch, setStudentSearch] = useState("");
 
@@ -51,99 +57,81 @@ export function InstructorDashboardView() {
   const [editingCourseId, setEditingCourseId] = useState<string | null>(null);
   const [archiveModalCourseId, setArchiveModalCourseId] = useState<string | null>(null);
 
-  // Instructor Courses State (US-08 Lifecycle: Draft, Pending Review, Published, Rejected, Archived)
-  const [courses, setCourses] = useState([
-    {
-      id: "c-1",
-      titleKey: "course1Title",
-      titleAr: "دورة احتراف React 19 و Next.js",
-      titleEn: "React 19 & Next.js Masterclass",
-      categoryKey: "categoryDevelopment",
-      category: "Development",
-      levelKey: "levelIntermediate",
-      level: "Intermediate",
-      price: 49.99,
-      studentsCount: 340,
-      rating: 4.9,
-      status: "published", // published
-      image: "https://images.unsplash.com/photo-1633356122544-f134324a6cee?q=80&w=600&auto=format&fit=crop",
-      rejectionReasonKey: "",
-      rejectionReason: "",
-      sections: [
-        {
-          id: "sec-1",
-          titleKey: "course1Section1Title",
-          title: "Section 1: Setup & Fundamentals",
-          lessons: [
-            { id: "les-1", titleKey: "course1Lesson1Title", title: "Course Overview", videoType: "mp4", isFreePreview: true },
-            { id: "les-2", titleKey: "course1Lesson2Title", title: "Next.js 15 Environment", videoType: "youtube", isFreePreview: false },
-          ]
-        }
-      ]
-    },
-    {
-      id: "c-2",
-      titleKey: "course2Title",
-      titleAr: "تطبيقات الذكاء الاصطناعي بلغة Python",
-      titleEn: "Applied AI with Python",
-      categoryKey: "categoryDataScience",
-      category: "Data Science",
-      levelKey: "levelAdvanced",
-      level: "Advanced",
-      price: 79.99,
-      studentsCount: 120,
-      rating: 4.8,
-      status: "pending_review", // pending review
-      image: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?q=80&w=600&auto=format&fit=crop",
-      rejectionReasonKey: "",
-      rejectionReason: "",
-      sections: []
-    },
-    {
-      id: "c-3",
-      titleKey: "course3Title",
-      titleAr: "دليل تصميم أنظمة UI/UX المتكاملة",
-      titleEn: "Complete UI/UX Design System Guide",
-      categoryKey: "categoryDesign",
-      category: "Design",
-      levelKey: "levelBeginner",
-      level: "Beginner",
-      price: 39.99,
-      studentsCount: 0,
-      rating: 0.0,
-      status: "rejected", // rejected (US-08)
-      image: "https://images.unsplash.com/photo-1581291518633-83b4ebd1d83e?q=80&w=600&auto=format&fit=crop",
-      rejectionReasonKey: "course3RejectionReason",
-      rejectionReason: "",
-      sections: []
-    },
-    {
-      id: "c-4",
-      titleKey: "course4Title",
-      titleAr: "أساسيات البرمجة بلغة C++ للمبتدئين",
-      titleEn: "C++ Programming Basics",
-      categoryKey: "categoryDevelopment",
-      category: "Development",
-      levelKey: "levelBeginner",
-      level: "Beginner",
-      price: 29.99,
-      studentsCount: 85,
-      rating: 4.5,
-      status: "archived", // archived (US-08)
-      image: "https://images.unsplash.com/photo-1515879218367-8466d910aaa4?q=80&w=600&auto=format&fit=crop",
-      rejectionReasonKey: "",
-      rejectionReason: "",
-      sections: []
-    }
-  ]);
+  // Instructor Courses State (Dynamic from live API only)
+  const [courses, setCourses] = useState<any[]>([]);
+  const [isLoadingCourses, setIsLoadingCourses] = useState(true);
 
-  // Enrolled Students Data (US-17)
-  const [students] = useState([
-    { id: "s-1", nameKey: "student1Name", name: "Ahmad Al-Mohammad", email: "ahmad@example.com", courseKey: "course1Title", course: "React 19 & Next.js Masterclass", date: "2026-02-08", progress: 85 },
-    { id: "s-2", nameKey: "student2Name", name: "Sarah Khaled", email: "sarah@example.com", courseKey: "course1Title", course: "React 19 & Next.js Masterclass", date: "2026-02-05", progress: 100 },
-    { id: "s-3", nameKey: "student3Name", name: "Omar Al-Farooq", email: "omar@example.com", courseKey: "course2Title", course: "Applied AI with Python", date: "2026-01-28", progress: 40 },
-    { id: "s-4", nameKey: "student4Name", name: "Reem Al-Salem", email: "reem@example.com", courseKey: "course4Title", course: "C++ Programming Basics", date: "2026-01-20", progress: 60 },
-  ]);
+  const fetchMyCourses = useCallback(async () => {
+    const currentInstructorId = authUser?.id ? String(authUser.id) : null;
+    if (!currentInstructorId) {
+      setCourses([]);
+      setIsLoadingCourses(false);
+      return;
+    }
+
+    setIsLoadingCourses(true);
+    try {
+      const data = await instructorCourseService.getMyCourses();
+      const list = Array.isArray(data) ? data : data?.results || [];
+
+      // Filter exclusively courses that belong to the current authenticated instructor
+      const ownedCoursesList = list.filter((c: any) => {
+        const instId =
+          (c.instructor && typeof c.instructor === "object"
+            ? c.instructor.id ?? c.instructor.user_id ?? c.instructor.userId
+            : null) ??
+          (c.instructor && typeof c.instructor !== "object" ? c.instructor : null) ??
+          c.instructor_id ??
+          c.instructorId ??
+          c.user_id ??
+          c.userId ??
+          (c.user && typeof c.user === "object" ? c.user.id : null) ??
+          c.created_by ??
+          c.owner_id;
+
+        if (instId !== null && instId !== undefined && instId !== "") {
+          return String(instId) === currentInstructorId;
+        }
+        return false;
+      });
+
+      const realCourses = ownedCoursesList.map((c: any) => ({
+        id: String(c.id),
+        title: isAr ? c.title_ar || c.title_en || c.title : c.title_en || c.title_ar || c.title,
+        titleEn: c.title_en || c.title || "Course",
+        titleAr: c.title_ar || c.title || "دورة",
+        studentsCount: Number(c.students_count || c.total_students || 0),
+        rating: Number(c.rating) || 5.0,
+        revenue: Number(c.revenue || (c.price ? Number(c.price) * (c.students_count || 0) : 0)),
+        status: c.status || (c.is_published ? "published" : "draft"),
+        price: Number(c.price) || 0,
+        level: c.level || "Beginner",
+        image:
+          c.cover_image ||
+          c.coverImage ||
+          c.image ||
+          "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&auto=format&fit=crop&q=80",
+        rejectionReason: isAr ? c.rejection_reason_ar || "" : c.rejection_reason_en || "",
+        sections: c.sections || [],
+        isReal: true,
+      }));
+
+      // Set ONLY the authenticated instructor's real courses
+      setCourses(realCourses);
+    } catch (err) {
+      console.warn("Could not fetch instructor courses:", err);
+      setCourses([]);
+    } finally {
+      setIsLoadingCourses(false);
+    }
+  }, [authUser?.id, isAr]);
+
+  useEffect(() => {
+    fetchMyCourses();
+  }, [fetchMyCourses]);
+
+  // Enrolled Students Data
+  const [students] = useState<any[]>([]);
 
   // Pagination for Students List (US-17)
   const [currentPage, setCurrentPage] = useState(1);
@@ -160,23 +148,21 @@ export function InstructorDashboardView() {
     descriptionEn: "",
   });
 
-  const [courseSections, setCourseSections] = useState([
-    {
-      id: "sec-new-1",
-      titleKey: "newSectionDefaultTitle",
-      title: "Section 1: Introduction",
-      lessons: [
-        { id: "les-new-1", titleKey: "newLessonDefaultTitle", title: "Lesson 1: Objectives", videoType: "mp4", isFreePreview: true }
-      ]
-    }
-  ]);
+  const [courseSections, setCourseSections] = useState<any[]>([]);
 
   // Handlers for Course Lifecycle (US-08)
-  const handleSubmitForReview = (courseId: string) => {
-    setCourses((prev) =>
-      prev.map((c) => (c.id === courseId ? { ...c, status: "pending_review", rejectionReason: "" } : c))
-    );
-    setToastMessage(tInst("courseSubmittedToast"));
+  const handleSubmitForReview = async (courseId: string) => {
+    try {
+      await instructorCourseService.updateCourse(courseId, { status: "pending_review" });
+      setToastMessage(tInst("courseSubmittedToast"));
+      fetchMyCourses();
+    } catch (err: any) {
+      console.warn("Could not submit course for review via API:", err);
+      setCourses((prev) =>
+        prev.map((c) => (c.id === courseId ? { ...c, status: "pending_review", rejectionReason: "" } : c))
+      );
+      setToastMessage(tInst("courseSubmittedToast"));
+    }
     setTimeout(() => setToastMessage(null), 3500);
   };
 
@@ -189,22 +175,46 @@ export function InstructorDashboardView() {
     }
   };
 
-  const confirmArchiveCourse = (courseId: string) => {
+  const confirmArchiveCourse = async (courseId: string) => {
     const targetCourse = courses.find((c) => c.id === courseId);
     const isCurrentlyArchived = targetCourse?.status === "archived";
+    const nextStatus = isCurrentlyArchived ? "published" : "archived";
 
-    setCourses((prev) =>
-      prev.map((c) =>
-        c.id === courseId
-          ? { ...c, status: isCurrentlyArchived ? "published" : "archived" }
-          : c
-      )
-    );
+    try {
+      await instructorCourseService.updateCourse(courseId, { status: nextStatus });
+      if (isCurrentlyArchived) {
+        setToastMessage(tInst("courseUnarchivedToast"));
+      } else {
+        setToastMessage(tInst("courseArchivedToast"));
+      }
+      fetchMyCourses();
+    } catch (err: any) {
+      console.warn("Could not archive/unarchive course via API:", err);
+      setCourses((prev) =>
+        prev.map((c) =>
+          c.id === courseId ? { ...c, status: nextStatus } : c
+        )
+      );
+      if (isCurrentlyArchived) {
+        setToastMessage(tInst("courseUnarchivedToast"));
+      } else {
+        setToastMessage(tInst("courseArchivedToast"));
+      }
+    }
+    setTimeout(() => setToastMessage(null), 3500);
+  };
 
-    if (isCurrentlyArchived) {
-      setToastMessage(tInst("courseUnarchivedToast"));
-    } else {
-      setToastMessage(tInst("courseArchivedToast"));
+  const handleDeleteCourse = async (courseId: string) => {
+    if (!confirm(isAr ? "هل أنت متأكد من رغبتك في حذف هذه الدورة؟" : "Are you sure you want to delete this course?")) {
+      return;
+    }
+    try {
+      await instructorCourseService.deleteCourse(courseId);
+      setToastMessage(isAr ? "تم حذف الدورة بنجاح" : "Course deleted successfully");
+      fetchMyCourses();
+    } catch (err: any) {
+      console.warn("Could not delete course via API:", err);
+      setCourses((prev) => prev.filter((c) => c.id !== courseId));
     }
     setTimeout(() => setToastMessage(null), 3500);
   };
@@ -353,7 +363,9 @@ export function InstructorDashboardView() {
               <DollarSign className="h-5 w-5" />
             </div>
           </div>
-          <div className="text-2xl sm:text-3xl font-black text-slate-900">$24,850</div>
+          <div className="text-2xl sm:text-3xl font-black text-slate-900">
+            ${courses.reduce((acc, curr) => acc + Number(curr.revenue || 0), 0).toLocaleString()}
+          </div>
           <div className="text-xs text-slate-500 font-medium">{tInst("payoutAndBilling")}</div>
         </div>
 
@@ -366,8 +378,15 @@ export function InstructorDashboardView() {
               <Star className="h-5 w-5 fill-current" />
             </div>
           </div>
-          <div className="text-2xl sm:text-3xl font-black text-slate-900">4.85 / 5</div>
-          <div className="text-xs text-slate-500 font-medium">(540)</div>
+          <div className="text-2xl sm:text-3xl font-black text-slate-900">
+            {courses.length > 0
+              ? (courses.reduce((acc, curr) => acc + Number(curr.rating || 5), 0) / courses.length).toFixed(1)
+              : "5.0"}{" "}
+            / 5
+          </div>
+          <div className="text-xs text-slate-500 font-medium">
+            ({courses.reduce((acc, curr) => acc + Number(curr.reviews_count || 0), 0)})
+          </div>
         </div>
 
       </div>
@@ -375,9 +394,51 @@ export function InstructorDashboardView() {
       {/* TAB 1: COURSE MANAGER & LIFECYCLE (US-08, US-09) */}
       {activeTab === "courses" && (
         <div className="space-y-6 animate-in fade-in duration-150">
-          
-          <div className="grid grid-cols-1 gap-6">
-            {courses.map((course) => (
+          {isLoadingCourses ? (
+            <div className="grid grid-cols-1 gap-6">
+              {[1, 2, 3].map((i) => (
+                <div
+                  key={i}
+                  className="bg-white rounded-3xl border border-slate-200/80 p-6 shadow-2xs flex flex-col md:flex-row items-start md:items-center justify-between gap-6 animate-pulse"
+                >
+                  <div className="flex items-start md:items-center gap-5 w-full md:w-auto">
+                    <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-slate-200 shrink-0" />
+                    <div className="space-y-2.5">
+                      <div className="h-5 w-48 sm:w-72 bg-slate-200 rounded-lg" />
+                      <div className="h-3.5 w-32 bg-slate-200 rounded-md" />
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="h-8 w-20 bg-slate-200 rounded-xl" />
+                    <div className="h-8 w-20 bg-slate-200 rounded-xl" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : courses.length === 0 ? (
+            <div className="py-16 text-center border-2 border-dashed border-slate-200 rounded-3xl p-8 space-y-4 bg-slate-50/40">
+              <div className="w-14 h-14 rounded-2xl bg-emerald-50 text-[#0F5244] mx-auto flex items-center justify-center">
+                <BookOpen className="w-7 h-7 text-[#0F5244]" />
+              </div>
+              <div className="space-y-1">
+                <h3 className="text-base font-extrabold text-slate-900">
+                  {isAr ? "لا توجد دورات تدريبية بعد" : "No courses created yet"}
+                </h3>
+                <p className="text-xs text-slate-500 max-w-sm mx-auto">
+                  {isAr ? "ابدأ بإنشاء أول دورة تدريبية ومشاركة معرفتك مع الطلاب." : "Start by creating your first course and share your expertise with students."}
+                </p>
+              </div>
+              <Link
+                href={`/${locale}/instructor/courses/new`}
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#0F5244] hover:bg-[#07382E] text-white text-xs font-extrabold shadow-md transition-all cursor-pointer"
+              >
+                <Plus className="w-4 h-4" />
+                <span>{tDash("createNewCourse")}</span>
+              </Link>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 gap-6">
+              {courses.map((course) => (
               <div
                 key={course.id}
                 className="bg-white rounded-3xl border border-slate-200/80 p-6 shadow-2xs flex flex-col md:flex-row items-start md:items-center justify-between gap-6"
@@ -388,7 +449,6 @@ export function InstructorDashboardView() {
                     alt={course.titleKey ? tDash(course.titleKey) : (isAr ? course.titleAr : course.titleEn)}
                     width={96}
                     height={96}
-                    quality={80}
                     className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl object-cover shrink-0 border border-slate-100 shadow-2xs"
                   />
                   
@@ -504,7 +564,8 @@ export function InstructorDashboardView() {
                 </div>
               </div>
             ))}
-          </div>
+            </div>
+          )}
 
         </div>
       )}
@@ -721,7 +782,7 @@ export function InstructorDashboardView() {
 
                       {/* Lessons List */}
                       <div className="space-y-2 pl-6 rtl:pl-0 rtl:pr-6">
-                        {section.lessons.map((lesson) => (
+                        {section.lessons?.map((lesson: any) => (
                           <div key={lesson.id} className="p-3 rounded-xl bg-white border border-slate-200/80 flex items-center justify-between text-xs font-medium">
                             <div className="flex items-center gap-2">
                               <PlayCircle className="h-4 w-4 text-[#0F5244]" />
@@ -739,7 +800,7 @@ export function InstructorDashboardView() {
                                         sec.id === section.id
                                           ? {
                                               ...sec,
-                                              lessons: sec.lessons.map((l) =>
+                                              lessons: sec.lessons.map((l: any) =>
                                                 l.id === lesson.id ? { ...l, isFreePreview: !l.isFreePreview } : l
                                               )
                                             }

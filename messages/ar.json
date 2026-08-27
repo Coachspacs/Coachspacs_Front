@@ -792,7 +792,14 @@
         "Marketing": "التسويق",
         "Design": "التصميم",
         "Development": "البرمجة والتطوير",
-        "Data Science": "علوم البيانات"
+        "Data Science": "علوم البيانات",
+        "Business Coaching": "تدريب الأعمال",
+        "Career Coaching": "التوجيه المهني",
+        "Fitness Coaching": "تدريب اللياقة البدنية",
+        "Life & Mindfulness": "تطوير الذات واليقظة الذهنية",
+        "Nutrition": "التغذية الصحية",
+        "Programming": "البرمجة والتطوير",
+        "Public Speaking": "الخطابة والتحدث أمام الجمهور"
       }
     },
     "card": {

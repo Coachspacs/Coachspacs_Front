@@ -21,7 +21,10 @@ export function StudentLayoutClient({ children }: { children: React.ReactNode })
   const { user, isAuthenticated } = useSelector((state: RootState) => state.auth);
   const [checkingAuth, setCheckingAuth] = React.useState(true);
 
+  const [mounted, setMounted] = React.useState(false);
+
   React.useEffect(() => {
+    setMounted(true);
     const localToken = typeof window !== "undefined" ? localStorage.getItem("token") : null;
     const localUserStr = typeof window !== "undefined" ? localStorage.getItem("user") : null;
     let localUser = null;
@@ -72,10 +75,10 @@ export function StudentLayoutClient({ children }: { children: React.ReactNode })
     );
   }
 
-  const fullName = user?.fullName || user?.name || (isAr ? "طالب كوتش سبيس" : "Student User");
-  const email = user?.email || "student@coachspace.com";
-  const avatarPreview = user?.avatar || null;
-  const headline = user?.headline || tStudent("defaultHeadline");
+  const fullName = (mounted ? user?.fullName || user?.name : "") || (isAr ? "طالب كوتش سبيس" : "Student User");
+  const email = (mounted ? user?.email : "") || "student@coachspace.com";
+  const avatarPreview = mounted ? user?.avatar || null : null;
+  const headline = (mounted ? user?.headline : "") || tStudent("defaultHeadline");
 
   return (
     <div className="min-h-screen bg-[#FAFCFB] flex flex-col font-sans">
@@ -94,11 +97,12 @@ export function StudentLayoutClient({ children }: { children: React.ReactNode })
                       alt="Profile"
                       width={64}
                       height={64}
-                      unoptimized={avatarPreview.startsWith("data:") || avatarPreview.startsWith("blob:")}
                       className="w-full h-full object-cover"
                     />
                   ) : (
-                    <span className="font-black text-xl text-[#0F5244]">{fullName.charAt(0)}</span>
+                    <span className="font-black text-xl text-[#0F5244]">
+                      {(mounted ? fullName : "S").trim().charAt(0).toUpperCase()}
+                    </span>
                   )}
                 </div>
                 <span className="absolute bottom-0 right-0 rtl:right-auto rtl:left-0 w-3.5 h-3.5 bg-emerald-500 border-2 border-white rounded-full" />
@@ -106,7 +110,9 @@ export function StudentLayoutClient({ children }: { children: React.ReactNode })
 
               <div className="space-y-0.5">
                 <div className="flex items-center justify-center sm:justify-start gap-2 flex-wrap">
-                  <h1 className="text-base sm:text-lg font-black text-slate-900">{fullName}</h1>
+                  <h1 className="text-base sm:text-lg font-black text-slate-900">
+                    {fullName}
+                  </h1>
                   <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-[#0F5244] text-[10px] font-extrabold">
                     {tWs("studentAccount")}
                   </span>

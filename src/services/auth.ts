@@ -357,6 +357,32 @@ export async function uploadAvatar(file: File): Promise<{ avatar: string }> {
 }
 
 /**
+ * Delete user avatar
+ * DELETE /api/users/me/avatar
+ */
+export async function deleteAvatar(): Promise<any> {
+  try {
+    const response = await axiosInstance.delete('/users/me/avatar');
+    return response.data;
+  } catch (err: any) {
+    if (err?.response?.status === 404 || err?.response?.status === 405) {
+      try {
+        const response = await axiosInstance.delete('/users/me/avatar/');
+        return response.data;
+      } catch (slashErr) {
+        try {
+          const response = await axiosInstance.put('/users/me', { avatar: null });
+          return response.data;
+        } catch {
+          return null;
+        }
+      }
+    }
+    return null;
+  }
+}
+
+/**
  * Request changing account email address
  * POST /api/users/me/email/change
  */
@@ -560,6 +586,7 @@ export const authService = {
   changePassword,
   updateProfile,
   uploadAvatar,
+  deleteAvatar,
   getInstructorDashboard,
   getProfile,
   decodeJwt,

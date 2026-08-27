@@ -1,5 +1,4 @@
 import { PublicInstructor } from "@/types/publicInstructor";
-import { MOCK_COURSES } from "./mockCatalogData";
 
 export const MOCK_INSTRUCTORS: PublicInstructor[] = [
   {
@@ -66,7 +65,7 @@ export const MOCK_INSTRUCTORS: PublicInstructor[] = [
     reviewsCountFormatted: "3.4k",
     totalStudents: 28400,
     totalStudentsFormatted: "28.4k",
-    totalCourses: 4,
+    totalCourses: 0,
     experienceYears: 14,
     socials: {
       website: "https://example.com/dr-tariq",
@@ -102,34 +101,7 @@ export const MOCK_INSTRUCTORS: PublicInstructor[] = [
       stars2: 1,
       stars1: 0
     },
-    reviews: [
-      {
-        id: "rev-1",
-        studentName: "Omar Al-Farsi",
-        studentNameAr: "عمر الفارسي",
-        avatar: undefined,
-        rating: 5,
-        date: "2 weeks ago",
-        dateAr: "منذ أسبوعين",
-        comment: "Dr. Tariq's Next.js course is the most thorough and well-explained course I have ever taken. The architecture concepts directly helped me pass my Senior Frontend interview.",
-        commentAr: "دورة د. طارق في Next.js من أعمق وأشمل الدورات التي درستها. المفاهيم المعمارية والتطبيقية ساعدتني مباشرة في اجتياز مقابلة مهندس أول للواجهات.",
-        courseTitle: "Next.js 15 & React 19 Fullstack Masterclass",
-        courseTitleAr: "تطوير تطبيقات الويب الحديثة باستخدام Next.js 15"
-      },
-      {
-        id: "rev-2",
-        studentName: "Nadine Mansour",
-        studentNameAr: "نادين منصور",
-        avatar: undefined,
-        rating: 5,
-        date: "1 month ago",
-        dateAr: "منذ شهر",
-        comment: "Clear explanations, top-tier video quality, and responsive mentorship in Q&A. Highly recommended for any serious engineer.",
-        commentAr: "شرح واضح جداً وجودة إنتاج استثنائية مع تفاعل مستمر في الرد على الاستفسارات. أنصح به بشدة لأي مهندس يرغب في الارتقاء بمستواه.",
-        courseTitle: "Corporate Strategy & Competitive Advantage",
-        courseTitleAr: "الاستراتيجية المؤسسية والميزة التنافسية"
-      }
-    ],
+    reviews: [],
   },
   {
     id: "inst-sarah-jenkins",
@@ -159,7 +131,7 @@ export const MOCK_INSTRUCTORS: PublicInstructor[] = [
     reviewsCountFormatted: "1.2k",
     totalStudents: 16500,
     totalStudentsFormatted: "16.5k",
-    totalCourses: 3,
+    totalCourses: 0,
     experienceYears: 12,
     socials: {
       website: "https://example.com/dr-sarah",
@@ -214,7 +186,7 @@ export const MOCK_INSTRUCTORS: PublicInstructor[] = [
     reviewsCountFormatted: "3.1k",
     totalStudents: 22000,
     totalStudentsFormatted: "22k",
-    totalCourses: 3,
+    totalCourses: 0,
     experienceYears: 10,
     socials: {
       website: "https://example.com/sophia",
@@ -254,7 +226,7 @@ export const MOCK_INSTRUCTORS: PublicInstructor[] = [
     reviewsCountFormatted: "1.8k",
     totalStudents: 15400,
     totalStudentsFormatted: "15.4k",
-    totalCourses: 2,
+    totalCourses: 0,
     experienceYears: 13,
     socials: {
       github: "https://github.com/alexrivera",
@@ -348,20 +320,13 @@ export function getPublicInstructorByIdOrSlug(idOrSlug: string): PublicInstructo
   // 3. Fallback: generate a dynamic instructor profile based on name or first default
   let resolvedInstructor: PublicInstructor;
   if (!foundInstructor) {
-    const matchingCourse = MOCK_COURSES.find(
-      (c) =>
-        normalizeInstructorSlug(c.instructorName || "") === normalized ||
-        (c.instructorName && c.instructorName.toLowerCase().includes(idOrSlug.toLowerCase()))
-    );
-
     const rawName = idOrSlug.replace(/^inst-/, "").replace(/-/g, " ");
     const displayName =
-      matchingCourse?.instructorName ||
       rawName
         .split(" ")
         .map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
         .join(" ");
-    const displayNameAr = matchingCourse?.instructorNameAr || displayName;
+    const displayNameAr = displayName;
 
     resolvedInstructor = {
       id: `inst-${normalized}`,
@@ -381,21 +346,21 @@ export function getPublicInstructorByIdOrSlug(idOrSlug: string): PublicInstructo
       aboutParagraphsAr: [
         "متخصص في التدريب التفاعلي الموجه نحو النتائج وتزويد الطلاب بالمهارات الحقيقية المطلوبة في سوق العمل."
       ],
-      specialization: matchingCourse?.category || "Professional Development",
-      specializationAr: matchingCourse?.categoryAr || "التطوير المهني",
-      rating: matchingCourse?.rating || 4.9,
-      reviewsCount: matchingCourse?.reviewsCount || 450,
-      reviewsCountFormatted: matchingCourse?.reviewsCountFormatted || "450",
+      specialization: "Professional Development",
+      specializationAr: "التطوير المهني",
+      rating: 4.9,
+      reviewsCount: 450,
+      reviewsCountFormatted: "450",
       totalStudents: 5400,
       totalStudentsFormatted: "5.4k",
-      totalCourses: 1,
+      totalCourses: 0,
       experienceYears: 8,
       socials: {
         linkedin: "https://linkedin.com",
         email: "contact@coachspace.com"
       },
-      skills: [matchingCourse?.category || "Leadership", "Coaching", "Mentorship"],
-      skillsAr: [matchingCourse?.categoryAr || "القيادة", "التدريب", "التوجيه المهني"],
+      skills: ["Leadership", "Coaching", "Mentorship"],
+      skillsAr: ["القيادة", "التدريب", "التوجيه المهني"],
       highlights: [
         {
           id: "dh1",
@@ -420,20 +385,7 @@ export function getPublicInstructorByIdOrSlug(idOrSlug: string): PublicInstructo
   }
 
   // Attach only actual matching courses for this instructor
-  const instructorCourses = MOCK_COURSES.filter((c) => {
-    if (!c.instructorName) return false;
-    const courseInstSlug = normalizeInstructorSlug(c.instructorName);
-    const courseInstSlugAr = normalizeInstructorSlug(c.instructorNameAr || "");
-    const targetSlug = resolvedInstructor.slug;
-    const targetName = (resolvedInstructor.name || "").toLowerCase().trim();
-    const courseInstName = c.instructorName.toLowerCase().trim();
-    return (
-      courseInstSlug === targetSlug ||
-      courseInstSlugAr === targetSlug ||
-      (targetName.length > 3 && courseInstName.includes(targetName)) ||
-      (targetName.length > 3 && targetName.includes(courseInstName))
-    );
-  });
+  const instructorCourses = resolvedInstructor.courses || [];
 
   // Apply any custom runtime/local overrides from profile settings
   const overrides = getSavedInstructorOverrides(resolvedInstructor.id || resolvedInstructor.slug);

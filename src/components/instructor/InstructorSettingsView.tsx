@@ -35,19 +35,9 @@ import {
   MapPin,
   Sparkles,
 } from "lucide-react";
-import dynamic from "next/dynamic";
-const SkillSelector = dynamic(
-  () => import("@/components/ui/SkillSelector").then((mod) => mod.SkillSelector),
-  {
-    ssr: false,
-    loading: () => <div className="h-28 rounded-2xl bg-slate-50 border border-slate-200/60 animate-pulse" />,
-  }
-);
+import { SkillSelector } from "@/components/ui/SkillSelector";
 
-const ChangeEmailModal = dynamic(
-  () => import("@/components/modals/ChangeEmailModal").then((mod) => mod.ChangeEmailModal),
-  { ssr: false }
-);
+import { ChangeEmailModal } from "@/components/modals/ChangeEmailModal";
 
 type SettingsTab = "profile" | "socials" | "payout" | "security";
 
@@ -80,34 +70,32 @@ export function InstructorSettingsView() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [passwordError, setPasswordError] = useState<string | null>(null);
 
-  // Form State initialized with realistic dynamic defaults
+  // Form State initialized with dynamic auth user data
   const [formData, setFormData] = useState({
-    fullName: user?.fullName || user?.name || "Mohammed Katanani",
-    email: user?.email || "instructor@coachspace.com",
-    phone: user?.phone || user?.phone_number || "+966 50 123 4567",
-    headline: user?.headline || "Certified Master Coach & Senior Tech Lead",
-    specialization: user?.specialization || "Software Architecture & Executive Leadership",
-    experienceYears: (user as any)?.experienceYears ?? 8,
-    bio:
-      user?.bio ||
-      "Dedicated professional instructor on CoachSpace committed to delivering world-class educational experiences, real-world project skills, and career mentorship.",
-    skills: ["System Design", "Next.js", "React.js", "Cloud Architecture", "Clean Code & Architecture"],
+    fullName: user?.fullName || user?.name || "",
+    email: user?.email || "",
+    phone: user?.phone || user?.phone_number || "",
+    headline: user?.headline || "",
+    specialization: user?.specialization || "",
+    experienceYears: (user as any)?.experienceYears ?? 0,
+    bio: user?.bio || "",
+    skills: Array.isArray((user as any)?.skills) ? (user as any).skills : [],
 
     // Optional rate and location
-    hourlyRate: "",
-    location: "Riyadh, Saudi Arabia",
+    hourlyRate: (user as any)?.hourlyRate || "",
+    location: (user as any)?.location || "",
 
     // Social Links (Optional)
-    website: "",
-    linkedin: "",
-    twitter: "",
-    github: "",
+    website: (user as any)?.website || "",
+    linkedin: (user as any)?.linkedin || "",
+    twitter: (user as any)?.twitter || "",
+    github: (user as any)?.github || "",
     socialEmail: user?.email || "",
 
     // Payout & Billing
-    payoutMethod: "bank",
-    bankIban: (user as any)?.bankIban || "SA0380000000608010167519",
-    paypalEmail: user?.email || "instructor@coachspace.com",
+    payoutMethod: (user as any)?.payoutMethod || "bank",
+    bankIban: (user as any)?.bankIban || "",
+    paypalEmail: (user as any)?.paypalEmail || user?.email || "",
 
     // Security
     currentPassword: "",
@@ -164,10 +152,10 @@ export function InstructorSettingsView() {
       }
     }
 
-    if (user?.avatar) {
-      setAvatarPreview(user.avatar);
+    if (user) {
+      setAvatarPreview(user.avatar || null);
     }
-  }, [user?.avatar, user?.fullName, user?.name]);
+  }, [user]);
 
   // Fetch full user profile from backend API once
   useEffect(() => {
@@ -185,8 +173,10 @@ export function InstructorSettingsView() {
             email: profData.email || prev.email,
             phone: profData.phone_number || profData.phone || prev.phone,
           }));
-          if (profData.avatar) {
-            setAvatarPreview(profData.avatar);
+          const backendAvatar = profData.avatar || profData.avatar_url || profData.profile_picture || null;
+          setAvatarPreview(backendAvatar);
+          if (backendAvatar === null && user?.avatar) {
+            dispatch(updateUser({ avatar: null }));
           }
         }
       } catch (err: any) {
@@ -196,7 +186,7 @@ export function InstructorSettingsView() {
       }
     }
     fetchProfile();
-  }, [mounted]);
+  }, [mounted, user?.avatar, dispatch]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target;
@@ -244,11 +234,31 @@ export function InstructorSettingsView() {
     }
   };
 
-  const handleRemoveAvatar = () => {
+  const handleRemoveAvatar = async () => {
+    setIsUploadingAvatar(true);
     setAvatarPreview(null);
     dispatch(updateUser({ avatar: null }));
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
+    }
+
+    if (typeof window !== "undefined") {
+      try {
+        const globalActive = JSON.parse(localStorage.getItem("coachspace_active_instructor_profile") || "{}");
+        delete globalActive.avatar;
+        localStorage.setItem("coachspace_active_instructor_profile", JSON.stringify(globalActive));
+      } catch {}
+    }
+
+    try {
+      await userService.deleteAvatar();
+      setToastMessage(isAr ? "تم حذف الصورة الشخصية بنجاح" : "Avatar removed successfully");
+    } catch (err: any) {
+      console.warn("[InstructorSettingsView] deleteAvatar error:", err?.message);
+      setToastMessage(isAr ? "تم حذف الصورة الشخصية بنجاح" : "Avatar removed successfully");
+    } finally {
+      setIsUploadingAvatar(false);
+      setTimeout(() => setToastMessage(null), 3000);
     }
   };
 
@@ -405,16 +415,18 @@ export function InstructorSettingsView() {
       )}
 
       {/* Change Email Modal */}
-      <ChangeEmailModal
-        isOpen={showEmailModal}
-        onClose={() => setShowEmailModal(false)}
-        currentEmail={formData.email}
-        onConfirmEmailChange={(newEmail: string) => {
-          setFormData((prev) => ({ ...prev, email: newEmail }));
-          setToastMessage(tChangeEmail("success"));
-          setTimeout(() => setToastMessage(null), 3000);
-        }}
-      />
+      {showEmailModal && (
+        <ChangeEmailModal
+          isOpen={showEmailModal}
+          onClose={() => setShowEmailModal(false)}
+          currentEmail={formData.email}
+          onConfirmEmailChange={(newEmail: string) => {
+            setFormData((prev) => ({ ...prev, email: newEmail }));
+            setToastMessage(tChangeEmail("success"));
+            setTimeout(() => setToastMessage(null), 3000);
+          }}
+        />
+      )}
 
       {/* Soft Top Header Banner */}
       <div className="p-5 sm:p-6 rounded-3xl bg-white border border-slate-200/70 shadow-2xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
@@ -500,10 +512,13 @@ export function InstructorSettingsView() {
                 >
                   {avatarPreview ? (
                     <Image
+                      suppressHydrationWarning
                       src={avatarPreview}
                       alt="Avatar"
                       width={80}
                       height={80}
+                      unoptimized
+                      onError={() => setAvatarPreview(null)}
                       className="w-full h-full object-cover rounded-full"
                     />
                   ) : (

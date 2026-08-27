@@ -22,7 +22,7 @@ export function Footer({ lang, variant = "main" }: FooterProps) {
             {/* Copyright with Green Dot */}
             <div className="flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-[#0F5244] shrink-0" />
-              <span>© {new Date().getFullYear()} Coach Space Platform. All rights reserved.</span>
+              <span suppressHydrationWarning>© {new Date().getFullYear()} Coach Space Platform. All rights reserved.</span>
             </div>
 
             {/* Privacy Policy & Terms Links */}
@@ -127,7 +127,7 @@ export function Footer({ lang, variant = "main" }: FooterProps) {
 
         {/* Bottom Bar */}
         <div className="border-t border-emerald-800/60 py-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs sm:text-sm font-medium text-emerald-200/70">
-          <p>© {new Date().getFullYear()} {t("rights")}</p>
+          <p suppressHydrationWarning>© {new Date().getFullYear()} {t("rights")}</p>
 
           <div className="flex items-center gap-6">
             <Link href="#privacy" className="hover:text-white transition-colors">

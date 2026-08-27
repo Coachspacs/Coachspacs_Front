@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { Mail, X, Send, AlertCircle, CheckCircle2, Loader2 } from "lucide-react";
-import { authService, getApiErrorMessage } from "@/services/auth";
+import { userService } from "@/services/userService";
 
 export interface ChangeEmailModalProps {
   isOpen: boolean;
@@ -53,8 +53,7 @@ export function ChangeEmailModal({
     e.preventDefault();
     setError(null);
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!newEmail || !emailRegex.test(newEmail)) {
+    if (!newEmail || !newEmail.includes("@")) {
       setError(t("invalidEmailError"));
       return;
     }
@@ -67,17 +66,17 @@ export function ChangeEmailModal({
     setIsSending(true);
 
     try {
-      const res = await authService.requestEmailChange(newEmail.trim());
+      const res = await userService.requestEmailChange(newEmail.trim());
       setIsSending(false);
       setIsSuccess(true);
       const detailMsg = Array.isArray(res?.detail) ? res.detail.join(' ') : res?.detail;
       setSuccessMessage(
         res?.message ||
-          detailMsg ||
-          t("success") ||
-          (isAr
-            ? "تم إرسال رابط تأكيد التفعيل إلى بريدك الإلكتروني الجديد بنجاح."
-            : "Verification link has been sent to the new email address successfully.")
+        detailMsg ||
+        t("success") ||
+        (isAr
+          ? "تم إرسال رابط تأكيد التفعيل إلى بريدك الإلكتروني الجديد بنجاح."
+          : "Verification link has been sent to the new email address successfully.")
       );
 
       if (onConfirmEmailChange) {
@@ -85,11 +84,15 @@ export function ChangeEmailModal({
       }
     } catch (err: any) {
       setIsSending(false);
-      const msg = getApiErrorMessage(
-        err,
-        isAr ? "فشل طلب تغيير البريد الإلكتروني. يرجى المحاولة مرة أخرى." : "Failed to change email. Please try again.",
-        isAr
-      );
+      const errorDetail = err?.response?.data?.detail || err?.response?.data?.message || err?.message;
+      const msg =
+        typeof errorDetail === "string"
+          ? errorDetail
+          : Array.isArray(errorDetail)
+            ? errorDetail.join(" ")
+            : isAr
+              ? "فشل طلب تغيير البريد الإلكتروني. يرجى المحاولة مرة أخرى."
+              : "Failed to change email. Please try again.";
       setError(msg);
     }
   };

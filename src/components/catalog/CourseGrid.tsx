@@ -5,16 +5,81 @@ import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { CourseCard } from "./CourseCard";
 import { Course } from "@/types/catalog";
-import { SlidersHorizontal } from "lucide-react";
+import { SlidersHorizontal, AlertCircle, RotateCcw } from "lucide-react";
 
 interface CourseGridProps {
   courses: Course[];
+  isLoading?: boolean;
+  error?: string | null;
+  onRetry?: () => void;
   onResetFilters?: () => void;
   isAr?: boolean;
 }
 
-export function CourseGrid({ courses, onResetFilters, isAr = false }: CourseGridProps) {
+export function CourseGrid({
+  courses,
+  isLoading = false,
+  error = null,
+  onRetry,
+  onResetFilters,
+  isAr = false,
+}: CourseGridProps) {
   const t = useTranslations("catalog.emptyState");
+
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center py-12 px-4 w-full text-center bg-white rounded-3xl border border-rose-100 p-8 space-y-4 shadow-sm animate-in fade-in duration-300">
+        <div className="w-14 h-14 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center mx-auto shadow-xs">
+          <AlertCircle className="w-7 h-7" />
+        </div>
+        <h2 className="text-lg sm:text-xl font-extrabold text-slate-900">
+          {isAr ? "تعذر تحميل الكورسات" : "Failed to load courses"}
+        </h2>
+        <p className="text-xs sm:text-sm text-slate-500 max-w-md mx-auto leading-relaxed">
+          {isAr
+            ? "حدث خطأ أثناء جلب الكورسات من السيرفر. يرجى التحقق من اتصالك وإعادة المحاولة."
+            : "An error occurred while fetching courses from the server. Please check your connection and try again."}
+        </p>
+        {onRetry && (
+          <button
+            type="button"
+            onClick={onRetry}
+            className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-[#0F5244] hover:bg-[#07382E] text-white text-xs sm:text-sm font-bold transition-all shadow-sm cursor-pointer active:scale-95"
+          >
+            <RotateCcw className="w-4 h-4" />
+            <span>{isAr ? "إعادة المحاولة" : "Try Again"}</span>
+          </button>
+        )}
+      </div>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {[...Array(6)].map((_, i) => (
+          <div
+            key={`skeleton-${i}`}
+            className="flex flex-col h-[380px] rounded-2xl bg-white border border-slate-200/80 shadow-2xs overflow-hidden animate-pulse"
+          >
+            <div className="w-full aspect-[16/10] bg-slate-200" />
+            <div className="flex flex-col flex-1 p-5 justify-between space-y-4">
+              <div className="space-y-2.5">
+                <div className="h-4 w-20 bg-slate-200 rounded-md" />
+                <div className="h-5 w-full bg-slate-200 rounded-md" />
+                <div className="h-4 w-3/4 bg-slate-200 rounded-md" />
+                <div className="h-4 w-1/3 bg-slate-200 rounded-md" />
+              </div>
+              <div className="flex items-center justify-between pt-2 border-t border-slate-100">
+                <div className="h-5 w-16 bg-slate-200 rounded-md" />
+                <div className="h-4 w-16 bg-slate-200 rounded-md" />
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  }
 
   if (courses.length === 0) {
     return (
@@ -28,7 +93,6 @@ export function CourseGrid({ courses, onResetFilters, isAr = false }: CourseGrid
               alt={t("headline")}
               width={224}
               height={160}
-              quality={80}
               className="w-full h-auto object-contain"
             />
           </div>

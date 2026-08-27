@@ -1,10 +1,10 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { mockCourses } from '@/lib/mockData';
+import { courseService } from '@/services/courseService';
 import { Lesson } from '@/types';
 import { Button } from '@/components/ui/Button';
 import {
@@ -16,23 +16,46 @@ import {
   X,
   Award,
   BookOpen,
+  Loader2,
+  AlertCircle,
+  ArrowLeft,
 } from 'lucide-react';
 
 export default function CoursePlayerPage() {
   const t = useTranslations('player');
   const params = useParams();
   const locale = params.locale as string;
+  const isAr = locale === 'ar';
+  const courseId = params.courseId as string;
 
-  const course = mockCourses[0];
-  const modulesList: any[] = (course as any).modules || (course as any).sections || [];
-  const allLessons: Lesson[] = modulesList.flatMap((m: any) => m.lessons) || [];
-
+  const [course, setCourse] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [activeLessonIndex, setActiveLessonIndex] = useState(0);
-  const [completedLessonIds, setCompletedLessonIds] = useState<string[]>(['les-1', 'les-2']);
+  const [completedLessonIds, setCompletedLessonIds] = useState<string[]>([]);
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
+  useEffect(() => {
+    async function load() {
+      setIsLoading(true);
+      try {
+        const data = await courseService.getCourseById(courseId);
+        if (data) {
+          setCourse(data);
+        }
+      } catch (err) {
+        console.warn('Failed to load course player details:', err);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    if (courseId) load();
+  }, [courseId]);
+
+  const modulesList: any[] = (course as any)?.modules || (course as any)?.sections || [];
+  const allLessons: Lesson[] = modulesList.flatMap((m: any) => m.lessons || []) || [];
+
   const activeLesson = allLessons[activeLessonIndex] || allLessons[0];
-  const isCurrentCompleted = completedLessonIds.includes(activeLesson.id);
+  const isCurrentCompleted = activeLesson ? completedLessonIds.includes(activeLesson.id) : false;
 
   const toggleLessonCompletion = (lessonId: string) => {
     if (completedLessonIds.includes(lessonId)) {
@@ -54,7 +77,41 @@ export default function CoursePlayerPage() {
     }
   };
 
-  const progressPercent = Math.round((completedLessonIds.length / allLessons.length) * 100);
+  const progressPercent = allLessons.length > 0
+    ? Math.round((completedLessonIds.length / allLessons.length) * 100)
+    : 0;
+
+  if (isLoading) {
+    return (
+      <div className="min-h-[calc(100vh-80px)] flex items-center justify-center bg-slate-950 text-slate-100 rounded-3xl">
+        <div className="flex flex-col items-center gap-3">
+          <Loader2 className="w-8 h-8 animate-spin text-emerald-400" />
+          <span className="text-xs font-bold">{isAr ? 'جاري تحميل مشغل الدورة...' : 'Loading course player...'}</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (!course) {
+    return (
+      <div className="min-h-[calc(100vh-80px)] flex items-center justify-center bg-slate-950 text-slate-100 rounded-3xl p-6">
+        <div className="max-w-md w-full text-center space-y-4 bg-slate-900/80 p-8 rounded-3xl border border-slate-800">
+          <AlertCircle className="w-10 h-10 text-rose-400 mx-auto" />
+          <h2 className="text-lg font-black">{isAr ? 'لم يتم العثور على الدورة' : 'Course Not Found'}</h2>
+          <p className="text-xs text-slate-400">
+            {isAr ? 'الدورة المطلوبة غير متوفرة أو لم يتم نشرها بعد.' : 'The requested course is not available or not published yet.'}
+          </p>
+          <Link
+            href={`/${locale}/courses`}
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition-all"
+          >
+            <ArrowLeft className="w-4 h-4 rtl:rotate-180" />
+            <span>{isAr ? 'تصفح الدورات' : 'Browse Courses'}</span>
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-[calc(100vh-80px)] flex flex-col lg:flex-row bg-slate-950 text-slate-100 rounded-3xl overflow-hidden shadow-2xl">

@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
-import Image from "next/image";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter, useParams, useSearchParams } from "next/navigation";
 import { useTranslations, useLocale } from "next-intl";
 import { categoryService } from "@/services/categoryService";
@@ -39,68 +39,67 @@ import { LessonVideoUploader } from "@/components/instructor/LessonVideoUploader
 
 interface Lesson {
   id: string;
-  title: string;
+  title?: string;
   title_ar?: string;
   title_en?: string;
+  titleEn?: string;
+  titleAr?: string;
   duration: string;
   duration_minutes?: number;
   video_url?: string;
+  videoUrl?: string;
   video_public_id?: string;
   is_preview?: boolean;
+  isPreview?: boolean;
   isFreePreview?: boolean;
+  isCompleted?: boolean;
   warning?: string;
 }
 
 interface Section {
   id: string;
-  title: string;
+  title?: string;
   title_ar?: string;
   title_en?: string;
+  titleEn?: string;
+  titleAr?: string;
   lessons: Lesson[];
   warning?: string;
 }
 
 export function CreateCourseStudio() {
-  const router = useRouter();
-  const params = useParams();
-  const searchParams = useSearchParams();
-  const locale = (params?.locale as string) || "en";
-  const isAr = locale === "ar";
   const t = useTranslations("courseStudio");
-
-  // Dynamic Categories from Backend
-  const [categoriesList, setCategoriesList] = useState<CategoryItem[]>([]);
-
-  // Course ID for newly created or editing course draft
+  const locale = useLocale() || "en";
+  const isAr = locale === "ar";
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const initialCourseId = searchParams?.get("courseId") || searchParams?.get("id") || "";
   const [courseId, setCourseId] = useState<string>(initialCourseId);
   const [isInitializingCourse, setIsInitializingCourse] = useState(false);
 
-  // Active Tab: "info" (Course Info) | "curriculum" (Curriculum)
+  // Main UI Tabs: 'info' | 'curriculum'
   const [activeTab, setActiveTab] = useState<"info" | "curriculum">("info");
 
-  // Form State - Basic Info
+  // Form State - Info Tab
   const [titleEn, setTitleEn] = useState("");
   const [titleAr, setTitleAr] = useState("");
   const [descEn, setDescEn] = useState("");
   const [descAr, setDescAr] = useState("");
-
-  // Attributes & Pricing
   const [category, setCategory] = useState("");
+  const [categoriesList, setCategoriesList] = useState<CategoryItem[]>([]);
   const [level, setLevel] = useState("beginner");
   const [language, setLanguage] = useState("Bilingual (EN/AR)");
   const [price, setPrice] = useState("49.00");
+  const [coverImage, setCoverImage] = useState<File | null>(null);
 
-  // Fetch dynamic categories on mount
+  // Load Categories from Backend API dynamically
   useEffect(() => {
     async function loadCategories() {
       try {
         const cats = await categoryService.getCategories(locale);
         if (Array.isArray(cats) && cats.length > 0) {
           setCategoriesList(cats);
-          if (!category) {
-            setCategory(String(cats[0].id));
-          }
+          setCategory((prev) => prev || String(cats[0].id));
         }
       } catch (err) {
         console.warn("Could not load backend categories", err);
@@ -220,34 +219,7 @@ export function CreateCourseStudio() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Curriculum Sections State
-  const [sections, setSections] = useState<Section[]>([
-    {
-      id: "sec-1",
-      title: t("defaultSectionTitle"),
-      lessons: [
-        {
-          id: "les-1",
-          title: t("defaultLessonTitle"),
-          title_en: "Welcome to the Course",
-          title_ar: "مرحباً بك في الدورة التدريبية",
-          duration: "02:15",
-          duration_minutes: 2,
-          is_preview: true,
-        },
-      ],
-    },
-    {
-      id: "sec-2",
-      title: t("defaultSectionTitle"),
-      warning: t("videoQualityWarning"),
-      lessons: [],
-    },
-    {
-      id: "sec-3",
-      title: t("defaultSectionTitle"),
-      lessons: [],
-    },
-  ]);
+  const [sections, setSections] = useState<Section[]>([]);
 
   // Lesson Edit Modal State
   const [editingLessonInfo, setEditingLessonInfo] = useState<{
@@ -799,7 +771,7 @@ export function CreateCourseStudio() {
                         alt="Course Cover"
                         width={600}
                         height={340}
-                        unoptimized={coverPreview.startsWith("data:") || coverPreview.startsWith("blob:")}
+                        unoptimized
                         className="w-full h-full object-cover"
                       />
                       <div className="absolute inset-0 bg-slate-900/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
@@ -1042,7 +1014,7 @@ export function CreateCourseStudio() {
                           alt="Cover Preview"
                           width={400}
                           height={160}
-                          unoptimized={coverPreview.startsWith("data:") || coverPreview.startsWith("blob:")}
+                          unoptimized
                           className="w-full h-full object-cover"
                         />
                         <div className="absolute inset-0 bg-slate-900/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">

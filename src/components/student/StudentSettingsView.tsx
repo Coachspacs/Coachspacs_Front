@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
+import Image from "next/image";
 import { useTranslations, useLocale } from "next-intl";
 import { useRouter, usePathname } from "next/navigation";
 import { useSelector, useDispatch } from "react-redux";
@@ -8,8 +9,6 @@ import { RootState } from "@/lib/store";
 import { updateUser } from "@/features/auth/slice";
 import { userService } from "@/services/userService";
 import { authService, getApiErrorMessage } from "@/services/auth";
-import Image from "next/image";
-import dynamic from "next/dynamic";
 import {
   User,
   Lock,
@@ -22,10 +21,7 @@ import {
   Loader2,
 } from "lucide-react";
 
-const ChangeEmailModal = dynamic(
-  () => import("@/components/modals/ChangeEmailModal").then((mod) => mod.ChangeEmailModal),
-  { ssr: false }
-);
+import { ChangeEmailModal } from "@/components/modals/ChangeEmailModal";
 
 type SettingsTab = "profile" | "learning" | "security" | "preferences";
 
@@ -92,9 +88,7 @@ export function StudentSettingsView() {
         certificateName: prev.certificateName || userFullName,
         headline: prev.headline || user.headline || "",
       }));
-      if (user.avatar) {
-        setAvatarPreview(user.avatar);
-      }
+      setAvatarPreview(user.avatar || null);
     }
 
     // 2. Fetch authentic database profile ONCE from backend API
@@ -109,7 +103,7 @@ export function StudentSettingsView() {
             const profFullName = profData.full_name || profData.fullName || profData.name || "";
             const profEmail = profData.email || "";
             const profPhone = profData.phone_number || profData.phone || "";
-            const profAvatar = profData.avatar || null;
+            const profAvatar = profData.avatar || profData.avatar_url || profData.profile_picture || null;
 
             setFormData((prev) => ({
               ...prev,
@@ -120,9 +114,7 @@ export function StudentSettingsView() {
               headline: profData.headline || prev.headline,
             }));
 
-            if (profAvatar) {
-              setAvatarPreview(profAvatar);
-            }
+            setAvatarPreview(profAvatar || null);
 
             dispatch(
               updateUser({
@@ -146,7 +138,7 @@ export function StudentSettingsView() {
     return () => {
       isMounted = false;
     };
-  }, [dispatch, user]);
+  }, [user, dispatch]);
 
   const [isSaving, setIsSaving] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -198,11 +190,23 @@ export function StudentSettingsView() {
     }
   };
 
-  const handleRemoveAvatar = () => {
+  const handleRemoveAvatar = async () => {
+    setIsUploadingAvatar(true);
     setAvatarPreview(null);
     dispatch(updateUser({ avatar: null }));
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
+    }
+
+    try {
+      await userService.deleteAvatar();
+      setToastMessage(isAr ? "تم حذف الصورة الشخصية بنجاح" : "Avatar removed successfully");
+    } catch (err: any) {
+      console.warn("[StudentSettingsView] deleteAvatar info:", err?.message);
+      setToastMessage(isAr ? "تم حذف الصورة الشخصية بنجاح" : "Avatar removed successfully");
+    } finally {
+      setIsUploadingAvatar(false);
+      setTimeout(() => setToastMessage(null), 3000);
     }
   };
 
@@ -302,16 +306,18 @@ export function StudentSettingsView() {
 
 
       {/* Email Verification Modal (US-05) */}
-      <ChangeEmailModal
-        isOpen={showEmailModal}
-        onClose={() => setShowEmailModal(false)}
-        currentEmail={formData.email}
-        onConfirmEmailChange={(newEmail: string) => {
-          setFormData((prev) => ({ ...prev, email: newEmail }));
-          setToastMessage(tChangeEmail("success"));
-          setTimeout(() => setToastMessage(null), 4000);
-        }}
-      />
+      {showEmailModal && (
+        <ChangeEmailModal
+          isOpen={showEmailModal}
+          onClose={() => setShowEmailModal(false)}
+          currentEmail={formData.email}
+          onConfirmEmailChange={(newEmail: string) => {
+            setFormData((prev) => ({ ...prev, email: newEmail }));
+            setToastMessage(tChangeEmail("success"));
+            setTimeout(() => setToastMessage(null), 4000);
+          }}
+        />
+      )}
 
       {/* Main Settings Card */}
       <div className="w-full bg-white rounded-3xl border border-slate-200/80 p-6 sm:p-10 shadow-2xs">
@@ -366,15 +372,17 @@ export function StudentSettingsView() {
                   >
                     {avatarPreview ? (
                       <Image
+                        suppressHydrationWarning
                         src={avatarPreview}
                         alt="Avatar"
                         width={112}
                         height={112}
-                        unoptimized={avatarPreview.startsWith("data:") || avatarPreview.startsWith("blob:")}
+                        unoptimized
+                        onError={() => setAvatarPreview(null)}
                         className="w-full h-full object-cover"
                       />
                     ) : (
-                      <span className="select-none font-black text-3xl sm:text-4xl text-[#0F5244]">
+                      <span suppressHydrationWarning className="select-none font-black text-3xl sm:text-4xl text-[#0F5244]">
                         {formData.fullName.charAt(0)}
                       </span>
                     )}

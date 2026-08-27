@@ -129,20 +129,9 @@ export function PublicInstructorProfileView({ instructor: initialInstructor }: P
                   "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&auto=format&fit=crop&q=80",
               }));
 
-              const fallbackSampleCourses = (initialInstructor.courses || []).filter(
-                (ic: any) =>
-                  !realCourses.some(
-                    (rc: any) =>
-                      rc.id === ic.id ||
-                      (Boolean(rc.title) &&
-                        Boolean(ic.title) &&
-                        rc.title.toLowerCase() === ic.title.toLowerCase())
-                  )
-              );
-
               return {
                 ...prev,
-                courses: [...realCourses, ...fallbackSampleCourses],
+                courses: realCourses,
               };
             });
           }
@@ -215,7 +204,7 @@ export function PublicInstructorProfileView({ instructor: initialInstructor }: P
               {t("breadcrumbHome")}
             </Link>
             <ChevronRight className="h-3.5 w-3.5 rtl:rotate-180 text-slate-300 shrink-0" />
-            <Link href={`/${locale}/catalog`} className="hover:text-[#0F5244] transition-colors">
+            <Link href={`/${locale}/courses`} className="hover:text-[#0F5244] transition-colors">
               {t("breadcrumbCatalog")}
             </Link>
             <ChevronRight className="h-3.5 w-3.5 rtl:rotate-180 text-slate-300 shrink-0" />
@@ -250,8 +239,8 @@ export function PublicInstructorProfileView({ instructor: initialInstructor }: P
                           src={instructor.avatar}
                           alt={displayName}
                           fill
-                          priority
-                          className="object-cover"
+                          sizes="112px"
+                          className="w-full h-full object-cover"
                         />
                       </div>
                     ) : (
@@ -326,7 +315,7 @@ export function PublicInstructorProfileView({ instructor: initialInstructor }: P
                 </button>
 
                 <Link
-                  href={`/${locale}/catalog`}
+                  href={`/${locale}/courses`}
                   className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-5 py-2.5 rounded-xl bg-[#0F5244] hover:bg-[#07382E] text-white text-xs font-bold transition-all shadow-xs active:scale-95"
                 >
                   <BookOpen className="h-3.5 w-3.5 text-[#45D1B4]" />
@@ -522,7 +511,7 @@ export function PublicInstructorProfileView({ instructor: initialInstructor }: P
                       </p>
                     </div>
                     <Link
-                      href={`/${locale}/catalog`}
+                      href={`/${locale}/courses`}
                       className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#0F5244] hover:bg-[#07382E] text-white text-xs font-bold transition-all shadow-2xs active:scale-95"
                     >
                       <span>{t("browseCatalog")}</span>

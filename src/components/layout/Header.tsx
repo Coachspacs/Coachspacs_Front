@@ -10,7 +10,6 @@ import {
   Globe,
   Menu,
   X,
-  User as UserIcon,
   LogOut,
   LayoutDashboard,
   ShoppingCart,
@@ -41,6 +40,7 @@ export function Header({ lang, onLanguageToggle, variant = "main" }: HeaderProps
   const isAr = locale === "ar" || lang === "AR";
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
+  const [avatarError, setAvatarError] = useState(false);
   const [mounted, setMounted] = useState(false);
 
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -60,6 +60,10 @@ export function Header({ lang, onLanguageToggle, variant = "main" }: HeaderProps
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  useEffect(() => {
+    setAvatarError(false);
+  }, [user?.avatar]);
 
   // Close dropdown on click outside or escape key (only when open)
   useEffect(() => {
@@ -306,12 +310,13 @@ export function Header({ lang, onLanguageToggle, variant = "main" }: HeaderProps
                 aria-label={tHeader("userMenu")}
                 aria-expanded={userDropdownOpen}
               >
-                {user?.avatar ? (
+                {user?.avatar && !avatarError ? (
                   <Image
                     src={user.avatar}
                     alt={user?.name || user?.fullName || "User Avatar"}
                     width={36}
                     height={36}
+                    onError={() => setAvatarError(true)}
                     className="h-9 w-9 rounded-full object-cover border border-slate-200 shadow-2xs group-hover:border-emerald-500 transition-colors"
                   />
                 ) : (
@@ -383,19 +388,6 @@ export function Header({ lang, onLanguageToggle, variant = "main" }: HeaderProps
                       </>
                     ) : (
                       <>
-                        <Link
-                          href={`/${locale}/student/profile`}
-                          onClick={() => setUserDropdownOpen(false)}
-                          className={`flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-bold transition-colors ${
-                            isActive("/student/profile")
-                              ? "bg-emerald-50 text-[#0F5244]"
-                              : "hover:bg-slate-50 text-slate-700 hover:text-[#0F5244]"
-                          }`}
-                        >
-                          <UserIcon className="h-4 w-4 text-[#0F5244] shrink-0" />
-                          <span>{tNav("profile")}</span>
-                        </Link>
-
                         <Link
                           href={`/${locale}/student/settings`}
                           onClick={() => setUserDropdownOpen(false)}
@@ -509,12 +501,13 @@ export function Header({ lang, onLanguageToggle, variant = "main" }: HeaderProps
             {/* Top Area: Authenticated User Profile Banner OR Guest CTA Buttons */}
             {mounted && isAuthenticated ? (
               <div className="flex items-center gap-3 p-3 rounded-2xl bg-slate-50 border border-slate-200/80">
-                {user?.avatar ? (
+                {user?.avatar && !avatarError ? (
                   <Image
                     src={user.avatar}
-                    alt="User Avatar"
+                    alt={user?.name || user?.fullName || "User Avatar"}
                     width={40}
                     height={40}
+                    onError={() => setAvatarError(true)}
                     className="h-10 w-10 rounded-full object-cover border border-slate-200 shadow-2xs shrink-0"
                   />
                 ) : (
@@ -635,19 +628,6 @@ export function Header({ lang, onLanguageToggle, variant = "main" }: HeaderProps
                     >
                       <BookOpen className="h-4 w-4 text-emerald-700" />
                       <span>{tNav("myLearning")}</span>
-                    </Link>
-
-                    <Link
-                      href={`/${locale}/student/profile`}
-                      onClick={() => setMobileMenuOpen(false)}
-                      className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all ${
-                        isActive("/student/profile")
-                          ? "bg-[#0F5244] text-white shadow-xs"
-                          : "text-slate-700 hover:bg-slate-50"
-                      }`}
-                    >
-                      <UserIcon className="h-4 w-4 text-emerald-700" />
-                      <span>{tNav("profile")}</span>
                     </Link>
 
                     <Link

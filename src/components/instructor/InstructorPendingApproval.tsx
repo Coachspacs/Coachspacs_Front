@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import Image from "next/image";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { useDispatch, useSelector } from "react-redux";
@@ -122,11 +122,10 @@ export function InstructorPendingApproval() {
                       alt={fullName}
                       width={64}
                       height={64}
-                      unoptimized={avatarPreview.startsWith("data:") || avatarPreview.startsWith("blob:")}
                       className="w-full h-full object-cover rounded-full"
                     />
                   ) : (
-                    <span suppressHydrationWarning className="font-extrabold text-xl text-[#0F5244]">
+                    <span className="font-extrabold text-xl text-[#0F5244]">
                       {fullName.trim().charAt(0).toUpperCase() || "I"}
                     </span>
                   )}

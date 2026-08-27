@@ -792,7 +792,14 @@
         "Marketing": "Marketing",
         "Design": "Design",
         "Development": "Development",
-        "Data Science": "Data Science"
+        "Data Science": "Data Science",
+        "Business Coaching": "Business Coaching",
+        "Career Coaching": "Career Coaching",
+        "Fitness Coaching": "Fitness Coaching",
+        "Life & Mindfulness": "Life & Mindfulness",
+        "Nutrition": "Nutrition",
+        "Programming": "Programming",
+        "Public Speaking": "Public Speaking"
       }
     },
     "card": {

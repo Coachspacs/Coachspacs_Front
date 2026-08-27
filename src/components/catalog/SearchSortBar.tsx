@@ -1,9 +1,11 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useSyncExternalStore } from "react";
 import { useTranslations } from "next-intl";
 import { Search, ChevronDown, X, Check, ArrowUpDown, Filter } from "lucide-react";
 import { SortOption } from "@/types/catalog";
+
+const emptySubscribe = () => () => {};
 
 interface SearchSortBarProps {
   searchQuery: string;
@@ -14,6 +16,7 @@ interface SearchSortBarProps {
   isAr?: boolean;
   onOpenMobileFilters?: () => void;
   selectedFiltersCount?: number;
+  isLoading?: boolean;
 }
 
 export function SearchSortBar({
@@ -25,6 +28,7 @@ export function SearchSortBar({
   isAr = false,
   onOpenMobileFilters,
   selectedFiltersCount = 0,
+  isLoading = false,
 }: SearchSortBarProps) {
   const t = useTranslations("catalog.search");
   const [isOpen, setIsOpen] = useState(false);
@@ -101,8 +105,12 @@ export function SearchSortBar({
         )}
 
         {/* Dynamic Results Pill Badge */}
-        <span className="inline-flex items-center px-3.5 py-2 rounded-full bg-[#E8F3F1] text-[#0F5244] text-xs font-black tracking-tight shrink-0 whitespace-nowrap">
-          {t("resultsFound", { count: totalResults })}
+        <span className="inline-flex items-center min-h-[32px] px-3.5 py-1.5 rounded-full bg-[#E8F3F1] text-[#0F5244] text-xs font-black tracking-tight shrink-0 whitespace-nowrap">
+          {isLoading ? (
+            <span className="inline-block w-16 h-3.5 bg-[#0F5244]/20 rounded-full animate-pulse my-0.5" />
+          ) : (
+            t("resultsFound", { count: totalResults })
+          )}
         </span>
 
         {/* Custom Modern Sort Dropdown Menu */}

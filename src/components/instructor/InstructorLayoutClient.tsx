@@ -11,14 +11,10 @@ import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Award, Clock, LayoutDashboard, BookOpen, Users, CreditCard, Settings } from "lucide-react";
-import dynamic from "next/dynamic";
 import { tokenManager } from "@/lib/tokenManager";
 import { getSavedInstructorOverrides, normalizeInstructorSlug } from "@/lib/mockInstructors";
 
-const InstructorPendingModal = dynamic(
-  () => import("@/components/modals/InstructorPendingModal").then((mod) => mod.InstructorPendingModal),
-  { ssr: false }
-);
+import { InstructorPendingModal } from "@/components/modals/InstructorPendingModal";
 
 export function InstructorLayoutClient({ children }: { children: React.ReactNode }) {
   const pathname = usePathname() || "";
@@ -176,13 +172,13 @@ export function InstructorLayoutClient({ children }: { children: React.ReactNode
                   {avatarPreview ? (
                     <Image
                       src={avatarPreview}
-                      alt="Instructor"
+                      alt={fullName || "Instructor"}
                       width={64}
                       height={64}
                       className="w-full h-full object-cover"
                     />
                   ) : (
-                    <span suppressHydrationWarning className="font-extrabold text-xl text-[#0F5244]">
+                    <span className="font-extrabold text-xl text-[#0F5244]">
                       {fullName.trim().charAt(0).toUpperCase() || "I"}
                     </span>
                   )}
@@ -196,7 +192,7 @@ export function InstructorLayoutClient({ children }: { children: React.ReactNode
 
               <div className="space-y-0.5">
                 <div className="flex items-center justify-center sm:justify-start gap-2 flex-wrap">
-                  <h1 suppressHydrationWarning className="text-base sm:text-lg font-black text-slate-900">
+                  <h1 className="text-base sm:text-lg font-black text-slate-900">
                     {fullName}
                   </h1>
                   {isApproved ? (
@@ -211,8 +207,8 @@ export function InstructorLayoutClient({ children }: { children: React.ReactNode
                     </span>
                   )}
                 </div>
-                <p suppressHydrationWarning className="text-xs text-slate-500 font-medium">{headline}</p>
-                <p suppressHydrationWarning className="text-[11px] text-slate-400 font-medium">{email}</p>
+                <p className="text-xs text-slate-500 font-medium">{headline}</p>
+                <p className="text-[11px] text-slate-400 font-medium">{email}</p>
               </div>
             </div>
           </div>

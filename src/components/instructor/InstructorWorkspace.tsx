@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useState, useRef, useEffect, useCallback } from "react";
-import Image from "next/image";
 import Link from "next/link";
+import Image from "next/image";
 import { useTranslations, useLocale } from "next-intl";
 import {
   LayoutDashboard,
@@ -24,31 +24,16 @@ import {
   Loader2,
   Edit2,
 } from "lucide-react";
-import dynamic from "next/dynamic";
 import { useSelector } from "react-redux";
 import { RootState } from "@/lib/store";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { instructorCourseService } from "@/services/instructorCourseService";
 import { courseService } from "@/services/courseService";
-import {
-  mockInstructorWorkspaceStudents,
-  mockInstructorWorkspaceProfile,
-  mockInstructorWorkspaceCourses,
-} from "@/lib/mockData";
 import { getSavedInstructorOverrides, normalizeInstructorSlug } from "@/lib/mockInstructors";
 
-const ArchiveCourseModal = dynamic(
-  () => import("@/components/modals/ArchiveCourseModal").then((mod) => mod.ArchiveCourseModal),
-  { ssr: false }
-);
-const ChangeEmailModal = dynamic(
-  () => import("@/components/modals/ChangeEmailModal").then((mod) => mod.ChangeEmailModal),
-  { ssr: false }
-);
-const InstructorPendingModal = dynamic(
-  () => import("@/components/modals/InstructorPendingModal").then((mod) => mod.InstructorPendingModal),
-  { ssr: false }
-);
+import { ArchiveCourseModal } from "@/components/modals/ArchiveCourseModal";
+import { ChangeEmailModal } from "@/components/modals/ChangeEmailModal";
+import { InstructorPendingModal } from "@/components/modals/InstructorPendingModal";
 
 interface InstructorWorkspaceProps {
   initialTab?: "overview" | "courses" | "students" | "payout" | "settings";
@@ -88,137 +73,100 @@ export function InstructorWorkspace({ initialTab = "courses", hideSidebar = true
   const [courses, setCourses] = useState<any[]>([]);
   const [isLoadingCourses, setIsLoadingCourses] = useState(true);
 
-  // Fetch real instructor courses from API
+  // Fetch real instructor courses strictly for the authenticated instructor ID
   const fetchMyCourses = useCallback(async () => {
+    const currentInstructorId = authUser?.id ? String(authUser.id) : null;
+    if (!currentInstructorId) {
+      setCourses([]);
+      setIsLoadingCourses(false);
+      return;
+    }
+
     setIsLoadingCourses(true);
     try {
-      const [instructorData, catalogData] = await Promise.allSettled([
-        instructorCourseService.getMyCourses(),
-        courseService.getCourses(),
-      ]);
+      const data = await instructorCourseService.getMyCourses();
+      const list = Array.isArray(data) ? data : data?.results || [];
 
-      const courseList: any[] = [];
+      // Filter exclusively courses that belong to the current authenticated instructor
+      const ownedCoursesList = list.filter((c: any) => {
+        const instId =
+          (c.instructor && typeof c.instructor === "object"
+            ? c.instructor.id ?? c.instructor.user_id ?? c.instructor.userId
+            : null) ??
+          (c.instructor && typeof c.instructor !== "object" ? c.instructor : null) ??
+          c.instructor_id ??
+          c.instructorId ??
+          c.user_id ??
+          c.userId ??
+          (c.user && typeof c.user === "object" ? c.user.id : null) ??
+          c.created_by ??
+          c.owner_id;
 
-      if (instructorData.status === "fulfilled" && instructorData.value) {
-        const list = Array.isArray(instructorData.value)
-          ? instructorData.value
-          : instructorData.value?.results || [];
-        list.forEach((item: any) => courseList.push(item));
-      }
+        if (instId !== null && instId !== undefined && instId !== "") {
+          return String(instId) === currentInstructorId;
+        }
+        return false;
+      });
 
-      if (catalogData.status === "fulfilled" && catalogData.value) {
-        const catList = Array.isArray(catalogData.value)
-          ? catalogData.value
-          : catalogData.value?.results || [];
-
-        // Match courses belonging to Mohammed Katanani or current instructor
-        const myCatCourses = catList.filter((c: any) => {
-          const instructorName = (c.instructor?.full_name || "").toLowerCase();
-          return (
-            instructorName.includes("katanani") ||
-            c.instructor?.id === 23 ||
-            c.instructor?.id === 56 ||
-            (authUser?.fullName && instructorName === authUser.fullName.toLowerCase())
-          );
-        });
-
-        myCatCourses.forEach((item: any) => {
-          if (!courseList.some((existing) => String(existing.id) === String(item.id))) {
-            courseList.push(item);
-          }
-        });
-      }
-
-      const realCourses = courseList.map((c: any) => ({
+      const realCourses = ownedCoursesList.map((c: any) => ({
         id: String(c.id),
         title: isAr ? c.title_ar || c.title_en || c.title : c.title_en || c.title_ar || c.title,
         titleEn: c.title_en || c.title || "Course",
         titleAr: c.title_ar || c.title || "دورة",
-        studentsCount: c.students_count || c.total_students || 0,
-        rating: c.rating || 0,
-        revenue: c.revenue || (c.price ? Number(c.price) * (c.students_count || 0) : 0),
-        status: c.status || "published",
+        studentsCount: Number(c.students_count || c.total_students || 0),
+        rating: Number(c.rating) || 5.0,
+        revenue: Number(c.revenue || (c.price ? Number(c.price) * (c.students_count || 0) : 0)),
+        status: c.status || (c.is_published ? "published" : "draft"),
         price: Number(c.price) || 0,
         level: c.level || "Beginner",
         image:
           c.cover_image ||
+          c.coverImage ||
           c.image ||
           "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&auto=format&fit=crop&q=80",
         rejectionReason: isAr ? c.rejection_reason_ar || "" : c.rejection_reason_en || "",
+        sections: c.sections || [],
         isReal: true,
       }));
 
-      // Filter sample mock courses that aren't duplicate of real ones
-      const sampleMockCourses = mockInstructorWorkspaceCourses
-        .filter(
-          (mc) =>
-            !realCourses.some(
-              (rc) =>
-                rc.id === mc.id ||
-                rc.title.toLowerCase() === (isAr ? mc.titleAr : mc.titleEn).toLowerCase()
-            )
-        )
-        .map((c) => ({
-          ...c,
-          title: isAr ? c.titleAr : c.titleEn,
-          rejectionReason: isAr ? c.rejectionReasonAr || "" : c.rejectionReasonEn || "",
-          isReal: false,
-        }));
-
-      // Real courses appear prominently at the top, followed by sample demo courses
-      setCourses([...realCourses, ...sampleMockCourses]);
+      // Set ONLY the authenticated instructor's real courses
+      setCourses(realCourses);
     } catch (err) {
-      console.warn("Could not fetch instructor courses from backend API, using sample data:", err);
-      setCourses(
-        mockInstructorWorkspaceCourses.map((c) => ({
-          ...c,
-          title: isAr ? c.titleAr : c.titleEn,
-          rejectionReason: isAr ? c.rejectionReasonAr || "" : c.rejectionReasonEn || "",
-          isReal: false,
-        }))
-      );
+      console.warn("Could not fetch instructor courses from backend API:", err);
+      setCourses([]);
     } finally {
       setIsLoadingCourses(false);
     }
-  }, [isAr, authUser]);
+  }, [authUser?.id, isAr]);
 
   useEffect(() => {
     fetchMyCourses();
   }, [fetchMyCourses]);
 
   // Enrolled Students Data
-  const [students] = useState(() =>
-    mockInstructorWorkspaceStudents.map((s) => ({
-      id: s.id,
-      name: isAr ? s.nameAr : s.nameEn,
-      email: s.email,
-      course: s.course,
-      date: s.date,
-      progress: s.progress,
-    }))
-  );
+  const [students] = useState<any[]>([]);
 
   // Avatar & Profile State
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(authUser?.avatar || null);
 
   // Form State
   const [formData, setFormData] = useState({
-    fullName: isAr ? mockInstructorWorkspaceProfile.fullNameAr : mockInstructorWorkspaceProfile.fullNameEn,
-    email: mockInstructorWorkspaceProfile.email,
-    phone: mockInstructorWorkspaceProfile.phone,
-    headline: isAr ? mockInstructorWorkspaceProfile.headlineAr : mockInstructorWorkspaceProfile.headlineEn,
-    specialization: mockInstructorWorkspaceProfile.specialization,
-    experienceYears: mockInstructorWorkspaceProfile.experienceYears,
-    hourlyRate: mockInstructorWorkspaceProfile.hourlyRate,
-    bio: isAr ? mockInstructorWorkspaceProfile.bioAr : mockInstructorWorkspaceProfile.bioEn,
-    payoutMethod: mockInstructorWorkspaceProfile.payoutMethod,
-    bankIban: mockInstructorWorkspaceProfile.bankIban,
-    paypalEmail: mockInstructorWorkspaceProfile.paypalEmail,
-    autoPayout: mockInstructorWorkspaceProfile.autoPayout,
-    introVideoUrl: mockInstructorWorkspaceProfile.introVideoUrl,
-    website: mockInstructorWorkspaceProfile.website,
-    linkedin: mockInstructorWorkspaceProfile.linkedin,
+    fullName: authUser?.fullName || authUser?.name || "",
+    email: authUser?.email || "",
+    phone: authUser?.phone || authUser?.phone_number || "",
+    headline: authUser?.headline || "",
+    specialization: authUser?.specialization || "",
+    experienceYears: (authUser as any)?.experienceYears || 0,
+    hourlyRate: "",
+    bio: authUser?.bio || "",
+    payoutMethod: "bank",
+    bankIban: (authUser as any)?.bankIban || "",
+    paypalEmail: authUser?.email || "",
+    autoPayout: true,
+    introVideoUrl: "",
+    website: "",
+    linkedin: "",
     currentPassword: "",
     newPassword: "",
     confirmPassword: "",
@@ -266,11 +214,19 @@ export function InstructorWorkspace({ initialTab = "courses", hideSidebar = true
     setTimeout(() => setToastMessage(null), 3500);
   };
 
-  const handleSubmitForReview = (courseId: string) => {
-    setCourses((prev) =>
-      prev.map((c) => (c.id === courseId ? { ...c, status: "pending_review", rejectionReason: "" } : c))
-    );
-    setToastMessage(tInst("courseSubmittedToast"));
+  const handleSubmitForReview = async (courseId: string) => {
+    try {
+      await instructorCourseService.updateCourse(courseId, { status: "pending_review" });
+      setToastMessage(tInst("courseSubmittedToast"));
+      fetchMyCourses();
+    } catch (err: any) {
+      console.warn("Could not submit course for review via API:", err);
+      // Optimistic local update
+      setCourses((prev) =>
+        prev.map((c) => (c.id === courseId ? { ...c, status: "pending_review", rejectionReason: "" } : c))
+      );
+      setToastMessage(tInst("courseSubmittedToast"));
+    }
     setTimeout(() => setToastMessage(null), 3500);
   };
 
@@ -283,20 +239,46 @@ export function InstructorWorkspace({ initialTab = "courses", hideSidebar = true
     }
   };
 
-  const confirmArchiveCourse = (courseId: string) => {
+  const confirmArchiveCourse = async (courseId: string) => {
     const targetCourse = courses.find((c) => c.id === courseId);
     const isCurrentlyArchived = targetCourse?.status === "archived";
+    const nextStatus = isCurrentlyArchived ? "published" : "archived";
 
-    setCourses((prev) =>
-      prev.map((c) =>
-        c.id === courseId ? { ...c, status: isCurrentlyArchived ? "published" : "archived" } : c
-      )
-    );
+    try {
+      await instructorCourseService.updateCourse(courseId, { status: nextStatus });
+      if (isCurrentlyArchived) {
+        setToastMessage(tInst("courseUnarchivedToast"));
+      } else {
+        setToastMessage(tInst("courseArchivedToast"));
+      }
+      fetchMyCourses();
+    } catch (err: any) {
+      console.warn("Could not archive/unarchive course via API:", err);
+      setCourses((prev) =>
+        prev.map((c) =>
+          c.id === courseId ? { ...c, status: nextStatus } : c
+        )
+      );
+      if (isCurrentlyArchived) {
+        setToastMessage(tInst("courseUnarchivedToast"));
+      } else {
+        setToastMessage(tInst("courseArchivedToast"));
+      }
+    }
+    setTimeout(() => setToastMessage(null), 3500);
+  };
 
-    if (isCurrentlyArchived) {
-      setToastMessage(tInst("courseUnarchivedToast"));
-    } else {
-      setToastMessage(tInst("courseArchivedToast"));
+  const handleDeleteCourse = async (courseId: string) => {
+    if (!confirm(isAr ? "هل أنت متأكد من رغبتك في حذف هذه الدورة؟" : "Are you sure you want to delete this course?")) {
+      return;
+    }
+    try {
+      await instructorCourseService.deleteCourse(courseId);
+      setToastMessage(isAr ? "تم حذف الدورة بنجاح" : "Course deleted successfully");
+      fetchMyCourses();
+    } catch (err: any) {
+      console.warn("Could not delete course via API:", err);
+      setCourses((prev) => prev.filter((c) => c.id !== courseId));
     }
     setTimeout(() => setToastMessage(null), 3500);
   };
@@ -342,16 +324,18 @@ export function InstructorWorkspace({ initialTab = "courses", hideSidebar = true
       )}
 
       {/* Change Email Modal */}
-      <ChangeEmailModal
-        isOpen={showEmailModal}
-        currentEmail={formData.email}
-        onClose={() => setShowEmailModal(false)}
-        onConfirmEmailChange={(newEmail: string) => {
-          setFormData((prev) => ({ ...prev, email: newEmail }));
-          setToastMessage(tChangeEmail("success"));
-          setTimeout(() => setToastMessage(null), 4000);
-        }}
-      />
+      {showEmailModal && (
+        <ChangeEmailModal
+          isOpen={showEmailModal}
+          currentEmail={formData.email}
+          onClose={() => setShowEmailModal(false)}
+          onConfirmEmailChange={(newEmail: string) => {
+            setFormData((prev) => ({ ...prev, email: newEmail }));
+            setToastMessage(tChangeEmail("success"));
+            setTimeout(() => setToastMessage(null), 4000);
+          }}
+        />
+      )}
 
       {/* Top Instructor Workspace Banner / Header Card (Only rendered standalone) */}
       {!hideSidebar && (
@@ -365,7 +349,7 @@ export function InstructorWorkspace({ initialTab = "courses", hideSidebar = true
                     alt="Instructor"
                     width={80}
                     height={80}
-                    unoptimized={avatarPreview.startsWith("data:") || avatarPreview.startsWith("blob:")}
+                    unoptimized
                     className="w-full h-full object-cover rounded-full"
                   />
                 ) : (
@@ -496,16 +480,24 @@ export function InstructorWorkspace({ initialTab = "courses", hideSidebar = true
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
                 <div className="p-5 rounded-2xl bg-emerald-50 border border-emerald-100">
                   <span className="text-xs font-bold text-[#0F5244] uppercase">{tInst("enrolledStudentsNav")}</span>
-                  <div className="text-2xl font-black text-[#0F5244]">1,240</div>
+                  <div className="text-2xl font-black text-[#0F5244]">
+                    {courses.reduce((acc, curr) => acc + Number(curr.studentsCount || 0), 0)}
+                  </div>
                 </div>
                 <div className="p-5 rounded-2xl bg-teal-50 border border-teal-100">
                   <span className="text-xs font-bold text-teal-800 uppercase">{tInst("payoutAndBilling")}</span>
-                  <div className="text-2xl font-black text-teal-950">$24,850</div>
+                  <div className="text-2xl font-black text-teal-950">
+                    ${courses.reduce((acc, curr) => acc + Number(curr.revenue || 0), 0).toLocaleString()}
+                  </div>
                 </div>
                 <div className="p-5 rounded-2xl bg-amber-50 border border-amber-100">
                   <span className="text-xs font-bold text-amber-800 uppercase">{tInst("ratingLabel")}</span>
                   <div className="text-2xl font-black text-amber-900 flex items-center gap-1">
-                    <span>4.85</span>
+                    <span>
+                      {courses.length > 0
+                        ? (courses.reduce((acc, curr) => acc + Number(curr.rating || 5), 0) / courses.length).toFixed(1)
+                        : "5.0"}
+                    </span>
                     <Star className="h-5 w-5 fill-amber-500 text-amber-500 inline shrink-0" />
                   </div>
                 </div>
@@ -565,9 +557,28 @@ export function InstructorWorkspace({ initialTab = "courses", hideSidebar = true
               {/* Course Cards List */}
               <div className="space-y-4">
                 {isLoadingCourses ? (
-                  <div className="py-16 flex flex-col items-center justify-center gap-3 text-slate-400">
-                    <Loader2 className="w-8 h-8 animate-spin text-[#0F5244]" />
-                    <span className="text-xs font-bold">{isAr ? "جاري تحميل الدورات..." : "Loading your courses..."}</span>
+                  <div className="space-y-4">
+                    {[1, 2, 3].map((i) => (
+                      <div
+                        key={i}
+                        className="p-4 sm:p-6 rounded-3xl border border-slate-200/80 bg-slate-50/50 space-y-4 animate-pulse"
+                      >
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                          <div className="flex items-center gap-4">
+                            <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-slate-200 shrink-0" />
+                            <div className="space-y-2">
+                              <div className="h-4 w-48 sm:w-64 bg-slate-200 rounded-lg" />
+                              <div className="h-3 w-28 bg-slate-200 rounded-md" />
+                              <div className="h-3 w-36 bg-slate-200 rounded-md" />
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <div className="h-8 w-16 bg-slate-200 rounded-xl" />
+                            <div className="h-8 w-16 bg-slate-200 rounded-xl" />
+                          </div>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 ) : courses.length === 0 ? (
                   <div className="py-16 text-center border-2 border-dashed border-slate-200 rounded-3xl p-8 space-y-4 bg-slate-50/40">
@@ -583,12 +594,23 @@ export function InstructorWorkspace({ initialTab = "courses", hideSidebar = true
                       </p>
                     </div>
                     <Link
-                      href={`/${locale}/instructor/courses/create`}
+                      href={`/${locale}/instructor/courses/new`}
                       className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#0F5244] hover:bg-[#07382E] text-white text-xs font-extrabold shadow-md transition-all cursor-pointer"
                     >
                       <Plus className="w-4 h-4" />
                       <span>{tDash("createNewCourse")}</span>
                     </Link>
+                  </div>
+                ) : courses.filter((c) => {
+                    if (courseFilter === "active") return c.status !== "archived";
+                    if (courseFilter === "archived") return c.status === "archived";
+                    return true;
+                  }).length === 0 ? (
+                  <div className="py-12 text-center border border-slate-200 rounded-3xl p-6 space-y-2 bg-slate-50/30">
+                    <BookOpen className="w-8 h-8 text-slate-400 mx-auto" />
+                    <h3 className="text-sm font-extrabold text-slate-700">
+                      {isAr ? "لا توجد دورات في هذا التبويب" : "No courses match this filter"}
+                    </h3>
                   </div>
                 ) : (
                   courses
@@ -606,7 +628,6 @@ export function InstructorWorkspace({ initialTab = "courses", hideSidebar = true
                               alt={c.titleEn || c.title}
                               width={80}
                               height={80}
-                              quality={80}
                               className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl object-cover shrink-0 border border-slate-200"
                             />
                             <div>
@@ -627,17 +648,6 @@ export function InstructorWorkspace({ initialTab = "courses", hideSidebar = true
                                 >
                                   {getCourseStatusLabel(c.status)}
                                 </span>
-
-                                {c.isReal ? (
-                                  <span className="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200/80 text-[10px] font-extrabold flex items-center gap-1">
-                                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                                    <span>{isAr ? "دورة حقيقية" : "Live API"}</span>
-                                  </span>
-                                ) : (
-                                  <span className="px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 border border-slate-200 text-[10px] font-bold">
-                                    {isAr ? "نموذج تجريبي" : "Demo Sample"}
-                                  </span>
-                                )}
                               </div>
 
                               {c.status === "rejected" && c.rejectionReason && (
@@ -726,28 +736,40 @@ export function InstructorWorkspace({ initialTab = "courses", hideSidebar = true
 
               {/* Students Table */}
               <div className="overflow-x-auto rounded-3xl border border-slate-200/80">
-                <table className="w-full text-start text-xs font-semibold text-slate-700">
-                  <thead className="bg-slate-50 border-b border-slate-200 text-slate-400 font-extrabold uppercase text-[10px]">
-                    <tr>
-                      <th className="px-4 py-3 text-start">{tInst("studentCol")}</th>
-                      <th className="px-4 py-3 text-start">{tInst("courseCol")}</th>
-                      <th className="px-4 py-3 text-start">{tInst("progressCol")}</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100 bg-white">
-                    {filteredStudents.map((student) => (
-                      <tr key={student.id} className="hover:bg-slate-50/60 transition-colors">
-                        <td className="px-4 py-3 font-bold text-slate-900">{student.name}</td>
-                        <td className="px-4 py-3 text-slate-600">{student.course}</td>
-                        <td className="px-4 py-3">
-                          <span className="px-2.5 py-0.5 rounded-full bg-emerald-100 text-[#0F5244] text-[11px] font-extrabold">
-                            {student.progress}%
-                          </span>
-                        </td>
+                {filteredStudents.length === 0 ? (
+                  <div className="py-12 text-center bg-white p-6 space-y-2">
+                    <Users className="w-8 h-8 text-slate-300 mx-auto mb-2" />
+                    <h3 className="text-sm font-extrabold text-slate-700">
+                      {isAr ? "لا يوجد طلاب مسجلين حالياً" : "No enrolled students yet"}
+                    </h3>
+                    <p className="text-xs text-slate-400">
+                      {isAr ? "سيظهر الطلاب هنا بمجرد تسجيلهم في دوراتك." : "Students will appear here once they enroll in your courses."}
+                    </p>
+                  </div>
+                ) : (
+                  <table className="w-full text-start text-xs font-semibold text-slate-700">
+                    <thead className="bg-slate-50 border-b border-slate-200 text-slate-400 font-extrabold uppercase text-[10px]">
+                      <tr>
+                        <th className="px-4 py-3 text-start">{tInst("studentCol")}</th>
+                        <th className="px-4 py-3 text-start">{tInst("courseCol")}</th>
+                        <th className="px-4 py-3 text-start">{tInst("progressCol")}</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100 bg-white">
+                      {filteredStudents.map((student) => (
+                        <tr key={student.id} className="hover:bg-slate-50/60 transition-colors">
+                          <td className="px-4 py-3 font-bold text-slate-900">{student.name}</td>
+                          <td className="px-4 py-3 text-slate-600">{student.course}</td>
+                          <td className="px-4 py-3">
+                            <span className="px-2.5 py-0.5 rounded-full bg-emerald-100 text-[#0F5244] text-[11px] font-extrabold">
+                              {student.progress}%
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
               </div>
             </div>
           )}

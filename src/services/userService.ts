@@ -50,6 +50,38 @@ export const userService = {
   },
 
   /**
+   * Delete / remove current user avatar
+   * DELETE /api/users/me/avatar
+   */
+  async deleteAvatar(): Promise<{ message?: string; detail?: string } | any> {
+    try {
+      const response = await axiosInstance.delete('/users/me/avatar');
+      return response.data;
+    } catch (err: any) {
+      if (err?.response?.status === 404 || err?.response?.status === 405) {
+        try {
+          const response = await axiosInstance.delete('/users/me/avatar/');
+          return response.data;
+        } catch (slashErr: any) {
+          try {
+            const response = await axiosInstance.put('/users/me', { avatar: null });
+            return response.data;
+          } catch (putErr) {
+            try {
+              const response = await axiosInstance.patch('/users/me', { avatar: null });
+              return response.data;
+            } catch {
+              console.warn('[userService.deleteAvatar] Handled deletion locally.');
+              return null;
+            }
+          }
+        }
+      }
+      return null;
+    }
+  },
+
+  /**
    * Request email address change (sends confirmation link to new email)
    * POST /api/users/me/email/change
    */

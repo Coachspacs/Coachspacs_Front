@@ -38,15 +38,20 @@ export function FilterSidebar({
   const [langOpen, setLangOpen] = useState(false);
   const [categoryOpen, setCategoryOpen] = useState(true);
 
-  const defaultCategories: Category[] = [
-    "Leadership",
-    "Management",
-    "Communication",
-    "Strategy",
-    "Marketing",
-    "Design",
-    "Development",
-    "Data Science",
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  const defaultCategories: string[] = [
+    "Business Coaching",
+    "Career Coaching",
+    "Fitness Coaching",
+    "Life & Mindfulness",
+    "Nutrition",
+    "Programming",
+    "Public Speaking",
   ];
 
   const [categoriesList, setCategoriesList] = useState<{ id: string; name: string }[]>(
@@ -54,11 +59,11 @@ export function FilterSidebar({
   );
 
   useEffect(() => {
-    let isMounted = true;
+    let active = true;
     categoryService
       .getCategories(isAr ? "ar" : "en")
       .then((data) => {
-        if (isMounted && data && Array.isArray(data) && data.length > 0) {
+        if (active && data && Array.isArray(data) && data.length > 0) {
           setCategoriesList(data.map((item) => ({ id: String(item.name || item.id), name: item.name })));
         }
       })
@@ -66,7 +71,7 @@ export function FilterSidebar({
         // graceful fallback to default categories
       });
     return () => {
-      isMounted = false;
+      active = false;
     };
   }, [isAr]);
 
@@ -142,7 +147,7 @@ export function FilterSidebar({
             </button>
 
             {categoryOpen && (
-              <div className="mt-2.5 space-y-1.5 animate-in fade-in duration-150">
+              <div suppressHydrationWarning className="mt-2.5 space-y-1.5 animate-in fade-in duration-150">
                 {categoriesList.map((cat) => {
                   const isSelected = filters.selectedCategories.includes(cat.id) || filters.selectedCategories.includes(cat.name);
                   const translatedLabel = t.has(`categories.${cat.id}`) ? t(`categories.${cat.id}`) : cat.name;
@@ -157,7 +162,7 @@ export function FilterSidebar({
                         onChange={() => handleCategoryToggle(cat.id)}
                         className="h-3.5 w-3.5 rounded border-slate-300 text-[#0F5244] focus:ring-2 focus:ring-[#0F5244]/20 accent-[#0F5244] cursor-pointer"
                       />
-                      <span>{translatedLabel}</span>
+                      <span suppressHydrationWarning>{translatedLabel}</span>
                     </label>
                   );
                 })}

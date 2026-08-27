@@ -47,6 +47,7 @@ export function Sidebar({ activeTab, onTabChange, items, user }: SidebarProps) {
 
   // Mobile menu expand state
   const [isOpen, setIsOpen] = useState(false);
+  const [avatarError, setAvatarError] = useState(false);
 
   // Default Navigation Items matching screenshot design
   const defaultNavItems: SidebarNavItem[] = [
@@ -54,7 +55,7 @@ export function Sidebar({ activeTab, onTabChange, items, user }: SidebarProps) {
       id: "overview",
       label: t("dashboard"),
       icon: LayoutDashboard,
-      href: `/${locale}/student/profile`,
+      href: `/${locale}/student`,
     },
     {
       id: "courses",
@@ -328,17 +329,18 @@ export function Sidebar({ activeTab, onTabChange, items, user }: SidebarProps) {
         <div className="pt-6 space-y-3 border-t border-slate-100">
           {/* User Profile Card */}
           <div className="flex items-center gap-3 p-3 rounded-2xl bg-slate-50/80 border border-slate-200/60 shadow-2xs">
-            {defaultUser.avatarUrl ? (
+            {defaultUser.avatarUrl && !avatarError ? (
               <Image
                 src={defaultUser.avatarUrl}
                 alt={defaultUser.name}
                 width={40}
                 height={40}
+                onError={() => setAvatarError(true)}
                 className="w-10 h-10 rounded-full object-cover border border-slate-200 shadow-2xs shrink-0"
               />
             ) : (
               <div className="w-10 h-10 rounded-full bg-emerald-100 border border-emerald-200 text-[#0F5244] font-black text-sm flex items-center justify-center shrink-0 shadow-2xs">
-                {defaultUser.name.charAt(0)}
+                {(defaultUser.name || "U").charAt(0).toUpperCase()}
               </div>
             )}
 

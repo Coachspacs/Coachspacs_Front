@@ -59,7 +59,9 @@ export function StudentHomeWidget() {
                 <BookOpen className="w-4 h-4" />
               </div>
               <div>
-                <div className="text-xl sm:text-2xl font-black text-slate-900">4</div>
+                <div className="text-xl sm:text-2xl font-black text-slate-900">
+                  {Array.isArray((user as any)?.enrolled_courses) ? (user as any).enrolled_courses.length : 0}
+                </div>
                 <div className="text-[11px] sm:text-xs font-semibold text-slate-500 mt-0.5 leading-tight">
                   {t("enrolledCourses")}
                 </div>
@@ -72,7 +74,7 @@ export function StudentHomeWidget() {
                 <CheckCircle2 className="w-4 h-4" />
               </div>
               <div>
-                <div className="text-xl sm:text-2xl font-black text-slate-900">2</div>
+                <div className="text-xl sm:text-2xl font-black text-slate-900">0</div>
                 <div className="text-[11px] sm:text-xs font-semibold text-slate-500 mt-0.5 leading-tight">
                   {t("completedCourses")}
                 </div>
@@ -85,7 +87,7 @@ export function StudentHomeWidget() {
                 <Award className="w-4 h-4" />
               </div>
               <div>
-                <div className="text-xl sm:text-2xl font-black text-slate-900">2</div>
+                <div className="text-xl sm:text-2xl font-black text-slate-900">0</div>
                 <div className="text-[11px] sm:text-xs font-semibold text-slate-500 mt-0.5 leading-tight">
                   {t("earnedCertificates")}
                 </div>
@@ -107,27 +109,20 @@ export function StudentHomeWidget() {
               </div>
 
               <h3 className="text-base sm:text-lg font-black text-white truncate">
-                React Enterprise Architecture & Performance
+                {locale === "ar" ? "ابدأ باستكشاف وتعلّم مهارات جديدة" : "Explore certified courses & master new skills"}
               </h3>
 
-              {/* Progress bar */}
-              <div className="space-y-1.5 pt-1 max-w-md">
-                <div className="flex items-center justify-between text-xs font-bold text-emerald-200">
-                  <span>{t("lastLesson")}</span>
-                  <span className="text-[#6CF8BB]">68%</span>
-                </div>
-                <div className="w-full h-2 rounded-full bg-white/15 overflow-hidden">
-                  <div className="h-full bg-gradient-to-r from-[#6CF8BB] to-emerald-400 rounded-full w-[68%]" />
-                </div>
-              </div>
+              <p className="text-xs text-emerald-200/80 font-medium">
+                {locale === "ar" ? "تصفح الدورات التدريبية المعتمدة من خبراء المنصة." : "Browse certified courses from verified world-class mentors."}
+              </p>
             </div>
 
             <Link
-              href={`/${locale}/student/courses`}
+              href={`/${locale}/courses`}
               className="z-10 bg-[#6CF8BB] hover:bg-[#52e8a6] active:scale-95 text-[#08382E] font-black text-xs sm:text-sm px-6 py-3.5 rounded-xl transition-all shadow-md inline-flex items-center justify-center gap-2 shrink-0 w-full sm:w-auto cursor-pointer"
             >
-              <Play className="w-4 h-4 fill-current" />
-              <span>{t("continueWatching")}</span>
+              <BookOpen className="w-4 h-4" />
+              <span>{t("exploreCourses")}</span>
             </Link>
 
           </div>

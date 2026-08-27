@@ -44,7 +44,7 @@ export default function LocaleNotFound() {
           </Link>
 
           <Link
-            href={`/${locale}/catalog`}
+            href={`/${locale}/courses`}
             className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs sm:text-sm font-extrabold transition-all active:scale-98"
           >
             <BookOpen className="w-4 h-4" />

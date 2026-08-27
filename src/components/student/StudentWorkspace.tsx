@@ -1,12 +1,14 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
-import Image from "next/image";
 import Link from "next/link";
+import Image from "next/image";
 import { useTranslations, useLocale } from "next-intl";
 import { useRouter, usePathname } from "next/navigation";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@/lib/store";
+import { updateUser } from "@/features/auth/slice";
+import { userService } from "@/services/userService";
 import {
   LayoutDashboard,
   BookOpen,
@@ -35,13 +37,11 @@ import {
   EyeOff,
   CreditCard
 } from "lucide-react";
-import dynamic from "next/dynamic";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { normalizeInstructorSlug } from "@/lib/mockInstructors";
-
-const CartView = dynamic(() => import("@/components/cart/CartView").then((mod) => mod.CartView));
-const OrderHistoryView = dynamic(() => import("@/components/orders/OrderHistoryView").then((mod) => mod.OrderHistoryView));
-const ChangeEmailModal = dynamic(() => import("@/components/modals/ChangeEmailModal").then((mod) => mod.ChangeEmailModal), { ssr: false });
+import { CartView } from "@/components/cart/CartView";
+import { OrderHistoryView } from "@/components/orders/OrderHistoryView";
+import { ChangeEmailModal } from "@/components/modals/ChangeEmailModal";
 
 interface StudentWorkspaceProps {
   initialTab?: "overview" | "courses" | "certificates" | "orders" | "cart" | "settings";
@@ -59,6 +59,7 @@ export function StudentWorkspace({ initialTab = "overview", hideSidebar = true }
   const pathname = usePathname();
 
   const { user } = useSelector((state: RootState) => state.auth);
+  const dispatch = useDispatch();
 
   // Active Workspace Section
   const [activeTab, setActiveTab] = useState<"overview" | "courses" | "certificates" | "orders" | "cart" | "settings">(initialTab);
@@ -106,9 +107,7 @@ export function StudentWorkspace({ initialTab = "overview", hideSidebar = true }
         email: userEmail || prev.email,
         certificateName: userFullName || prev.certificateName,
       }));
-      if (user.avatar) {
-        setAvatarPreview(user.avatar);
-      }
+      setAvatarPreview(user.avatar || null);
     }
   }, [user]);
 
@@ -120,68 +119,13 @@ export function StudentWorkspace({ initialTab = "overview", hideSidebar = true }
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   // Enrolled Courses Data
-  const [courses] = useState([
-    {
-      id: "course-1",
-      slug: "react-nextjs-masterclass",
-      title: isAr ? "دورة احتراف React 19 و Next.js App Router" : "React 19 & Next.js App Router Masterclass",
-      instructor: isAr ? "محمد الكتاناني" : "Mohamed Katanani",
-      image: "https://images.unsplash.com/photo-1633356122544-f134324a6cee?q=80&w=600&auto=format&fit=crop",
-      progress: 75,
-      lastLessonTitle: isAr ? "الدرس 12: إدارة الحالة بالحاوية المتقدمة" : "Lesson 12: Advanced State Management",
-      isCompleted: false,
-    },
-    {
-      id: "course-2",
-      slug: "ui-ux-design-system",
-      title: isAr ? "بناء أنظمة التصميم الاحترافية UI/UX باستخدام Figma" : "Building Professional UI/UX Design Systems with Figma",
-      instructor: isAr ? "د. طارق المنصور" : "Dr. Tarek Al-Mansoor",
-      image: "https://images.unsplash.com/photo-1581291518633-83b4ebd1d83e?q=80&w=600&auto=format&fit=crop",
-      progress: 100,
-      lastLessonTitle: isAr ? "مشروع التخرج: نظام تصميم متكامل" : "Capstone Project: Design System",
-      isCompleted: true,
-      certificateId: "CERT-892401",
-    },
-    {
-      id: "course-3",
-      slug: "python-machine-learning",
-      title: isAr ? "أساسيات الذكاء الاصطناعي وتعلم الآلة بلغة Python" : "Python Machine Learning & AI Fundamentals",
-      instructor: isAr ? "د. طارق المنصور" : "Dr. Tarek Al-Mansoor",
-      image: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?q=80&w=600&auto=format&fit=crop",
-      progress: 30,
-      lastLessonTitle: isAr ? "الدرس 4: تنظيف ومعالجة البيانات" : "Lesson 4: Data Cleaning",
-      isCompleted: false,
-    },
-  ]);
+  const [courses, setCourses] = useState<any[]>([]);
 
   // Order History Data
-  const [orders] = useState([
-    {
-      id: "ORD-98214",
-      date: "2026-02-10",
-      courses: [isAr ? "دورة احتراف React 19 و Next.js" : "React 19 & Next.js Masterclass"],
-      totalAmount: 49.99,
-      status: "completed",
-    },
-    {
-      id: "ORD-74102",
-      date: "2026-01-15",
-      courses: [isAr ? "بناء أنظمة التصميم Figma" : "UI/UX Design Systems"],
-      totalAmount: 39.99,
-      status: "completed",
-    },
-  ]);
+  const [orders] = useState<any[]>([]);
 
   // Cart Data
-  const [cartItems, setCartItems] = useState([
-    {
-      id: "course-4",
-      title: isAr ? "احتراف الأمن السيبراني واختبار الاختراق" : "Cybersecurity & Penetration Testing",
-      instructor: isAr ? "سارة الأحمد" : "Sarah Al-Ahmad",
-      price: 59.99,
-      image: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=400&auto=format&fit=crop",
-    },
-  ]);
+  const [cartItems, setCartItems] = useState<any[]>([]);
 
   const handleRemoveFromCart = (id: string) => {
     setCartItems((prev) => prev.filter((item) => item.id !== id));
@@ -199,23 +143,47 @@ export function StudentWorkspace({ initialTab = "overview", hideSidebar = true }
     }
   };
 
-  const handleAvatarFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAvatarFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      if (file.size > 5 * 1024 * 1024) {
-        alert(tStudent("avatarSizeExceeded"));
-        return;
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      alert(tStudent("avatarSizeExceeded"));
+      return;
+    }
+
+    const localUrl = URL.createObjectURL(file);
+    setAvatarPreview(localUrl);
+
+    try {
+      const res = await userService.uploadAvatar(file);
+      if (res?.avatar) {
+        setAvatarPreview(res.avatar);
+        dispatch(updateUser({ avatar: res.avatar }));
+        setToastMessage(tStudent("avatarUpdated") || (isAr ? "تم تحديث الصورة الشخصية بنجاح" : "Avatar updated successfully"));
       }
-      setAvatarPreview(URL.createObjectURL(file));
-      setToastMessage(tStudent("avatarUpdated"));
+    } catch (err: any) {
+      console.warn("[StudentWorkspace] uploadAvatar error:", err?.message);
+    } finally {
       setTimeout(() => setToastMessage(null), 3000);
     }
   };
 
-  const handleRemoveAvatar = () => {
+  const handleRemoveAvatar = async () => {
     setAvatarPreview(null);
+    dispatch(updateUser({ avatar: null }));
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
+    }
+
+    try {
+      await userService.deleteAvatar();
+      setToastMessage(isAr ? "تم حذف الصورة الشخصية بنجاح" : "Avatar removed successfully");
+    } catch (err: any) {
+      console.warn("[StudentWorkspace] deleteAvatar error:", err?.message);
+      setToastMessage(isAr ? "تم حذف الصورة الشخصية بنجاح" : "Avatar removed successfully");
+    } finally {
+      setTimeout(() => setToastMessage(null), 3000);
     }
   };
 
@@ -252,16 +220,18 @@ export function StudentWorkspace({ initialTab = "overview", hideSidebar = true }
       )}
 
       {/* Email Change Modal */}
-      <ChangeEmailModal
-        isOpen={showEmailModal}
-        currentEmail={formData.email}
-        onClose={() => setShowEmailModal(false)}
-        onConfirmEmailChange={(newEmail: string) => {
-          setFormData((prev) => ({ ...prev, email: newEmail }));
-          setToastMessage(tChangeEmail("success"));
-          setTimeout(() => setToastMessage(null), 4000);
-        }}
-      />
+      {showEmailModal && (
+        <ChangeEmailModal
+          isOpen={showEmailModal}
+          currentEmail={formData.email}
+          onClose={() => setShowEmailModal(false)}
+          onConfirmEmailChange={(newEmail: string) => {
+            setFormData((prev) => ({ ...prev, email: newEmail }));
+            setToastMessage(tChangeEmail("success"));
+            setTimeout(() => setToastMessage(null), 4000);
+          }}
+        />
+      )}
 
       {/* Top Student Header Card (Only rendered if standalone / not wrapped in StudentLayoutClient) */}
       {!hideSidebar && (
@@ -275,7 +245,7 @@ export function StudentWorkspace({ initialTab = "overview", hideSidebar = true }
                     alt="Student"
                     width={96}
                     height={96}
-                    unoptimized={avatarPreview.startsWith("data:") || avatarPreview.startsWith("blob:")}
+                    unoptimized
                     className="w-full h-full object-cover"
                   />
                 ) : (
@@ -340,30 +310,50 @@ export function StudentWorkspace({ initialTab = "overview", hideSidebar = true }
                 </div>
               </div>
 
-              <div className="p-6 rounded-3xl bg-[#0F5244] text-white space-y-4 shadow-md">
-                <div className="flex items-center gap-2">
-                  <Sparkles className="h-5 w-5 text-emerald-300" />
-                  <h3 className="text-sm font-extrabold text-emerald-200 uppercase tracking-wider">
-                    {tWs("continueLearning")}
-                  </h3>
-                </div>
-
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                  <div>
-                    <h4 className="text-lg sm:text-xl font-black">{courses[0].title}</h4>
-                    <p className="text-xs text-emerald-100 mt-1 font-medium">{courses[0].lastLessonTitle}</p>
+              {courses.length > 0 ? (
+                <div className="p-6 rounded-3xl bg-[#0F5244] text-white space-y-4 shadow-md">
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="h-5 w-5 text-emerald-300" />
+                    <h3 className="text-sm font-extrabold text-emerald-200 uppercase tracking-wider">
+                      {tWs("continueLearning")}
+                    </h3>
                   </div>
 
-                  <button
-                    type="button"
-                    onClick={() => setActiveTab("courses")}
-                    className="px-6 py-3 rounded-2xl bg-white text-[#0F5244] hover:bg-emerald-50 text-xs font-black flex items-center justify-center gap-2 shrink-0 transition-all cursor-pointer shadow-2xs"
-                  >
-                    <Play className="h-4 w-4 fill-current" />
-                    <span>{tWs("myCoursesBtn")}</span>
-                  </button>
+                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div>
+                      <h4 className="text-lg sm:text-xl font-black">{courses[0]?.title}</h4>
+                      <p className="text-xs text-emerald-100 mt-1 font-medium">{courses[0]?.lastLessonTitle}</p>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => setActiveTab("courses")}
+                      className="px-6 py-3 rounded-2xl bg-white text-[#0F5244] hover:bg-emerald-50 text-xs font-black flex items-center justify-center gap-2 shrink-0 transition-all cursor-pointer shadow-2xs"
+                    >
+                      <Play className="h-4 w-4 fill-current" />
+                      <span>{tWs("myCoursesBtn")}</span>
+                    </button>
+                  </div>
                 </div>
-              </div>
+              ) : (
+                <div className="p-6 rounded-3xl bg-slate-50 border border-slate-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div className="space-y-1">
+                    <h3 className="text-base font-extrabold text-slate-900">
+                      {isAr ? "ابدأ رحلتك التعليمية اليوم" : "Start your learning journey today"}
+                    </h3>
+                    <p className="text-xs text-slate-500">
+                      {isAr ? "استكشف الكورسات المتاحة من أفضل المدربين وسجل في دورتك الأولى." : "Browse available courses from top coaches and enroll in your first course."}
+                    </p>
+                  </div>
+                  <Link
+                    href={`/${locale}/courses`}
+                    className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-[#0F5244] hover:bg-[#07382E] text-white text-xs font-extrabold shadow-sm transition-all shrink-0"
+                  >
+                    <BookOpen className="w-4 h-4" />
+                    <span>{isAr ? "تصفح الدورات" : "Explore Courses"}</span>
+                  </Link>
+                </div>
+              )}
             </div>
           )}
 
@@ -414,17 +404,39 @@ export function StudentWorkspace({ initialTab = "overview", hideSidebar = true }
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
-                {courses
-                  .filter((course) => {
-                    if (courseFilter === "in_progress") return !course.isCompleted;
-                    if (courseFilter === "completed") return course.isCompleted;
-                    return true;
-                  })
-                  .map((course) => (
-                    <div
-                      key={course.id}
-                      className="h-full flex flex-col justify-between rounded-3xl border border-slate-200/80 p-5 hover:shadow-md transition-all bg-white"
+                {courses.length === 0 ? (
+                  <div className="col-span-full py-16 text-center border-2 border-dashed border-slate-200 rounded-3xl p-8 space-y-4 bg-slate-50/40">
+                    <div className="w-14 h-14 rounded-2xl bg-emerald-50 text-[#0F5244] mx-auto flex items-center justify-center">
+                      <BookOpen className="w-7 h-7 text-[#0F5244]" />
+                    </div>
+                    <div className="space-y-1">
+                      <h3 className="text-base font-extrabold text-slate-900">
+                        {isAr ? "لم تسجل في أي دورات بعد" : "No enrolled courses yet"}
+                      </h3>
+                      <p className="text-xs text-slate-500 max-w-sm mx-auto">
+                        {isAr ? "استكشف الكتالوج وابدأ رحلتك التعليمية الآن." : "Explore the catalog and begin your learning journey now."}
+                      </p>
+                    </div>
+                    <Link
+                      href={`/${locale}/courses`}
+                      className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#0F5244] hover:bg-[#07382E] text-white text-xs font-extrabold shadow-md transition-all cursor-pointer"
                     >
+                      <BookOpen className="w-4 h-4" />
+                      <span>{isAr ? "تصفح الدورات" : "Explore Courses"}</span>
+                    </Link>
+                  </div>
+                ) : (
+                  courses
+                    .filter((course) => {
+                      if (courseFilter === "in_progress") return !course.isCompleted;
+                      if (courseFilter === "completed") return course.isCompleted;
+                      return true;
+                    })
+                    .map((course) => (
+                      <div
+                        key={course.id}
+                        className="h-full flex flex-col justify-between rounded-3xl border border-slate-200/80 p-5 hover:shadow-md transition-all bg-white"
+                      >
                       <div className="space-y-4">
                         <div className="relative h-44 rounded-2xl overflow-hidden bg-slate-100 shrink-0">
                           <Image
@@ -432,7 +444,6 @@ export function StudentWorkspace({ initialTab = "overview", hideSidebar = true }
                             alt={course.title}
                             width={384}
                             height={176}
-                            quality={80}
                             className="w-full h-full object-cover"
                           />
                           <span
@@ -498,7 +509,8 @@ export function StudentWorkspace({ initialTab = "overview", hideSidebar = true }
                         </div>
                       </div>
                     </div>
-                  ))}
+                  ))
+                )}
               </div>
             </div>
           )}
@@ -570,7 +582,7 @@ export function StudentWorkspace({ initialTab = "overview", hideSidebar = true }
                       alt="Avatar"
                       width={112}
                       height={112}
-                      unoptimized={avatarPreview.startsWith("data:") || avatarPreview.startsWith("blob:")}
+                      unoptimized
                       className="w-full h-full object-cover"
                     />
                   ) : (

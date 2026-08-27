@@ -1,17 +1,16 @@
 "use client";
 
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo, useEffect, useCallback } from "react";
 import { useLocale } from "next-intl";
 import { FilterSidebar } from "./FilterSidebar";
 import { SearchSortBar } from "./SearchSortBar";
 import { CourseGrid } from "./CourseGrid";
 import { CatalogPagination } from "./CatalogPagination";
-import { MOCK_COURSES } from "@/lib/mockCatalogData";
 import { FilterState, SortOption, CatalogCourse } from "@/types/catalog";
 import { courseService } from "@/services/courseService";
 import { Compass, Sparkles } from "lucide-react";
 
-const ITEMS_PER_PAGE = 6;
+const ITEMS_PER_PAGE = 9;
 
 const INITIAL_FILTERS: FilterState = {
   searchQuery: "",
@@ -26,66 +25,107 @@ export function CourseCatalogView() {
   const locale = useLocale() || "en";
   const isAr = locale === "ar";
 
-  const [allCourses, setAllCourses] = useState<CatalogCourse[]>(MOCK_COURSES);
-  const [isLoading, setIsLoading] = useState(false);
+  const [allCourses, setAllCourses] = useState<CatalogCourse[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const [filters, setFilters] = useState<FilterState>(INITIAL_FILTERS);
   const [activeFilters, setActiveFilters] = useState<FilterState>(INITIAL_FILTERS);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
+  const [fetchTrigger, setFetchTrigger] = useState(0);
+
+  // Sync with initial URL search params on mount
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const sp = new URLSearchParams(window.location.search);
+      const catParam = sp.get("category");
+      const searchParam = sp.get("search") || sp.get("q");
+      if (catParam || searchParam) {
+        const initialWithParams: FilterState = {
+          ...INITIAL_FILTERS,
+          selectedCategories: catParam ? [catParam] : [],
+          searchQuery: searchParam || "",
+        };
+        setFilters(initialWithParams);
+        setActiveFilters(initialWithParams);
+      }
+    }
+  }, []);
 
   // Fetch live courses from Backend API
   useEffect(() => {
+    let isSubscribed = true;
+
     async function loadCatalog() {
       setIsLoading(true);
+      setError(null);
       try {
-        const data = await courseService.getCourses();
+        const data = await courseService.getCourses({ page_size: 50 }, locale);
         const results = Array.isArray(data) ? data : data?.results || [];
 
-        if (results.length > 0) {
-          const liveCourses: CatalogCourse[] = results.map((c: any) => ({
-            id: String(c.id),
-            title: c.title || "Course",
-            titleAr: c.title_ar || c.title || "دورة",
-            description: c.description || "",
-            descriptionAr: c.description_ar || c.description || "",
-            instructorName: c.instructor?.full_name || "Mohammed Katanani",
-            instructorNameAr: c.instructor?.full_name_ar || c.instructor?.full_name || "محمد قطناني",
-            instructorAvatar: c.instructor?.avatar || "",
-            category: c.category?.name || "Business Coaching",
-            level: c.level === "beginner" ? "Beginner" : c.level === "intermediate" ? "Intermediate" : c.level === "advanced" ? "Advanced" : "All Levels",
-            price: Number(c.price) || 0,
-            isFree: Boolean(c.is_free || Number(c.price) === 0),
-            language: c.language === "ar" ? "Arabic" : "English",
-            rating: c.rating || 4.9,
-            reviewsCount: c.reviews_count || 120,
-            studentsCount: c.students_count || 0,
-            image: c.cover_image || "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&auto=format&fit=crop&q=80",
-            badge: c.is_new ? "New" : undefined,
-          }));
+        if (isSubscribed) {
+          if (results.length > 0) {
+            const liveCourses: CatalogCourse[] = results.map((c: any) => {
+              const instName = typeof c.instructor === "object" ? (c.instructor?.full_name || c.instructor?.name || "") : (typeof c.instructor === "string" ? c.instructor : "");
+              const catName = typeof c.category === "object" ? (c.category?.name || "") : (typeof c.category === "string" ? c.category : "");
+              const catNameAr = typeof c.category === "object" && c.category?.name_ar ? c.category.name_ar : (c.category_ar || catName);
+              const priceNum = Number(c.price) || 0;
+              const durationNum = Number(c.duration_hours || c.duration || 0);
 
-          // Merge live courses with sample mock courses
-          const mockFallback = MOCK_COURSES.filter(
-            (mc) =>
-              !liveCourses.some(
-                (lc) =>
-                  lc.id === mc.id ||
-                  (Boolean(lc.title) &&
-                    Boolean(mc.title) &&
-                    lc.title!.toLowerCase() === mc.title!.toLowerCase())
-              )
-          );
+              return {
+                id: String(c.id),
+                title: c.title || c.title_en || "Course",
+                titleAr: c.title_ar || c.title || "دورة",
+                description: c.description || c.description_en || "",
+                descriptionAr: c.description_ar || c.description || "",
+                instructorName: instName,
+                instructorNameAr: typeof c.instructor === "object" && c.instructor?.full_name_ar ? c.instructor.full_name_ar : instName,
+                instructorAvatar: (typeof c.instructor === "object" ? c.instructor?.avatar : undefined) || "",
+                category: catName,
+                categoryAr: catNameAr,
+                level: c.level === "beginner" ? "Beginner" : c.level === "intermediate" ? "Intermediate" : c.level === "advanced" ? "Advanced" : "All Levels",
+                price: priceNum,
+                priceFormatted: priceNum === 0 ? (isAr ? "مجاني" : "Free") : `$${priceNum.toFixed(2)}`,
+                isFree: Boolean(c.is_free || priceNum === 0),
+                language: c.language === "ar" ? "Arabic" : "English",
+                rating: Number(c.rating) || 5.0,
+                reviewsCount: Number(c.reviews_count || c.reviewsCount || 0),
+                reviewsCountFormatted: String(Number(c.reviews_count || c.reviewsCount || 0)),
+                studentsCount: Number(c.students_count || c.studentsCount || 0),
+                durationHours: durationNum > 0 ? durationNum : 10,
+                durationFormatted: durationNum > 0 ? `${durationNum} ${isAr ? "ساعات" : "hours"}` : `10 ${isAr ? "ساعات" : "hours"}`,
+                coverImage: c.cover_image || c.coverImage || c.image || "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&auto=format&fit=crop&q=80",
+                image: c.cover_image || c.coverImage || c.image || "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&auto=format&fit=crop&q=80",
+                badge: c.is_new ? "New" : c.is_bestseller ? "Bestseller" : undefined,
+              };
+            });
 
-          setAllCourses([...liveCourses, ...mockFallback]);
+            // Set exclusively the live courses from the API database
+            setAllCourses(liveCourses);
+          } else {
+            setAllCourses([]);
+          }
         }
-      } catch (err) {
-        console.warn("Could not fetch live catalog courses, using sample catalog:", err);
+      } catch (err: any) {
+        console.warn("Could not fetch live catalog courses:", err);
+        if (isSubscribed) {
+          setAllCourses([]);
+          setError(err?.message || "Failed to load courses");
+        }
       } finally {
-        setIsLoading(false);
+        if (isSubscribed) {
+          setIsLoading(false);
+        }
       }
     }
+
     loadCatalog();
-  }, []);
+
+    return () => {
+      isSubscribed = false;
+    };
+  }, [fetchTrigger, locale, isAr]);
 
   // Instant Filter change handler
   const handleFilterChange = (newFilters: FilterState) => {
@@ -142,7 +182,8 @@ export function CourseCatalogView() {
     // 2. Categories
     if (activeFilters.selectedCategories.length > 0) {
       result = result.filter((c) =>
-        activeFilters.selectedCategories.includes(c.category)
+        activeFilters.selectedCategories.includes(c.category) ||
+        (Boolean(c.categoryAr) && activeFilters.selectedCategories.includes(c.categoryAr!))
       );
     }
 
@@ -185,7 +226,7 @@ export function CourseCatalogView() {
     }
 
     return result;
-  }, [activeFilters]);
+  }, [allCourses, activeFilters]);
 
   // Dynamic Total Count matching actual filtered results
   const totalResultsCount = filteredCourses.length;
@@ -199,8 +240,13 @@ export function CourseCatalogView() {
     return filteredCourses.slice(start, start + ITEMS_PER_PAGE);
   }, [filteredCourses, currentPage]);
 
+
+
   return (
-    <div dir={isAr ? "rtl" : "ltr"} className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
+    <div
+      dir={isAr ? "rtl" : "ltr"}
+      className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10"
+    >
       {/* Catalog Main Layout (Sidebar + Content) */}
       <div className="flex flex-col lg:flex-row gap-8 items-start">
           
@@ -223,6 +269,7 @@ export function CourseCatalogView() {
               searchQuery={filters.searchQuery}
               onSearchChange={handleSearchChange}
               totalResults={totalResultsCount}
+              isLoading={isLoading}
               sortBy={filters.sortBy}
               onSortChange={handleSortChange}
               isAr={isAr}
@@ -233,6 +280,9 @@ export function CourseCatalogView() {
             {/* Course Cards Grid */}
             <CourseGrid
               courses={paginatedCourses}
+              isLoading={isLoading}
+              error={error}
+              onRetry={() => setFetchTrigger((prev) => prev + 1)}
               onResetFilters={handleResetFilters}
               isAr={isAr}
             />

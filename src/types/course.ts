@@ -133,6 +133,10 @@ export interface Course {
   shortDescription?: string;
   whatYouWillLearn?: string[];
   whatYouWillLearnAr?: string[];
+  is_enrolled?: boolean;
+  is_free?: boolean;
+  total_lessons?: number;
+  total_duration_minutes?: number;
   isSaved?: boolean;
   isRealBackend?: boolean;
   updatedAt?: string;

@@ -1,7 +1,6 @@
 'use client';
 
-import React from 'react';
-import { useParams } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '@/lib/store';
 import { removeFromCart, clearCart } from '@/features/cart/cartSlice';
@@ -11,6 +10,7 @@ export default function CartPage() {
   const params = useParams();
   const locale = params.locale as string;
   const isAr = locale === 'ar';
+  const router = useRouter();
   const dispatch = useDispatch();
 
   const reduxCartItems = useSelector((state: RootState) => state.cart.items || []);
@@ -36,12 +36,17 @@ export default function CartPage() {
     dispatch(clearCart());
   };
 
+  const handleCheckout = () => {
+    router.push(`/${locale}/student/checkout`);
+  };
+
   return (
     <div className="w-full">
       <CartView
         items={reduxCartItems.length > 0 ? formattedItems : undefined}
         onRemoveItem={handleRemove}
         onClearCart={handleClear}
+        onCheckout={handleCheckout}
       />
     </div>
   );

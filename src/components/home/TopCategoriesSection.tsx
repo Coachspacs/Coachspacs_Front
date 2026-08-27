@@ -1,10 +1,9 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React from "react";
 import Link from "next/link";
 import { useTranslations, useLocale } from "next-intl";
 import {
-  PenTool,
   Code,
   BarChart3,
   Target,
@@ -12,76 +11,48 @@ import {
   ArrowRight,
   Sparkles,
   Layers,
-  BookOpen,
 } from "lucide-react";
-import { categoryService } from "@/services/categoryService";
 
 export function TopCategoriesSection() {
   const t = useTranslations("home");
   const locale = useLocale();
+  const isAr = locale === "ar";
 
-  const defaultCategories = [
+  const categories = [
     {
-      id: "design",
-      title: t("categoryDesign"),
-      icon: PenTool,
-      href: `/${locale}/catalog?category=Design`,
-    },
-    {
-      id: "development",
-      title: t("categoryDevelopment"),
-      icon: Code,
-      href: `/${locale}/catalog?category=Development`,
-    },
-    {
-      id: "business",
-      title: t("categoryBusiness"),
+      id: "business-coaching",
+      title: isAr ? "تدريب الأعمال" : "Business Coaching",
       icon: BarChart3,
-      href: `/${locale}/catalog?category=Management`,
+      href: `/${locale}/courses?category=Business%20Coaching`,
     },
     {
-      id: "marketing",
-      title: t("categoryMarketing"),
+      id: "career-coaching",
+      title: isAr ? "التوجيه المهني" : "Career Coaching",
       icon: Target,
-      href: `/${locale}/catalog?category=Marketing`,
+      href: `/${locale}/courses?category=Career%20Coaching`,
     },
     {
-      id: "growth",
-      title: t("categoryGrowth"),
+      id: "fitness-coaching",
+      title: isAr ? "تدريب اللياقة البدنية" : "Fitness Coaching",
+      icon: Layers,
+      href: `/${locale}/courses?category=Fitness%20Coaching`,
+    },
+    {
+      id: "life-mindfulness",
+      title: isAr ? "تطوير الذات واليقظة" : "Life & Mindfulness",
       icon: Brain,
-      href: `/${locale}/catalog?category=Leadership`,
+      href: `/${locale}/courses?category=Life%20%26%20Mindfulness`,
+    },
+    {
+      id: "programming",
+      title: isAr ? "البرمجة والتطوير" : "Programming",
+      icon: Code,
+      href: `/${locale}/courses?category=Programming`,
     },
   ];
 
-  const [categories, setCategories] = useState(defaultCategories);
-
-  useEffect(() => {
-    let isMounted = true;
-    categoryService
-      .getCategories(locale)
-      .then((data) => {
-        if (isMounted && data && Array.isArray(data) && data.length > 0) {
-          const iconPool = [PenTool, Code, BarChart3, Target, Brain, Layers, BookOpen];
-          const dynamicItems = data.slice(0, 5).map((item, idx) => ({
-            id: String(item.id),
-            title: item.name,
-            icon: iconPool[idx % iconPool.length],
-            href: `/${locale}/catalog?category=${encodeURIComponent(item.name)}`,
-          }));
-          setCategories(dynamicItems);
-        }
-      })
-      .catch(() => {
-        // Fallback to default categories
-      });
-    return () => {
-      isMounted = false;
-    };
-  }, [locale]);
-
-
   return (
-    <section className="w-full bg-white pt-8 pb-16 sm:pb-24">
+    <section suppressHydrationWarning className="w-full bg-white pt-8 pb-16 sm:pb-24">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         
         {/* Header */}
@@ -101,7 +72,7 @@ export function TopCategoriesSection() {
           </div>
 
           <Link
-            href={`/${locale}/catalog`}
+            href={`/${locale}/courses`}
             className="inline-flex items-center gap-2.5 text-[#0F5244] hover:text-white bg-[#0F5244]/10 hover:bg-[#0F5244] px-5 py-2.5 rounded-full text-sm font-extrabold transition-all duration-300 shadow-2xs hover:shadow-md shrink-0 self-start sm:self-auto group"
           >
             <span>{t("viewAllCategories")}</span>
@@ -110,7 +81,7 @@ export function TopCategoriesSection() {
         </div>
 
         {/* Categories Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 sm:gap-5 lg:gap-6">
+        <div suppressHydrationWarning className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 sm:gap-5 lg:gap-6">
           {categories.map((cat, idx) => {
             const Icon = cat.icon;
             const isLastOnMobile = idx === categories.length - 1;

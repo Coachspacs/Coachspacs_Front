@@ -25,41 +25,11 @@ export interface OrderItem {
   courses: string[];
 }
 
-const defaultDemoOrders: OrderItem[] = [
-  {
-    id: "1",
-    orderNumber: "#CS-7721",
-    date: "Oct 12, 2023",
-    itemsCount: 2,
-    total: 89.99,
-    status: "completed",
-    courses: ["Advanced UI Patterns", "React 19 & Next.js Masterclass"],
-  },
-  {
-    id: "2",
-    orderNumber: "#CS-7650",
-    date: "Sep 28, 2023",
-    itemsCount: 1,
-    total: 129.00,
-    status: "completed",
-    courses: ["Figma UI/UX Design System"],
-  },
-  {
-    id: "3",
-    orderNumber: "#CS-7512",
-    date: "Aug 05, 2023",
-    itemsCount: 1,
-    total: 15.00,
-    status: "cancelled",
-    courses: ["Python Machine Learning Basics"],
-  },
-];
-
 export interface OrderHistoryViewProps {
   orders?: OrderItem[];
 }
 
-export function OrderHistoryView({ orders = defaultDemoOrders }: OrderHistoryViewProps) {
+export function OrderHistoryView({ orders = [] }: OrderHistoryViewProps) {
   const t = useTranslations("orderHistory");
   const locale = useLocale() || "en";
   const isAr = locale === "ar";
