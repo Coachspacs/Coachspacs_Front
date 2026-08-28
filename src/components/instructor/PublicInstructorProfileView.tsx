@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useLocale, useTranslations } from "next-intl";
@@ -14,6 +14,7 @@ import {
   Mail,
   ShieldCheck,
   Sparkles,
+  ChevronLeft,
   ChevronRight,
   Check,
   ArrowRight,
@@ -48,6 +49,81 @@ export function PublicInstructorProfileView({ instructor: initialInstructor }: P
 
   const [instructor, setInstructor] = useState<PublicInstructor>(initialInstructor || ({} as any));
   const [copied, setCopied] = useState(false);
+
+  // Single-Row Slider Controls & Drag-to-Scroll
+  const coursesScrollRef = useRef<HTMLDivElement>(null);
+  const [canScrollPrev, setCanScrollPrev] = useState(false);
+  const [canScrollNext, setCanScrollNext] = useState(true);
+
+  // Mouse Drag State
+  const isDraggingRef = useRef(false);
+  const startXRef = useRef(0);
+  const scrollLeftRef = useRef(0);
+  const hasDraggedRef = useRef(false);
+  const [isCursorGrabbing, setIsCursorGrabbing] = useState(false);
+
+  const checkScroll = useCallback(() => {
+    const el = coursesScrollRef.current;
+    if (!el) return;
+    const { scrollLeft, scrollWidth, clientWidth } = el;
+    const maxScroll = scrollWidth - clientWidth;
+    const currentScroll = Math.abs(scrollLeft);
+    setCanScrollPrev(currentScroll > 10);
+    setCanScrollNext(currentScroll < maxScroll - 10);
+  }, []);
+
+  const handleScroll = (dir: "prev" | "next") => {
+    const el = coursesScrollRef.current;
+    if (!el) return;
+    
+    // Get actual width of first card + gap
+    const firstCard = el.querySelector<HTMLElement>("[data-course-card]");
+    const cardWidth = firstCard ? firstCard.getBoundingClientRect().width : 320;
+    const scrollStep = cardWidth + 16; // card width + gap-4 (16px)
+
+    const scrollAmount = dir === "next" ? scrollStep : -scrollStep;
+
+    if (isAr) {
+      el.scrollBy({ left: -scrollAmount, behavior: "smooth" });
+    } else {
+      el.scrollBy({ left: scrollAmount, behavior: "smooth" });
+    }
+
+    setTimeout(checkScroll, 350);
+  };
+
+  // Mouse Drag Events
+  const handleMouseDown = (e: React.MouseEvent) => {
+    const el = coursesScrollRef.current;
+    if (!el) return;
+    isDraggingRef.current = true;
+    hasDraggedRef.current = false;
+    setIsCursorGrabbing(true);
+    startXRef.current = e.pageX - el.offsetLeft;
+    scrollLeftRef.current = el.scrollLeft;
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDraggingRef.current) return;
+    const el = coursesScrollRef.current;
+    if (!el) return;
+    e.preventDefault();
+    const x = e.pageX - el.offsetLeft;
+    const walk = (x - startXRef.current) * 1.5;
+    if (Math.abs(walk) > 4) {
+      hasDraggedRef.current = true;
+    }
+    el.scrollLeft = scrollLeftRef.current - walk;
+    checkScroll();
+  };
+
+  const handleMouseUpOrLeave = () => {
+    if (isDraggingRef.current) {
+      isDraggingRef.current = false;
+      setIsCursorGrabbing(false);
+      checkScroll();
+    }
+  };
 
   // Sync client profile state with saved local/mock overrides on mount
   useEffect(() => {
@@ -104,30 +180,45 @@ export function PublicInstructorProfileView({ instructor: initialInstructor }: P
           const list = Array.isArray(data) ? data : data?.results || [];
           if (list.length > 0) {
             setInstructor((prev) => {
-              const realCourses = list.map((c: any) => ({
-                id: String(c.id),
-                title: c.title_en || c.title || "Course",
-                titleAr: c.title_ar || c.title || "دورة",
-                slug: String(c.id),
-                description: c.description_en || c.description || "",
-                descriptionAr: c.description_ar || c.description || "",
-                instructor: {
-                  id: initialInstructor.id || "inst-mohammed-katanani",
-                  name: prev.name,
-                  nameAr: prev.nameAr,
-                  avatar: prev.avatar,
-                },
-                rating: c.rating || 5.0,
-                reviewsCount: c.reviews_count || 0,
-                studentsCount: c.students_count || 0,
-                price: Number(c.price) || 0,
-                level: c.level || "Beginner",
-                category: c.category_name || "General",
-                image:
-                  c.cover_image ||
-                  c.image ||
-                  "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&auto=format&fit=crop&q=80",
-              }));
+              const instName = prev.name || initialInstructor.name || "Instructor";
+              const instNameAr = prev.nameAr || initialInstructor.nameAr || instName;
+              const instAvatar = prev.avatar || initialInstructor.avatar;
+
+              const realCourses = list.map((c: any) => {
+                const catName = typeof c.category === "object" ? (c.category?.name || "General") : (typeof c.category === "string" ? c.category : (c.category_name || "General"));
+                const catNameAr = typeof c.category === "object" && c.category?.name_ar ? c.category.name_ar : (c.category_ar || catName);
+                const priceNum = Number(c.price) || 0;
+                const durationNum = Number(c.duration_hours || c.duration || 0);
+
+                return {
+                  id: String(c.id),
+                  title: c.title || c.title_en || "Course",
+                  titleAr: c.title_ar || c.title || "دورة",
+                  titleEn: c.title_en || c.title || "Course",
+                  slug: String(c.id),
+                  description: c.description || c.description_en || "",
+                  descriptionAr: c.description_ar || c.description || "",
+                  instructorName: instName,
+                  instructorNameAr: instNameAr,
+                  instructorAvatar: instAvatar || (typeof c.instructor === "object" ? c.instructor?.avatar : undefined) || "",
+                  category: catName,
+                  categoryAr: catNameAr,
+                  level: c.level === "beginner" ? "Beginner" : c.level === "intermediate" ? "Intermediate" : c.level === "advanced" ? "Advanced" : (c.level || "Beginner"),
+                  price: priceNum,
+                  priceFormatted: priceNum === 0 ? (isAr ? "مجاني" : "Free") : `$${priceNum.toFixed(2)}`,
+                  isFree: Boolean(c.is_free || priceNum === 0),
+                  language: c.language === "ar" ? "Arabic" : "English",
+                  rating: Number(c.rating) || 5.0,
+                  reviewsCount: Number(c.reviews_count || 0),
+                  reviewsCountFormatted: String(Number(c.reviews_count || 0)),
+                  studentsCount: Number(c.students_count || 0),
+                  durationHours: durationNum > 0 ? durationNum : 10,
+                  durationFormatted: durationNum > 0 ? `${durationNum} ${isAr ? "ساعات" : "hours"}` : `10 ${isAr ? "ساعات" : "hours"}`,
+                  coverImage: c.cover_image || c.coverImage || c.image || "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&auto=format&fit=crop&q=80",
+                  image: c.cover_image || c.coverImage || c.image || "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&auto=format&fit=crop&q=80",
+                  badge: c.is_new ? "New" : c.is_bestseller ? "Bestseller" : undefined,
+                };
+              });
 
               return {
                 ...prev,
@@ -457,7 +548,7 @@ export function PublicInstructorProfileView({ instructor: initialInstructor }: P
             )}
 
             {/* ================= RIGHT MAIN CONTENT COLUMN ================= */}
-            <section className={`${hasSidebar ? "lg:col-span-8" : "lg:col-span-12"} p-6 sm:p-8 space-y-8 bg-white`}>
+            <section className={`${hasSidebar ? "lg:col-span-8" : "lg:col-span-12"} min-w-0 max-w-full overflow-hidden p-6 sm:p-8 space-y-8 bg-white`}>
               
               {/* Bio / About Overview */}
               {displayBio && (
@@ -482,18 +573,45 @@ export function PublicInstructorProfileView({ instructor: initialInstructor }: P
 
               {/* ================= COURSES SECTION ================= */}
               <div className="space-y-4 pt-1">
-                <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                <div className="flex items-center justify-between border-b border-slate-100 pb-3 flex-wrap gap-2">
                   <div className="flex items-center gap-2">
                     <BookOpen className="h-4 w-4 text-[#0F5244]" />
                     <h3 className="text-base font-bold text-slate-900 tracking-tight">
                       {t("coursesTitle", { count: courses.length })}
                     </h3>
                   </div>
-                  {courses.length > 0 && (
-                    <span className="text-xs font-semibold text-[#0F5244]">
-                      {t("instantEnrollment")}
-                    </span>
-                  )}
+                  
+                  <div className="flex items-center gap-3">
+                    {courses.length > 0 && (
+                      <span className="hidden sm:inline-block text-xs font-semibold text-[#0F5244]">
+                        {t("instantEnrollment")}
+                      </span>
+                    )}
+
+                    {/* Navigation Buttons for Single-Row Carousel */}
+                    {courses.length > 1 && (
+                      <div className="flex items-center gap-1">
+                        <button
+                          type="button"
+                          onClick={() => handleScroll("prev")}
+                          disabled={!canScrollPrev}
+                          className="w-7 h-7 sm:w-8 sm:h-8 rounded-full border border-slate-200 hover:border-[#A7E2D4] hover:bg-[#E6F3EF] disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:border-slate-200 text-slate-700 transition-all flex items-center justify-center cursor-pointer disabled:cursor-not-allowed shadow-2xs active:scale-95"
+                          aria-label="Previous Course"
+                        >
+                          <ChevronLeft className="h-4 w-4 rtl:rotate-180" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleScroll("next")}
+                          disabled={!canScrollNext}
+                          className="w-7 h-7 sm:w-8 sm:h-8 rounded-full border border-slate-200 hover:border-[#A7E2D4] hover:bg-[#E6F3EF] disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:border-slate-200 text-slate-700 transition-all flex items-center justify-center cursor-pointer disabled:cursor-not-allowed shadow-2xs active:scale-95"
+                          aria-label="Next Course"
+                        >
+                          <ChevronRight className="h-4 w-4 rtl:rotate-180" />
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 {courses.length === 0 ? (
@@ -519,10 +637,30 @@ export function PublicInstructorProfileView({ instructor: initialInstructor }: P
                     </Link>
                   </div>
                 ) : (
-                  /* Grid of Published Courses */
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
+                  /* Single-Row Horizontal Carousel of Published Courses */
+                  <div
+                    ref={coursesScrollRef}
+                    onScroll={checkScroll}
+                    onMouseDown={handleMouseDown}
+                    onMouseMove={handleMouseMove}
+                    onMouseUp={handleMouseUpOrLeave}
+                    onMouseLeave={handleMouseUpOrLeave}
+                    onClickCapture={(e) => {
+                      if (hasDraggedRef.current) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                      }
+                    }}
+                    className={`flex gap-4 overflow-x-auto pb-4 pt-1 scroll-smooth snap-x snap-proximity select-none scrollbar-none [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden ${
+                      isCursorGrabbing ? "cursor-grabbing" : "cursor-grab"
+                    }`}
+                  >
                     {courses.map((course) => (
-                      <div key={course.id} className="transition-transform hover:-translate-y-0.5 duration-150">
+                      <div
+                        key={course.id}
+                        data-course-card
+                        className="w-[280px] sm:w-[320px] shrink-0 snap-start transition-transform hover:-translate-y-0.5 duration-150"
+                      >
                         <CourseCard course={course} isAr={isAr} />
                       </div>
                     ))}

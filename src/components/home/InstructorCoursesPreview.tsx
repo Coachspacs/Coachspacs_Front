@@ -27,8 +27,7 @@ export function InstructorCoursesPreview() {
   const isApproved = (user?.approval_status || (user as any)?.approvalStatus || "").toLowerCase() === "approved";
 
   const fetchInstructorCourses = useCallback(async () => {
-    const currentInstructorId = user?.id ? String(user.id) : null;
-    if (!isInstructor || !isApproved || !currentInstructorId) {
+    if (!isInstructor || !isApproved) {
       setCourses([]);
       setIsLoading(false);
       return;
@@ -38,27 +37,7 @@ export function InstructorCoursesPreview() {
       const data = await instructorCourseService.getMyCourses();
       const courseList = Array.isArray(data) ? data : data?.results || [];
 
-      const ownedCourses = courseList.filter((c: any) => {
-        const instId =
-          (c.instructor && typeof c.instructor === "object"
-            ? c.instructor.id ?? c.instructor.user_id ?? c.instructor.userId
-            : null) ??
-          (c.instructor && typeof c.instructor !== "object" ? c.instructor : null) ??
-          c.instructor_id ??
-          c.instructorId ??
-          c.user_id ??
-          c.userId ??
-          (c.user && typeof c.user === "object" ? c.user.id : null) ??
-          c.created_by ??
-          c.owner_id;
-
-        if (instId !== null && instId !== undefined && instId !== "") {
-          return String(instId) === currentInstructorId;
-        }
-        return false;
-      });
-
-      const formatted = ownedCourses.map((c: any) => {
+      const formatted = courseList.map((c: any) => {
         const isDraft = c.status === "draft" || (!c.published_at && !c.is_published && c.status !== "published");
         return {
           id: String(c.id),
@@ -80,7 +59,7 @@ export function InstructorCoursesPreview() {
     } finally {
       setIsLoading(false);
     }
-  }, [isInstructor, isApproved, user?.id]);
+  }, [isInstructor, isApproved]);
 
   useEffect(() => {
     if (mounted && isInstructor && isApproved) {

@@ -108,43 +108,34 @@ export function InstructorSettingsView() {
   useEffect(() => {
     setMounted(true);
 
-    // 1. Fetch saved instructor overrides on mount
-    const activeSlug = normalizeInstructorSlug(user?.fullName || user?.name || "Mohammed Katanani");
-    const savedOverrides = {
-      ...getSavedInstructorOverrides("global"),
-      ...getSavedInstructorOverrides("inst-mohammed-katanani"),
-      ...getSavedInstructorOverrides("mohammed-katanani"),
-      ...(activeSlug ? getSavedInstructorOverrides(activeSlug) : {}),
-      ...(activeSlug ? getSavedInstructorOverrides(`inst-${activeSlug}`) : {}),
-    };
+    // 1. Fetch saved instructor overrides on mount if specific to current user
+    const userFullName = user?.fullName || user?.name || "";
+    const activeSlug = userFullName ? normalizeInstructorSlug(userFullName) : "";
+    const savedOverrides = activeSlug
+      ? {
+          ...(getSavedInstructorOverrides(activeSlug) || {}),
+          ...(getSavedInstructorOverrides(`inst-${activeSlug}`) || {}),
+        }
+      : {};
 
-    let globalActive: any = {};
-    if (typeof window !== "undefined") {
-      try {
-        globalActive = JSON.parse(localStorage.getItem("coachspace_active_instructor_profile") || "{}");
-      } catch (e) {
-        globalActive = {};
-      }
-    }
+    const merged = { ...savedOverrides };
 
-    const merged = { ...globalActive, ...savedOverrides };
-
-    if (Object.keys(merged).length > 0) {
+    if (Object.keys(merged).length > 0 || user) {
       setFormData((prev) => ({
         ...prev,
-        fullName: (merged.name as string) || (user?.fullName || user?.name || prev.fullName),
-        headline: (merged.headline as string) || prev.headline,
-        specialization: (merged.specialization as string) || prev.specialization,
-        experienceYears: (merged.experienceYears as number) ?? prev.experienceYears,
-        bio: (merged.bio as string) || prev.bio,
-        skills: Array.isArray(merged.skills) && merged.skills.length > 0 ? merged.skills : prev.skills,
-        hourlyRate: merged.hourlyRate !== undefined ? merged.hourlyRate : prev.hourlyRate,
-        location: merged.location !== undefined ? merged.location : prev.location,
-        website: merged.socials?.website !== undefined ? merged.socials.website : prev.website,
-        linkedin: merged.socials?.linkedin !== undefined ? merged.socials.linkedin : prev.linkedin,
-        twitter: merged.socials?.twitter !== undefined ? merged.socials.twitter : prev.twitter,
-        github: merged.socials?.github !== undefined ? merged.socials.github : prev.github,
-        socialEmail: merged.socials?.email !== undefined ? merged.socials.email : prev.socialEmail,
+        fullName: user?.fullName || user?.name || (merged.name as string) || prev.fullName,
+        headline: user?.headline || (merged.headline as string) || prev.headline,
+        specialization: user?.specialization || (merged.specialization as string) || prev.specialization,
+        experienceYears: (user as any)?.experienceYears ?? (merged.experienceYears as number) ?? prev.experienceYears,
+        bio: user?.bio || (merged.bio as string) || prev.bio,
+        skills: Array.isArray((user as any)?.skills) && (user as any).skills.length > 0 ? (user as any).skills : (Array.isArray(merged.skills) && merged.skills.length > 0 ? merged.skills : prev.skills),
+        hourlyRate: (user as any)?.hourlyRate !== undefined ? (user as any).hourlyRate : (merged.hourlyRate !== undefined ? merged.hourlyRate : prev.hourlyRate),
+        location: (user as any)?.location !== undefined ? (user as any).location : (merged.location !== undefined ? merged.location : prev.location),
+        website: (user as any)?.website !== undefined ? (user as any).website : (merged.socials?.website !== undefined ? merged.socials.website : prev.website),
+        linkedin: (user as any)?.linkedin !== undefined ? (user as any).linkedin : (merged.socials?.linkedin !== undefined ? merged.socials.linkedin : prev.linkedin),
+        twitter: (user as any)?.twitter !== undefined ? (user as any).twitter : (merged.socials?.twitter !== undefined ? merged.socials.twitter : prev.twitter),
+        github: (user as any)?.github !== undefined ? (user as any).github : (merged.socials?.github !== undefined ? merged.socials.github : prev.github),
+        socialEmail: user?.email || (merged.socials?.email !== undefined ? merged.socials.email : prev.socialEmail),
       }));
 
       if (merged.avatar) {

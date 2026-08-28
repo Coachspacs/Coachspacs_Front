@@ -26,10 +26,7 @@ export const courseService = {
    * GET /api/catalog/courses
    */
   async getCourses(params?: CourseListParams, locale?: string): Promise<PaginatedCourseResponse> {
-    const headers: Record<string, string> = {
-      "Cache-Control": "no-cache, no-store, must-revalidate",
-      Pragma: "no-cache",
-    };
+    const headers: Record<string, string> = {};
     if (locale) {
       headers["Accept-Language"] = locale;
     }
@@ -45,10 +42,7 @@ export const courseService = {
    * GET /api/catalog/courses/:id
    */
   async getCourseById(id: string | number, locale?: string): Promise<any> {
-    const headers: Record<string, string> = {
-      "Cache-Control": "no-cache, no-store, must-revalidate",
-      Pragma: "no-cache",
-    };
+    const headers: Record<string, string> = {};
     if (locale) {
       headers["Accept-Language"] = locale;
     }

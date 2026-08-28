@@ -20,6 +20,7 @@ import {
 import { RootState } from "@/lib/store";
 import { authService } from "@/services/auth";
 import { updateUser, logout } from "@/features/auth/slice";
+import { tokenManager } from "@/lib/tokenManager";
 import { getSavedInstructorOverrides, normalizeInstructorSlug } from "@/lib/mockInstructors";
 
 export function InstructorPendingApproval() {
@@ -42,12 +43,14 @@ export function InstructorPendingApproval() {
 
   useEffect(() => {
     setMounted(true);
-    const activeSlug = normalizeInstructorSlug(user?.fullName || user?.name || "Mohammed Katanani");
-    const overrides = {
-      ...getSavedInstructorOverrides("global"),
-      ...(activeSlug ? getSavedInstructorOverrides(activeSlug) : {}),
-      ...(activeSlug ? getSavedInstructorOverrides(`inst-${activeSlug}`) : {}),
-    };
+    const userFullName = user?.fullName || user?.name || "";
+    const activeSlug = userFullName ? normalizeInstructorSlug(userFullName) : "";
+    const overrides = activeSlug
+      ? {
+          ...(getSavedInstructorOverrides(activeSlug) || {}),
+          ...(getSavedInstructorOverrides(`inst-${activeSlug}`) || {}),
+        }
+      : {};
     setLocalOverrides(overrides);
   }, [user?.fullName, user?.name]);
 
@@ -89,17 +92,18 @@ export function InstructorPendingApproval() {
   };
 
   const handleLogout = () => {
+    tokenManager.clearTokens();
     dispatch(logout());
     router.push(`/${locale}/login`);
   };
 
   const fullName =
-    localOverrides.name ||
     (mounted ? user?.fullName || user?.name : "") ||
+    localOverrides.name ||
     tInst("roleInstructor");
 
   const email = (mounted ? user?.email : "") || "instructor@coachspace.com";
-  const avatarPreview = localOverrides.avatar || (mounted ? user?.avatar || null : null);
+  const avatarPreview = (mounted ? user?.avatar : null) || localOverrides.avatar || null;
 
   return (
     <div className="w-full max-w-2xl mx-auto py-6 sm:py-10 animate-in fade-in duration-200 font-sans" dir={isAr ? "rtl" : "ltr"}>

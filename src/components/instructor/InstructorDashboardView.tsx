@@ -6,6 +6,7 @@ import Image from "next/image";
 import { useTranslations, useLocale } from "next-intl";
 import { useSelector } from "react-redux";
 import { RootState } from "@/lib/store";
+import { tokenManager } from "@/lib/tokenManager";
 import {
   BookOpen,
   Users,
@@ -61,9 +62,9 @@ export function InstructorDashboardView() {
   const [courses, setCourses] = useState<any[]>([]);
   const [isLoadingCourses, setIsLoadingCourses] = useState(true);
 
+  // Fetch real instructor courses strictly for the authenticated instructor
   const fetchMyCourses = useCallback(async () => {
-    const currentInstructorId = authUser?.id ? String(authUser.id) : null;
-    if (!currentInstructorId) {
+    if (!tokenManager.hasSession()) {
       setCourses([]);
       setIsLoadingCourses(false);
       return;
@@ -74,28 +75,7 @@ export function InstructorDashboardView() {
       const data = await instructorCourseService.getMyCourses();
       const list = Array.isArray(data) ? data : data?.results || [];
 
-      // Filter exclusively courses that belong to the current authenticated instructor
-      const ownedCoursesList = list.filter((c: any) => {
-        const instId =
-          (c.instructor && typeof c.instructor === "object"
-            ? c.instructor.id ?? c.instructor.user_id ?? c.instructor.userId
-            : null) ??
-          (c.instructor && typeof c.instructor !== "object" ? c.instructor : null) ??
-          c.instructor_id ??
-          c.instructorId ??
-          c.user_id ??
-          c.userId ??
-          (c.user && typeof c.user === "object" ? c.user.id : null) ??
-          c.created_by ??
-          c.owner_id;
-
-        if (instId !== null && instId !== undefined && instId !== "") {
-          return String(instId) === currentInstructorId;
-        }
-        return false;
-      });
-
-      const realCourses = ownedCoursesList.map((c: any) => ({
+      const realCourses = list.map((c: any) => ({
         id: String(c.id),
         title: isAr ? c.title_ar || c.title_en || c.title : c.title_en || c.title_ar || c.title,
         titleEn: c.title_en || c.title || "Course",
@@ -116,7 +96,7 @@ export function InstructorDashboardView() {
         isReal: true,
       }));
 
-      // Set ONLY the authenticated instructor's real courses
+      // Set the authenticated instructor's real courses
       setCourses(realCourses);
     } catch (err) {
       console.warn("Could not fetch instructor courses:", err);
@@ -124,7 +104,7 @@ export function InstructorDashboardView() {
     } finally {
       setIsLoadingCourses(false);
     }
-  }, [authUser?.id, isAr]);
+  }, [isAr]);
 
   useEffect(() => {
     fetchMyCourses();

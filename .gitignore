@@ -15,3 +15,5 @@ tsconfig.tsbuildinfo
 # IDE
 .vscode/
 .idea/
+
+Coach-Space-User-Stories.md

@@ -6,7 +6,9 @@ import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useTranslations, useLocale } from "next-intl";
 import { useDispatch } from "react-redux";
+import { RootState } from "@/lib/store";
 import { logout } from "@/features/auth/slice";
+import { tokenManager } from "@/lib/tokenManager";
 import {
   LayoutDashboard,
   Search,
@@ -132,6 +134,7 @@ export function Sidebar({ activeTab, onTabChange, items, user }: SidebarProps) {
   const dispatch = useDispatch();
 
   const handleSignOut = () => {
+    tokenManager.clearTokens();
     dispatch(logout());
     router.push(`/${locale}/login`);
   };

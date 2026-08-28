@@ -54,13 +54,14 @@ export function InstructorLayoutClient({ children }: { children: React.ReactNode
       return;
     }
 
-    // Sync saved instructor profile overrides from localStorage
-    const activeSlug = normalizeInstructorSlug(activeUser.fullName || activeUser.name || "Mohammed Katanani");
-    const overrides = {
-      ...getSavedInstructorOverrides("global"),
-      ...(activeSlug ? getSavedInstructorOverrides(activeSlug) : {}),
-      ...(activeSlug ? getSavedInstructorOverrides(`inst-${activeSlug}`) : {}),
-    };
+    // Sync saved instructor profile overrides from localStorage if applicable
+    const activeSlug = activeUser.fullName || activeUser.name ? normalizeInstructorSlug(activeUser.fullName || activeUser.name) : "";
+    const overrides = activeSlug
+      ? {
+          ...(getSavedInstructorOverrides(activeSlug) || {}),
+          ...(getSavedInstructorOverrides(`inst-${activeSlug}`) || {}),
+        }
+      : {};
     setLocalOverrides(overrides);
 
     setCheckingAuth(false);
@@ -82,15 +83,15 @@ export function InstructorLayoutClient({ children }: { children: React.ReactNode
   }, [mounted, checkingAuth, isApproved, isSettingsPage, locale, router]);
 
   const fullName =
-    localOverrides.name ||
     (mounted ? user?.fullName || user?.name : "") ||
+    localOverrides.name ||
     tDash("defaultInstructorName");
 
   const email = (mounted ? user?.email : "") || "instructor@coachspace.com";
-  const avatarPreview = localOverrides.avatar || (mounted ? user?.avatar || null : null);
+  const avatarPreview = (mounted ? user?.avatar : null) || localOverrides.avatar || null;
   const headline =
-    localOverrides.headline ||
     (mounted ? user?.headline : "") ||
+    localOverrides.headline ||
     tInst("defaultHeadline");
 
   const handleRestrictedClick = (featureLabel: string) => (e: React.MouseEvent) => {
