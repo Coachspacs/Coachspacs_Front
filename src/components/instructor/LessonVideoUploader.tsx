@@ -194,24 +194,14 @@ export function LessonVideoUploader({
               <div className="flex items-center justify-between text-[11px] text-emerald-800 font-medium">
                 <span>
                   {uploadStatus === "validating"
-                    ? isAr
-                      ? "جاري فحص صيغة وحجم الملف..."
-                      : "Checking file format and size..."
+                    ? t("checkingFormat")
                     : uploadStatus === "signing"
-                    ? isAr
-                      ? "جاري تهيئة تصريح الرفع الآمن..."
-                      : "Requesting secure upload ticket..."
+                    ? t("requestingTicket")
                     : uploadStatus === "uploading"
-                    ? isAr
-                      ? "جاري الرفع المباشر إلى السحابة..."
-                      : "Uploading directly to Cloudinary..."
+                    ? t("uploadingDirect")
                     : uploadStatus === "saving"
-                    ? isAr
-                      ? "جاري حفظ الدرس والتحقق من الفيديو..."
-                      : "Saving lesson to backend..."
-                    : isAr
-                    ? "اكتمل الرفع بنجاح"
-                    : "Upload complete"}
+                    ? t("savingLesson")
+                    : t("uploadComplete")}
                 </span>
                 <span className="text-slate-600">
                   {t("keepTabOpen")}
@@ -266,9 +256,7 @@ export function LessonVideoUploader({
                   className="w-full h-full object-contain"
                 >
                   <track kind="captions" />
-                  {isAr
-                    ? "متصفحك لا يدعم مشغل الفيديو."
-                    : "Your browser does not support the video tag."}
+                  {t("videoNotSupported")}
                 </video>
               </div>
             </div>

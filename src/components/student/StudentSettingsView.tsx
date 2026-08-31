@@ -173,17 +173,17 @@ export function StudentSettingsView() {
 
     switch (score) {
       case 1:
-        return { score: 1, label: isAr ? "ضعيفة" : "Weak", color: "bg-rose-500", text: "text-rose-600" };
+        return { score: 1, label: tStudent("weakPassword"), color: "bg-rose-500", text: "text-rose-600" };
       case 2:
-        return { score: 2, label: isAr ? "متوسطة" : "Fair", color: "bg-amber-500", text: "text-amber-600" };
+        return { score: 2, label: tStudent("fairPassword"), color: "bg-amber-500", text: "text-amber-600" };
       case 3:
-        return { score: 3, label: isAr ? "جيدة" : "Good", color: "bg-emerald-500", text: "text-emerald-600" };
+        return { score: 3, label: tStudent("goodPassword"), color: "bg-emerald-500", text: "text-emerald-600" };
       case 4:
-        return { score: 4, label: isAr ? "قوية جداً" : "Strong", color: "bg-emerald-600", text: "text-emerald-700" };
+        return { score: 4, label: tStudent("strongPassword"), color: "bg-emerald-600", text: "text-emerald-700" };
       default:
         return { score: 0, label: "", color: "bg-slate-200", text: "text-slate-400" };
     }
-  }, [formData.newPassword, isAr]);
+  }, [formData.newPassword, tStudent]);
 
   // Avatar File Change (Supports JPG, PNG, WebP up to 5MB)
   const handleAvatarFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -205,7 +205,7 @@ export function StudentSettingsView() {
       if (res?.avatar) {
         setAvatarPreview(res.avatar);
         dispatch(updateUser({ avatar: res.avatar }));
-        setToastMessage(isAr ? "تم تحديث الصورة بنجاح ✨" : t("avatarUpdated"));
+        setToastMessage(tStudent("avatarUpdated"));
       }
     } catch (err: any) {
       const msg = getApiErrorMessage(
@@ -232,10 +232,10 @@ export function StudentSettingsView() {
 
     try {
       await userService.deleteAvatar();
-      setToastMessage(isAr ? "تم حذف الصورة بنجاح" : t("avatarRemoved"));
+      setToastMessage(tStudent("avatarRemoved"));
     } catch (err: any) {
       console.warn("[StudentSettingsView] deleteAvatar info:", err?.message);
-      setToastMessage(isAr ? "تم حذف الصورة بنجاح" : t("avatarRemoved"));
+      setToastMessage(tStudent("avatarRemoved"));
     } finally {
       setIsUploadingAvatar(false);
       setTimeout(() => setToastMessage(null), 3000);
@@ -299,7 +299,7 @@ export function StudentSettingsView() {
 
       // Trigger Celebration State
       setIsSavedCelebration(true);
-      setToastMessage(isAr ? "تم حفظ جميع التعديلات بنجاح ✨" : t("changesSaved"));
+      setToastMessage(t("changesSaved"));
       setTimeout(() => {
         setIsSavedCelebration(false);
         setToastMessage(null);
@@ -320,21 +320,21 @@ export function StudentSettingsView() {
   const tabsConfig = [
     {
       id: "profile" as SettingsTab,
-      label: isAr ? "الملف الشخصي" : t("profile"),
+      label: t("profile"),
       icon: User,
-      badge: isAr ? "المعلومات الأساسية" : "Basic Info",
+      badge: tStudent("basicInfoBadge"),
     },
     {
       id: "certificates" as SettingsTab,
-      label: isAr ? "بيانات الشهادة والتعلم" : tStudent("learningPreferences"),
+      label: tStudent("learningPreferences"),
       icon: Award,
-      badge: isAr ? "معاينة حية" : "Live Preview",
+      badge: tStudent("livePreviewBadge"),
     },
     {
       id: "security" as SettingsTab,
-      label: isAr ? "الأمان وكلمة المرور" : t("security"),
+      label: t("security"),
       icon: Lock,
-      badge: isAr ? "الحماية" : "Security",
+      badge: tStudent("securityBadge"),
     },
   ];
 
@@ -348,7 +348,7 @@ export function StudentSettingsView() {
           </div>
           <div className="space-y-0.5">
             <p className="text-xs sm:text-sm font-extrabold text-white">{toastMessage}</p>
-            <p className="text-[11px] text-slate-400">{isAr ? "تم تحديث البيانات في حسابك فوراً" : "Your account details were updated."}</p>
+            <p className="text-[11px] text-slate-400">{tStudent("accountDetailsUpdated")}</p>
           </div>
         </div>
       )}
@@ -383,7 +383,7 @@ export function StudentSettingsView() {
             <div className="space-y-1">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200/60 text-emerald-800 text-[11px] font-extrabold">
                 <Sparkles className="h-3.5 w-3.5 text-emerald-600 animate-pulse" />
-                <span>{isAr ? "لوحة الطالب المتقدمة" : "Student Settings Hub"}</span>
+                <span>{tStudent("hubTitle")}</span>
               </div>
               <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
                 {tStudent("title")}
@@ -396,7 +396,7 @@ export function StudentSettingsView() {
             {/* Quick Status Pill */}
             <div className="hidden sm:flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-slate-50 border border-slate-200/70 text-slate-600 text-xs font-semibold shrink-0">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
-              <span>{isAr ? "حسابك نشط وموثق" : "Verified Account"}</span>
+              <span>{tStudent("verifiedAccountPill")}</span>
             </div>
           </div>
 
@@ -457,7 +457,7 @@ export function StudentSettingsView() {
                   {/* Camera overlay on hover */}
                   <div className="absolute inset-0 bg-slate-900/50 backdrop-blur-2xs opacity-0 group-hover:opacity-100 transition-all duration-200 flex flex-col items-center justify-center text-white gap-1">
                     <Camera className="h-6 w-6 animate-bounce" />
-                    <span className="text-[10px] font-extrabold">{isAr ? "تغيير" : "Edit"}</span>
+                    <span className="text-[10px] font-extrabold">{tStudent("edit")}</span>
                   </div>
 
                   {isUploadingAvatar && (
@@ -496,8 +496,8 @@ export function StudentSettingsView() {
                       <Camera className="h-3.5 w-3.5 text-emerald-600" />
                       <span>
                         {avatarPreview
-                          ? (isAr ? "تغيير الصورة" : "Change Photo")
-                          : (isAr ? "رفع صورة" : "Upload Photo")}
+                          ? t("changePhoto")
+                          : tStudent("uploadPhoto")}
                       </span>
                     </button>
 
@@ -509,7 +509,7 @@ export function StudentSettingsView() {
                         className="px-3.5 py-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs font-extrabold transition-all active:scale-95 flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
                       >
                         <Trash2 className="h-3.5 w-3.5" />
-                        <span>{isAr ? "حذف الصورة" : "Remove photo"}</span>
+                        <span>{tStudent("removePhoto")}</span>
                       </button>
                     )}
                   </div>
@@ -601,15 +601,15 @@ export function StudentSettingsView() {
                   <div className="space-y-3">
                     <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-100/90 text-emerald-800 text-xs font-extrabold shadow-2xs">
                       <Sparkles className="h-3.5 w-3.5 text-emerald-600 animate-spin" style={{ animationDuration: '6s' }} />
-                      <span>{isAr ? "معاينة الشهادة المعتمدة المباشرة" : "Live Verified Certificate Preview"}</span>
+                      <span>{tStudent("liveCertificatePreview")}</span>
                     </div>
 
                     <div className="space-y-1">
                       <span className="text-xs font-bold text-slate-400 uppercase tracking-widest block">
-                        {isAr ? "اسم الحاصل على الشهادة" : "Recipient Name"}
+                        {tStudent("recipientName")}
                       </span>
                       <h3 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight transition-all">
-                        {formData.certificateName || formData.fullName || (isAr ? "اسم الطالب المعتمد" : "Student Verified Name")}
+                        {formData.certificateName || formData.fullName || tStudent("defaultCertificateRecipient")}
                       </h3>
                     </div>
 
@@ -626,7 +626,7 @@ export function StudentSettingsView() {
                       <Award className="h-8 w-8 group-hover:rotate-12 transition-transform duration-300" />
                     </div>
                     <span className="text-[11px] font-black text-emerald-800 mt-2 uppercase tracking-wider">
-                      {isAr ? "اعتماد رسمي" : "Official Seal"}
+                      {tStudent("officialSeal")}
                     </span>
                   </div>
                 </div>
@@ -640,7 +640,7 @@ export function StudentSettingsView() {
                   <label className="block text-xs sm:text-sm font-extrabold text-slate-800">
                     <span className="flex items-center gap-2">
                       <Award className="h-4 w-4 text-emerald-600" />
-                      <span>{isAr ? "الاسم المعتمد على الشهادات (باللغة الإنجليزية أو العربية)" : tStudent("certificateName")}</span>
+                      <span>{tStudent("certificateName")}</span>
                     </span>
                   </label>
                   <input
@@ -648,11 +648,11 @@ export function StudentSettingsView() {
                     name="certificateName"
                     value={formData.certificateName}
                     onChange={handleChange}
-                    placeholder={isAr ? "مثال: Hadeel Baroud" : "e.g. Hadeel Baroud"}
+                    placeholder={tStudent("certificateNamePlaceholder")}
                     className="w-full h-11 sm:h-12 rounded-xl border border-slate-200/90 bg-slate-50/50 hover:bg-white hover:border-emerald-300 px-4 text-xs sm:text-sm font-semibold text-slate-900 focus:bg-white focus:border-emerald-600 focus:outline-none focus:ring-4 focus:ring-emerald-500/15 transition-all shadow-2xs"
                   />
                   <p className="text-[11px] text-slate-400 font-medium">
-                    {isAr ? "يُفضل كتابة الاسم الثلاثي أو الثنائي كما ترغب في ظهوره بالسيرة الذاتية و LinkedIn." : "Use your full professional name as intended for LinkedIn or CV."}
+                    {tStudent("certificateNameGuidance")}
                   </p>
                 </div>
 
@@ -669,7 +669,7 @@ export function StudentSettingsView() {
                     name="learningGoal"
                     value={formData.learningGoal}
                     onChange={handleChange}
-                    placeholder={isAr ? "مثال: احتراف الذكاء الاصطناعي وعلوم البيانات" : "e.g. Master Full Stack Development"}
+                    placeholder={tStudent("learningGoalPlaceholder")}
                     className="w-full h-11 sm:h-12 rounded-xl border border-slate-200/90 bg-slate-50/50 hover:bg-white hover:border-emerald-300 px-4 text-xs sm:text-sm font-semibold text-slate-900 focus:bg-white focus:border-emerald-600 focus:outline-none focus:ring-4 focus:ring-emerald-500/15 transition-all shadow-2xs"
                   />
                 </div>
@@ -791,7 +791,7 @@ export function StudentSettingsView() {
                         <div className={`h-full transition-all duration-300 ${passwordStrength.score >= 4 ? passwordStrength.color : "bg-transparent"} flex-1`} />
                       </div>
                       <div className="flex justify-between items-center text-[10px]">
-                        <span className="text-slate-400">{isAr ? "مستوى الأمان:" : "Strength:"}</span>
+                        <span className="text-slate-400">{tStudent("strengthLabel")}</span>
                         <span className={`font-black ${passwordStrength.text}`}>{passwordStrength.label}</span>
                       </div>
                     </div>
@@ -848,12 +848,12 @@ export function StudentSettingsView() {
               ) : isSavedCelebration ? (
                 <>
                   <Check className="h-4 w-4 text-emerald-300 animate-in zoom-in-50 duration-200" />
-                  <span>{isAr ? "تم الحفظ بنجاح!" : "Saved!"}</span>
+                  <span>{tStudent("saved")}</span>
                 </>
               ) : (
                 <>
                   <Sparkles className="h-4 w-4 opacity-70" />
-                  <span>{isAr ? "حفظ التغييرات" : t("saveChanges")}</span>
+                  <span>{t("saveChanges")}</span>
                 </>
               )}
             </button>

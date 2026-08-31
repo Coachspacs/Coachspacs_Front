@@ -52,6 +52,8 @@ interface CompactCourseCardProps {
 }
 
 function CompactInstructorCourseCard({ course, isAr, locale }: CompactCourseCardProps) {
+  const tCatalog = useTranslations("catalog");
+  const tInst = useTranslations("instructorSettings");
   const dispatch = useDispatch();
   const cartItems = useSelector((state: RootState) => state.cart?.items || []);
   const isInCart = cartItems.some(
@@ -91,7 +93,7 @@ function CompactInstructorCourseCard({ course, isAr, locale }: CompactCourseCard
             <div className="w-full h-full flex flex-col items-center justify-center text-slate-400 bg-slate-50 gap-1 p-2 text-center">
               <ImageIcon className="w-5 h-5 text-slate-300" />
               <span className="text-[10px] font-bold text-slate-400">
-                {isAr ? "بدون غلاف" : "No cover"}
+                {tInst("noCover")}
               </span>
             </div>
           )}
@@ -120,7 +122,7 @@ function CompactInstructorCourseCard({ course, isAr, locale }: CompactCourseCard
             <div className="flex items-center">
               <span className="text-sm sm:text-base font-black text-slate-900 leading-tight">
                 {isFree ? (
-                  <span className="text-emerald-600 font-extrabold">{isAr ? "مجاني" : "Free"}</span>
+                  <span className="text-emerald-600 font-extrabold">{tCatalog("courseCard.free")}</span>
                 ) : (
                   course.priceFormatted || `$${Number(course.price || 0).toFixed(2)}`
                 )}
@@ -131,7 +133,7 @@ function CompactInstructorCourseCard({ course, isAr, locale }: CompactCourseCard
               <button
                 type="button"
                 onClick={handleCartClick}
-                title={isInCart ? (isAr ? "في السلة" : "In Cart") : (isAr ? "إضافة إلى السلة" : "Add to Cart")}
+                title={isInCart ? tCatalog("courseCard.inCart") : tCatalog("courseCard.addToCart")}
                 className={`p-2 rounded-xl border transition-all cursor-pointer flex items-center justify-center text-xs font-extrabold shadow-2xs active:scale-95 ${
                   isInCart
                     ? "bg-emerald-700 text-white border-emerald-700 hover:bg-emerald-800"

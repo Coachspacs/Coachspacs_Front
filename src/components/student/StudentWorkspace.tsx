@@ -519,7 +519,7 @@ export function StudentWorkspace({ initialTab = "overview", hideSidebar = true }
                   {tWs("earnedCertificatesTitle")}
                 </h2>
                 <p className="text-xs sm:text-sm text-slate-500 font-medium">
-                  {isAr ? "جميع الشهادات المعتمدة التي حصلت عليها عند إتمام الدورات بنجاح." : "All verified certificates earned upon completing your courses."}
+                  {tWs("earnedCertificatesDesc")}
                 </p>
               </div>
 
@@ -554,17 +554,17 @@ export function StudentWorkspace({ initialTab = "overview", hideSidebar = true }
                   </div>
                   <div className="space-y-2">
                     <h3 className="text-lg sm:text-xl font-black text-slate-900">
-                      {isAr ? "لا توجد شهادات مكتسبة بعد" : "No Certificates Earned Yet"}
+                      {tWs("noCertificatesTitle")}
                     </h3>
                     <p className="text-xs text-slate-500 font-medium leading-relaxed max-w-xs mx-auto">
-                      {isAr ? "أكمل دوراتك المسجلة بنسبة 100% لتحصل على شهاداتك الرسمية المعتمدة فوراً." : "Complete 100% of your enrolled courses to earn and download verified certificates."}
+                      {tWs("noCertificatesDesc")}
                     </p>
                   </div>
                   <Link
                     href={`/${locale}/courses`}
                     className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black transition-all shadow-xs active:scale-98"
                   >
-                    <span>{isAr ? "استكشف الدورات" : "Explore Courses"}</span>
+                    <span>{tWs("exploreCourses")}</span>
                   </Link>
                 </div>
               )}

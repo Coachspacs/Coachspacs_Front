@@ -691,7 +691,7 @@ export function InstructorWorkspace({ initialTab = "courses", hideSidebar = true
                     </div>
 
                     <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-white leading-tight">
-                      {isAr ? "إدارة دورة حياة وتطوير الكورسات" : "Course Lifecycle Management"}
+                      {tInst("courseLifecycleManagement")}
                     </h2>
 
                     <p className="text-xs sm:text-sm text-emerald-100/80 font-medium leading-relaxed">
@@ -715,7 +715,7 @@ export function InstructorWorkspace({ initialTab = "courses", hideSidebar = true
                   {/* Metric 1: Total */}
                   <div className="p-3.5 rounded-2xl bg-white/10 backdrop-blur-md border border-white/10 flex flex-col justify-between">
                     <div className="flex items-center justify-between text-emerald-200 text-xs font-bold mb-1">
-                      <span>{isAr ? "إجمالي الكورسات" : "Total Courses"}</span>
+                      <span>{tInst("totalCourses")}</span>
                       <Layers className="w-4 h-4 text-emerald-300" />
                     </div>
                     <div className="text-2xl sm:text-3xl font-black text-white">{courses.length}</div>
@@ -955,12 +955,12 @@ export function InstructorWorkspace({ initialTab = "courses", hideSidebar = true
                     <h3 className="text-sm sm:text-base font-extrabold text-slate-800">
                       {courseFilter === "archived"
                         ? tInst("noArchivedCourses")
-                        : (isAr ? "لا توجد دورات في هذا التصنيف حالياً" : "No courses found in this tab")}
+                        : tInst("noCoursesInTab")}
                     </h3>
                     <p className="text-xs text-slate-400 max-w-sm mx-auto">
                       {courseFilter === "archived"
                         ? tInst("noArchivedCoursesNotice")
-                        : (isAr ? "يمكنك تبديل التصفية أو إنشاء دورة جديدة." : "Try choosing another filter tab or create a new course.")}
+                        : tInst("noCoursesInTabDesc")}
                     </p>
                   </div>
                 ) : (
@@ -994,7 +994,7 @@ export function InstructorWorkspace({ initialTab = "courses", hideSidebar = true
                                 <div className="w-full h-full flex flex-col items-center justify-center text-slate-400 bg-slate-50 gap-1 p-1 text-center">
                                   <ImageIcon className="w-5 h-5 text-slate-300" />
                                   <span className="text-[9px] font-bold text-slate-400 leading-tight">
-                                    {isAr ? "بدون غلاف" : "No cover"}
+                                    {tInst("noCover")}
                                   </span>
                                 </div>
                               )}
@@ -1092,9 +1092,7 @@ export function InstructorWorkspace({ initialTab = "courses", hideSidebar = true
                                     )}
                                     <span>
                                       {submittingCourseId === c.id
-                                        ? isAr
-                                          ? "جاري الإرسال..."
-                                          : "Submitting..."
+                                        ? tInst("submittingReview")
                                         : tInst("submitReviewBtn")}
                                     </span>
                                   </button>
