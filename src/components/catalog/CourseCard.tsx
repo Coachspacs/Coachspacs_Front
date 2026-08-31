@@ -5,9 +5,12 @@ import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
-import { Star, Clock, User } from "lucide-react";
+import { useDispatch, useSelector } from "react-redux";
+import { Star, Clock, User, ShoppingCart, Check } from "lucide-react";
 import { Course } from "@/types/catalog";
 import { normalizeInstructorSlug } from "@/lib/mockInstructors";
+import { RootState } from "@/lib/store";
+import { addToCart } from "@/features/cart/cartSlice";
 
 interface CourseCardProps {
   course: Course;
@@ -17,7 +20,13 @@ interface CourseCardProps {
 export function CourseCard({ course, isAr = false }: CourseCardProps) {
   const locale = useLocale() || "en";
   const router = useRouter();
+  const dispatch = useDispatch();
   const t = useTranslations("catalog.card");
+
+  const cartItems = useSelector((state: RootState) => state.cart?.items || []);
+  const isInCart = cartItems.some(
+    (item: any) => String(item.course?.id || item.courseId || item.id) === String(course.id)
+  );
 
   const [imgSrc, setImgSrc] = useState(
     course.coverImage || "https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=800&q=80"
@@ -36,7 +45,18 @@ export function CourseCard({ course, isAr = false }: CourseCardProps) {
     return badge;
   };
 
+  const handleCartClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (isInCart) {
+      router.push(`/${locale}/student/cart`);
+    } else {
+      dispatch(addToCart(course));
+    }
+  };
+
   const coursePath = `/${locale}/courses/${course.id}`;
+  const isFree = course.priceFormatted === "Free" || course.priceFormatted === "مجاني" || course.price === 0 || course.is_free || (course as any).isFree;
 
   return (
     <Link href={coursePath} className="block group h-full">
@@ -88,7 +108,7 @@ export function CourseCard({ course, isAr = false }: CourseCardProps) {
                 router.push(`/${locale}/instructors/${normalizeInstructorSlug(course.instructorName || "")}`);
               }}
               className="flex items-center gap-1.5 text-xs font-medium text-slate-500 hover:text-[#0F5244] pt-0.5 w-fit cursor-pointer transition-colors group/inst"
-              title={isAr ? "عرض الملف الشخصي للمدرب" : "View Instructor Profile"}
+              title={t("viewInstructorProfile")}
             >
               <User className="h-3.5 w-3.5 text-slate-400 group-hover/inst:text-[#0F5244] transition-colors" />
               <span className="hover:underline font-semibold">{isAr ? course.instructorNameAr : course.instructorName}</span>
@@ -97,38 +117,69 @@ export function CourseCard({ course, isAr = false }: CourseCardProps) {
 
           {/* Rating & Details Footer */}
           <div className="space-y-3 pt-2">
-            {/* Rating Stars */}
-            <div className="flex items-center gap-1.5 text-xs">
-              <span className="font-extrabold text-slate-900">{course.rating.toFixed(1)}</span>
-              <div className="flex items-center text-amber-400">
-                {[...Array(5)].map((_, i) => (
-                  <Star
-                    key={i}
-                    className={`h-3.5 w-3.5 ${
-                      i < Math.floor(course.rating)
-                        ? "fill-amber-400 text-amber-400"
-                        : "fill-amber-100 text-amber-200"
-                    }`}
-                  />
-                ))}
+            {/* Rating Stars / New Course Badge */}
+            {Number(course.reviewsCount || 0) > 0 && Number(course.rating || 0) > 0 ? (
+              <div className="flex items-center gap-1.5 text-xs">
+                <span className="font-extrabold text-slate-900">{course.rating.toFixed(1)}</span>
+                <div className="flex items-center text-amber-400">
+                  {[...Array(5)].map((_, i) => (
+                    <Star
+                      key={i}
+                      className={`h-3.5 w-3.5 ${
+                        i < Math.floor(course.rating)
+                          ? "fill-amber-400 text-amber-400"
+                          : "fill-amber-100 text-amber-200"
+                      }`}
+                    />
+                  ))}
+                </div>
+                <span className="text-slate-400 font-medium">({course.reviewsCountFormatted})</span>
               </div>
-              <span className="text-slate-400 font-medium">({course.reviewsCountFormatted})</span>
-            </div>
-
-            {/* Price & Duration Line */}
-            <div className="flex items-baseline justify-between pt-3 border-t border-slate-100">
-              <span className="text-lg font-black text-slate-900">
-                {course.priceFormatted === "Free" || course.priceFormatted === "مجاني" ? (
-                  <span className="text-emerald-600 font-extrabold">{t("free")}</span>
-                ) : (
-                  course.priceFormatted
-                )}
-              </span>
-
-              <div className="flex items-center gap-1 text-xs font-semibold text-slate-400">
-                <Clock className="h-3.5 w-3.5" />
-                <span>{isAr ? `${course.durationHours} ${t("hours")}` : course.durationFormatted}</span>
+            ) : (
+              <div className="flex items-center gap-1.5 text-xs">
+                <span className="px-2 py-0.5 rounded-md bg-emerald-50 text-[#0F5244] text-[10px] font-black border border-emerald-200/60">
+                  {t("new")}
+                </span>
               </div>
+            )}
+
+            {/* Price & Add to Cart Footer */}
+            <div className="flex items-center justify-between pt-3 border-t border-slate-100 gap-2">
+              <div className="flex items-center">
+                <span className="text-lg font-black text-slate-900 leading-tight">
+                  {isFree ? (
+                    <span className="text-emerald-600 font-extrabold">{t("free")}</span>
+                  ) : (
+                    course.priceFormatted || `$${Number(course.price || 0).toFixed(2)}`
+                  )}
+                </span>
+              </div>
+
+              {/* Shopping Cart Button */}
+              {!isFree && (
+                <button
+                  type="button"
+                  onClick={handleCartClick}
+                  title={isInCart ? (isAr ? "في السلة (انتقل إلى السلة)" : "In Cart (Go to Cart)") : (isAr ? "إضافة إلى السلة" : "Add to Cart")}
+                  className={`px-3.5 py-2 rounded-xl border transition-all cursor-pointer flex items-center justify-center gap-1.5 text-xs font-extrabold shadow-2xs active:scale-95 shrink-0 ${
+                    isInCart
+                      ? "bg-emerald-700 text-white border-emerald-700 hover:bg-emerald-800"
+                      : "bg-emerald-50 text-emerald-800 border-emerald-200/80 hover:bg-emerald-600 hover:text-white"
+                  }`}
+                >
+                  {isInCart ? (
+                    <>
+                      <Check className="h-4 w-4" />
+                      <span>{t("inCart")}</span>
+                    </>
+                  ) : (
+                    <>
+                      <ShoppingCart className="h-4 w-4" />
+                      <span>{t("addToCart")}</span>
+                    </>
+                  )}
+                </button>
+              )}
             </div>
           </div>
 

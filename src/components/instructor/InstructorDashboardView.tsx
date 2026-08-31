@@ -33,10 +33,15 @@ import {
   X,
   Upload,
   Loader2,
+  Image as ImageIcon,
 } from "lucide-react";
 import { ArchiveCourseModal } from "@/components/modals/ArchiveCourseModal";
+import { DeleteCourseModal } from "@/components/modals/DeleteCourseModal";
+import { CourseIncompleteModal, IncompleteItem } from "@/components/modals/CourseIncompleteModal";
 import { instructorCourseService } from "@/services/instructorCourseService";
 import { courseService } from "@/services/courseService";
+import { getSavedCourseStatus, saveCourseStatus, removeCourseStatus } from "@/lib/mockInstructors";
+import { VerifiedBadge } from "@/components/ui/VerifiedBadge";
 
 export function InstructorDashboardView() {
   const locale = useLocale() || "en";
@@ -57,10 +62,24 @@ export function InstructorDashboardView() {
   const [showCourseModal, setShowCourseModal] = useState(false);
   const [editingCourseId, setEditingCourseId] = useState<string | null>(null);
   const [archiveModalCourseId, setArchiveModalCourseId] = useState<string | null>(null);
+  const [deleteModalCourse, setDeleteModalCourse] = useState<{ id: string; title: string } | null>(null);
+  const [isDeletingCourse, setIsDeletingCourse] = useState(false);
+  const [incompleteModalData, setIncompleteModalData] = useState<{
+    isOpen: boolean;
+    courseId: string;
+    courseTitle?: string;
+    missingItems: IncompleteItem[];
+  }>({
+    isOpen: false,
+    courseId: "",
+    courseTitle: "",
+    missingItems: [],
+  });
 
   // Instructor Courses State (Dynamic from live API only)
   const [courses, setCourses] = useState<any[]>([]);
   const [isLoadingCourses, setIsLoadingCourses] = useState(true);
+  const [submittingCourseId, setSubmittingCourseId] = useState<string | null>(null);
 
   // Fetch real instructor courses strictly for the authenticated instructor
   const fetchMyCourses = useCallback(async () => {
@@ -75,26 +94,52 @@ export function InstructorDashboardView() {
       const data = await instructorCourseService.getMyCourses();
       const list = Array.isArray(data) ? data : data?.results || [];
 
-      const realCourses = list.map((c: any) => ({
-        id: String(c.id),
-        title: isAr ? c.title_ar || c.title_en || c.title : c.title_en || c.title_ar || c.title,
-        titleEn: c.title_en || c.title || "Course",
-        titleAr: c.title_ar || c.title || "دورة",
-        studentsCount: Number(c.students_count || c.total_students || 0),
-        rating: Number(c.rating) || 5.0,
-        revenue: Number(c.revenue || (c.price ? Number(c.price) * (c.students_count || 0) : 0)),
-        status: c.status || (c.is_published ? "published" : "draft"),
-        price: Number(c.price) || 0,
-        level: c.level || "Beginner",
-        image:
-          c.cover_image ||
-          c.coverImage ||
-          c.image ||
-          "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&auto=format&fit=crop&q=80",
-        rejectionReason: isAr ? c.rejection_reason_ar || "" : c.rejection_reason_en || "",
-        sections: c.sections || [],
-        isReal: true,
-      }));
+      const realCourses = list.map((c: any) => {
+        const rawStatus = String(c.status || "").toLowerCase();
+        const savedStatus = getSavedCourseStatus(c.id);
+        let normalizedStatus: "published" | "pending_review" | "draft" | "rejected" | "archived" = "draft";
+        if (
+          rawStatus === "pending_review" ||
+          rawStatus === "pending" ||
+          rawStatus === "under_review" ||
+          rawStatus === "in_review"
+        ) {
+          normalizedStatus = "pending_review";
+        } else if (rawStatus === "published" || rawStatus === "approved" || (c.is_published && rawStatus !== "draft" && rawStatus !== "rejected")) {
+          removeCourseStatus(c.id);
+          normalizedStatus = "published";
+        } else if (rawStatus === "rejected" || rawStatus === "declined") {
+          removeCourseStatus(c.id);
+          normalizedStatus = "rejected";
+        } else if (rawStatus === "archived") {
+          normalizedStatus = "archived";
+        } else if (savedStatus === "pending_review") {
+          normalizedStatus = "pending_review";
+        } else {
+          normalizedStatus = "draft";
+        }
+
+        return {
+          id: String(c.id),
+          title: isAr ? c.title_ar || c.title_en || c.title : c.title_en || c.title_ar || c.title,
+          titleEn: c.title_en || c.title || "Course",
+          titleAr: c.title_ar || c.title || "دورة",
+          studentsCount: Number(c.students_count || c.total_students || 0),
+          rating: Number(c.rating || 0),
+          reviewsCount: Number(c.reviews_count || c.reviewsCount || 0),
+          revenue: Number(c.revenue || (c.price ? Number(c.price) * (c.students_count || 0) : 0)),
+          status: normalizedStatus,
+          price: Number(c.price) || 0,
+          level: c.level || "Beginner",
+          image:
+            c.cover_image ||
+            c.coverImage ||
+            (typeof c.image === "string" && !c.image.includes("unsplash.com/photo-1516321318423") ? c.image : ""),
+          rejectionReason: isAr ? c.rejection_reason_ar || "" : c.rejection_reason_en || "",
+          sections: c.sections || [],
+          isReal: true,
+        };
+      });
 
       // Set the authenticated instructor's real courses
       setCourses(realCourses);
@@ -130,25 +175,125 @@ export function InstructorDashboardView() {
 
   const [courseSections, setCourseSections] = useState<any[]>([]);
 
-  // Handlers for Course Lifecycle (US-08)
   const handleSubmitForReview = async (courseId: string) => {
     try {
-      await instructorCourseService.updateCourse(courseId, { status: "pending_review" });
-      setToastMessage(tInst("courseSubmittedToast"));
-      fetchMyCourses();
-    } catch (err: any) {
-      console.warn("Could not submit course for review via API:", err);
-      setCourses((prev) =>
-        prev.map((c) => (c.id === courseId ? { ...c, status: "pending_review", rejectionReason: "" } : c))
+      setSubmittingCourseId(courseId);
+
+      // 1. Fetch full course details to inspect all sections, lessons, and cover image
+      let detailedCourse = courses.find((c) => String(c.id) === String(courseId));
+      try {
+        const fetched = await instructorCourseService.getInstructorCourse(courseId);
+        if (fetched) {
+          detailedCourse = {
+            ...detailedCourse,
+            ...fetched,
+            sections: fetched.sections || detailedCourse?.sections || [],
+            cover_image: fetched.cover_image || fetched.coverImage || detailedCourse?.image,
+          };
+        }
+      } catch (fetchErr) {
+        console.warn("Could not fetch full course for validation check:", fetchErr);
+      }
+
+      // 2. Comprehensive Course Completeness Validation (Image, Sections, Lessons, Videos)
+      const hasCover = Boolean(
+        detailedCourse?.cover_image ||
+        detailedCourse?.coverImage ||
+        (detailedCourse?.image && typeof detailedCourse.image === "string" && !detailedCourse.image.includes("unsplash.com/photo-1516321318423"))
       );
-      setToastMessage(tInst("courseSubmittedToast"));
+
+      const sections = detailedCourse?.sections || [];
+      const hasSections = Array.isArray(sections) && sections.length > 0;
+      const hasLessons = hasSections && sections.every((s: any) => Array.isArray(s.lessons) && s.lessons.length > 0);
+      const hasVideos = hasLessons && sections.every((s: any) =>
+        s.lessons.every((l: any) => Boolean(l.video_url || l.video_public_id || l.videoUrl))
+      );
+
+      const checklist: IncompleteItem[] = [
+        {
+          id: "cover",
+          labelAr: "صورة غلاف الدورة",
+          labelEn: "Course Cover Image",
+          descriptionAr: "إرفاق صورة جذابة بدقة عالية لغلاف الدورة التدريبية.",
+          descriptionEn: "Upload a high-quality cover thumbnail for the course.",
+          isComplete: hasCover,
+        },
+        {
+          id: "sections",
+          labelAr: "أقسام الدورة (Sections)",
+          labelEn: "Course Sections",
+          descriptionAr: "إضافة قسم واحد على الأقل لتنظيم المنهج التدريبي.",
+          descriptionEn: "Add at least one curriculum section to organize content.",
+          isComplete: hasSections,
+        },
+        {
+          id: "lessons",
+          labelAr: "دروس المنهج (Lessons)",
+          labelEn: "Curriculum Lessons",
+          descriptionAr: "إضافة الدروس التابعة لكل قسم تدريبي في الدورة.",
+          descriptionEn: "Add lesson topics inside each curriculum section.",
+          isComplete: hasLessons,
+        },
+        {
+          id: "videos",
+          labelAr: "فيديوهات الشرح لكل درس",
+          labelEn: "Lesson Video Content",
+          descriptionAr: "رفع وإرفاق فيديو الشرح التعليمي لجميع الدروس المضافة.",
+          descriptionEn: "Upload or attach video recordings for all lessons.",
+          isComplete: hasVideos,
+        },
+      ];
+
+      const isIncomplete = checklist.some((item) => !item.isComplete);
+      if (isIncomplete) {
+        setIncompleteModalData({
+          isOpen: true,
+          courseId: String(courseId),
+          courseTitle: (isAr ? detailedCourse?.titleAr || detailedCourse?.title : detailedCourse?.titleEn || detailedCourse?.title) || "",
+          missingItems: checklist,
+        });
+        return;
+      }
+
+      const previousCourse = courses.find((c) => String(c.id) === String(courseId));
+      const previousStatus = previousCourse?.status || "draft";
+
+      // Persist pending_review locally so it stays across refetches
+      saveCourseStatus(courseId, "pending_review");
+
+      // Optimistic local update: immediately switch to pending_review and clear actions
+      setCourses((prev) =>
+        prev.map((c) => (String(c.id) === String(courseId) ? { ...c, status: "pending_review", rejectionReason: "" } : c))
+      );
+
+      try {
+        await instructorCourseService.submitForReview(courseId);
+        setToastMessage(tInst("courseSubmittedToast"));
+        await fetchMyCourses();
+      } catch (err: any) {
+        console.error("Could not submit course for review via API:", err);
+        removeCourseStatus(courseId);
+        // Revert optimistic state on API failure
+        setCourses((prev) =>
+          prev.map((c) => (String(c.id) === String(courseId) ? { ...c, status: previousStatus } : c))
+        );
+        const errorMsg =
+          err?.response?.data?.detail ||
+          err?.response?.data?.message ||
+          err?.response?.data?.error ||
+          (isAr ? "فشل إرسال الكورس للمراجعة. يرجى التحقق من الاتصال والمحاولة مرة أخرى." : "Failed to submit course for review. Please try again.");
+        setToastMessage(errorMsg);
+      }
+    } finally {
+      setSubmittingCourseId(null);
     }
-    setTimeout(() => setToastMessage(null), 3500);
+    setTimeout(() => setToastMessage(null), 4000);
   };
 
   const handleArchiveCourse = (courseId: string) => {
     const course = courses.find((c) => c.id === courseId);
-    if (course && course.status !== "archived") {
+    if (!course || course.status === "pending_review") return;
+    if (course.status !== "archived") {
       setArchiveModalCourseId(courseId);
     } else {
       confirmArchiveCourse(courseId);
@@ -157,6 +302,7 @@ export function InstructorDashboardView() {
 
   const confirmArchiveCourse = async (courseId: string) => {
     const targetCourse = courses.find((c) => c.id === courseId);
+    if (!targetCourse || targetCourse.status === "pending_review") return;
     const isCurrentlyArchived = targetCourse?.status === "archived";
     const nextStatus = isCurrentlyArchived ? "published" : "archived";
 
@@ -184,19 +330,53 @@ export function InstructorDashboardView() {
     setTimeout(() => setToastMessage(null), 3500);
   };
 
-  const handleDeleteCourse = async (courseId: string) => {
-    if (!confirm(isAr ? "هل أنت متأكد من رغبتك في حذف هذه الدورة؟" : "Are you sure you want to delete this course?")) {
+  const confirmDeleteCourse = async () => {
+    if (!deleteModalCourse) return;
+    const courseId = deleteModalCourse.id;
+    const targetCourse = courses.find((c) => String(c.id) === String(courseId));
+    if (targetCourse?.status === "pending_review") {
+      setDeleteModalCourse(null);
       return;
     }
+    setIsDeletingCourse(true);
     try {
-      await instructorCourseService.deleteCourse(courseId);
-      setToastMessage(isAr ? "تم حذف الدورة بنجاح" : "Course deleted successfully");
-      fetchMyCourses();
+      const res = await instructorCourseService.deleteCourse(courseId);
+      
+      if (res.status === 204) {
+        // 204 No Content: Course had no enrollments and was permanently deleted
+        setToastMessage(tInst("courseDeletedToast"));
+        setCourses((prev) => prev.filter((c) => String(c.id) !== String(courseId)));
+      } else if (res.archived || res.status === 200) {
+        // 200 OK: Course had enrollments -> automatically archived
+        setToastMessage(tInst("courseArchivedNotice"));
+        setCourses((prev) =>
+          prev.map((c) =>
+            String(c.id) === String(courseId) ? { ...c, status: "archived" } : c
+          )
+        );
+      } else {
+        setToastMessage(tInst("courseDeletedToast"));
+        setCourses((prev) => prev.filter((c) => String(c.id) !== String(courseId)));
+      }
+
+      // Re-fetch courses from backend
+      await fetchMyCourses();
     } catch (err: any) {
-      console.warn("Could not delete course via API:", err);
-      setCourses((prev) => prev.filter((c) => c.id !== courseId));
+      console.error("Delete course error:", err);
+      const status = err?.response?.status;
+      if (status === 401) {
+        setToastMessage(tInst("deleteCourseUnauthorized"));
+      } else if (status === 403) {
+        setToastMessage(tInst("deleteCourseForbidden"));
+      } else {
+        const errorDetail = err?.response?.data?.detail || err?.response?.data?.message;
+        setToastMessage(errorDetail || tInst("deleteCourseError"));
+      }
+    } finally {
+      setIsDeletingCourse(false);
+      setDeleteModalCourse(null);
+      setTimeout(() => setToastMessage(null), 4000);
     }
-    setTimeout(() => setToastMessage(null), 3500);
   };
 
   const handleAddLesson = (sectionId: string) => {
@@ -303,10 +483,15 @@ export function InstructorDashboardView() {
 
       {/* Top Header & Actions */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-            {tDash("title")}
-          </h1>
+        <div className="space-y-1">
+          <div className="flex items-center gap-2.5 flex-wrap">
+            <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+              {tDash("title")}
+            </h1>
+            {((authUser?.approval_status || (authUser as any)?.approvalStatus) === "approved" || (authUser as any)?.instructorStatus === "approved") && (
+              <VerifiedBadge size="sm" />
+            )}
+          </div>
           <p className="text-xs sm:text-sm text-slate-500 font-medium mt-1">
             {tDash("overviewSubtitle")}
           </p>
@@ -359,13 +544,20 @@ export function InstructorDashboardView() {
             </div>
           </div>
           <div className="text-2xl sm:text-3xl font-black text-slate-900">
-            {courses.length > 0
-              ? (courses.reduce((acc, curr) => acc + Number(curr.rating || 5), 0) / courses.length).toFixed(1)
-              : "5.0"}{" "}
-            / 5
+            {courses.filter((c) => Number(c.reviewsCount || 0) > 0).length > 0
+              ? (
+                  courses
+                    .filter((c) => Number(c.reviewsCount || 0) > 0)
+                    .reduce((acc, curr) => acc + Number(curr.rating || 0), 0) /
+                  courses.filter((c) => Number(c.reviewsCount || 0) > 0).length
+                ).toFixed(1)
+              : "—"}{" "}
+            {courses.filter((c) => Number(c.reviewsCount || 0) > 0).length > 0 && (
+              <span className="text-base text-slate-400 font-bold">/ 5</span>
+            )}
           </div>
           <div className="text-xs text-slate-500 font-medium">
-            ({courses.reduce((acc, curr) => acc + Number(curr.reviews_count || 0), 0)})
+            ({courses.reduce((acc, curr) => acc + Number(curr.reviewsCount || 0), 0)})
           </div>
         </div>
 
@@ -402,10 +594,10 @@ export function InstructorDashboardView() {
               </div>
               <div className="space-y-1">
                 <h3 className="text-base font-extrabold text-slate-900">
-                  {isAr ? "لا توجد دورات تدريبية بعد" : "No courses created yet"}
+                  {tDash("noCoursesYetTitle")}
                 </h3>
                 <p className="text-xs text-slate-500 max-w-sm mx-auto">
-                  {isAr ? "ابدأ بإنشاء أول دورة تدريبية ومشاركة معرفتك مع الطلاب." : "Start by creating your first course and share your expertise with students."}
+                  {tDash("noCoursesYetSubtitle")}
                 </p>
               </div>
               <Link
@@ -424,13 +616,24 @@ export function InstructorDashboardView() {
                 className="bg-white rounded-3xl border border-slate-200/80 p-6 shadow-2xs flex flex-col md:flex-row items-start md:items-center justify-between gap-6"
               >
                 <div className="flex items-start md:items-center gap-5 w-full md:w-auto">
-                  <Image
-                    src={course.image}
-                    alt={course.titleKey ? tDash(course.titleKey) : (isAr ? course.titleAr : course.titleEn)}
-                    width={96}
-                    height={96}
-                    className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl object-cover shrink-0 border border-slate-100 shadow-2xs"
-                  />
+                  <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden shrink-0 border border-slate-100 shadow-2xs bg-slate-100 flex items-center justify-center">
+                    {course.image ? (
+                      <Image
+                        src={course.image}
+                        alt={course.titleKey ? tDash(course.titleKey) : (isAr ? course.titleAr : course.titleEn)}
+                        width={96}
+                        height={96}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex flex-col items-center justify-center text-slate-400 bg-slate-50 gap-1 p-1 text-center">
+                        <ImageIcon className="w-5 h-5 text-slate-300" />
+                        <span className="text-[9px] font-bold text-slate-400 leading-tight">
+                          {isAr ? "بدون غلاف" : "No cover"}
+                        </span>
+                      </div>
+                    )}
+                  </div>
                   
                   <div className="space-y-2">
                     <div className="flex items-center gap-2 flex-wrap">
@@ -487,60 +690,102 @@ export function InstructorDashboardView() {
                       <span><strong className="text-slate-900">${course.price}</strong></span>
                       <span>•</span>
                       <span><strong className="text-slate-900">{course.studentsCount}</strong> {tInst("enrolledStudentsCount")}</span>
-                      <span>•</span>
-                      <span><strong className="text-slate-900 inline-flex items-center gap-1">{course.rating} <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400 inline shrink-0" /></strong></span>
+                      {course.status === "published" && Number(course.reviewsCount || 0) > 0 && Number(course.rating || 0) > 0 && (
+                        <>
+                          <span>•</span>
+                          <span><strong className="text-slate-900 inline-flex items-center gap-1">{Number(course.rating).toFixed(1)} <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400 inline shrink-0" /></strong></span>
+                        </>
+                      )}
                     </div>
                   </div>
                 </div>
 
-                {/* Actions per Course (US-08) */}
+                {/* Actions per Course State Machine */}
                 <div className="flex items-center gap-2 flex-wrap w-full md:w-auto justify-end pt-3 md:pt-0 border-t md:border-t-0 border-slate-100">
-                  
-                  {/* Submit for Review Button (US-08) */}
-                  {(course.status === "draft" || course.status === "rejected") && (
-                    <button
-                      type="button"
-                      onClick={() => handleSubmitForReview(course.id)}
-                      className="px-4 py-2 rounded-xl bg-[#0F5244] hover:bg-[#07382E] text-white text-xs font-extrabold flex items-center gap-1.5 shadow-2xs cursor-pointer transition-all"
-                    >
-                      <Send className="h-3.5 w-3.5" />
-                      <span>{tInst("submitReviewBtn")}</span>
-                    </button>
+                  {course.status === "pending_review" ? (
+                    /* 1. Pending Review: ZERO Action buttons, only official review notice */
+                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-900 text-xs font-black select-none shadow-2xs">
+                      <Clock className="w-3.5 h-3.5 text-amber-600 animate-pulse" />
+                      <span>{tInst("waitingForAdminReview")}</span>
+                    </div>
+                  ) : (
+                    /* 2. Draft, Published, Rejected States: Render permitted actions */
+                    <>
+                      {(course.status === "draft" || course.status === "rejected") && (
+                        <button
+                          type="button"
+                          disabled={submittingCourseId === course.id}
+                          onClick={() => handleSubmitForReview(course.id)}
+                          className="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 disabled:opacity-60 disabled:cursor-not-allowed active:scale-95 text-white text-xs font-extrabold flex items-center gap-1.5 shadow-2xs cursor-pointer transition-all"
+                        >
+                          {submittingCourseId === course.id ? (
+                            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                          ) : (
+                            <Send className="h-3.5 w-3.5" />
+                          )}
+                          <span>
+                            {submittingCourseId === course.id
+                              ? isAr
+                                ? "جاري الإرسال..."
+                                : "Submitting..."
+                              : tInst("submitReviewBtn")}
+                          </span>
+                        </button>
+                      )}
+
+                      {course.status === "published" && (
+                        <Link
+                          href={`/${locale}/courses/${course.slug || course.id}`}
+                          target="_blank"
+                          className="px-3.5 py-2 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 text-xs font-black transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs"
+                        >
+                          <Eye size={13} />
+                          <span>{tInst("viewLiveBtn")}</span>
+                        </Link>
+                      )}
+
+                      {/* Edit Course & Curriculum Studio Link */}
+                      <Link
+                        href={`/${locale}/instructor/courses/create?id=${course.id}`}
+                        className="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black flex items-center gap-1.5 shadow-xs transition-all active:scale-95 cursor-pointer"
+                      >
+                        <Edit className="h-3.5 w-3.5" />
+                        <span>{tInst("editBtn") || (isAr ? "تعديل" : "Edit")}</span>
+                      </Link>
+
+                      {/* Archive Button */}
+                      {course.status !== "rejected" && (
+                        <button
+                          type="button"
+                          onClick={() => handleArchiveCourse(course.id)}
+                          className={`px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1 transition-all cursor-pointer ${
+                            course.status === "archived"
+                              ? "bg-emerald-50 text-emerald-800 border border-emerald-200 hover:bg-emerald-100"
+                              : "bg-slate-100 hover:bg-slate-200 text-slate-700"
+                          }`}
+                          title={tInst("archiveTitle")}
+                        >
+                          <Archive className="h-3.5 w-3.5" />
+                          <span>{course.status === "archived" ? tInst("unarchiveBtn") : tInst("archiveBtn")}</span>
+                        </button>
+                      )}
+
+                      {/* Delete Course Button */}
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setDeleteModalCourse({
+                            id: String(course.id),
+                            title: course.titleKey ? tDash(course.titleKey) : (isAr ? course.titleAr : course.titleEn),
+                          })
+                        }
+                        className="px-2.5 py-2 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 border border-slate-200/60 hover:border-rose-200 transition-all cursor-pointer shadow-2xs"
+                        title={tInst("deleteCourseTitle")}
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </button>
+                    </>
                   )}
-
-                  {/* Archive Button (US-08) */}
-                  <button
-                    type="button"
-                    onClick={() => handleArchiveCourse(course.id)}
-                    className="px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold flex items-center gap-1 transition-all cursor-pointer"
-                    title={tInst("archiveTitle")}
-                  >
-                    <Archive className="h-3.5 w-3.5" />
-                    <span>{course.status === "archived" ? tInst("unarchiveBtn") : tInst("archiveBtn")}</span>
-                  </button>
-
-                  {/* Edit Course & Curriculum (US-08, US-09) */}
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setEditingCourseId(course.id);
-                      setCourseForm({
-                        titleAr: course.titleAr,
-                        titleEn: course.titleEn,
-                        category: course.category,
-                        level: course.level,
-                        price: course.price,
-                        descriptionAr: "",
-                        descriptionEn: ""
-                      });
-                      setShowCourseModal(true);
-                    }}
-                    className="px-3.5 py-2 rounded-xl bg-[#E8F3F1] hover:bg-emerald-100 text-[#0F5244] text-xs font-extrabold flex items-center gap-1 transition-all cursor-pointer"
-                  >
-                    <Edit className="h-3.5 w-3.5" />
-                    <span>{tInst("courses")}</span>
-                  </button>
-
                 </div>
               </div>
             ))}
@@ -640,191 +885,6 @@ export function InstructorDashboardView() {
 
 
 
-      {/* COURSE EDITOR & CURRICULUM BUILDER MODAL (US-08, US-09) */}
-      {showCourseModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs overflow-y-auto animate-in fade-in duration-150">
-          <div className="w-full max-w-3xl bg-white rounded-3xl p-6 sm:p-8 shadow-2xl border border-slate-100 space-y-6 my-8">
-            
-            {/* Modal Header */}
-            <div className="flex items-center justify-between border-b border-slate-100 pb-4">
-              <div className="flex items-center gap-2 text-[#0F5244]">
-                <Edit className="h-5 w-5" />
-                <h3 className="text-lg font-black text-slate-900">
-                  {tDash("builderTitle")}
-                </h3>
-              </div>
-              <button
-                type="button"
-                onClick={() => setShowCourseModal(false)}
-                className="p-1.5 rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-all cursor-pointer"
-              >
-                <X className="h-5 w-5" />
-              </button>
-            </div>
-
-            <form onSubmit={handleSaveCourseForm} className="space-y-6">
-              
-              {/* Basic Info (US-08) */}
-              <div className="space-y-4">
-                <h4 className="text-xs font-black text-slate-400 uppercase tracking-wider">
-                  1. {tDash("basicDetails")}
-                </h4>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-1.5">
-                    <label className="block text-xs font-bold text-slate-700">
-                      {tDash("titleArLabel")}
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      value={courseForm.titleAr}
-                      onChange={(e) => setCourseForm((prev) => ({ ...prev, titleAr: e.target.value }))}
-                      placeholder="مثال: دورة احتراف Next.js"
-                      className="w-full h-11 rounded-2xl border border-slate-200 bg-slate-50 px-4 text-xs font-semibold text-slate-900 focus:bg-white focus:border-[#0F5244] focus:outline-none"
-                    />
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <label className="block text-xs font-bold text-slate-700">
-                      {tDash("titleEnLabel")}
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      value={courseForm.titleEn}
-                      onChange={(e) => setCourseForm((prev) => ({ ...prev, titleEn: e.target.value }))}
-                      placeholder="e.g. Next.js Masterclass"
-                      className="w-full h-11 rounded-2xl border border-slate-200 bg-slate-50 px-4 text-xs font-semibold text-slate-900 focus:bg-white focus:border-[#0F5244] focus:outline-none"
-                    />
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <label className="block text-xs font-bold text-slate-700">
-                      {tInst("specialization")}
-                    </label>
-                    <select
-                      value={courseForm.category}
-                      onChange={(e) => setCourseForm((prev) => ({ ...prev, category: e.target.value }))}
-                      className="w-full h-11 rounded-2xl border border-slate-200 bg-slate-50 px-4 text-xs font-semibold text-slate-900 focus:bg-white focus:border-[#0F5244] focus:outline-none"
-                    >
-                      <option value="Development">Development</option>
-                      <option value="Data Science">Data Science & AI</option>
-                      <option value="Design">UI/UX Design</option>
-                      <option value="Management">Management</option>
-                    </select>
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <label className="block text-xs font-bold text-slate-700">
-                      {tDash("priceLabel")}
-                    </label>
-                    <input
-                      type="number"
-                      step="0.01"
-                      required
-                      value={courseForm.price}
-                      onChange={(e) => setCourseForm((prev) => ({ ...prev, price: Number(e.target.value) }))}
-                      className="w-full h-11 rounded-2xl border border-slate-200 bg-slate-50 px-4 text-xs font-semibold text-slate-900 focus:bg-white focus:border-[#0F5244] focus:outline-none"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Curriculum Builder (US-09) */}
-              <div className="space-y-4 pt-4 border-t border-slate-100">
-                <div className="flex items-center justify-between">
-                  <h4 className="text-xs font-black text-slate-400 uppercase tracking-wider">
-                    2. {tDash("builderTitle")}
-                  </h4>
-                  <span className="text-[11px] text-[#0F5244] font-bold">
-                    {tDash("dragDropFreeNotice")}
-                  </span>
-                </div>
-
-                <div className="space-y-4">
-                  {courseSections.map((section, sIdx) => (
-                    <div key={section.id} className="p-4 rounded-2xl bg-slate-50/70 border border-slate-200/70 space-y-3">
-                      <div className="flex items-center justify-between font-bold text-xs text-slate-800">
-                        <div className="flex items-center gap-2">
-                          <GripVertical className="h-4 w-4 text-slate-400 cursor-grab" />
-                          <span>{section.titleKey ? tDash(section.titleKey) : section.title}</span>
-                        </div>
-
-                        <button
-                          type="button"
-                          onClick={() => handleAddLesson(section.id)}
-                          className="px-3 py-1 rounded-lg bg-white border border-slate-200 text-[#0F5244] text-[11px] font-extrabold hover:bg-slate-100 cursor-pointer"
-                        >
-                          + {tDash("addLessonBtn")}
-                        </button>
-                      </div>
-
-                      {/* Lessons List */}
-                      <div className="space-y-2 pl-6 rtl:pl-0 rtl:pr-6">
-                        {section.lessons?.map((lesson: any) => (
-                          <div key={lesson.id} className="p-3 rounded-xl bg-white border border-slate-200/80 flex items-center justify-between text-xs font-medium">
-                            <div className="flex items-center gap-2">
-                              <PlayCircle className="h-4 w-4 text-[#0F5244]" />
-                              <span>{lesson.titleKey ? tDash(lesson.titleKey) : lesson.title}</span>
-                            </div>
-
-                            <div className="flex items-center gap-3">
-                              <label className="flex items-center gap-1 text-[11px] font-bold text-slate-600 cursor-pointer">
-                                <input
-                                  type="checkbox"
-                                  checked={lesson.isFreePreview}
-                                  onChange={() => {
-                                    setCourseSections((prev) =>
-                                      prev.map((sec) =>
-                                        sec.id === section.id
-                                          ? {
-                                              ...sec,
-                                              lessons: sec.lessons.map((l: any) =>
-                                                l.id === lesson.id ? { ...l, isFreePreview: !l.isFreePreview } : l
-                                              )
-                                            }
-                                          : sec
-                                      )
-                                    );
-                                  }}
-                                  className="rounded text-[#0F5244]"
-                                />
-                                <span>{tDash("freePreviewLabel")}</span>
-                              </label>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Submit / Actions */}
-              <div className="pt-4 border-t border-slate-100 flex items-center justify-end gap-3">
-                <button
-                  type="button"
-                  onClick={() => setShowCourseModal(false)}
-                  className="px-5 py-2.5 rounded-2xl text-slate-600 text-xs font-bold hover:bg-slate-100 cursor-pointer"
-                >
-                  {tDash("cancelBtn")}
-                </button>
-
-                <button
-                  type="submit"
-                  className="px-6 py-2.5 rounded-2xl bg-[#0F5244] hover:bg-[#07382E] text-white text-xs font-extrabold shadow-sm cursor-pointer"
-                >
-                  {tDash("saveCourseBtn")}
-                </button>
-              </div>
-
-            </form>
-
-          </div>
-        </div>
-      )}
-
       <ArchiveCourseModal
         isOpen={!!archiveModalCourseId}
         onClose={() => setArchiveModalCourseId(null)}
@@ -840,6 +900,24 @@ export function InstructorDashboardView() {
             return found.titleKey ? tDash(found.titleKey) : (isAr ? found.titleAr : found.titleEn);
           })()
         }
+      />
+
+      <DeleteCourseModal
+        isOpen={!!deleteModalCourse}
+        onClose={() => {
+          if (!isDeletingCourse) setDeleteModalCourse(null);
+        }}
+        onConfirm={confirmDeleteCourse}
+        courseTitle={deleteModalCourse?.title}
+        isLoading={isDeletingCourse}
+      />
+
+      <CourseIncompleteModal
+        isOpen={incompleteModalData.isOpen}
+        onClose={() => setIncompleteModalData((prev) => ({ ...prev, isOpen: false }))}
+        courseId={incompleteModalData.courseId}
+        courseTitle={incompleteModalData.courseTitle}
+        missingItems={incompleteModalData.missingItems}
       />
     </div>
   );

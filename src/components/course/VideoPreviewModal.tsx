@@ -112,12 +112,10 @@ export function VideoPreviewModal({
                 <Film className="w-7 h-7" />
               </div>
               <h3 className="text-base sm:text-lg font-black text-white">
-                {isAr ? "لم يتم رفع فيديو لهذا الدرس بعد" : "No Video Uploaded Yet"}
+                {t("noVideoUploadedTitle")}
               </h3>
               <p className="text-xs text-slate-400 max-w-sm leading-relaxed">
-                {isAr
-                  ? "المدرب لم يقم برفع ملف الفيديو الخاص بهذا الدرس بعد."
-                  : "The instructor has not uploaded a video file for this preview lesson yet."}
+                {t("noVideoUploadedDesc")}
               </p>
             </div>
           ) : isYouTube || isVimeo ? (
@@ -140,14 +138,14 @@ export function VideoPreviewModal({
               onError={() => setHasError(true)}
             >
               <source src={videoUrl} type="video/mp4" />
-              {isAr ? "متصفحك لا يدعم تشغيل هذا الفيديو." : "Your browser does not support the video tag."}
+              {t("videoTagNotSupported")}
             </video>
           )}
         </div>
 
         {/* Footer info bar */}
         <div className="px-5 py-3 bg-[#212427] text-xs font-semibold text-slate-400 flex items-center justify-between border-t border-slate-700/60">
-          <span>Coach Space Video Streamer</span>
+          <span>{t("videoStreamerTitle")}</span>
           <button
             type="button"
             onClick={onClose}

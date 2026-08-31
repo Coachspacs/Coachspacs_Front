@@ -8,7 +8,6 @@ const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
 const nextConfig: NextConfig = {
   outputFileTracingRoot: path.join(__dirname),
   reactStrictMode: true,
-  poweredByHeader: false,
   compress: true,
   serverExternalPackages: ['axios'],
   images: {

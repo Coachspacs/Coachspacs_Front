@@ -243,10 +243,10 @@ export function InstructorSettingsView() {
 
     try {
       await userService.deleteAvatar();
-      setToastMessage(isAr ? "تم حذف الصورة الشخصية بنجاح" : "Avatar removed successfully");
+      setToastMessage(t("avatarRemoved"));
     } catch (err: any) {
       console.warn("[InstructorSettingsView] deleteAvatar error:", err?.message);
-      setToastMessage(isAr ? "تم حذف الصورة الشخصية بنجاح" : "Avatar removed successfully");
+      setToastMessage(t("avatarRemoved"));
     } finally {
       setIsUploadingAvatar(false);
       setTimeout(() => setToastMessage(null), 3000);

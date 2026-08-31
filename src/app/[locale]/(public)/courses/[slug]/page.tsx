@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { CourseDetailsView } from "@/components/course/CourseDetailsView";
 import { courseService } from "@/services/courseService";
 import { Loader2, AlertCircle, ArrowLeft } from "lucide-react";
@@ -13,6 +13,7 @@ export default function CourseDetailsPage() {
   const slug = (params?.slug as string) || "";
   const locale = useLocale() || (params?.locale as string) || "en";
   const isAr = locale === "ar";
+  const t = useTranslations("course");
   const [course, setCourse] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -48,12 +49,12 @@ export default function CourseDetailsPage() {
                 ? "Advanced"
                 : "All Levels",
             price: Number(data.price) || 0,
-            priceFormatted: Number(data.price) === 0 ? (isAr ? "مجاني" : "Free") : `$${data.price}`,
+            priceFormatted: Number(data.price) === 0 ? "Free" : `$${data.price}`,
             isFree: Boolean(data.is_free || Number(data.price) === 0),
             is_free: Boolean(data.is_free || Number(data.price) === 0),
             is_enrolled: Boolean(data.is_enrolled),
             language: data.language === "ar" ? "Arabic" : "English",
-            rating: Number(data.rating) || 5.0,
+            rating: Number(data.rating || 0),
             reviewsCount: Number(data.reviews_count) || 0,
             reviewsCountFormatted: String(data.reviews_count || 0),
             studentsCount: Number(data.students_count) || Number(data.total_students) || 0,
@@ -102,7 +103,7 @@ export default function CourseDetailsPage() {
         <div className="flex flex-col items-center gap-3 text-slate-500">
           <Loader2 className="w-8 h-8 animate-spin text-[#0F5244]" />
           <span className="text-xs font-bold">
-            {isAr ? "جاري تحميل تفاصيل الدورة..." : "Loading course details..."}
+            {t("loadingDetails")}
           </span>
         </div>
       </div>
@@ -117,19 +118,17 @@ export default function CourseDetailsPage() {
             <AlertCircle className="w-7 h-7" />
           </div>
           <h2 className="text-lg font-black text-slate-900">
-            {isAr ? "لم يتم العثور على الدورة" : "Course Not Found"}
+            {t("notFoundTitle")}
           </h2>
           <p className="text-xs text-slate-500">
-            {isAr
-              ? "الدورة المطلوبة غير متوفرة أو تم نقلها."
-              : "The requested course is not available or has been removed."}
+            {t("notFoundDesc")}
           </p>
           <Link
             href={`/${locale}/courses`}
             className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#0F5244] hover:bg-[#07382E] text-white text-xs font-bold transition-all shadow-sm"
           >
             <ArrowLeft className="w-4 h-4 rtl:rotate-180" />
-            <span>{isAr ? "تصفح الكورسات" : "Browse Courses"}</span>
+            <span>{t("browseCourses")}</span>
           </Link>
         </div>
       </div>

@@ -23,19 +23,134 @@ import {
   ExternalLink,
   Star,
   Layers,
+  Clock,
+  ShoppingCart,
+  Image as ImageIcon,
 } from "lucide-react";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@/lib/store";
+import { addToCart } from "@/features/cart/cartSlice";
 import { instructorCourseService } from "@/services/instructorCourseService";
+import { courseService } from "@/services/courseService";
 import { PublicInstructor } from "@/types/publicInstructor";
 import { CourseCard } from "@/components/catalog/CourseCard";
+import { VerifiedBadge } from "@/components/ui/VerifiedBadge";
 import {
   getSavedInstructorOverrides,
   getLocalizedName,
   getLocalizedHeadline,
+  getLocalizedBio,
   getLocalizedSpecialization,
   getLocalizedSkill,
+  normalizeInstructorSlug,
 } from "@/lib/mockInstructors";
+
+interface CompactCourseCardProps {
+  course: any;
+  isAr: boolean;
+  locale: string;
+}
+
+function CompactInstructorCourseCard({ course, isAr, locale }: CompactCourseCardProps) {
+  const dispatch = useDispatch();
+  const cartItems = useSelector((state: RootState) => state.cart?.items || []);
+  const isInCart = cartItems.some(
+    (item: any) => String(item.course?.id || item.courseId || item.id) === String(course.id)
+  );
+
+  const [imgSrc, setImgSrc] = useState(
+    course.coverImage || course.image || ""
+  );
+
+  const handleCartClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!isInCart) {
+      dispatch(addToCart(course));
+    }
+  };
+
+  const coursePath = `/${locale}/courses/${course.id}`;
+  const isFree = Boolean(course.isFree || course.price === 0 || course.priceFormatted === "Free" || course.priceFormatted === "مجاني");
+
+  return (
+    <Link href={coursePath} className="block group h-full select-none">
+      <div className="flex flex-col justify-between h-full rounded-2xl bg-white border border-slate-200/80 shadow-2xs hover:shadow-md hover:border-[#0F5244]/30 hover:-translate-y-1 transition-all duration-300 overflow-hidden cursor-pointer">
+        {/* Compact Thumbnail */}
+        <div className="relative w-full aspect-[16/10] bg-slate-100 overflow-hidden flex items-center justify-center">
+          {imgSrc ? (
+            <Image
+              src={imgSrc}
+              alt={isAr ? (course.titleAr || course.title || "") : (course.title || course.titleAr || "")}
+              fill
+              sizes="(max-width: 768px) 50vw, 240px"
+              onError={() => setImgSrc("")}
+              className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"
+            />
+          ) : (
+            <div className="w-full h-full flex flex-col items-center justify-center text-slate-400 bg-slate-50 gap-1 p-2 text-center">
+              <ImageIcon className="w-5 h-5 text-slate-300" />
+              <span className="text-[10px] font-bold text-slate-400">
+                {isAr ? "بدون غلاف" : "No cover"}
+              </span>
+            </div>
+          )}
+          {course.badge && (
+            <div className="absolute top-2 left-2 rtl:left-auto rtl:right-2">
+              <span className="inline-block px-2 py-0.5 text-[9px] font-black rounded-md uppercase tracking-wider bg-[#38BDF8] text-slate-900 shadow-2xs">
+                {course.badge}
+              </span>
+            </div>
+          )}
+        </div>
+
+        {/* Card Body */}
+        <div className="flex flex-col flex-1 p-3.5 justify-between space-y-2.5">
+          <div className="space-y-1.5">
+            <span className="inline-block text-[10px] font-extrabold uppercase tracking-wider text-[#0F5244] bg-[#E8F3F1] px-2 py-0.5 rounded-md truncate max-w-full">
+              {isAr ? course.categoryAr || course.category : course.category}
+            </span>
+            <h4 className="text-xs sm:text-sm font-extrabold text-slate-900 group-hover:text-[#0F5244] transition-colors line-clamp-2 leading-snug tracking-tight">
+              {isAr ? course.titleAr || course.title : course.title || course.titleAr}
+            </h4>
+          </div>
+
+          {/* Footer: Price & Add to Cart */}
+          <div className="flex items-center justify-between pt-2 border-t border-slate-100">
+            <div className="flex items-center">
+              <span className="text-sm sm:text-base font-black text-slate-900 leading-tight">
+                {isFree ? (
+                  <span className="text-emerald-600 font-extrabold">{isAr ? "مجاني" : "Free"}</span>
+                ) : (
+                  course.priceFormatted || `$${Number(course.price || 0).toFixed(2)}`
+                )}
+              </span>
+            </div>
+
+            {!isFree && (
+              <button
+                type="button"
+                onClick={handleCartClick}
+                title={isInCart ? (isAr ? "في السلة" : "In Cart") : (isAr ? "إضافة إلى السلة" : "Add to Cart")}
+                className={`p-2 rounded-xl border transition-all cursor-pointer flex items-center justify-center text-xs font-extrabold shadow-2xs active:scale-95 ${
+                  isInCart
+                    ? "bg-emerald-700 text-white border-emerald-700 hover:bg-emerald-800"
+                    : "bg-emerald-50 text-emerald-800 border-emerald-200/80 hover:bg-emerald-600 hover:text-white"
+                }`}
+              >
+                {isInCart ? (
+                  <Check className="h-3.5 w-3.5" />
+                ) : (
+                  <ShoppingCart className="h-3.5 w-3.5" />
+                )}
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+    </Link>
+  );
+}
 
 interface PublicInstructorProfileViewProps {
   instructor: PublicInstructor;
@@ -125,21 +240,11 @@ export function PublicInstructorProfileView({ instructor: initialInstructor }: P
     }
   };
 
-  // Sync client profile state with saved local/mock overrides on mount
+  // Sync client profile state and dynamically fetch public instructor courses from Backend API
   useEffect(() => {
     if (!initialInstructor) return;
     const overrides = getSavedInstructorOverrides(initialInstructor.id || initialInstructor.slug || "");
-
-    let activeGlobal: any = {};
-    if (typeof window !== "undefined") {
-      try {
-        activeGlobal = JSON.parse(localStorage.getItem("coachspace_active_instructor_profile") || "{}");
-      } catch (e) {
-        activeGlobal = {};
-      }
-    }
-
-    const merged = { ...activeGlobal, ...overrides };
+    const merged = { ...overrides };
 
     if (Object.keys(merged).length > 0) {
       setInstructor((prev) => ({
@@ -168,68 +273,157 @@ export function PublicInstructorProfileView({ instructor: initialInstructor }: P
       }));
     }
 
-    // If viewing current instructor's profile, fetch their real courses from API
-    if (
-      authUser?.fullName === initialInstructor.name ||
-      initialInstructor.slug === "mohammed-katanani" ||
-      initialInstructor.id === "inst-mohammed-katanani"
-    ) {
-      instructorCourseService
-        .getMyCourses()
-        .then((data) => {
-          const list = Array.isArray(data) ? data : data?.results || [];
-          if (list.length > 0) {
-            setInstructor((prev) => {
-              const instName = prev.name || initialInstructor.name || "Instructor";
-              const instNameAr = prev.nameAr || initialInstructor.nameAr || instName;
-              const instAvatar = prev.avatar || initialInstructor.avatar;
+    let isSubscribed = true;
 
-              const realCourses = list.map((c: any) => {
-                const catName = typeof c.category === "object" ? (c.category?.name || "General") : (typeof c.category === "string" ? c.category : (c.category_name || "General"));
-                const catNameAr = typeof c.category === "object" && c.category?.name_ar ? c.category.name_ar : (c.category_ar || catName);
-                const priceNum = Number(c.price) || 0;
-                const durationNum = Number(c.duration_hours || c.duration || 0);
+    // Helper to format course object into CourseCard format
+    const formatCourse = (c: any, instName: string, instNameAr: string, instAvatar?: string) => {
+      const catName = typeof c.category === "object" ? (c.category?.name || "General") : (typeof c.category === "string" ? c.category : (c.category_name || "General"));
+      const catNameAr = typeof c.category === "object" && c.category?.name_ar ? c.category.name_ar : (c.category_ar || catName);
+      const priceNum = Number(c.price) || 0;
+      const durationNum = Number(c.duration_hours || c.duration || 0);
+
+      return {
+        id: String(c.id),
+        title: c.title || c.title_en || "Course",
+        titleAr: c.title_ar || c.title || "دورة",
+        titleEn: c.title_en || c.title || "Course",
+        slug: String(c.id),
+        description: c.description || c.description_en || "",
+        descriptionAr: c.description_ar || c.description || "",
+        instructorName: instName,
+        instructorNameAr: instNameAr,
+        instructorAvatar: instAvatar || (typeof c.instructor === "object" ? c.instructor?.avatar : undefined) || "",
+        category: catName,
+        categoryAr: catNameAr,
+        level: c.level === "beginner" ? "Beginner" : c.level === "intermediate" ? "Intermediate" : c.level === "advanced" ? "Advanced" : (c.level || "Beginner"),
+        price: priceNum,
+        priceFormatted: priceNum === 0 ? "Free" : `$${priceNum.toFixed(2)}`,
+        isFree: Boolean(c.is_free || priceNum === 0),
+        language: c.language === "ar" ? "Arabic" : "English",
+        rating: Number(c.rating || 0),
+        reviewsCount: Number(c.reviews_count || 0),
+        reviewsCountFormatted: String(Number(c.reviews_count || 0)),
+        studentsCount: Number(c.students_count || 0),
+        durationHours: durationNum > 0 ? durationNum : 10,
+        durationFormatted: `${durationNum > 0 ? durationNum : 10} hours`,
+        coverImage: c.cover_image || c.coverImage || (typeof c.image === "string" && !c.image.includes("unsplash.com/photo-1516321318423") ? c.image : ""),
+        image: c.cover_image || c.coverImage || (typeof c.image === "string" && !c.image.includes("unsplash.com/photo-1516321318423") ? c.image : ""),
+        badge: c.is_new ? "New" : c.is_bestseller ? "Bestseller" : undefined,
+      };
+    };
+
+    // 1. Fetch public catalog courses (available to all roles: student, guest, instructor)
+    async function loadInstructorCourses() {
+      try {
+        const data = await courseService.getCourses({ page_size: 100 }, locale);
+        const results = Array.isArray(data) ? data : data?.results || [];
+
+        if (!isSubscribed) return;
+
+        const targetSlug = normalizeInstructorSlug(initialInstructor.slug || initialInstructor.name || "");
+        const targetName = (initialInstructor.name || "").toLowerCase().trim();
+        const targetNameAr = (initialInstructor.nameAr || "").toLowerCase().trim();
+        const targetId = String(initialInstructor.id || "").replace(/^inst-/, "");
+
+        // Filter courses matching this instructor
+        const matchingPublicCourses = results.filter((c: any) => {
+          const instObj = typeof c.instructor === "object" ? c.instructor : null;
+          const instFullName = (instObj?.full_name || instObj?.name || (typeof c.instructor === "string" ? c.instructor : (c.instructorName || ""))).toLowerCase().trim();
+          const instId = String(instObj?.id || c.instructor_id || "");
+          const courseSlug = normalizeInstructorSlug(instFullName);
+
+          // Match by instructor ID
+          if (targetId && instId && (targetId === instId || `inst-${instId}` === initialInstructor.id)) {
+            return true;
+          }
+          // Match by slug
+          if (targetSlug && courseSlug && (targetSlug === courseSlug || courseSlug.includes(targetSlug) || targetSlug.includes(courseSlug))) {
+            return true;
+          }
+          // Match by English / Arabic full name
+          if (targetName && instFullName && (targetName === instFullName || instFullName.includes(targetName) || targetName.includes(instFullName))) {
+            return true;
+          }
+          if (targetNameAr && instFullName && (targetNameAr === instFullName || instFullName.includes(targetNameAr))) {
+            return true;
+          }
+          return false;
+        });
+
+        let discoveredAvatar: string | undefined = undefined;
+        for (const c of matchingPublicCourses) {
+          if (typeof c.instructor === "object" && c.instructor?.avatar) {
+            discoveredAvatar = c.instructor.avatar;
+            break;
+          }
+        }
+
+        setInstructor((prev) => {
+          const instName = prev.name || initialInstructor.name || "Instructor";
+          const instNameAr = prev.nameAr || initialInstructor.nameAr || instName;
+          const instAvatar = prev.avatar || discoveredAvatar || initialInstructor.avatar;
+
+          const formattedPublicCourses = matchingPublicCourses.map((c: any) =>
+            formatCourse(c, instName, instNameAr, instAvatar)
+          );
+
+          return {
+            ...prev,
+            avatar: instAvatar,
+            courses: formattedPublicCourses.length > 0 ? formattedPublicCourses : (prev.courses?.length ? prev.courses : []),
+          };
+        });
+
+        // 2. If the logged in user is this instructor, also fetch authenticated studio courses
+        const isCurrentInstructor = Boolean(
+          authUser &&
+          ((authUser.role || "").toLowerCase() === "instructor" || (authUser.role || "").toLowerCase() === "coach") &&
+          (authUser.fullName === initialInstructor.name ||
+           authUser.name === initialInstructor.name ||
+           normalizeInstructorSlug(authUser.fullName || authUser.name || "") === targetSlug ||
+           initialInstructor.slug === "mohammed-katanani" ||
+           initialInstructor.id === "inst-mohammed-katanani")
+        );
+
+        if (isCurrentInstructor) {
+          try {
+            const studioData = await instructorCourseService.getMyCourses();
+            const studioList = Array.isArray(studioData) ? studioData : studioData?.results || [];
+            if (studioList.length > 0 && isSubscribed) {
+              setInstructor((prev) => {
+                const instName = prev.name || initialInstructor.name || "Instructor";
+                const instNameAr = prev.nameAr || initialInstructor.nameAr || instName;
+                const instAvatar = prev.avatar || discoveredAvatar || initialInstructor.avatar;
+
+                const formattedStudioCourses = studioList.map((c: any) =>
+                  formatCourse(c, instName, instNameAr, instAvatar)
+                );
+
+                const existingIds = new Set(formattedStudioCourses.map((c: any) => String(c.id)));
+                const remainingPublic = (prev.courses || []).filter((c: any) => !existingIds.has(String(c.id)));
+                const combined = [...formattedStudioCourses, ...remainingPublic];
 
                 return {
-                  id: String(c.id),
-                  title: c.title || c.title_en || "Course",
-                  titleAr: c.title_ar || c.title || "دورة",
-                  titleEn: c.title_en || c.title || "Course",
-                  slug: String(c.id),
-                  description: c.description || c.description_en || "",
-                  descriptionAr: c.description_ar || c.description || "",
-                  instructorName: instName,
-                  instructorNameAr: instNameAr,
-                  instructorAvatar: instAvatar || (typeof c.instructor === "object" ? c.instructor?.avatar : undefined) || "",
-                  category: catName,
-                  categoryAr: catNameAr,
-                  level: c.level === "beginner" ? "Beginner" : c.level === "intermediate" ? "Intermediate" : c.level === "advanced" ? "Advanced" : (c.level || "Beginner"),
-                  price: priceNum,
-                  priceFormatted: priceNum === 0 ? (isAr ? "مجاني" : "Free") : `$${priceNum.toFixed(2)}`,
-                  isFree: Boolean(c.is_free || priceNum === 0),
-                  language: c.language === "ar" ? "Arabic" : "English",
-                  rating: Number(c.rating) || 5.0,
-                  reviewsCount: Number(c.reviews_count || 0),
-                  reviewsCountFormatted: String(Number(c.reviews_count || 0)),
-                  studentsCount: Number(c.students_count || 0),
-                  durationHours: durationNum > 0 ? durationNum : 10,
-                  durationFormatted: durationNum > 0 ? `${durationNum} ${isAr ? "ساعات" : "hours"}` : `10 ${isAr ? "ساعات" : "hours"}`,
-                  coverImage: c.cover_image || c.coverImage || c.image || "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&auto=format&fit=crop&q=80",
-                  image: c.cover_image || c.coverImage || c.image || "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&auto=format&fit=crop&q=80",
-                  badge: c.is_new ? "New" : c.is_bestseller ? "Bestseller" : undefined,
+                  ...prev,
+                  courses: combined,
                 };
               });
-
-              return {
-                ...prev,
-                courses: realCourses,
-              };
-            });
+            }
+          } catch (studioErr) {
+            console.warn("Could not fetch authenticated instructor courses:", studioErr);
           }
-        })
-        .catch((e) => console.warn("Could not fetch real instructor profile courses:", e));
+        }
+      } catch (err) {
+        console.warn("Could not load public instructor courses:", err);
+      }
     }
-  }, [initialInstructor, authUser]);
+
+    loadInstructorCourses();
+
+    return () => {
+      isSubscribed = false;
+    };
+  }, [initialInstructor, authUser, locale]);
 
   const handleShare = async () => {
     if (typeof window !== "undefined") {
@@ -249,7 +443,8 @@ export function PublicInstructorProfileView({ instructor: initialInstructor }: P
   const displayName = getLocalizedName(instructor.name, instructor.nameAr, isAr);
   const displayHeadline = getLocalizedHeadline(
     isAr ? instructor.headlineAr || instructor.headline : instructor.headline,
-    isAr
+    isAr,
+    true
   );
   const displaySpecialization = getLocalizedSpecialization(
     isAr ? instructor.specializationAr || instructor.specialization : instructor.specialization,
@@ -262,8 +457,11 @@ export function PublicInstructorProfileView({ instructor: initialInstructor }: P
   const rawHourlyRate = isAr ? (instructor.hourlyRateAr || instructor.hourlyRate) : (instructor.hourlyRate || instructor.hourlyRateAr);
   const displayHourlyRate = rawHourlyRate?.trim() || "";
 
-  const rawBio = isAr ? (instructor.bioAr || instructor.bio) : (instructor.bio || instructor.bioAr);
-  const displayBio = rawBio?.trim() || "";
+  const displayBio = getLocalizedBio(
+    instructor.bio,
+    instructor.bioAr,
+    isAr
+  );
 
   const displaySkills = (
     (isAr ? instructor.skillsAr : instructor.skills) ||
@@ -279,9 +477,8 @@ export function PublicInstructorProfileView({ instructor: initialInstructor }: P
     socials?.github || socials?.linkedin || socials?.website || socials?.email || socials?.twitter
   );
 
-  const hasTotalStudents = Boolean(instructor.totalStudents && instructor.totalStudents > 0);
   const hasCourses = courses.length > 0;
-  const hasQuickStats = hasTotalStudents || hasCourses;
+  const hasQuickStats = hasCourses;
   const hasSidebar = Boolean(hasQuickStats || hasSocials);
 
   return (
@@ -350,13 +547,7 @@ export function PublicInstructorProfileView({ instructor: initialInstructor }: P
                     <h1 suppressHydrationWarning className="text-xl sm:text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
                       {displayName}
                     </h1>
-                    <div
-                      className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-50 text-[#0F5244] border border-emerald-200/80 text-[11px] font-bold shadow-2xs"
-                      title={t("verifiedTooltip")}
-                    >
-                      <ShieldCheck className="h-3.5 w-3.5 text-[#0F5244]" />
-                      <span>{t("verifiedBadge")}</span>
-                    </div>
+                    <VerifiedBadge size="sm" tooltipText={t("verifiedTooltip")} />
                   </div>
 
                   {/* Headline or Specialization */}
@@ -433,28 +624,13 @@ export function PublicInstructorProfileView({ instructor: initialInstructor }: P
                         <span>{t("quickHighlights")}</span>
                       </h4>
 
-                      <div className="grid grid-cols-2 gap-2.5">
-                        {hasTotalStudents && (
-                          <div className="p-3 rounded-xl bg-slate-50/80 border border-slate-100">
-                            <span className="text-slate-400 font-medium block text-[11px]">
-                              {t("totalStudents")}
-                            </span>
-                            <span className="text-base font-extrabold text-slate-900 tracking-tight mt-0.5 block">
-                              {instructor.totalStudentsFormatted || instructor.totalStudents}
-                            </span>
-                          </div>
-                        )}
-
-                        {hasCourses && (
-                          <div className="p-3 rounded-xl bg-slate-50/80 border border-slate-100">
-                            <span className="text-slate-400 font-medium block text-[11px]">
-                              {t("activeCourses")}
-                            </span>
-                            <span className="text-base font-extrabold text-slate-900 tracking-tight mt-0.5 block">
-                              {courses.length}
-                            </span>
-                          </div>
-                        )}
+                      <div className="p-3 rounded-xl bg-slate-50/80 border border-slate-100">
+                        <span className="text-slate-400 font-medium block text-[11px]">
+                          {t("activeCourses")}
+                        </span>
+                        <span className="text-base font-extrabold text-slate-900 tracking-tight mt-0.5 block">
+                          {courses.length}
+                        </span>
                       </div>
                     </div>
                   )}
@@ -582,12 +758,6 @@ export function PublicInstructorProfileView({ instructor: initialInstructor }: P
                   </div>
                   
                   <div className="flex items-center gap-3">
-                    {courses.length > 0 && (
-                      <span className="hidden sm:inline-block text-xs font-semibold text-[#0F5244]">
-                        {t("instantEnrollment")}
-                      </span>
-                    )}
-
                     {/* Navigation Buttons for Single-Row Carousel */}
                     {courses.length > 1 && (
                       <div className="flex items-center gap-1">
@@ -659,9 +829,9 @@ export function PublicInstructorProfileView({ instructor: initialInstructor }: P
                       <div
                         key={course.id}
                         data-course-card
-                        className="w-[280px] sm:w-[320px] shrink-0 snap-start transition-transform hover:-translate-y-0.5 duration-150"
+                        className="w-[205px] sm:w-[220px] md:w-[230px] shrink-0 snap-start transition-transform hover:-translate-y-0.5 duration-150"
                       >
-                        <CourseCard course={course} isAr={isAr} />
+                        <CompactInstructorCourseCard course={course} isAr={isAr} locale={locale} />
                       </div>
                     ))}
                   </div>
@@ -702,8 +872,9 @@ export function PublicInstructorProfileView({ instructor: initialInstructor }: P
                         {t("reviewsTitle", { count: instructor.reviews.length })}
                       </h3>
                     </div>
-                    <span className="text-xs font-extrabold text-slate-800">
-                      {instructor.rating || 5.0} ★
+                    <span className="inline-flex items-center gap-1 text-xs font-extrabold text-slate-800">
+                      <span>{instructor.rating || 5.0}</span>
+                      <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
                     </span>
                   </div>
 

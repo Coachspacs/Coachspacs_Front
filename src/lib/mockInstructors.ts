@@ -272,7 +272,26 @@ export function getSavedInstructorOverrides(slugOrId: string): Partial<PublicIns
     const rawSpecific = localStorage.getItem(`coachspace_inst_profile_${slugOrId}`);
     const globalData = rawGlobal ? JSON.parse(rawGlobal) : {};
     const specificData = rawSpecific ? JSON.parse(rawSpecific) : {};
-    return { ...globalData, ...specificData };
+    
+    // Merge specificData, and only include globalData if it belongs to an actual instructor and matches slug
+    const normalizedTarget = normalizeInstructorSlug(slugOrId);
+    const globalSlug = normalizeInstructorSlug(globalData.slug || globalData.name || "");
+    
+    const isGlobalMatch = Boolean(
+      (globalSlug && normalizedTarget && (globalSlug === normalizedTarget || globalData.id === slugOrId))
+    );
+
+    const merged = isGlobalMatch ? { ...globalData, ...specificData } : { ...specificData };
+
+    // Strict guard: Never allow a student headline or bio to contaminate an instructor profile
+    if (merged.headline === "Student & Lifelong Learner" || merged.headline === "طالب ومتعلم شغوف" || merged.headline === "طالب ومتعلم شغوف مدى الحياة") {
+      delete merged.headline;
+    }
+    if (merged.headlineAr === "Student & Lifelong Learner" || merged.headlineAr === "طالب ومتعلم شغوف" || merged.headlineAr === "طالب ومتعلم شغوف مدى الحياة") {
+      delete merged.headlineAr;
+    }
+
+    return merged;
   } catch (e) {
     return {};
   }
@@ -295,6 +314,32 @@ export function saveInstructorOverrides(
 }
 
 export const updatePublicInstructorOverrides = saveInstructorOverrides;
+
+/**
+ * Helpers to get and persist course status locally (e.g. pending_review)
+ */
+export function getSavedCourseStatus(courseId: string | number): string | null {
+  if (typeof window === "undefined" || !courseId) return null;
+  try {
+    return localStorage.getItem(`coachspace_course_status_${courseId}`) || null;
+  } catch {
+    return null;
+  }
+}
+
+export function saveCourseStatus(courseId: string | number, status: string): void {
+  if (typeof window === "undefined" || !courseId) return;
+  try {
+    localStorage.setItem(`coachspace_course_status_${courseId}`, status);
+  } catch {}
+}
+
+export function removeCourseStatus(courseId: string | number): void {
+  if (typeof window === "undefined" || !courseId) return;
+  try {
+    localStorage.removeItem(`coachspace_course_status_${courseId}`);
+  } catch {}
+}
 
 /**
  * Get public instructor by ID, slug, or matching name with associated courses
@@ -522,16 +567,41 @@ export const SKILLS_AR_MAP: Record<string, string> = {
   "Microservices": "الخدمات المصغرة (Microservices)",
 };
 
+export const BIOS_AR_MAP: Record<string, string> = {
+  "Dedicated professional instructor on CoachSpace committed to delivering world-class educational experiences, real-world project skills, and career mentorship.": "مدرب محترف في منصة CoachSpace ملتزم بتقديم برامج تدريبية وتطبيقية عالية الجودة وتوجيه مهني متميز ونقل الخبرات العملية لبناء مهارات تقنية متقدمة.",
+  "Dedicated professional instructor on CoachSpace committed to delivering world-class educational experiences and practical career mentorship.": "مدرب محترف في منصة CoachSpace ملتزم بتقديم برامج تدريبية وتطبيقية عالية الجودة وتوجيه مهني متميز.",
+  "PhD in Computer Science with 14+ years of industry experience architecting scalable distributed systems and training high-performing engineering teams at top-tier tech companies.": "دكتوراه في علوم الحاسوب وخبرة أكثر من 14 عاماً في هندسة النظم السحابية الموزعة وبناء وتدريب الفرق الهندسية المتميزة في كبرى الشركات التقنية العالمية.",
+  "Senior Full-Stack Engineer and instructor specializing in modern web development, scalable cloud backends, and practical real-world engineering.": "كبير مهندسي Full-Stack ومدرب معتمد متخصص في تطوير تطبيقات الويب الحديثة، والأنظمة السحابية المتقدمة، وبناء المشاريع البرمجية العملية.",
+};
+
 export function getLocalizedSpecialization(spec?: string, isAr = false): string {
   if (!spec) return "";
   if (!isAr) return spec;
   return SPECIALIZATIONS_AR_MAP[spec] || spec;
 }
 
-export function getLocalizedHeadline(headline?: string, isAr = false): string {
-  if (!headline) return "";
+export function getLocalizedHeadline(headline?: string, isAr = false, isInstructor = false): string {
+  if (!headline) {
+    return isInstructor ? (isAr ? "مدرب وخبير معتمد" : "Certified Instructor") : "";
+  }
+  // Prevent student headline from appearing on instructor pages
+  if (isInstructor && (headline === "Student & Lifelong Learner" || headline === "طالب ومتعلم شغوف" || headline === "طالب ومتعلم شغوف مدى الحياة")) {
+    return isAr ? "كبير معماريي البرمجيات ومدرب القيادة التقنية التنفيذية" : "Senior Software Architect & Executive Tech Coach";
+  }
   if (!isAr) return headline;
   return HEADLINES_AR_MAP[headline] || headline;
+}
+
+export function getLocalizedBio(bio?: string, bioAr?: string, isAr = false): string {
+  if (!bio && !bioAr) return "";
+  if (!isAr) return bio || bioAr || "";
+  if (bioAr && bioAr.trim() !== "" && bioAr !== bio) return bioAr;
+  if (bio && BIOS_AR_MAP[bio.trim()]) return BIOS_AR_MAP[bio.trim()];
+  // Fallback check if bio contains standard text
+  if (bio && bio.includes("Dedicated professional instructor on CoachSpace")) {
+    return "مدرب محترف في منصة CoachSpace ملتزم بتقديم برامج تدريبية وتطبيقية عالية الجودة وتوجيه مهني متميز ونقل الخبرات العملية لبناء مهارات تقنية متقدمة.";
+  }
+  return bioAr || bio || "";
 }
 
 export function getLocalizedName(name?: string, nameAr?: string, isAr = false): string {

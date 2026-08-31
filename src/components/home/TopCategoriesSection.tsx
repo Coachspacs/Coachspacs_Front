@@ -21,31 +21,31 @@ export function TopCategoriesSection() {
   const categories = [
     {
       id: "business-coaching",
-      title: isAr ? "تدريب الأعمال" : "Business Coaching",
+      title: t("catBusiness"),
       icon: BarChart3,
       href: `/${locale}/courses?category=Business%20Coaching`,
     },
     {
       id: "career-coaching",
-      title: isAr ? "التوجيه المهني" : "Career Coaching",
+      title: t("catCareer"),
       icon: Target,
       href: `/${locale}/courses?category=Career%20Coaching`,
     },
     {
       id: "fitness-coaching",
-      title: isAr ? "تدريب اللياقة البدنية" : "Fitness Coaching",
+      title: t("catFitness"),
       icon: Layers,
       href: `/${locale}/courses?category=Fitness%20Coaching`,
     },
     {
       id: "life-mindfulness",
-      title: isAr ? "تطوير الذات واليقظة" : "Life & Mindfulness",
+      title: t("catLife"),
       icon: Brain,
       href: `/${locale}/courses?category=Life%20%26%20Mindfulness`,
     },
     {
       id: "programming",
-      title: isAr ? "البرمجة والتطوير" : "Programming",
+      title: t("catProgramming"),
       icon: Code,
       href: `/${locale}/courses?category=Programming`,
     },

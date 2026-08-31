@@ -44,7 +44,7 @@ export function InstructorCoursesPreview() {
           title: c.title || c.title_en || c.title_ar || "Course",
           image: c.cover_image || c.coverImage || c.image || "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&auto=format&fit=crop&q=80",
           studentsCount: Number(c.students_count) || 0,
-          rating: Number(c.rating) || 5.0,
+          rating: Number(c.rating || 0),
           reviewsCount: Number(c.reviews_count) || 0,
           status: isDraft ? "Draft" : "Published",
           isDraft: isDraft,
@@ -192,13 +192,13 @@ export function InstructorCoursesPreview() {
                   </div>
 
                   {/* Rating & Title */}
-                  <div className="flex items-center gap-1.5 text-amber-500 text-xs font-bold mb-1.5">
-                    <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-                    <span>{course.rating}</span>
-                    {course.reviewsCount > 0 && (
+                  {!course.isDraft && course.reviewsCount > 0 && course.rating > 0 && (
+                    <div className="flex items-center gap-1.5 text-amber-500 text-xs font-bold mb-1.5">
+                      <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                      <span>{Number(course.rating).toFixed(1)}</span>
                       <span className="text-slate-400 font-normal text-[11px]">• {course.reviewsCount} reviews</span>
-                    )}
-                  </div>
+                    </div>
+                  )}
                   <h3 className="text-base font-black text-slate-900 line-clamp-2 leading-snug group-hover:text-[#0F5244] transition-colors mb-3">
                     {course.title}
                   </h3>

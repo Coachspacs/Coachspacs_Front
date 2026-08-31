@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useMemo } from "react";
 import Image from "next/image";
 import { useTranslations, useLocale } from "next-intl";
 import { useRouter, usePathname } from "next/navigation";
@@ -12,18 +12,26 @@ import { authService, getApiErrorMessage } from "@/services/auth";
 import {
   User,
   Lock,
-  Settings,
   GraduationCap,
   Camera,
   CheckCircle2,
   AlertCircle,
   Trash2,
-  Loader2,
+  Award,
+  Sparkles,
+  ShieldCheck,
+  Eye,
+  EyeOff,
+  BookOpen,
+  Target,
+  Clock,
+  Check,
+  Zap,
 } from "lucide-react";
 
 import { ChangeEmailModal } from "@/components/modals/ChangeEmailModal";
 
-type SettingsTab = "profile" | "learning" | "security" | "preferences";
+type SettingsTab = "profile" | "certificates" | "security";
 
 export function StudentSettingsView() {
   const dispatch = useDispatch();
@@ -45,8 +53,16 @@ export function StudentSettingsView() {
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
 
+  // Password Visibility
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
   // Email Change Modal State
   const [showEmailModal, setShowEmailModal] = useState(false);
+
+  // Success celebration trigger
+  const [isSavedCelebration, setIsSavedCelebration] = useState(false);
 
   // Form State
   const [formData, setFormData] = useState({
@@ -55,19 +71,14 @@ export function StudentSettingsView() {
     phone: user?.phone || user?.phone_number || "",
     headline: user?.headline || "",
     learningGoal: "",
-    preferredCategory: "",
+    preferredCategory: "Data Science",
     videoSpeed: "1x",
     certificateName: user?.fullName || user?.name || "",
-    publicProfile: true,
 
     // Security
     currentPassword: "",
     newPassword: "",
     confirmPassword: "",
-
-    // Preferences
-    emailCourseUpdates: true,
-    emailPromotions: true,
   });
 
   const profileFetchedRef = useRef(false);
@@ -146,22 +157,42 @@ export function StudentSettingsView() {
   const [passwordError, setPasswordError] = useState<string | null>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-    const { name, value, type } = e.target;
-    if (type === "checkbox") {
-      const checked = (e.target as HTMLInputElement).checked;
-      setFormData((prev) => ({ ...prev, [name]: checked }));
-    } else {
-      setFormData((prev) => ({ ...prev, [name]: value }));
-    }
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Avatar File Change (Supports JPG, PNG, WebP up to 5MB - US-05)
+  // Real-time Password Strength Calculator
+  const passwordStrength = useMemo(() => {
+    const pwd = formData.newPassword;
+    if (!pwd) return { score: 0, label: "", color: "bg-slate-200" };
+    let score = 0;
+    if (pwd.length >= 8) score += 1;
+    if (/[A-Z]/.test(pwd)) score += 1;
+    if (/[0-9]/.test(pwd)) score += 1;
+    if (/[^A-Za-z0-9]/.test(pwd)) score += 1;
+
+    switch (score) {
+      case 1:
+        return { score: 1, label: isAr ? "ضعيفة" : "Weak", color: "bg-rose-500", text: "text-rose-600" };
+      case 2:
+        return { score: 2, label: isAr ? "متوسطة" : "Fair", color: "bg-amber-500", text: "text-amber-600" };
+      case 3:
+        return { score: 3, label: isAr ? "جيدة" : "Good", color: "bg-emerald-500", text: "text-emerald-600" };
+      case 4:
+        return { score: 4, label: isAr ? "قوية جداً" : "Strong", color: "bg-emerald-600", text: "text-emerald-700" };
+      default:
+        return { score: 0, label: "", color: "bg-slate-200", text: "text-slate-400" };
+    }
+  }, [formData.newPassword, isAr]);
+
+  // Avatar File Change (Supports JPG, PNG, WebP up to 5MB)
   const handleAvatarFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     if (file.size > 5 * 1024 * 1024) {
-      setToastMessage(tStudent("avatarSizeExceeded"));
+      setErrorMessage(tStudent("avatarSizeExceeded"));
+      setTimeout(() => setErrorMessage(null), 4000);
       return;
     }
 
@@ -174,12 +205,12 @@ export function StudentSettingsView() {
       if (res?.avatar) {
         setAvatarPreview(res.avatar);
         dispatch(updateUser({ avatar: res.avatar }));
-        setToastMessage(tStudent("avatarUpdated") || (isAr ? "تم تحديث الصورة الشخصية بنجاح" : "Avatar updated successfully"));
+        setToastMessage(isAr ? "تم تحديث الصورة بنجاح ✨" : t("avatarUpdated"));
       }
     } catch (err: any) {
       const msg = getApiErrorMessage(
         err,
-        isAr ? "فشل رفع الصورة الشخصية. يرجى التحقق من الملف والمحاولة مرة أخرى." : "Failed to upload avatar. Please try again.",
+        t("avatarUploadFailed"),
         isAr
       );
       setErrorMessage(msg);
@@ -190,6 +221,7 @@ export function StudentSettingsView() {
     }
   };
 
+  // Delete Avatar Completely
   const handleRemoveAvatar = async () => {
     setIsUploadingAvatar(true);
     setAvatarPreview(null);
@@ -200,43 +232,36 @@ export function StudentSettingsView() {
 
     try {
       await userService.deleteAvatar();
-      setToastMessage(isAr ? "تم حذف الصورة الشخصية بنجاح" : "Avatar removed successfully");
+      setToastMessage(isAr ? "تم حذف الصورة بنجاح" : t("avatarRemoved"));
     } catch (err: any) {
       console.warn("[StudentSettingsView] deleteAvatar info:", err?.message);
-      setToastMessage(isAr ? "تم حذف الصورة الشخصية بنجاح" : "Avatar removed successfully");
+      setToastMessage(isAr ? "تم حذف الصورة بنجاح" : t("avatarRemoved"));
     } finally {
       setIsUploadingAvatar(false);
       setTimeout(() => setToastMessage(null), 3000);
     }
   };
 
-  // Language Switch Handler
-  const handleLanguageSwitch = (newLang: string) => {
-    if (newLang === locale) return;
-    const newPath = pathname.replace(`/${locale}`, `/${newLang}`);
-    router.push(newPath);
-  };
-
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    setPasswordError(null);
+    setIsSaving(true);
     setErrorMessage(null);
+    setToastMessage(null);
+    setPasswordError(null);
 
-    // Password validation if changing password
+    // Frontend validation: Passwords
     if (formData.newPassword || formData.confirmPassword) {
-      if (formData.newPassword !== formData.confirmPassword) {
-        setPasswordError(t("passwordsDoNotMatch"));
-        setActiveTab("security");
-        return;
-      }
       if (formData.newPassword.length < 8) {
         setPasswordError(t("passwordMinLength"));
-        setActiveTab("security");
+        setIsSaving(false);
+        return;
+      }
+      if (formData.newPassword !== formData.confirmPassword) {
+        setPasswordError(t("passwordsDoNotMatch"));
+        setIsSaving(false);
         return;
       }
     }
-
-    setIsSaving(true);
 
     try {
       // 1. Password change request
@@ -272,12 +297,17 @@ export function StudentSettingsView() {
         })
       );
 
-      setToastMessage(t("changesSaved"));
-      setTimeout(() => setToastMessage(null), 3500);
+      // Trigger Celebration State
+      setIsSavedCelebration(true);
+      setToastMessage(isAr ? "تم حفظ جميع التعديلات بنجاح ✨" : t("changesSaved"));
+      setTimeout(() => {
+        setIsSavedCelebration(false);
+        setToastMessage(null);
+      }, 3500);
     } catch (err: any) {
       const msg = getApiErrorMessage(
         err,
-        isAr ? "فشل حفظ التعديلات. يرجى المحاولة مرة أخرى." : "Failed to save changes. Please try again.",
+        t("saveChangesFailed"),
         isAr
       );
       setErrorMessage(msg);
@@ -287,25 +317,50 @@ export function StudentSettingsView() {
     }
   };
 
+  const tabsConfig = [
+    {
+      id: "profile" as SettingsTab,
+      label: isAr ? "الملف الشخصي" : t("profile"),
+      icon: User,
+      badge: isAr ? "المعلومات الأساسية" : "Basic Info",
+    },
+    {
+      id: "certificates" as SettingsTab,
+      label: isAr ? "بيانات الشهادة والتعلم" : tStudent("learningPreferences"),
+      icon: Award,
+      badge: isAr ? "معاينة حية" : "Live Preview",
+    },
+    {
+      id: "security" as SettingsTab,
+      label: isAr ? "الأمان وكلمة المرور" : t("security"),
+      icon: Lock,
+      badge: isAr ? "الحماية" : "Security",
+    },
+  ];
+
   return (
-    <div className="w-full space-y-6">
-      {/* Toast */}
+    <div className="w-full space-y-6 font-sans">
+      {/* Toast Feedback */}
       {toastMessage && (
-        <div className="fixed bottom-6 right-6 rtl:right-auto rtl:left-6 z-50 flex items-center gap-2.5 bg-[#0F5244] text-white px-5 py-3.5 rounded-2xl shadow-2xl animate-in slide-in-from-bottom-4 duration-200">
-          <CheckCircle2 className="h-4 w-4 text-emerald-300 shrink-0" />
-          <span className="text-xs sm:text-sm font-bold">{toastMessage}</span>
+        <div className="fixed bottom-6 right-6 rtl:right-auto rtl:left-6 z-50 flex items-center gap-3 bg-slate-900/95 backdrop-blur-md text-white px-5 py-3.5 rounded-2xl shadow-2xl border border-slate-700 animate-in slide-in-from-bottom-5 duration-300">
+          <div className="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
+            <CheckCircle2 className="h-5 w-5" />
+          </div>
+          <div className="space-y-0.5">
+            <p className="text-xs sm:text-sm font-extrabold text-white">{toastMessage}</p>
+            <p className="text-[11px] text-slate-400">{isAr ? "تم تحديث البيانات في حسابك فوراً" : "Your account details were updated."}</p>
+          </div>
         </div>
       )}
 
       {errorMessage && (
-        <div className="fixed bottom-6 right-6 rtl:right-auto rtl:left-6 z-50 flex items-center gap-2.5 bg-red-600 text-white px-5 py-3.5 rounded-2xl shadow-2xl animate-in slide-in-from-bottom-4 duration-200">
-          <AlertCircle className="h-4 w-4 text-white shrink-0" />
+        <div className="fixed bottom-6 right-6 rtl:right-auto rtl:left-6 z-50 flex items-center gap-3 bg-rose-600 text-white px-5 py-3.5 rounded-2xl shadow-2xl animate-in slide-in-from-bottom-5 duration-300">
+          <AlertCircle className="h-5 w-5 text-white shrink-0" />
           <span className="text-xs sm:text-sm font-bold">{errorMessage}</span>
         </div>
       )}
 
-
-      {/* Email Verification Modal (US-05) */}
+      {/* Email Verification Modal */}
       {showEmailModal && (
         <ChangeEmailModal
           isOpen={showEmailModal}
@@ -320,411 +375,492 @@ export function StudentSettingsView() {
       )}
 
       {/* Main Settings Card */}
-      <div className="w-full bg-white rounded-3xl border border-slate-200/80 p-6 sm:p-10 shadow-2xs">
+      <div className="w-full bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-8 lg:p-10 shadow-xs">
         <form onSubmit={handleSave} className="space-y-8">
           
-          <div className="space-y-1">
-            <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-              {tStudent("title")}
-            </h1>
-            <p className="text-xs sm:text-sm text-slate-500 font-medium">
-              {tStudent("subtitle")}
-            </p>
+          {/* ================= ULTRA-MODERN HEADER ================= */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-100">
+            <div className="space-y-1">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200/60 text-emerald-800 text-[11px] font-extrabold">
+                <Sparkles className="h-3.5 w-3.5 text-emerald-600 animate-pulse" />
+                <span>{isAr ? "لوحة الطالب المتقدمة" : "Student Settings Hub"}</span>
+              </div>
+              <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+                {tStudent("title")}
+              </h1>
+              <p className="text-xs sm:text-sm text-slate-500 font-medium max-w-xl">
+                {tStudent("subtitle")}
+              </p>
+            </div>
+
+            {/* Quick Status Pill */}
+            <div className="hidden sm:flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-slate-50 border border-slate-200/70 text-slate-600 text-xs font-semibold shrink-0">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
+              <span>{isAr ? "حسابك نشط وموثق" : "Verified Account"}</span>
+            </div>
           </div>
 
-          {/* Sub-Navigation Pills for Settings Sections */}
-          <div className="flex items-center gap-2 border-b border-slate-100 pb-4 overflow-x-auto">
-            {[
-              { id: "profile", label: t("profile"), icon: User },
-              { id: "learning", label: tStudent("learningPreferences"), icon: GraduationCap },
-              { id: "security", label: t("security"), icon: Lock },
-              { id: "preferences", label: t("preferences"), icon: Settings },
-            ].map((tab) => {
+          {/* ================= SLEEK SEGMENTED TAB NAVIGATION ================= */}
+          <div className="bg-slate-100/70 p-1.5 rounded-2xl flex items-center gap-2 overflow-x-auto border border-slate-200/60 backdrop-blur-xs scrollbar-none">
+            {tabsConfig.map((tab) => {
               const Icon = tab.icon;
               const active = activeTab === tab.id;
               return (
                 <button
                   key={tab.id}
                   type="button"
-                  onClick={() => setActiveTab(tab.id as SettingsTab)}
-                  className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`group relative flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-xs sm:text-sm font-extrabold transition-all duration-200 cursor-pointer whitespace-nowrap ${
                     active
-                      ? "bg-[#0F5244] text-white shadow-xs"
-                      : "bg-slate-100/80 text-slate-600 hover:bg-slate-200/70 hover:text-slate-900"
+                      ? "bg-white text-emerald-800 shadow-sm border border-emerald-200/80 font-black"
+                      : "text-slate-600 hover:text-slate-900 hover:bg-white/60 font-bold"
                   }`}
                 >
-                  <Icon className={`h-4 w-4 ${active ? "text-emerald-300" : "text-slate-500"}`} />
+                  <div className={`w-7 h-7 rounded-lg flex items-center justify-center transition-all ${
+                    active ? "bg-emerald-50 text-emerald-700" : "bg-transparent text-slate-400 group-hover:text-slate-600"
+                  }`}>
+                    <Icon className="h-4 w-4" />
+                  </div>
                   <span>{tab.label}</span>
                 </button>
               );
             })}
           </div>
 
-            {/* TAB 1: PROFILE */}
-            {activeTab === "profile" && (
-              <div className="space-y-8 animate-in fade-in duration-150">
-                
-                {/* Avatar Upload (US-05: 5MB limit, JPG/PNG/WebP) */}
-                <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
-                  <div
-                    onClick={() => fileInputRef.current?.click()}
-                    className="relative group w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-slate-100 border-2 border-slate-200/80 overflow-hidden shrink-0 shadow-2xs cursor-pointer flex items-center justify-center"
-                  >
-                    {avatarPreview ? (
-                      <Image
-                        suppressHydrationWarning
-                        src={avatarPreview}
-                        alt="Avatar"
-                        width={112}
-                        height={112}
-                        unoptimized
-                        onError={() => setAvatarPreview(null)}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <span suppressHydrationWarning className="select-none font-black text-3xl sm:text-4xl text-[#0F5244]">
-                        {formData.fullName.charAt(0)}
-                      </span>
-                    )}
+          {/* ================= TAB 1: PROFILE ================= */}
+          {activeTab === "profile" && (
+            <div key="profile" className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
+              
+              {/* Avatar Upload Card with Interactive Hover */}
+              <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 p-6 rounded-2xl bg-gradient-to-br from-emerald-50/60 via-slate-50/70 to-emerald-50/30 border border-emerald-100/90 shadow-2xs">
+                <div
+                  onClick={() => fileInputRef.current?.click()}
+                  className="relative group w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-white border-2 border-emerald-300 overflow-hidden shrink-0 shadow-sm hover:shadow-md cursor-pointer flex items-center justify-center transition-transform duration-300 hover:scale-105"
+                >
+                  {avatarPreview ? (
+                    <Image
+                      suppressHydrationWarning
+                      src={avatarPreview}
+                      alt="Avatar"
+                      width={112}
+                      height={112}
+                      unoptimized
+                      onError={() => setAvatarPreview(null)}
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                    />
+                  ) : (
+                    <span suppressHydrationWarning className="select-none font-black text-3xl sm:text-4xl text-emerald-700">
+                      {formData.fullName ? formData.fullName.charAt(0).toUpperCase() : "U"}
+                    </span>
+                  )}
 
-                    <div className="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white">
-                      <Camera className="h-6 w-6" />
-                    </div>
+                  {/* Camera overlay on hover */}
+                  <div className="absolute inset-0 bg-slate-900/50 backdrop-blur-2xs opacity-0 group-hover:opacity-100 transition-all duration-200 flex flex-col items-center justify-center text-white gap-1">
+                    <Camera className="h-6 w-6 animate-bounce" />
+                    <span className="text-[10px] font-extrabold">{isAr ? "تغيير" : "Edit"}</span>
                   </div>
 
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept="image/jpeg,image/png,image/webp"
-                    onChange={handleAvatarFileChange}
-                    className="hidden"
-                  />
+                  {isUploadingAvatar && (
+                    <div className="absolute inset-0 bg-slate-900/70 flex items-center justify-center text-white">
+                      <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    </div>
+                  )}
+                </div>
 
-                  <div className="space-y-1 text-center sm:text-start pt-1">
-                    <h3 className="text-lg sm:text-xl font-black text-slate-900">
-                      {t("avatarTitle")}
-                    </h3>
-                    <p className="text-xs sm:text-sm text-slate-500 font-medium leading-relaxed max-w-sm">
-                      {t("avatarSubtitle")}
-                    </p>
-                    <p className="text-[11px] text-slate-400 font-medium pt-1">
-                      {tStudent("avatarAllowedFormats")}
-                    </p>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  onChange={handleAvatarFileChange}
+                  className="hidden"
+                />
+
+                <div className="space-y-2 text-center sm:text-start flex-1">
+                  <h3 className="text-base sm:text-lg font-extrabold text-slate-900">
+                    {t("avatarTitle")}
+                  </h3>
+                  <p className="text-xs sm:text-sm text-slate-500 font-medium leading-relaxed max-w-md">
+                    {t("avatarSubtitle")}
+                  </p>
+                  <p className="text-[11px] text-slate-400 font-semibold">
+                    {tStudent("avatarAllowedFormats")}
+                  </p>
+
+                  <div className="flex items-center justify-center sm:justify-start gap-2.5 pt-2">
+                    <button
+                      type="button"
+                      disabled={isUploadingAvatar}
+                      onClick={() => fileInputRef.current?.click()}
+                      className="px-4 py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-800 border border-slate-200 text-xs font-extrabold shadow-2xs hover:shadow-xs active:scale-95 transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                    >
+                      <Camera className="h-3.5 w-3.5 text-emerald-600" />
+                      <span>
+                        {avatarPreview
+                          ? (isAr ? "تغيير الصورة" : "Change Photo")
+                          : (isAr ? "رفع صورة" : "Upload Photo")}
+                      </span>
+                    </button>
 
                     {avatarPreview && (
                       <button
                         type="button"
+                        disabled={isUploadingAvatar}
                         onClick={handleRemoveAvatar}
-                        className="inline-flex items-center gap-1 mt-2 text-xs font-bold text-red-600 hover:text-red-700 cursor-pointer"
+                        className="px-3.5 py-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs font-extrabold transition-all active:scale-95 flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
                       >
                         <Trash2 className="h-3.5 w-3.5" />
-                        <span>{tStudent("removePhoto")}</span>
+                        <span>{isAr ? "حذف الصورة" : "Remove photo"}</span>
                       </button>
                     )}
                   </div>
                 </div>
+              </div>
 
-                <div className="border-b border-slate-100" />
+              {/* Personal Details Fields Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                
+                <div className="space-y-2">
+                  <label className="block text-xs sm:text-sm font-extrabold text-slate-700">
+                    {t("fullName")}
+                  </label>
+                  <input
+                    type="text"
+                    name="fullName"
+                    value={formData.fullName}
+                    onChange={handleChange}
+                    required
+                    className="w-full h-11 sm:h-12 rounded-xl border border-slate-200/90 bg-slate-50/50 hover:bg-white hover:border-emerald-300 px-4 text-xs sm:text-sm font-semibold text-slate-900 focus:bg-white focus:border-emerald-600 focus:outline-none focus:ring-4 focus:ring-emerald-500/15 transition-all shadow-2xs"
+                  />
+                </div>
 
-                {/* Fields Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  
-                  <div className="space-y-2">
-                    <label className="block text-xs sm:text-sm font-bold text-slate-700">
-                      {t("fullName")}
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <label className="block text-xs sm:text-sm font-extrabold text-slate-700">
+                      {t("emailAddress")}
                     </label>
-                    <input
-                      type="text"
-                      name="fullName"
-                      value={formData.fullName}
-                      onChange={handleChange}
-                      required
-                      className="w-full h-11 sm:h-12 rounded-2xl border border-slate-200/90 bg-slate-50/60 px-4 text-xs sm:text-sm font-semibold text-slate-900 focus:bg-white focus:border-[#0F5244] focus:outline-none focus:ring-2 focus:ring-[#0F5244]/15 transition-all"
-                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowEmailModal(true)}
+                      className="px-2.5 py-0.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-xs font-black text-emerald-700 transition-colors cursor-pointer"
+                    >
+                      {t("change")}
+                    </button>
                   </div>
+                  <input
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    readOnly
+                    className="w-full h-11 sm:h-12 rounded-xl border border-slate-200/90 bg-slate-100/70 px-4 text-xs sm:text-sm font-semibold text-slate-600 cursor-not-allowed"
+                  />
+                </div>
 
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <label className="block text-xs sm:text-sm font-bold text-slate-700">
-                        {t("emailAddress")}
-                      </label>
-                      <button
-                        type="button"
-                        onClick={() => setShowEmailModal(true)}
-                        className="text-xs font-extrabold text-[#0F5244] hover:underline cursor-pointer"
-                      >
-                        {t("change")}
-                      </button>
-                    </div>
-                    <input
-                      type="email"
-                      name="email"
-                      value={formData.email}
-                      readOnly
-                      className="w-full h-11 sm:h-12 rounded-2xl border border-slate-200/90 bg-slate-100/60 px-4 text-xs sm:text-sm font-semibold text-slate-700 cursor-not-allowed"
-                    />
-                  </div>
+                <div className="space-y-2">
+                  <label className="block text-xs sm:text-sm font-extrabold text-slate-700">
+                    {t("phoneNumber")}
+                  </label>
+                  <input
+                    type="tel"
+                    name="phone"
+                    value={formData.phone}
+                    onChange={handleChange}
+                    className="w-full h-11 sm:h-12 rounded-xl border border-slate-200/90 bg-slate-50/50 hover:bg-white hover:border-emerald-300 px-4 text-xs sm:text-sm font-semibold text-slate-900 focus:bg-white focus:border-emerald-600 focus:outline-none focus:ring-4 focus:ring-emerald-500/15 transition-all shadow-2xs"
+                  />
+                </div>
 
-                  <div className="space-y-2">
-                    <label className="block text-xs sm:text-sm font-bold text-slate-700">
-                      {t("phoneNumber")}
-                    </label>
-                    <input
-                      type="tel"
-                      name="phone"
-                      value={formData.phone}
-                      onChange={handleChange}
-                      className="w-full h-11 sm:h-12 rounded-2xl border border-slate-200/90 bg-slate-50/60 px-4 text-xs sm:text-sm font-semibold text-slate-900 focus:bg-white focus:border-[#0F5244] focus:outline-none focus:ring-2 focus:ring-[#0F5244]/15 transition-all"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <label className="block text-xs sm:text-sm font-bold text-slate-700">
-                      {t("headline")}
-                    </label>
-                    <input
-                      type="text"
-                      name="headline"
-                      value={formData.headline}
-                      onChange={handleChange}
-                      className="w-full h-11 sm:h-12 rounded-2xl border border-slate-200/90 bg-slate-50/60 px-4 text-xs sm:text-sm font-semibold text-slate-900 focus:bg-white focus:border-[#0F5244] focus:outline-none focus:ring-2 focus:ring-[#0F5244]/15 transition-all"
-                    />
-                  </div>
-
+                <div className="space-y-2">
+                  <label className="block text-xs sm:text-sm font-extrabold text-slate-700">
+                    {t("headline")}
+                  </label>
+                  <input
+                    type="text"
+                    name="headline"
+                    value={formData.headline}
+                    onChange={handleChange}
+                    placeholder={tStudent("defaultHeadline")}
+                    className="w-full h-11 sm:h-12 rounded-xl border border-slate-200/90 bg-slate-50/50 hover:bg-white hover:border-emerald-300 px-4 text-xs sm:text-sm font-semibold text-slate-900 focus:bg-white focus:border-emerald-600 focus:outline-none focus:ring-4 focus:ring-emerald-500/15 transition-all shadow-2xs"
+                  />
                 </div>
 
               </div>
-            )}
 
-            {/* TAB 2: LEARNING & CERTIFICATES */}
-            {activeTab === "learning" && (
-              <div className="space-y-6 animate-in fade-in duration-150">
+            </div>
+          )}
+
+          {/* ================= TAB 2: CERTIFICATES & LEARNING ================= */}
+          {activeTab === "certificates" && (
+            <div key="certificates" className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
+              
+              {/* Premium Live Certificate Preview Showcase Card */}
+              <div className="relative overflow-hidden rounded-3xl border-2 border-emerald-200/90 bg-gradient-to-br from-emerald-50/50 via-white to-amber-50/40 p-6 sm:p-8 shadow-sm transition-all duration-300 hover:border-emerald-300 hover:shadow-md">
+                {/* Glow & Watermark */}
+                <div className="absolute top-0 right-0 rtl:right-auto rtl:left-0 w-48 h-48 bg-emerald-200/40 rounded-full blur-3xl pointer-events-none" />
+                <div className="absolute bottom-0 left-0 rtl:left-auto rtl:right-0 w-48 h-48 bg-amber-200/30 rounded-full blur-3xl pointer-events-none" />
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  
-                  <div className="space-y-2">
-                    <label className="block text-xs sm:text-sm font-bold text-slate-700">
-                      {tStudent("learningGoal")}
-                    </label>
-                    <input
-                      type="text"
-                      name="learningGoal"
-                      value={formData.learningGoal}
-                      onChange={handleChange}
-                      className="w-full h-11 sm:h-12 rounded-2xl border border-slate-200/90 bg-slate-50/60 px-4 text-xs sm:text-sm font-semibold text-slate-900 focus:bg-white focus:border-[#0F5244] focus:outline-none focus:ring-2 focus:ring-[#0F5244]/15 transition-all"
-                    />
-                  </div>
+                <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                  <div className="space-y-3">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-100/90 text-emerald-800 text-xs font-extrabold shadow-2xs">
+                      <Sparkles className="h-3.5 w-3.5 text-emerald-600 animate-spin" style={{ animationDuration: '6s' }} />
+                      <span>{isAr ? "معاينة الشهادة المعتمدة المباشرة" : "Live Verified Certificate Preview"}</span>
+                    </div>
 
-                  <div className="space-y-2">
-                    <label className="block text-xs sm:text-sm font-bold text-slate-700">
-                      {tStudent("preferredCategory")}
-                    </label>
-                    <select
-                      name="preferredCategory"
-                      value={formData.preferredCategory}
-                      onChange={handleChange}
-                      className="w-full h-11 sm:h-12 rounded-2xl border border-slate-200/90 bg-slate-50/60 px-4 text-xs sm:text-sm font-semibold text-slate-900 focus:bg-white focus:border-[#0F5244] focus:outline-none focus:ring-2 focus:ring-[#0F5244]/15 cursor-pointer transition-all"
-                    >
-                      <option value="Data Science">{tStudent("categories.dataScience")}</option>
-                      <option value="Development">{tStudent("categories.webDev")}</option>
-                      <option value="Design">{tStudent("categories.design")}</option>
-                      <option value="Management">{tStudent("categories.business")}</option>
-                    </select>
-                  </div>
+                    <div className="space-y-1">
+                      <span className="text-xs font-bold text-slate-400 uppercase tracking-widest block">
+                        {isAr ? "اسم الحاصل على الشهادة" : "Recipient Name"}
+                      </span>
+                      <h3 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight transition-all">
+                        {formData.certificateName || formData.fullName || (isAr ? "اسم الطالب المعتمد" : "Student Verified Name")}
+                      </h3>
+                    </div>
 
-                  <div className="space-y-2">
-                    <label className="block text-xs sm:text-sm font-bold text-slate-700">
-                      {tStudent("certificateName")}
-                    </label>
-                    <input
-                      type="text"
-                      name="certificateName"
-                      value={formData.certificateName}
-                      onChange={handleChange}
-                      className="w-full h-11 sm:h-12 rounded-2xl border border-slate-200/90 bg-slate-50/60 px-4 text-xs sm:text-sm font-semibold text-slate-900 focus:bg-white focus:border-[#0F5244] focus:outline-none focus:ring-2 focus:ring-[#0F5244]/15 transition-all"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <label className="block text-xs sm:text-sm font-bold text-slate-700">
-                      {tStudent("videoSpeed")}
-                    </label>
-                    <select
-                      name="videoSpeed"
-                      value={formData.videoSpeed}
-                      onChange={handleChange}
-                      className="w-full h-11 sm:h-12 rounded-2xl border border-slate-200/90 bg-slate-50/60 px-4 text-xs sm:text-sm font-semibold text-slate-900 focus:bg-white focus:border-[#0F5244] focus:outline-none focus:ring-2 focus:ring-[#0F5244]/15 cursor-pointer transition-all"
-                    >
-                      <option value="1x">{tStudent("videoSpeeds.normal")}</option>
-                      <option value="1.25x">{tStudent("videoSpeeds.speed125")}</option>
-                      <option value="1.5x">{tStudent("videoSpeeds.speed150")}</option>
-                      <option value="2x">{tStudent("videoSpeeds.speed200")}</option>
-                    </select>
-                  </div>
-
-                </div>
-
-                {/* Public Student Profile Toggle */}
-                <div className="p-4 rounded-2xl bg-slate-50/70 border border-slate-200/60 flex items-center justify-between gap-4">
-                  <div>
-                    <h4 className="text-xs sm:text-sm font-bold text-slate-800">
-                      {tStudent("publicProfile")}
-                    </h4>
-                    <p className="text-xs text-slate-500 font-medium mt-0.5">
-                      {tStudent("publicProfileSub")}
+                    <p className="text-xs sm:text-sm text-slate-500 font-medium max-w-lg leading-relaxed">
+                      {isAr
+                        ? "هذا الاسم سيظهر بدقة وبشكل رسمي على جميع شهادات إتمام الدورات الصادرة لك من CoachSpace."
+                        : "This official name will be permanently stamped on all completion credentials and certificates."}
                     </p>
                   </div>
 
-                  <label className="relative inline-flex items-center cursor-pointer shrink-0">
-                    <input
-                      type="checkbox"
-                      name="publicProfile"
-                      checked={formData.publicProfile}
-                      onChange={handleChange}
-                      className="sr-only peer"
-                    />
-                    <div className="w-10 h-5.5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] rtl:after:left-auto rtl:after:right-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4.5 after:w-4.5 after:transition-all peer-checked:bg-[#0F5244]" />
+                  {/* Certificate Seal Badge */}
+                  <div className="flex flex-col items-center justify-center p-5 rounded-2xl bg-white/90 backdrop-blur-xs border border-emerald-200 shadow-xs shrink-0 self-center md:self-auto group hover:scale-105 transition-transform">
+                    <div className="w-16 h-16 rounded-full bg-gradient-to-br from-emerald-100 to-amber-100 border-2 border-emerald-400 flex items-center justify-center text-emerald-700 shadow-sm">
+                      <Award className="h-8 w-8 group-hover:rotate-12 transition-transform duration-300" />
+                    </div>
+                    <span className="text-[11px] font-black text-emerald-800 mt-2 uppercase tracking-wider">
+                      {isAr ? "اعتماد رسمي" : "Official Seal"}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Certificate & Preferences Input Fields */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                
+                {/* Certificate Recipient Name */}
+                <div className="space-y-2 md:col-span-2">
+                  <label className="block text-xs sm:text-sm font-extrabold text-slate-800">
+                    <span className="flex items-center gap-2">
+                      <Award className="h-4 w-4 text-emerald-600" />
+                      <span>{isAr ? "الاسم المعتمد على الشهادات (باللغة الإنجليزية أو العربية)" : tStudent("certificateName")}</span>
+                    </span>
                   </label>
+                  <input
+                    type="text"
+                    name="certificateName"
+                    value={formData.certificateName}
+                    onChange={handleChange}
+                    placeholder={isAr ? "مثال: Hadeel Baroud" : "e.g. Hadeel Baroud"}
+                    className="w-full h-11 sm:h-12 rounded-xl border border-slate-200/90 bg-slate-50/50 hover:bg-white hover:border-emerald-300 px-4 text-xs sm:text-sm font-semibold text-slate-900 focus:bg-white focus:border-emerald-600 focus:outline-none focus:ring-4 focus:ring-emerald-500/15 transition-all shadow-2xs"
+                  />
+                  <p className="text-[11px] text-slate-400 font-medium">
+                    {isAr ? "يُفضل كتابة الاسم الثلاثي أو الثنائي كما ترغب في ظهوره بالسيرة الذاتية و LinkedIn." : "Use your full professional name as intended for LinkedIn or CV."}
+                  </p>
+                </div>
+
+                {/* Learning Goal */}
+                <div className="space-y-2">
+                  <label className="block text-xs sm:text-sm font-extrabold text-slate-700">
+                    <span className="flex items-center gap-2">
+                      <Target className="h-4 w-4 text-emerald-600" />
+                      <span>{tStudent("learningGoal")}</span>
+                    </span>
+                  </label>
+                  <input
+                    type="text"
+                    name="learningGoal"
+                    value={formData.learningGoal}
+                    onChange={handleChange}
+                    placeholder={isAr ? "مثال: احتراف الذكاء الاصطناعي وعلوم البيانات" : "e.g. Master Full Stack Development"}
+                    className="w-full h-11 sm:h-12 rounded-xl border border-slate-200/90 bg-slate-50/50 hover:bg-white hover:border-emerald-300 px-4 text-xs sm:text-sm font-semibold text-slate-900 focus:bg-white focus:border-emerald-600 focus:outline-none focus:ring-4 focus:ring-emerald-500/15 transition-all shadow-2xs"
+                  />
+                </div>
+
+                {/* Preferred Category */}
+                <div className="space-y-2">
+                  <label className="block text-xs sm:text-sm font-extrabold text-slate-700">
+                    <span className="flex items-center gap-2">
+                      <BookOpen className="h-4 w-4 text-emerald-600" />
+                      <span>{tStudent("preferredCategory")}</span>
+                    </span>
+                  </label>
+                  <select
+                    name="preferredCategory"
+                    value={formData.preferredCategory}
+                    onChange={handleChange}
+                    className="w-full h-11 sm:h-12 rounded-xl border border-slate-200/90 bg-slate-50/50 hover:bg-white hover:border-emerald-300 px-4 text-xs sm:text-sm font-semibold text-slate-900 focus:bg-white focus:border-emerald-600 focus:outline-none focus:ring-4 focus:ring-emerald-500/15 cursor-pointer transition-all shadow-2xs"
+                  >
+                    <option value="Data Science">{tStudent("categories.dataScience")}</option>
+                    <option value="Development">{tStudent("categories.webDev")}</option>
+                    <option value="Design">{tStudent("categories.design")}</option>
+                    <option value="Management">{tStudent("categories.business")}</option>
+                  </select>
+                </div>
+
+                {/* Video Playback Speed */}
+                <div className="space-y-2">
+                  <label className="block text-xs sm:text-sm font-extrabold text-slate-700">
+                    <span className="flex items-center gap-2">
+                      <Clock className="h-4 w-4 text-emerald-600" />
+                      <span>{tStudent("videoSpeed")}</span>
+                    </span>
+                  </label>
+                  <select
+                    name="videoSpeed"
+                    value={formData.videoSpeed}
+                    onChange={handleChange}
+                    className="w-full h-11 sm:h-12 rounded-xl border border-slate-200/90 bg-slate-50/50 hover:bg-white hover:border-emerald-300 px-4 text-xs sm:text-sm font-semibold text-slate-900 focus:bg-white focus:border-emerald-600 focus:outline-none focus:ring-4 focus:ring-emerald-500/15 cursor-pointer transition-all shadow-2xs"
+                  >
+                    <option value="1x">{tStudent("videoSpeeds.normal")}</option>
+                    <option value="1.25x">{tStudent("videoSpeeds.speed125")}</option>
+                    <option value="1.5x">{tStudent("videoSpeeds.speed150")}</option>
+                    <option value="2x">{tStudent("videoSpeeds.speed200")}</option>
+                  </select>
                 </div>
 
               </div>
-            )}
 
-            {/* TAB 3: SECURITY (US-03) */}
-            {activeTab === "security" && (
-              <div className="space-y-6 animate-in fade-in duration-150">
+            </div>
+          )}
+
+          {/* ================= TAB 3: SECURITY ================= */}
+          {activeTab === "security" && (
+            <div key="security" className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
+              
+              {passwordError && (
+                <div className="flex items-center gap-2 p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-600 text-xs font-bold animate-shake">
+                  <AlertCircle className="h-4 w-4 shrink-0" />
+                  <span>{passwordError}</span>
+                </div>
+              )}
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 
-                {passwordError && (
-                  <div className="flex items-center gap-2 p-3 rounded-xl bg-red-50 border border-red-200 text-red-600 text-xs font-bold">
-                    <AlertCircle className="h-4 w-4 shrink-0" />
-                    <span>{passwordError}</span>
-                  </div>
-                )}
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <div className="space-y-2">
-                    <label className="block text-xs sm:text-sm font-bold text-slate-700">
-                      {t("currentPassword")}
-                    </label>
+                {/* Current Password */}
+                <div className="space-y-2">
+                  <label className="block text-xs sm:text-sm font-extrabold text-slate-700">
+                    {t("currentPassword")}
+                  </label>
+                  <div className="relative">
                     <input
-                      type="password"
+                      type={showCurrentPassword ? "text" : "password"}
                       name="currentPassword"
                       value={formData.currentPassword}
                       onChange={handleChange}
                       placeholder="••••••••"
-                      className="w-full h-11 sm:h-12 rounded-2xl border border-slate-200/90 bg-slate-50/60 px-4 text-xs sm:text-sm font-semibold text-slate-900 focus:bg-white focus:border-[#0F5244] focus:outline-none focus:ring-2 focus:ring-[#0F5244]/15 transition-all"
+                      className="w-full h-11 sm:h-12 rounded-xl border border-slate-200/90 bg-slate-50/50 hover:bg-white hover:border-emerald-300 px-4 text-xs sm:text-sm font-semibold text-slate-900 focus:bg-white focus:border-emerald-600 focus:outline-none focus:ring-4 focus:ring-emerald-500/15 transition-all shadow-2xs"
                     />
+                    <button
+                      type="button"
+                      onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                      className="absolute top-1/2 -translate-y-1/2 right-3.5 rtl:right-auto rtl:left-3.5 text-slate-400 hover:text-slate-600 cursor-pointer"
+                    >
+                      {showCurrentPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
                   </div>
+                </div>
 
-                  <div className="space-y-2">
-                    <label className="block text-xs sm:text-sm font-bold text-slate-700">
-                      {t("newPassword")}
-                    </label>
+                {/* New Password */}
+                <div className="space-y-2">
+                  <label className="block text-xs sm:text-sm font-extrabold text-slate-700">
+                    {t("newPassword")}
+                  </label>
+                  <div className="relative">
                     <input
-                      type="password"
+                      type={showNewPassword ? "text" : "password"}
                       name="newPassword"
                       value={formData.newPassword}
                       onChange={handleChange}
                       placeholder="••••••••"
-                      className="w-full h-11 sm:h-12 rounded-2xl border border-slate-200/90 bg-slate-50/60 px-4 text-xs sm:text-sm font-semibold text-slate-900 focus:bg-white focus:border-[#0F5244] focus:outline-none focus:ring-2 focus:ring-[#0F5244]/15 transition-all"
+                      className="w-full h-11 sm:h-12 rounded-xl border border-slate-200/90 bg-slate-50/50 hover:bg-white hover:border-emerald-300 px-4 text-xs sm:text-sm font-semibold text-slate-900 focus:bg-white focus:border-emerald-600 focus:outline-none focus:ring-4 focus:ring-emerald-500/15 transition-all shadow-2xs"
                     />
+                    <button
+                      type="button"
+                      onClick={() => setShowNewPassword(!showNewPassword)}
+                      className="absolute top-1/2 -translate-y-1/2 right-3.5 rtl:right-auto rtl:left-3.5 text-slate-400 hover:text-slate-600 cursor-pointer"
+                    >
+                      {showNewPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
                   </div>
 
-                  <div className="space-y-2">
-                    <label className="block text-xs sm:text-sm font-bold text-slate-700">
-                      {t("confirmPassword")}
-                    </label>
+                  {/* Real-time Interactive Password Strength Meter */}
+                  {formData.newPassword && (
+                    <div className="space-y-1 pt-1">
+                      <div className="flex gap-1 h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
+                        <div className={`h-full transition-all duration-300 ${passwordStrength.score >= 1 ? passwordStrength.color : "bg-transparent"} flex-1`} />
+                        <div className={`h-full transition-all duration-300 ${passwordStrength.score >= 2 ? passwordStrength.color : "bg-transparent"} flex-1`} />
+                        <div className={`h-full transition-all duration-300 ${passwordStrength.score >= 3 ? passwordStrength.color : "bg-transparent"} flex-1`} />
+                        <div className={`h-full transition-all duration-300 ${passwordStrength.score >= 4 ? passwordStrength.color : "bg-transparent"} flex-1`} />
+                      </div>
+                      <div className="flex justify-between items-center text-[10px]">
+                        <span className="text-slate-400">{isAr ? "مستوى الأمان:" : "Strength:"}</span>
+                        <span className={`font-black ${passwordStrength.text}`}>{passwordStrength.label}</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Confirm Password */}
+                <div className="space-y-2">
+                  <label className="block text-xs sm:text-sm font-extrabold text-slate-700">
+                    {t("confirmPassword")}
+                  </label>
+                  <div className="relative">
                     <input
-                      type="password"
+                      type={showConfirmPassword ? "text" : "password"}
                       name="confirmPassword"
                       value={formData.confirmPassword}
                       onChange={handleChange}
                       placeholder="••••••••"
-                      className="w-full h-11 sm:h-12 rounded-2xl border border-slate-200/90 bg-slate-50/60 px-4 text-xs sm:text-sm font-semibold text-slate-900 focus:bg-white focus:border-[#0F5244] focus:outline-none focus:ring-2 focus:ring-[#0F5244]/15 transition-all"
+                      className="w-full h-11 sm:h-12 rounded-xl border border-slate-200/90 bg-slate-50/50 hover:bg-white hover:border-emerald-300 px-4 text-xs sm:text-sm font-semibold text-slate-900 focus:bg-white focus:border-emerald-600 focus:outline-none focus:ring-4 focus:ring-emerald-500/15 transition-all shadow-2xs"
                     />
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      className="absolute top-1/2 -translate-y-1/2 right-3.5 rtl:right-auto rtl:left-3.5 text-slate-400 hover:text-slate-600 cursor-pointer"
+                    >
+                      {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
                   </div>
                 </div>
 
               </div>
-            )}
 
-            {/* TAB 4: PREFERENCES */}
-            {activeTab === "preferences" && (
-              <div className="space-y-4 animate-in fade-in duration-150">
-                <p className="text-xs sm:text-sm text-slate-500 font-medium">
-                  {t("notificationsSubtitle")}
-                </p>
-
-                <div className="space-y-3">
-                  <div className="p-4 rounded-2xl bg-slate-50/70 border border-slate-200/60 flex items-center justify-between gap-4">
-                    <div>
-                      <h4 className="text-xs sm:text-sm font-bold text-slate-800">
-                        {t("courseUpdates")}
-                      </h4>
-                      <p className="text-xs text-slate-500 font-medium mt-0.5">
-                        {t("courseUpdatesSub")}
-                      </p>
-                    </div>
-
-                    <label className="relative inline-flex items-center cursor-pointer shrink-0">
-                      <input
-                        type="checkbox"
-                        name="emailCourseUpdates"
-                        checked={formData.emailCourseUpdates}
-                        onChange={handleChange}
-                        className="sr-only peer"
-                      />
-                      <div className="w-10 h-5.5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] rtl:after:left-auto rtl:after:right-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4.5 after:w-4.5 after:transition-all peer-checked:bg-[#0F5244]" />
-                    </label>
-                  </div>
-
-                  <div className="p-4 rounded-2xl bg-slate-50/70 border border-slate-200/60 flex items-center justify-between gap-4">
-                    <div>
-                      <h4 className="text-xs sm:text-sm font-bold text-slate-800">
-                        {t("promotionalEmails")}
-                      </h4>
-                      <p className="text-xs text-slate-500 font-medium mt-0.5">
-                        {t("promotionalEmailsSub")}
-                      </p>
-                    </div>
-
-                    <label className="relative inline-flex items-center cursor-pointer shrink-0">
-                      <input
-                        type="checkbox"
-                        name="emailPromotions"
-                        checked={formData.emailPromotions}
-                        onChange={handleChange}
-                        className="sr-only peer"
-                      />
-                      <div className="w-10 h-5.5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] rtl:after:left-auto rtl:after:right-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4.5 after:w-4.5 after:transition-all peer-checked:bg-[#0F5244]" />
-                    </label>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            <div className="border-b border-slate-100" />
-
-            {/* Bottom Action */}
-            <div className="flex items-center justify-end">
-              <button
-                type="submit"
-                disabled={isSaving}
-                className="px-8 py-3 rounded-2xl bg-[#0F5244] hover:bg-[#07382E] text-white text-xs sm:text-sm font-extrabold shadow-sm hover:shadow-md active:scale-98 transition-all cursor-pointer disabled:opacity-70 flex items-center gap-2"
-              >
-                {isSaving ? (
-                  <>
-                    <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                    <span>{t("saving")}</span>
-                  </>
-                ) : (
-                  <span>{t("saveChanges")}</span>
-                )}
-              </button>
             </div>
+          )}
 
-          </form>
-        </div>
+          <div className="border-b border-slate-100" />
+
+          {/* ================= BOTTOM ACTION BAR ================= */}
+          <div className="flex items-center justify-end">
+            <button
+              type="submit"
+              disabled={isSaving}
+              className={`relative overflow-hidden px-8 py-3.5 rounded-xl font-black text-xs sm:text-sm text-white shadow-sm transition-all duration-300 flex items-center gap-2 cursor-pointer disabled:opacity-70 ${
+                isSavedCelebration
+                  ? "bg-emerald-700 shadow-emerald-500/30 scale-105"
+                  : "bg-emerald-600 hover:bg-emerald-700 hover:shadow-md active:scale-95"
+              }`}
+            >
+              {isSaving ? (
+                <>
+                  <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  <span>{t("saving")}</span>
+                </>
+              ) : isSavedCelebration ? (
+                <>
+                  <Check className="h-4 w-4 text-emerald-300 animate-in zoom-in-50 duration-200" />
+                  <span>{isAr ? "تم الحفظ بنجاح!" : "Saved!"}</span>
+                </>
+              ) : (
+                <>
+                  <Sparkles className="h-4 w-4 opacity-70" />
+                  <span>{isAr ? "حفظ التغييرات" : t("saveChanges")}</span>
+                </>
+              )}
+            </button>
+          </div>
+
+        </form>
+      </div>
 
     </div>
   );

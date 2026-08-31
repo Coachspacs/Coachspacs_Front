@@ -338,13 +338,15 @@ export function Header({ lang, onLanguageToggle, variant = "main" }: HeaderProps
                   {/* User Profile Card Header */}
                   <div className="px-3 py-2.5 border-b border-slate-100 bg-slate-50/60 rounded-xl mb-1">
                     <div className="flex items-center justify-between gap-2">
-                      <p className="text-xs sm:text-sm font-bold text-slate-900 truncate">
-                        {user?.name || user?.fullName || (isAr ? "المستخدم" : "User")}
-                      </p>
+                      <div className="flex items-center gap-1.5 min-w-0">
+                        <p className="text-xs sm:text-sm font-bold text-slate-900 truncate">
+                          {user?.name || user?.fullName || tHeader("defaultUser")}
+                        </p>
+                      </div>
                       <span
                         className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold shrink-0 ${
                           isInstructor
-                            ? "bg-amber-100 text-amber-900 border border-amber-200/80"
+                            ? "bg-emerald-50 text-[#0F5244] border border-emerald-200/90 font-black"
                             : "bg-emerald-100 text-[#0F5244] border border-emerald-200/80"
                         }`}
                       >
@@ -360,19 +362,6 @@ export function Header({ lang, onLanguageToggle, variant = "main" }: HeaderProps
                   <div className="py-1 space-y-0.5">
                     {isInstructor ? (
                       <>
-                        <Link
-                          href={instructorDashboardUrl}
-                          onClick={() => setUserDropdownOpen(false)}
-                          className={`flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-bold transition-colors ${
-                            isActive("/instructor/dashboard") || isActive("/instructor")
-                              ? "bg-emerald-50 text-[#0F5244]"
-                              : "hover:bg-slate-50 text-slate-700 hover:text-[#0F5244]"
-                          }`}
-                        >
-                          <LayoutDashboard className="h-4 w-4 text-[#0F5244] shrink-0" />
-                          <span>{tNav("instructorDashboard")}</span>
-                        </Link>
-
                         <Link
                           href={`/${locale}/instructor/settings`}
                           onClick={() => setUserDropdownOpen(false)}
@@ -516,14 +505,16 @@ export function Header({ lang, onLanguageToggle, variant = "main" }: HeaderProps
                   </div>
                 )}
                 <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2">
-                    <p className="text-xs sm:text-sm font-bold text-slate-900 truncate">
-                      {user?.name || user?.fullName || "User"}
-                    </p>
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-1.5 min-w-0">
+                      <p className="text-xs sm:text-sm font-bold text-slate-900 truncate">
+                        {user?.name || user?.fullName || "User"}
+                      </p>
+                    </div>
                     <span
-                      className={`px-1.5 py-0.2 rounded-full text-[9px] font-extrabold ${
+                      className={`px-2 py-0.5 rounded-full text-[9px] font-extrabold shrink-0 ${
                         isInstructor
-                          ? "bg-amber-100 text-amber-900 border border-amber-200/80"
+                          ? "bg-emerald-50 text-[#0F5244] border border-emerald-200/90 font-black"
                           : "bg-emerald-100 text-[#0F5244] border border-emerald-200/80"
                       }`}
                     >
@@ -657,6 +648,29 @@ export function Header({ lang, onLanguageToggle, variant = "main" }: HeaderProps
                 >
                   <Sparkles className="h-4 w-4 text-emerald-700" />
                   <span>{tNav("becomeInstructor")}</span>
+                </Link>
+              )}
+
+              {/* Shopping Cart Link (For guests and students) */}
+              {(!mounted || !isAuthenticated || !isInstructor) && (
+                <Link
+                  href={`/${locale}/student/cart`}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all ${
+                    isActive("/student/cart") || isActive("/cart")
+                      ? "bg-[#0F5244] text-white shadow-xs"
+                      : "text-slate-700 hover:bg-slate-50"
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <ShoppingCart className={`h-4 w-4 ${isActive("/student/cart") || isActive("/cart") ? "text-white" : "text-emerald-700"}`} />
+                    <span>{tHeader("cartAria")}</span>
+                  </div>
+                  {cartItems.length > 0 && (
+                    <span className="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-emerald-500 px-1.5 text-[11px] font-black text-white">
+                      {cartItems.length}
+                    </span>
+                  )}
                 </Link>
               )}
 

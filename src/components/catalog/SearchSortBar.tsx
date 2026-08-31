@@ -31,6 +31,7 @@ export function SearchSortBar({
   isLoading = false,
 }: SearchSortBarProps) {
   const t = useTranslations("catalog.search");
+  const tFilter = useTranslations("catalog.filters");
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -95,7 +96,7 @@ export function SearchSortBar({
             className="lg:hidden inline-flex items-center gap-1.5 rounded-xl bg-[#0F5244] text-white px-3 py-2 text-xs font-black shadow-2xs hover:bg-[#07382E] active:scale-98 transition-all shrink-0 cursor-pointer"
           >
             <Filter className="h-3.5 w-3.5" />
-            <span>{isAr ? "الفلترة" : "Filters"}</span>
+            <span>{tFilter("toggle")}</span>
             {selectedFiltersCount > 0 && (
               <span className="rounded-full bg-white text-[#0F5244] px-1.5 py-0.2 text-[10px] font-black">
                 {selectedFiltersCount}

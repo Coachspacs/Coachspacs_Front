@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useRef } from "react";
+import { useTranslations } from "next-intl";
 import {
   UploadCloud,
   FileVideo,
@@ -50,6 +51,7 @@ export function LessonVideoUploader({
   isAr = false,
   lessonData,
 }: LessonVideoUploaderProps) {
+  const t = useTranslations("courseStudio");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [dragOver, setDragOver] = useState(false);
   const [externalUrl, setExternalUrl] = useState("");
@@ -122,9 +124,9 @@ export function LessonVideoUploader({
       <div className="flex items-center justify-between text-xs">
         <label className="font-bold text-slate-700 flex items-center gap-1.5">
           <Film className="h-4 w-4 text-[#0F5244]" />
-          <span>{isAr ? "فيديو الدرس" : "Lesson Video"}</span>
+          <span>{t("lessonVideo")}</span>
           <span className="text-[11px] text-slate-600 font-medium">
-            ({isAr ? "MP4 حتى 500 ميغابايت" : "MP4 up to 500 MB"})
+            ({t("mp4Notice")})
           </span>
         </label>
 
@@ -137,12 +139,8 @@ export function LessonVideoUploader({
             <LinkIcon className="h-3 w-3" />
             <span>
               {useExternalLink
-                ? isAr
-                  ? "رفع ملف MP4"
-                  : "Upload MP4 File"
-                : isAr
-                ? "استخدام رابط خارجي"
-                : "Use External Link"}
+                ? t("uploadMp4File")
+                : t("useExternalLink")}
             </span>
           </button>
         )}
@@ -152,7 +150,7 @@ export function LessonVideoUploader({
       {useExternalLink && !currentVideoUrl && (
         <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 space-y-2">
           <label className="block text-xs font-bold text-slate-700">
-            {isAr ? "رابط الفيديو (YouTube / Vimeo / CDN)" : "Video URL (YouTube / Vimeo / CDN)"}
+            {t("videoUrlLabel")}
           </label>
           <div className="flex gap-2">
             <input
@@ -164,9 +162,7 @@ export function LessonVideoUploader({
             />
           </div>
           <p className="text-[11px] text-slate-600">
-            {isAr
-              ? "الروابط الخارجية تُستخدم مباشرة ولا يتم تطبيق التحقق التلقائي عليها."
-              : "External links are embedded directly without Cloudinary processing."}
+            {t("externalLinkNotice")}
           </p>
         </div>
       )}
@@ -181,7 +177,7 @@ export function LessonVideoUploader({
                 <div className="flex items-center gap-2 text-[#0F5244]">
                   <Loader2 className="h-4 w-4 animate-spin text-[#0F5244]" />
                   <span className="truncate max-w-[200px] sm:max-w-xs">
-                    {selectedFileName || (isAr ? "جاري رفع الفيديو..." : "Uploading video...")}
+                    {selectedFileName || t("uploadingVideo")}
                   </span>
                 </div>
                 <span className="text-sm font-black text-[#0F5244] font-mono">{progress}%</span>
@@ -218,7 +214,7 @@ export function LessonVideoUploader({
                     : "Upload complete"}
                 </span>
                 <span className="text-slate-600">
-                  {isAr ? "الرجاء عدم إغلاق النافذة" : "Please keep this tab open"}
+                  {t("keepTabOpen")}
                 </span>
               </div>
             </div>
@@ -234,7 +230,7 @@ export function LessonVideoUploader({
                   </div>
                   <div>
                     <h4 className="text-xs font-bold text-white">
-                      {isAr ? "تم ربط الفيديو بنجاح" : "Video Attached Successfully"}
+                      {t("videoAttachedSuccess")}
                     </h4>
                     <p className="text-[11px] text-slate-400 font-mono truncate max-w-xs sm:max-w-md">
                       {selectedFileName || currentVideoUrl}
@@ -248,13 +244,13 @@ export function LessonVideoUploader({
                     onClick={() => fileInputRef.current?.click()}
                     className="px-2.5 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-xs font-bold text-white transition-all cursor-pointer"
                   >
-                    {isAr ? "استبدال" : "Replace"}
+                    {t("replace")}
                   </button>
                   <button
                     type="button"
                     onClick={handleRemove}
                     className="p-1.5 rounded-lg bg-rose-500/20 hover:bg-rose-500/40 text-rose-300 transition-all cursor-pointer"
-                    title={isAr ? "حذف الفيديو" : "Remove video"}
+                    title={t("removeVideo")}
                   >
                     <X className="h-4 w-4" />
                   </button>
@@ -308,14 +304,10 @@ export function LessonVideoUploader({
 
               <div className="space-y-1">
                 <p className="text-xs font-bold text-slate-800">
-                  {isAr
-                    ? "اسحب وأفلت ملف الفيديو هنا أو انقر للتصفح"
-                    : "Drag & drop your video here, or click to browse"}
+                  {t("clickToUploadDrop")}
                 </p>
                 <p className="text-[11px] text-slate-600 font-medium">
-                  {isAr
-                    ? "يُسمح فقط بملفات MP4 بحجم يصل إلى 500 ميغابايت"
-                    : "Only MP4 files up to 500 MB are allowed"}
+                  {t("videoFormatNotice")}
                 </p>
               </div>
 
@@ -324,7 +316,7 @@ export function LessonVideoUploader({
                 disabled={disabled}
                 className="mt-1 px-4 py-1.5 rounded-xl bg-white text-[#0F5244] border border-[#0F5244]/30 text-xs font-bold shadow-2xs hover:bg-emerald-50/80 transition-all cursor-pointer"
               >
-                {isAr ? "اختيار ملف فيديو" : "Select Video File"}
+                {t("selectVideoFile")}
               </button>
             </div>
           )}
@@ -348,7 +340,7 @@ export function LessonVideoUploader({
             <AlertCircle className="h-4 w-4 text-rose-600 shrink-0 mt-0.5" />
             <div className="space-y-0.5">
               <span className="font-bold text-rose-900">
-                {isAr ? "خطأ في رفع الفيديو:" : "Upload Error:"}
+                {t("uploadError")}
               </span>
               <p className="text-rose-700 leading-relaxed">{error}</p>
             </div>
@@ -360,7 +352,7 @@ export function LessonVideoUploader({
             className="px-2.5 py-1 rounded-lg bg-white border border-rose-200 text-rose-700 hover:bg-rose-100/60 text-xs font-bold flex items-center gap-1 shrink-0 cursor-pointer shadow-2xs"
           >
             <RotateCcw className="h-3 w-3" />
-            <span>{isAr ? "إعادة المحاولة" : "Try Again"}</span>
+            <span>{t("tryAgain")}</span>
           </button>
         </div>
       )}

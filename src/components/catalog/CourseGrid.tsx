@@ -25,6 +25,7 @@ export function CourseGrid({
   isAr = false,
 }: CourseGridProps) {
   const t = useTranslations("catalog.emptyState");
+  const tError = useTranslations("catalog.errorState");
 
   if (error) {
     return (
@@ -33,12 +34,10 @@ export function CourseGrid({
           <AlertCircle className="w-7 h-7" />
         </div>
         <h2 className="text-lg sm:text-xl font-extrabold text-slate-900">
-          {isAr ? "تعذر تحميل الكورسات" : "Failed to load courses"}
+          {tError("title")}
         </h2>
         <p className="text-xs sm:text-sm text-slate-500 max-w-md mx-auto leading-relaxed">
-          {isAr
-            ? "حدث خطأ أثناء جلب الكورسات من السيرفر. يرجى التحقق من اتصالك وإعادة المحاولة."
-            : "An error occurred while fetching courses from the server. Please check your connection and try again."}
+          {tError("description")}
         </p>
         {onRetry && (
           <button
@@ -47,7 +46,7 @@ export function CourseGrid({
             className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-[#0F5244] hover:bg-[#07382E] text-white text-xs sm:text-sm font-bold transition-all shadow-sm cursor-pointer active:scale-95"
           >
             <RotateCcw className="w-4 h-4" />
-            <span>{isAr ? "إعادة المحاولة" : "Try Again"}</span>
+            <span>{tError("retry")}</span>
           </button>
         )}
       </div>

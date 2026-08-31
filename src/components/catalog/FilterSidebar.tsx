@@ -127,7 +127,7 @@ export function FilterSidebar({
 
         {/* Filter Sections / Accordions */}
         <div className="space-y-3">
-          
+
           {/* Category Accordion */}
           <div className="border-b border-slate-100 pb-3">
             <button
@@ -150,7 +150,14 @@ export function FilterSidebar({
               <div suppressHydrationWarning className="mt-2.5 space-y-1.5 animate-in fade-in duration-150">
                 {categoriesList.map((cat) => {
                   const isSelected = filters.selectedCategories.includes(cat.id) || filters.selectedCategories.includes(cat.name);
-                  const translatedLabel = t.has(`categories.${cat.id}`) ? t(`categories.${cat.id}`) : cat.name;
+                  let translatedLabel = cat.name;
+                  try {
+                    if (typeof t?.has === "function" && t.has(`categories.${cat.id}`)) {
+                      translatedLabel = t(`categories.${cat.id}`);
+                    }
+                  } catch {
+                    translatedLabel = cat.name;
+                  }
                   return (
                     <label
                       key={cat.id}

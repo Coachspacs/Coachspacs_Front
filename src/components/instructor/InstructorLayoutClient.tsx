@@ -10,7 +10,8 @@ import { RootState } from "@/lib/store";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { Sidebar } from "@/components/layout/Sidebar";
-import { Award, Clock, LayoutDashboard, BookOpen, Users, CreditCard, Settings } from "lucide-react";
+import { Award, Clock, LayoutDashboard, BookOpen, Users, CreditCard, Settings, User } from "lucide-react";
+import { VerifiedBadge } from "@/components/ui/VerifiedBadge";
 import { tokenManager } from "@/lib/tokenManager";
 import { getSavedInstructorOverrides, normalizeInstructorSlug } from "@/lib/mockInstructors";
 
@@ -130,6 +131,12 @@ export function InstructorLayoutClient({ children }: { children: React.ReactNode
       onClick: !isApproved ? handleRestrictedClick(tInst("payoutAndBilling")) : undefined,
     },
     {
+      id: "profile",
+      label: tInst("profileNav") || t("profile"),
+      icon: User,
+      href: `/${locale}/instructor/profile`,
+    },
+    {
       id: "settings",
       label: t("accountSettings"),
       icon: Settings,
@@ -197,10 +204,7 @@ export function InstructorLayoutClient({ children }: { children: React.ReactNode
                     {fullName}
                   </h1>
                   {isApproved ? (
-                    <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-[#0F5244] text-[10px] font-extrabold flex items-center gap-1">
-                      <Award className="h-3 w-3 text-emerald-600 shrink-0" />
-                      <span>{tInst("verifiedCoach")}</span>
-                    </span>
+                    <VerifiedBadge size="sm" />
                   ) : (
                     <span className="px-2 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200/80 text-[10px] font-bold flex items-center gap-1">
                       <Clock className="h-3 w-3 text-amber-600 shrink-0" />
@@ -223,6 +227,7 @@ export function InstructorLayoutClient({ children }: { children: React.ReactNode
                   name: fullName,
                   role: tInst("roleInstructor"),
                   avatarUrl: avatarPreview,
+                  isApproved: isApproved,
                 }}
               />
             </aside>

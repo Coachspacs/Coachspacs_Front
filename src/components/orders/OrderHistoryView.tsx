@@ -129,7 +129,7 @@ export function OrderHistoryView({ orders = [] }: OrderHistoryViewProps) {
       {/* Orders Table Container */}
       {filteredOrders.length === 0 ? (
         <div className="bg-white rounded-3xl border border-slate-200/80 p-12 text-center text-slate-400 font-semibold text-sm">
-          {isAr ? "لا توجد نتائج مطابقة لبحثك" : "No orders found matching your search"}
+          {t("noSearchResults")}
         </div>
       ) : (
         <div className="bg-white rounded-3xl border border-slate-200/80 shadow-2xs overflow-hidden">
@@ -191,7 +191,7 @@ export function OrderHistoryView({ orders = [] }: OrderHistoryViewProps) {
                           )}
                           {order.status === "pending" && (
                             <span className="inline-flex items-center px-3 py-1 rounded-full text-[11px] font-extrabold bg-amber-100 text-amber-800">
-                              Pending
+                              {t("statusPending")}
                             </span>
                           )}
                         </td>
@@ -222,7 +222,7 @@ export function OrderHistoryView({ orders = [] }: OrderHistoryViewProps) {
                             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-4 rounded-2xl border border-slate-200/80 shadow-2xs">
                               <div className="space-y-1">
                                 <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">
-                                  {isAr ? "الدورات المشترية:" : "Purchased Courses:"}
+                                  {t("purchasedCourses")}
                                 </span>
                                 <div className="flex flex-wrap gap-2 pt-1">
                                   {order.courses.map((courseTitle, idx) => (
@@ -238,7 +238,7 @@ export function OrderHistoryView({ orders = [] }: OrderHistoryViewProps) {
 
                               <button
                                 type="button"
-                                onClick={() => alert(isAr ? "جاري تحميل الفاتورة..." : "Downloading receipt...")}
+                                onClick={() => alert(t("downloadingReceipt"))}
                                 className="px-4 py-2 rounded-xl bg-[#0F5244] hover:bg-[#07382E] text-white text-xs font-extrabold flex items-center justify-center gap-2 transition-all shadow-xs cursor-pointer active:scale-98 shrink-0"
                               >
                                 <FileText className="h-3.5 w-3.5" />

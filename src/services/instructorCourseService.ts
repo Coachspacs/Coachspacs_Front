@@ -27,8 +27,6 @@ export const instructorCourseService = {
 
   /**
    * 2. Direct-to-Cloudinary upload:
-   * Posts video directly from browser to Cloudinary without proxying through backend.
-   * URL: https://api.cloudinary.com/v1_1/{cloud_name}/video/upload
    */
   async uploadVideoToCloudinary(
     file: File,
@@ -174,10 +172,36 @@ export const instructorCourseService = {
   /**
    * 12. Delete or archive course.
    * DELETE /api/instructor/courses/{courseId}
+   * Returns { status, data, archived }
+   * - 204 No Content: Permanently deleted (no enrollments).
+   * - 200 OK: Automatically archived (has enrollments).
    */
-  async deleteCourse(courseId: string | number): Promise<any> {
+  async deleteCourse(courseId: string | number): Promise<{ status: number; data?: any; archived: boolean }> {
     const res = await apiClient.delete(`/instructor/courses/${courseId}`);
-    return res.data;
+    const isArchived = res.status === 200 && (res.data?.archived === true || res.data?.course?.status === "archived");
+    return {
+      status: res.status,
+      data: res.data,
+      archived: isArchived,
+    };
+  },
+
+  /**
+   * 13. Submit course for admin review.
+   * POST /api/instructor/courses/{courseId}/submit or PATCH with status: "pending_review"
+   */
+  async submitForReview(courseId: string | number): Promise<any> {
+    try {
+      const res = await apiClient.post(`/instructor/courses/${courseId}/submit/`, {
+        status: "pending_review",
+      });
+      return res.data;
+    } catch {
+      const res = await apiClient.patch(`/instructor/courses/${courseId}`, {
+        status: "pending_review",
+      });
+      return res.data;
+    }
   },
 };
 

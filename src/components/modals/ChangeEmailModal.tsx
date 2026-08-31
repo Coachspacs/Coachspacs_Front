@@ -154,7 +154,7 @@ export function ChangeEmailModal({
             </div>
             <div className="space-y-1.5">
               <h4 className="text-sm sm:text-base font-extrabold text-slate-900">
-                {isAr ? "تم إرسال رابط التأكيد بنجاح!" : "Verification Link Sent!"}
+                {t("successTitle")}
               </h4>
               <p className="text-xs sm:text-sm text-slate-600 font-medium max-w-xs mx-auto leading-relaxed">
                 {successMessage}
@@ -165,7 +165,7 @@ export function ChangeEmailModal({
               onClick={handleClose}
               className="w-full py-2.5 rounded-xl bg-[#0F5244] hover:bg-[#07382E] text-white text-xs sm:text-sm font-extrabold cursor-pointer shadow-xs transition-all active:scale-98"
             >
-              {isAr ? "حسناً، تم" : "Got it"}
+              {t("gotItBtn")}
             </button>
           </div>
         ) : (

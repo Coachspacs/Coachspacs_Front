@@ -147,7 +147,7 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
         {/* 1. Breadcrumbs */}
         <nav className="flex items-center gap-2 text-xs sm:text-sm font-semibold text-slate-500 mb-6">
           <Link href={`/${locale}/courses`} className="hover:text-[#0F5244] transition-colors">
-            {isAr ? "تصفح الدورات" : "Browse"}
+            {t("browseCourses")}
           </Link>
           <span>/</span>
           <span className="hover:text-[#0F5244] transition-colors">
@@ -185,7 +185,7 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
                     .flatMap((s: any) => s.lessons || [])
                     .find((l: any) => l.isPreview && (l.videoUrl || l.video_url));
                   handleOpenPreview(
-                    isAr ? "معاينة الدورة" : "Course Preview",
+                    t("coursePreview"),
                     firstPreviewLesson?.videoUrl || firstPreviewLesson?.video_url
                   );
                 }}
@@ -209,7 +209,7 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
                 )}
                 {course.isRealBackend && (
                   <span className="bg-emerald-100 text-[#0F5244] text-xs font-black px-3 py-1 rounded-md tracking-wider">
-                    {isAr ? "دورة حقيقية معتمدة" : "Verified Course"}
+                    {t("verifiedCourse")}
                   </span>
                 )}
               </div>
@@ -236,7 +236,7 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
                     router.push(`/${locale}/instructors/${instructorSlug}`);
                   }}
                   className="flex items-center gap-2.5 group/inst hover:opacity-90 transition-all cursor-pointer"
-                  title={isAr ? "عرض الملف الشخصي للمدرب" : "View Instructor Profile"}
+                  title={t("viewInstructorProfile")}
                 >
                   <div className="w-9 h-9 rounded-full bg-emerald-50 overflow-hidden relative border border-emerald-200/80 group-hover/inst:ring-2 group-hover/inst:ring-[#0F5244] group-hover/inst:scale-105 transition-all flex items-center justify-center text-xs font-black text-[#0F5244]">
                     {instructorObj?.avatar || course.instructorAvatar ? (
@@ -354,10 +354,10 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
                   <div className="p-8 text-center bg-white rounded-2xl border border-slate-200/80 shadow-2xs space-y-2">
                     <Tv className="w-10 h-10 text-slate-300 mx-auto" />
                     <p className="text-sm font-extrabold text-slate-800">
-                      {isAr ? "لم تتم إضافة دروس للمنهج بعد" : "No curriculum lessons added yet"}
+                      {t("noCurriculumLessons")}
                     </p>
                     <p className="text-xs text-slate-400 font-medium">
-                      {isAr ? "سيقوم المدرب بنشر دروس الدورة قريباً." : "The instructor will publish course lessons soon."}
+                      {t("curriculumComingSoon")}
                     </p>
                   </div>
                 ) : (
@@ -379,7 +379,7 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
                               {isAr ? sec.titleAr || sec.titleEn || sec.title : sec.titleEn || sec.titleAr || sec.title}
                             </h3>
                             <p className="text-xs font-semibold text-slate-400 mt-0.5">
-                              {isAr ? sec.durationAr || `${sec.lessons?.length || 0} دروس` : sec.durationEn || `${sec.lessons?.length || 0} lessons`}
+                              {isAr ? sec.durationAr || t("lessonsCount", { count: sec.lessons?.length || 0 }) : sec.durationEn || t("lessonsCount", { count: sec.lessons?.length || 0 })}
                             </p>
                           </div>
                           {isOpen ? (
@@ -394,7 +394,7 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
                           <div className="divide-y divide-slate-100 border-t border-slate-100">
                             {(sec.lessons || []).length === 0 ? (
                               <div className="p-4 text-center text-xs text-slate-400 font-medium">
-                                {isAr ? "لا توجد دروس مضافة في هذا القسم بعد" : "No lessons in this section yet"}
+                                {t("noLessonsInSection")}
                               </div>
                             ) : (
                               sec.lessons.map((lesson: any) => (
@@ -499,7 +499,7 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
                       router.push(`/${locale}/instructors/${instructorSlug}`);
                     }}
                     className="flex items-center gap-4 sm:gap-5 group/tabinst cursor-pointer"
-                    title={isAr ? "عرض الملف الشخصي للمدرب" : "View Instructor Profile"}
+                    title={t("viewInstructorProfile")}
                   >
                     <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-white p-1 overflow-hidden relative border-2 border-emerald-500/30 shadow-md shrink-0 ring-4 ring-emerald-500/10 group-hover/tabinst:ring-emerald-500/30 group-hover/tabinst:scale-105 transition-all duration-300 flex items-center justify-center">
                       {instructorObj?.avatar || course.instructorAvatar ? (
@@ -536,7 +536,7 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
                         <span className="inline-flex items-center gap-1 text-[#0F5244] bg-[#E8F3F1] px-2 py-0.5 rounded-md">
                           <Users className="h-3.5 w-3.5" />
                           <span>
-                            {`${course.studentsCount || 0} ${isAr ? "طالب" : "Students"}`}
+                            {t("studentsCount", { count: course.studentsCount || 0 })}
                           </span>
                         </span>
                       </div>
@@ -551,7 +551,7 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
                     }}
                     className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#0F5244] hover:bg-[#07382E] text-white font-black text-xs sm:text-sm shadow-md hover:shadow-lg transition-all active:scale-95 cursor-pointer group/btn"
                   >
-                    <span>{isAr ? "عرض الملف الشخصي الكامل" : "View Full Profile"}</span>
+                    <span>{t("viewFullProfile")}</span>
                     <ArrowRight className="h-4 w-4 rtl:rotate-180 group-hover/btn:translate-x-0.5 rtl:group-hover/btn:-translate-x-0.5 transition-transform" />
                   </Link>
                 </div>
@@ -559,8 +559,8 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
                 <div className="space-y-3 text-sm text-slate-700 font-medium leading-relaxed bg-white/70 p-4 sm:p-5 rounded-2xl border border-slate-100">
                   <p>
                     {isAr
-                      ? (instructorObj?.bioAr || "مدرب معتمد وخبير متميز في مجاله بخبرة طويلة في تقديم محتوى عملي ومبسط يساعد الطلاب على تحقيق أهدافهم المهنية وبناء مهارات متقدمة.")
-                      : (instructorObj?.bio || "Senior verified instructor and industry veteran dedicated to practical, high-impact learning experiences designed to help you excel professionally.")}
+                      ? (instructorObj?.bioAr || t("defaultInstructorBio"))
+                      : (instructorObj?.bio || t("defaultInstructorBio"))}
                   </p>
                 </div>
               </div>
@@ -580,9 +580,7 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
                     <span className="text-xs font-medium text-slate-500">
                       {course.reviewsCount && course.reviewsCount > 0
                         ? `${course.reviewsCount} ${t("reviewsCount")}`
-                        : isAr
-                        ? "دورة جديدة - لا توجد تقييمات بعد"
-                        : "New Course - No reviews submitted yet"}
+                        : t("noReviewsYet")}
                     </span>
                   </div>
                 </div>
@@ -602,7 +600,7 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
               <div className="flex items-baseline gap-3">
                 <span className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">
                   {isFree ? (
-                    <span className="text-emerald-600 font-extrabold">{isAr ? "مجاني" : "Free"}</span>
+                    <span className="text-emerald-600 font-extrabold">{t("free")}</span>
                   ) : (
                     course.priceFormatted || `$${course.price}`
                   )}
@@ -622,26 +620,26 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
                   isOwner ? (
                     <div className="w-full py-4 px-4 rounded-xl bg-emerald-50 border border-emerald-200 text-center space-y-2.5">
                       <p className="text-xs font-bold text-emerald-900">
-                        {isAr ? "أنت صاحب هذه الدورة ومدربها" : "You are the instructor of this course"}
+                        {t("youAreInstructor")}
                       </p>
                       <Link
                         href={`/${locale}/instructor/courses/${course.id}/edit`}
                         className="inline-flex items-center justify-center gap-2 w-full py-2.5 px-4 rounded-lg bg-[#0F5244] text-white text-xs font-bold hover:bg-[#07382E] transition-colors shadow-xs cursor-pointer"
                       >
-                        <span>{isAr ? "تعديل وإدارة الدورة في الاستوديو" : "Edit Course in Studio"}</span>
+                        <span>{t("editInStudio")}</span>
                         <ArrowRight className="h-4 w-4 rtl:rotate-180" />
                       </Link>
                     </div>
                   ) : (
                     <div className="w-full py-4 px-4 rounded-xl bg-emerald-50 border border-emerald-200 text-center space-y-2">
                       <p className="text-xs font-bold text-emerald-900">
-                        {isAr ? "أنت مسجل بحساب مدرب (عمليات الشراء مخصصة للطلاب فقط)" : "You are logged in as an Instructor"}
+                        {t("loggedInAsInstructorNotice")}
                       </p>
                       <Link
                         href={`/${locale}/instructor/dashboard`}
                         className="inline-block px-4 py-2 rounded-lg bg-[#0F5244] text-white text-xs font-bold hover:bg-[#07382E] transition-colors cursor-pointer"
                       >
-                        {isAr ? "الذهاب إلى لوحة تحكم المدرب" : "Go to Instructor Dashboard"}
+                        {t("goToInstructorDashboard")}
                       </Link>
                     </div>
                   )

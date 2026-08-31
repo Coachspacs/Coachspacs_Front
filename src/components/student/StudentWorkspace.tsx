@@ -160,7 +160,7 @@ export function StudentWorkspace({ initialTab = "overview", hideSidebar = true }
       if (res?.avatar) {
         setAvatarPreview(res.avatar);
         dispatch(updateUser({ avatar: res.avatar }));
-        setToastMessage(tStudent("avatarUpdated") || (isAr ? "تم تحديث الصورة الشخصية بنجاح" : "Avatar updated successfully"));
+        setToastMessage(tStudent("avatarUpdated"));
       }
     } catch (err: any) {
       console.warn("[StudentWorkspace] uploadAvatar error:", err?.message);
@@ -178,10 +178,10 @@ export function StudentWorkspace({ initialTab = "overview", hideSidebar = true }
 
     try {
       await userService.deleteAvatar();
-      setToastMessage(isAr ? "تم حذف الصورة الشخصية بنجاح" : "Avatar removed successfully");
+      setToastMessage(tStudent("avatarRemoved"));
     } catch (err: any) {
       console.warn("[StudentWorkspace] deleteAvatar error:", err?.message);
-      setToastMessage(isAr ? "تم حذف الصورة الشخصية بنجاح" : "Avatar removed successfully");
+      setToastMessage(tStudent("avatarRemoved"));
     } finally {
       setTimeout(() => setToastMessage(null), 3000);
     }
@@ -260,7 +260,7 @@ export function StudentWorkspace({ initialTab = "overview", hideSidebar = true }
                 <h1 className="text-lg sm:text-2xl font-black text-slate-900">{formData.fullName}</h1>
                 <span className="px-2.5 py-0.5 rounded-full bg-emerald-100 text-[#0F5244] text-[11px] font-extrabold">
                   {(user?.role || "").toLowerCase() === "instructor" || (user?.role || "").toLowerCase() === "coach"
-                    ? (isAr ? "حساب مدرب" : "Instructor Account")
+                    ? tWs("instructorAccount")
                     : tWs("studentAccount")}
                 </span>
               </div>
@@ -295,18 +295,14 @@ export function StudentWorkspace({ initialTab = "overview", hideSidebar = true }
                 {tWs("overviewSubtitle")}
               </h2>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200/60 space-y-1">
                   <span className="text-xs font-bold text-slate-400 uppercase">{tWs("enrolled")}</span>
                   <div className="text-2xl font-black text-slate-900">{courses.length} {tWs("courses")}</div>
                 </div>
                 <div className="p-5 rounded-2xl bg-emerald-50 border border-emerald-200/60 space-y-1">
-                  <span className="text-xs font-bold text-[#0F5244] uppercase">{tWs("certificatesCount")}</span>
-                  <div className="text-2xl font-black text-[#0F5244]">{courses.filter(c => c.isCompleted).length} {tWs("earned")}</div>
-                </div>
-                <div className="p-5 rounded-2xl bg-teal-50 border border-teal-200/60 space-y-1">
-                  <span className="text-xs font-bold text-teal-800 uppercase">{tWs("hoursStudied")}</span>
-                  <div className="text-2xl font-black text-teal-900">38.5 {tWs("hrs")}</div>
+                  <span className="text-xs font-bold text-emerald-800 uppercase">{tWs("certificatesCount")}</span>
+                  <div className="text-2xl font-black text-emerald-900">{courses.filter(c => c.isCompleted).length} {tWs("earned")}</div>
                 </div>
               </div>
 
@@ -339,10 +335,10 @@ export function StudentWorkspace({ initialTab = "overview", hideSidebar = true }
                 <div className="p-6 rounded-3xl bg-slate-50 border border-slate-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div className="space-y-1">
                     <h3 className="text-base font-extrabold text-slate-900">
-                      {isAr ? "ابدأ رحلتك التعليمية اليوم" : "Start your learning journey today"}
+                      {tWs("startJourneyTitle")}
                     </h3>
                     <p className="text-xs text-slate-500">
-                      {isAr ? "استكشف الكورسات المتاحة من أفضل المدربين وسجل في دورتك الأولى." : "Browse available courses from top coaches and enroll in your first course."}
+                      {tWs("startJourneySubtitle")}
                     </p>
                   </div>
                   <Link
@@ -350,7 +346,7 @@ export function StudentWorkspace({ initialTab = "overview", hideSidebar = true }
                     className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-[#0F5244] hover:bg-[#07382E] text-white text-xs font-extrabold shadow-sm transition-all shrink-0"
                   >
                     <BookOpen className="w-4 h-4" />
-                    <span>{isAr ? "تصفح الدورات" : "Explore Courses"}</span>
+                    <span>{tWs("exploreCourses")}</span>
                   </Link>
                 </div>
               )}
@@ -411,10 +407,10 @@ export function StudentWorkspace({ initialTab = "overview", hideSidebar = true }
                     </div>
                     <div className="space-y-1">
                       <h3 className="text-base font-extrabold text-slate-900">
-                        {isAr ? "لم تسجل في أي دورات بعد" : "No enrolled courses yet"}
+                        {tWs("noEnrolledCourses")}
                       </h3>
                       <p className="text-xs text-slate-500 max-w-sm mx-auto">
-                        {isAr ? "استكشف الكتالوج وابدأ رحلتك التعليمية الآن." : "Explore the catalog and begin your learning journey now."}
+                        {tWs("noEnrolledCoursesDesc")}
                       </p>
                     </div>
                     <Link
@@ -422,7 +418,7 @@ export function StudentWorkspace({ initialTab = "overview", hideSidebar = true }
                       className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#0F5244] hover:bg-[#07382E] text-white text-xs font-extrabold shadow-md transition-all cursor-pointer"
                     >
                       <BookOpen className="w-4 h-4" />
-                      <span>{isAr ? "تصفح الدورات" : "Explore Courses"}</span>
+                      <span>{tWs("exploreCourses")}</span>
                     </Link>
                   </div>
                 ) : (
@@ -518,31 +514,60 @@ export function StudentWorkspace({ initialTab = "overview", hideSidebar = true }
           {/* CERTIFICATES TAB */}
           {activeTab === "certificates" && (
             <div className="space-y-6 animate-in fade-in duration-150">
-              <h2 className="text-xl sm:text-2xl font-black text-slate-900">
-                {tWs("earnedCertificatesTitle")}
-              </h2>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {courses.filter((c) => c.isCompleted).map((cert) => (
-                  <div key={cert.id} className="p-6 rounded-3xl border border-slate-200/80 space-y-4">
-                    <div className="flex items-center gap-3">
-                      <Award className="h-8 w-8 text-[#0F5244]" />
-                      <div>
-                        <h4 className="text-sm font-extrabold text-slate-900">{cert.title}</h4>
-                        <span className="text-xs text-slate-400 font-mono">{cert.certificateId}</span>
-                      </div>
-                    </div>
-
-                    <Link
-                      href={`/${locale}/student/certificates/${cert.certificateId || "CERT-123"}`}
-                      className="w-full py-2.5 rounded-2xl bg-[#0F5244] text-white text-xs font-bold flex items-center justify-center gap-2"
-                    >
-                      <Download className="h-4 w-4" />
-                      <span>{tWs("downloadPdf")}</span>
-                    </Link>
-                  </div>
-                ))}
+              <div className="space-y-1">
+                <h2 className="text-xl sm:text-2xl font-black text-slate-900">
+                  {tWs("earnedCertificatesTitle")}
+                </h2>
+                <p className="text-xs sm:text-sm text-slate-500 font-medium">
+                  {isAr ? "جميع الشهادات المعتمدة التي حصلت عليها عند إتمام الدورات بنجاح." : "All verified certificates earned upon completing your courses."}
+                </p>
               </div>
+
+              {courses.filter((c) => c.isCompleted).length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {courses.filter((c) => c.isCompleted).map((cert) => (
+                    <div key={cert.id} className="p-6 rounded-3xl border border-emerald-100/90 bg-gradient-to-br from-emerald-50/40 via-white to-white space-y-4 shadow-2xs">
+                      <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 rounded-2xl bg-emerald-100 flex items-center justify-center text-emerald-700 shrink-0">
+                          <Award className="h-6 w-6" />
+                        </div>
+                        <div>
+                          <h4 className="text-sm font-extrabold text-slate-900">{cert.title}</h4>
+                          <span className="text-xs text-slate-400 font-mono">{cert.certificateId}</span>
+                        </div>
+                      </div>
+
+                      <Link
+                        href={`/${locale}/student/certificates/${cert.certificateId || "CERT-123"}`}
+                        className="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black flex items-center justify-center gap-2 transition-all shadow-xs active:scale-98"
+                      >
+                        <Download className="h-4 w-4" />
+                        <span>{tWs("downloadPdf")}</span>
+                      </Link>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="w-full max-w-md mx-auto bg-white rounded-3xl p-8 sm:p-10 border border-slate-200/80 shadow-2xs text-center space-y-6">
+                  <div className="w-20 h-20 rounded-full bg-emerald-50 border-2 border-emerald-200 flex items-center justify-center mx-auto text-emerald-600 shadow-2xs">
+                    <Award className="h-9 w-9 stroke-[1.8]" />
+                  </div>
+                  <div className="space-y-2">
+                    <h3 className="text-lg sm:text-xl font-black text-slate-900">
+                      {isAr ? "لا توجد شهادات مكتسبة بعد" : "No Certificates Earned Yet"}
+                    </h3>
+                    <p className="text-xs text-slate-500 font-medium leading-relaxed max-w-xs mx-auto">
+                      {isAr ? "أكمل دوراتك المسجلة بنسبة 100% لتحصل على شهاداتك الرسمية المعتمدة فوراً." : "Complete 100% of your enrolled courses to earn and download verified certificates."}
+                    </p>
+                  </div>
+                  <Link
+                    href={`/${locale}/courses`}
+                    className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black transition-all shadow-xs active:scale-98"
+                  >
+                    <span>{isAr ? "استكشف الدورات" : "Explore Courses"}</span>
+                  </Link>
+                </div>
+              )}
             </div>
           )}
 

@@ -40,13 +40,14 @@ export function MasterYourCraftSection() {
               title: isAr ? (c.title_ar || c.title || "دورة تدريبية") : (c.title || c.title_en || "Course"),
               instructorName: instName,
               instructorAvatar: (typeof c.instructor === "object" ? c.instructor?.avatar : undefined) || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=300&auto=format&fit=crop",
-              price: priceNum === 0 ? (isAr ? "مجاني" : "Free") : `$${priceNum.toFixed(2)}`,
+              price: priceNum === 0 ? t("free") : `$${priceNum.toFixed(2)}`,
               priceRaw: priceNum,
-              rating: Number(c.rating) || 5.0,
+              rating: Number(c.rating || 0),
+              reviewsCount: Number(c.reviews_count || c.reviewsCount || 0),
               image: c.cover_image || c.image || "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&auto=format&fit=crop&q=80",
               badges: [
                 { text: t("bestseller"), type: "white" },
-                { text: c.language === "ar" ? (isAr ? "عربي" : "Arabic") : (isAr ? "إنجليزي" : "English"), type: "teal" },
+                { text: c.language === "ar" ? t("arabic") : t("english"), type: "teal" },
               ],
             };
           });
@@ -109,16 +110,16 @@ export function MasterYourCraftSection() {
         ) : courses.length === 0 ? (
           <div className="text-center py-12 bg-white rounded-3xl border border-slate-100 p-8 space-y-4 max-w-md mx-auto shadow-sm">
             <h3 className="text-base font-extrabold text-slate-900">
-              {isAr ? "اكتشف الدورات التدريبية المتاحة" : "Explore Available Courses"}
+              {t("exploreAvailableCourses")}
             </h3>
             <p className="text-xs text-slate-500">
-              {isAr ? "تصفح أحدث الدورات التدريبية المقدمة من نخبة المدربين المعتمدين." : "Browse the latest certified training courses from expert coaches."}
+              {t("exploreAvailableCoursesSubtitle")}
             </p>
             <Link
               href={`/${locale}/courses`}
               className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-[#0F5244] hover:bg-[#07382E] text-white text-xs font-bold transition-all shadow-sm"
             >
-              <span>{isAr ? "عرض كل الدورات" : "Browse All Courses"}</span>
+              <span>{t("browseAllCourses")}</span>
             </Link>
           </div>
         ) : (
@@ -160,16 +161,18 @@ export function MasterYourCraftSection() {
                   <div className="p-5 sm:p-6 flex flex-col flex-1 justify-between gap-4">
                     <div className="space-y-3">
                       {/* Rating */}
-                      <div className="flex items-center gap-1.5">
-                        <div className="flex items-center text-amber-400 gap-0.5">
-                          {[...Array(5)].map((_, i) => (
-                            <Star key={i} className="w-4 h-4 fill-amber-400 text-amber-400" />
-                          ))}
+                      {Number(course.reviewsCount || 0) > 0 && Number(course.rating || 0) > 0 && (
+                        <div className="flex items-center gap-1.5">
+                          <div className="flex items-center text-amber-400 gap-0.5">
+                            {[...Array(5)].map((_, i) => (
+                              <Star key={i} className="w-4 h-4 fill-amber-400 text-amber-400" />
+                            ))}
+                          </div>
+                          <span className="text-xs font-bold text-slate-700">
+                            ({course.rating.toFixed(1)})
+                          </span>
                         </div>
-                        <span className="text-xs font-bold text-slate-700">
-                          ({course.rating.toFixed(1)})
-                        </span>
-                      </div>
+                      )}
 
                       {/* Title */}
                       <Link href={`/${locale}/courses/${course.id}`} className="block">
