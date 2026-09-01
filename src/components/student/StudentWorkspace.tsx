@@ -9,6 +9,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@/lib/store";
 import { updateUser } from "@/features/auth/slice";
 import { userService } from "@/services/userService";
+import { authService, getApiErrorMessage } from "@/services/auth";
 import {
   LayoutDashboard,
   BookOpen,
@@ -121,6 +122,23 @@ export function StudentWorkspace({ initialTab = "overview", hideSidebar = true }
   // Enrolled Courses Data
   const [courses, setCourses] = useState<any[]>([]);
 
+  // Load enrolled courses from localStorage on mount
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const saved = localStorage.getItem("coachspace_enrolled_courses");
+        if (saved) {
+          const list = JSON.parse(saved);
+          if (Array.isArray(list) && list.length > 0) {
+            setCourses(list);
+          }
+        }
+      } catch (err) {
+        console.warn("[StudentWorkspace] Could not load enrolled courses:", err);
+      }
+    }
+  }, []);
+
   // Order History Data
   const [orders] = useState<any[]>([]);
 
@@ -203,10 +221,50 @@ export function StudentWorkspace({ initialTab = "overview", hideSidebar = true }
     }
 
     setIsSaving(true);
-    await new Promise((resolve) => setTimeout(resolve, 600));
-    setIsSaving(false);
-    setToastMessage(t("changesSaved"));
-    setTimeout(() => setToastMessage(null), 3500);
+    try {
+      if (formData.currentPassword && formData.newPassword) {
+        await authService.changePassword({
+          current_password: formData.currentPassword,
+          new_password: formData.newPassword,
+        });
+        setFormData((prev) => ({
+          ...prev,
+          currentPassword: "",
+          newPassword: "",
+          confirmPassword: "",
+        }));
+      }
+
+      const updated = await userService.updateMyProfile({
+        full_name: formData.fullName.trim(),
+        phone_number: formData.phone?.trim() || undefined,
+        preferred_language: locale,
+      });
+
+      dispatch(
+        updateUser({
+          fullName: updated.full_name || formData.fullName.trim(),
+          name: updated.full_name || formData.fullName.trim(),
+          phone: updated.phone_number || undefined,
+          phone_number: updated.phone_number || undefined,
+          preferred_language: updated.preferred_language || locale,
+          preferredLanguage: updated.preferred_language || locale,
+        })
+      );
+
+      setToastMessage(t("changesSaved"));
+    } catch (err: any) {
+      console.warn("[StudentWorkspace] Error saving settings:", err);
+      const msg = getApiErrorMessage(
+        err,
+        t("saveChangesFailed") || (isAr ? "فشل حفظ التغييرات" : "Failed to save changes"),
+        isAr
+      );
+      setToastMessage(msg);
+    } finally {
+      setIsSaving(false);
+      setTimeout(() => setToastMessage(null), 3500);
+    }
   };
 
   return (

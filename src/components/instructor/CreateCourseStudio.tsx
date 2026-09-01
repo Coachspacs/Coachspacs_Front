@@ -16,6 +16,8 @@ import {
   Trash2,
   Edit2,
   GripVertical,
+  ChevronUp,
+  ChevronDown,
   PlayCircle,
   AlertTriangle,
   AlertCircle,
@@ -77,6 +79,8 @@ type StudioStep = "info" | "curriculum" | "review";
 
 export function CreateCourseStudio() {
   const t = useTranslations("courseStudio");
+  const tIncomplete = useTranslations("courseIncompleteModal");
+  const tInst = useTranslations("instructorSettings");
   const locale = useLocale() || "en";
   const isAr = locale === "ar";
   const router = useRouter();
@@ -91,6 +95,7 @@ export function CreateCourseStudio() {
 
   const [courseId, setCourseId] = useState<string>(initialCourseId);
   const [courseStatus, setCourseStatus] = useState<string>("draft");
+  const [rejectionReason, setRejectionReason] = useState<string | null>(null);
   const [isInitializingCourse, setIsInitializingCourse] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
@@ -125,6 +130,7 @@ export function CreateCourseStudio() {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showIncompleteModal, setShowIncompleteModal] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const [apiError, setApiError] = useState<string | null>(null);
 
   // Load Categories from Backend API dynamically
   useEffect(() => {
@@ -158,6 +164,20 @@ export function CreateCourseStudio() {
             setCourseStatus(savedStatus);
           } else if (data.status) {
             setCourseStatus(data.status);
+          }
+          const reason =
+            (isAr ? data.rejection_reason_ar : data.rejection_reason_en) ||
+            data.rejection_reason ||
+            data.rejectionReason ||
+            data.reject_reason ||
+            data.admin_feedback ||
+            data.review_feedback ||
+            data.feedback ||
+            data.reason ||
+            data.rejection_comment ||
+            "";
+          if (reason) {
+            setRejectionReason(reason);
           }
           if (data.category) setCategory(String(data.category));
           if (data.level) setLevel(data.level.toLowerCase());
@@ -250,21 +270,13 @@ export function CreateCourseStudio() {
     sections.forEach((sec, sIdx) => {
       const secTitle = (isAr ? sec.title_ar || sec.title : sec.title_en || sec.title) || `Section ${sIdx + 1}`;
       if (!sec.lessons || sec.lessons.length === 0) {
-        errors.push(
-          isAr
-            ? `القسم "${secTitle}" لا يحتوي على أي دروس. يجب إضافة درس واحد على الأقل.`
-            : `Section "${secTitle}" has no lessons. Please add at least one lesson.`
-        );
+        errors.push(t("sectionHasNoLessons", { section: secTitle }));
       } else {
         sec.lessons.forEach((les, lIdx) => {
           const lesTitle = (isAr ? les.title_ar || les.title : les.title_en || les.title) || `Lesson ${lIdx + 1}`;
           const hasVideo = Boolean(les.video_url || les.video_public_id);
           if (!hasVideo) {
-            errors.push(
-              isAr
-                ? `الدرس "${lesTitle}" في القسم "${secTitle}" يحتاج إلى إرفاق فيديو.`
-                : `Lesson "${lesTitle}" in section "${secTitle}" is missing a video.`
-            );
+            errors.push(t("lessonMissingVideo", { lesson: lesTitle, section: secTitle }));
           }
         });
       }
@@ -308,10 +320,10 @@ export function CreateCourseStudio() {
     try {
       const selectedCatId = Number(category) || (categoriesList[0]?.id ? Number(categoriesList[0].id) : 1);
       const created = await instructorCourseService.createCourse({
-        title_ar: titleAr.trim() || "دورة جديدة",
-        title_en: titleEn.trim() || "New Course Draft",
-        description_ar: descAr.trim() || "وصف المسودة",
-        description_en: descEn.trim() || "Draft description",
+        title_ar: titleAr.trim() || t("defaultCourseTitleAr"),
+        title_en: titleEn.trim() || t("defaultCourseTitleEn"),
+        description_ar: descAr.trim() || t("defaultCourseDescAr"),
+        description_en: descEn.trim() || t("defaultCourseDescEn"),
         category: selectedCatId,
         level: level || "beginner",
         language: language.includes("Arabic") ? "ar" : "en",
@@ -326,16 +338,16 @@ export function CreateCourseStudio() {
         if (sections.length === 0) {
           try {
             const sec = await instructorCourseService.createSection(created.id, {
-              title_ar: "المقدمة",
-              title_en: "Introduction",
+              title_ar: t("initialSectionTitleAr"),
+              title_en: t("initialSectionTitleEn"),
             });
             if (sec?.id) {
               setSections([
                 {
                   id: String(sec.id),
-                  title: isAr ? sec.title_ar || "المقدمة" : sec.title_en || "Introduction",
-                  title_en: sec.title_en || "Introduction",
-                  title_ar: sec.title_ar || "المقدمة",
+                  title: isAr ? sec.title_ar || t("initialSectionTitleAr") : sec.title_en || t("initialSectionTitleEn"),
+                  title_en: sec.title_en || t("initialSectionTitleEn"),
+                  title_ar: sec.title_ar || t("initialSectionTitleAr"),
                   lessons: [],
                 },
               ]);
@@ -410,8 +422,8 @@ export function CreateCourseStudio() {
     }
 
     const targetSection = sections.find((s) => s.id === targetSecId);
-    const title_en = targetSection?.title_en || targetSection?.title || "Section";
-    const title_ar = targetSection?.title_ar || targetSection?.title || "قسم";
+    const title_en = targetSection?.title_en || targetSection?.title || t("initialSectionTitleEn");
+    const title_ar = targetSection?.title_ar || targetSection?.title || t("initialSectionTitleAr");
 
     try {
       const secRes = await instructorCourseService.createSection(currentCourseId, {
@@ -437,8 +449,8 @@ export function CreateCourseStudio() {
   const addSection = async () => {
     if (isLockedForReview) return;
     const nextNum = sections.length + 1;
-    const defaultEn = `Section ${nextNum}: Core Content`;
-    const defaultAr = `القسم ${nextNum}: المحتوى الأساسي`;
+    const defaultEn = t("sectionCoreContent", { num: nextNum });
+    const defaultAr = t("sectionCoreContentAr", { num: nextNum });
 
     const validCourseId = await ensureBackendCourseId();
     let newSecId = `sec-${Date.now()}`;
@@ -473,8 +485,8 @@ export function CreateCourseStudio() {
     const newLes: Lesson = {
       id: `les-${Date.now()}`,
       title: t("newLesson"),
-      title_en: "New Lesson",
-      title_ar: "درس جديد",
+      title_en: t("newLesson"),
+      title_ar: t("newLesson"),
       duration: "05:00",
       duration_minutes: 5,
       is_preview: false,
@@ -518,8 +530,8 @@ export function CreateCourseStudio() {
       if (isNew) {
         if (!isNaN(Number(sectionId))) {
           const res = await instructorCourseService.createLesson(sectionId, {
-            title_ar: updatedLesson.title_ar || updatedLesson.title || "درس جديد",
-            title_en: updatedLesson.title_en || updatedLesson.title || "New Lesson",
+            title_ar: updatedLesson.title_ar || updatedLesson.title || t("newLesson"),
+            title_en: updatedLesson.title_en || updatedLesson.title || t("newLesson"),
             duration_minutes: Number(updatedLesson.duration_minutes) || 5,
             is_preview: isPreviewVal,
             video_public_id: updatedLesson.video_public_id,
@@ -541,8 +553,16 @@ export function CreateCourseStudio() {
           });
         }
       }
-    } catch (e) {
+    } catch (e: any) {
       console.warn("Could not sync lesson changes to backend API:", e);
+      const detail =
+        e?.response?.data?.detail ||
+        e?.response?.data?.message ||
+        (isAr
+          ? "فشل حفظ الدرس. يرجى التأكد من صيغة الفيديو MP4 وأقل من 500 ميغابايت."
+          : "Failed to save lesson. Please ensure video is MP4 under 500MB.");
+      setApiError(detail);
+      setTimeout(() => setApiError(null), 5000);
     }
 
     setSections((prev) =>
@@ -563,6 +583,105 @@ export function CreateCourseStudio() {
       })
     );
     setEditingLessonInfo(null);
+  };
+
+  /**
+   * Reorder Sections via PUT /api/instructor/courses/{id}/reorder
+   */
+  const moveSection = async (index: number, direction: "up" | "down") => {
+    if (isLockedForReview) return;
+    const targetIndex = direction === "up" ? index - 1 : index + 1;
+    if (targetIndex < 0 || targetIndex >= sections.length) return;
+
+    const newSections = [...sections];
+    const [moved] = newSections.splice(index, 1);
+    newSections.splice(targetIndex, 0, moved);
+
+    setSections(newSections);
+
+    const validCourseId = courseId || initialCourseId;
+    if (validCourseId && !isNaN(Number(validCourseId))) {
+      try {
+        await instructorCourseService.reorderCurriculum(validCourseId, {
+          sections: newSections.map((s) => ({ id: Number(s.id) || s.id })),
+        });
+      } catch (err: any) {
+        console.warn("[reorderCurriculum] Section reorder failed:", err);
+      }
+    }
+  };
+
+  /**
+   * Reorder Lessons within a section via PUT /api/instructor/courses/{id}/reorder
+   */
+  const moveLesson = async (secId: string, lessonIndex: number, direction: "up" | "down") => {
+    if (isLockedForReview) return;
+    const currentSection = sections.find((s) => s.id === secId);
+    if (!currentSection) return;
+
+    const targetIndex = direction === "up" ? lessonIndex - 1 : lessonIndex + 1;
+    if (targetIndex < 0 || targetIndex >= currentSection.lessons.length) return;
+
+    const newLessons = [...currentSection.lessons];
+    const [moved] = newLessons.splice(lessonIndex, 1);
+    newLessons.splice(targetIndex, 0, moved);
+
+    const updatedSections = sections.map((sec) =>
+      sec.id === secId ? { ...sec, lessons: newLessons } : sec
+    );
+    setSections(updatedSections);
+
+    const validCourseId = courseId || initialCourseId;
+    if (validCourseId && !isNaN(Number(validCourseId))) {
+      try {
+        await instructorCourseService.reorderCurriculum(validCourseId, {
+          sections: updatedSections.map((sec) =>
+            sec.id === secId
+              ? {
+                  id: Number(sec.id) || sec.id,
+                  lesson_ids: newLessons.map((l) => Number(l.id) || l.id),
+                }
+              : {
+                  id: Number(sec.id) || sec.id,
+                }
+          ),
+        });
+      } catch (err: any) {
+        console.warn("[reorderCurriculum] Lesson reorder failed:", err);
+      }
+    }
+  };
+
+  /**
+   * Toggle Free Preview on a lesson via PATCH /api/instructor/lessons/{lessonId}
+   */
+  const toggleLessonPreview = async (secId: string, lesId: string, currentPreview: boolean) => {
+    if (isLockedForReview) return;
+    const newPreviewState = !currentPreview;
+
+    setSections((prev) =>
+      prev.map((sec) => {
+        if (sec.id === secId) {
+          return {
+            ...sec,
+            lessons: sec.lessons.map((l) =>
+              l.id === lesId
+                ? { ...l, is_preview: newPreviewState, isPreview: newPreviewState, isFreePreview: newPreviewState }
+                : l
+            ),
+          };
+        }
+        return sec;
+      })
+    );
+
+    if (!isNaN(Number(lesId))) {
+      try {
+        await instructorCourseService.toggleLessonPreview(lesId, newPreviewState);
+      } catch (err: any) {
+        console.warn("[toggleLessonPreview] Toggle preview error:", err);
+      }
+    }
   };
 
   const deleteSection = async (secId: string) => {
@@ -649,34 +768,34 @@ export function CreateCourseStudio() {
     return [
       {
         id: "cover",
-        labelAr: "صورة غلاف الدورة",
-        labelEn: "Course Cover Image",
-        descriptionAr: "إرفاق صورة جذابة بدقة عالية لغلاف الدورة التدريبية.",
-        descriptionEn: "Upload a high-quality cover thumbnail for the course.",
+        labelAr: tIncomplete("coverLabel"),
+        labelEn: tIncomplete("coverLabel"),
+        descriptionAr: tIncomplete("coverDesc"),
+        descriptionEn: tIncomplete("coverDesc"),
         isComplete: hasCover,
       },
       {
         id: "sections",
-        labelAr: "أقسام الدورة (Sections)",
-        labelEn: "Course Sections",
-        descriptionAr: "إضافة قسم واحد على الأقل لتنظيم المنهج التدريبي.",
-        descriptionEn: "Add at least one curriculum section to organize content.",
+        labelAr: tIncomplete("sectionsLabel"),
+        labelEn: tIncomplete("sectionsLabel"),
+        descriptionAr: tIncomplete("sectionsDesc"),
+        descriptionEn: tIncomplete("sectionsDesc"),
         isComplete: hasSections,
       },
       {
         id: "lessons",
-        labelAr: "دروس المنهج (Lessons)",
-        labelEn: "Curriculum Lessons",
-        descriptionAr: "إضافة الدروس التابعة لكل قسم تدريبي في الدورة.",
-        descriptionEn: "Add lesson topics inside each curriculum section.",
+        labelAr: tIncomplete("lessonsLabel"),
+        labelEn: tIncomplete("lessonsLabel"),
+        descriptionAr: tIncomplete("lessonsDesc"),
+        descriptionEn: tIncomplete("lessonsDesc"),
         isComplete: hasLessons,
       },
       {
         id: "videos",
-        labelAr: "فيديوهات الشرح لكل درس",
-        labelEn: "Lesson Video Content",
-        descriptionAr: "رفع وإرفاق فيديو الشرح التعليمي لجميع الدروس المضافة.",
-        descriptionEn: "Upload or attach video recordings for all lessons.",
+        labelAr: tIncomplete("videosLabel"),
+        labelEn: tIncomplete("videosLabel"),
+        descriptionAr: tIncomplete("videosDesc"),
+        descriptionEn: tIncomplete("videosDesc"),
         isComplete: hasVideos,
       },
     ];
@@ -819,11 +938,58 @@ export function CreateCourseStudio() {
           </div>
         )}
 
+        {/* Course Rejected Alert Banner with Rejection Reason */}
+        {courseStatus === "rejected" && (
+          <div className="p-4 sm:p-5 rounded-3xl bg-rose-50 border border-rose-200 text-rose-950 flex items-start gap-3.5 shadow-xs animate-in fade-in">
+            <div className="w-10 h-10 rounded-2xl bg-rose-100 text-rose-700 flex items-center justify-center shrink-0 mt-0.5">
+              <AlertTriangle className="w-5 h-5 text-rose-600" />
+            </div>
+            <div className="space-y-2 min-w-0 flex-1">
+              <div className="flex items-center gap-2 flex-wrap">
+                <h2 className="font-black text-rose-950 text-sm sm:text-base">
+                  {t("courseRejectedBannerTitle")}
+                </h2>
+                <span className="px-2.5 py-0.5 rounded-full bg-rose-200 text-rose-900 text-[11px] font-black">
+                  {tInst("statusRejected")}
+                </span>
+              </div>
+              <p className="text-xs sm:text-sm text-rose-900/90 font-medium leading-relaxed">
+                {t("courseRejectedBannerDesc")}
+              </p>
+              
+              {/* Highlighted Reason Box */}
+              <div className="p-3.5 rounded-2xl bg-white border border-rose-200/90 shadow-2xs text-xs font-semibold text-rose-900 leading-relaxed flex items-start gap-2.5">
+                <span className="font-black text-rose-950 shrink-0">{tInst("rejectionReasonLabel")}</span>
+                <span className="text-rose-800">
+                  {rejectionReason || t("rejectionReasonFallback")}
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Save Draft Success Notification Toast */}
         {saveSuccess && (
           <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs sm:text-sm font-bold flex items-center gap-2 animate-in fade-in">
             <CheckCircle2 size={18} className="text-emerald-600 shrink-0" />
             <span>{t("draftSavedSuccess")}</span>
+          </div>
+        )}
+
+        {/* API Error Notification Toast */}
+        {apiError && (
+          <div className="p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs sm:text-sm font-bold flex items-center justify-between gap-2 animate-in fade-in">
+            <div className="flex items-center gap-2">
+              <AlertCircle size={18} className="text-rose-600 shrink-0" />
+              <span>{apiError}</span>
+            </div>
+            <button
+              type="button"
+              onClick={() => setApiError(null)}
+              className="text-rose-600 hover:text-rose-800 p-1 rounded-lg cursor-pointer"
+            >
+              <X size={16} />
+            </button>
           </div>
         )}
 
@@ -1377,6 +1543,32 @@ export function CreateCourseStudio() {
 
                           {!isLockedForReview && (
                             <div className="flex items-center gap-1.5 shrink-0">
+                              {/* Move Section Up / Down */}
+                              <div className="flex items-center gap-0.5 bg-slate-100 p-0.5 rounded-xl">
+                                <button
+                                  type="button"
+                                  disabled={sIdx === 0}
+                                  onClick={() => moveSection(sIdx, "up")}
+                                  className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
+                                    sIdx === 0 ? "opacity-30 cursor-not-allowed text-slate-400" : "text-slate-600 hover:text-[#0F5244] hover:bg-white"
+                                  }`}
+                                  title={isAr ? "نقل القسم للأعلى" : "Move section up"}
+                                >
+                                  <ChevronUp size={14} />
+                                </button>
+                                <button
+                                  type="button"
+                                  disabled={sIdx === sections.length - 1}
+                                  onClick={() => moveSection(sIdx, "down")}
+                                  className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
+                                    sIdx === sections.length - 1 ? "opacity-30 cursor-not-allowed text-slate-400" : "text-slate-600 hover:text-[#0F5244] hover:bg-white"
+                                  }`}
+                                  title={isAr ? "نقل القسم للأسفل" : "Move section down"}
+                                >
+                                  <ChevronDown size={14} />
+                                </button>
+                              </div>
+
                               <button
                                 type="button"
                                 onClick={() => {
@@ -1415,17 +1607,13 @@ export function CreateCourseStudio() {
                         {!hasLessons && (
                           <div className="p-3 rounded-2xl bg-amber-50 border border-amber-200 text-amber-800 text-xs font-bold flex items-center gap-2">
                             <AlertTriangle size={15} className="text-amber-600 shrink-0" />
-                            <span>
-                              {isAr
-                                ? "هذا القسم فارغ. يجب إضافة درس واحد على الأقل."
-                                : "This section is empty. You must add at least one lesson."}
-                            </span>
+                            <span>{t("emptySectionWarning")}</span>
                           </div>
                         )}
 
                         {/* Sub-Lessons List */}
                         <div className="space-y-2">
-                          {section.lessons.map((lesson) => {
+                          {section.lessons.map((lesson, lIdx) => {
                             const hasVideo = Boolean(lesson.video_url || lesson.video_public_id);
                             return (
                               <div
@@ -1480,6 +1668,47 @@ export function CreateCourseStudio() {
 
                                   {!isLockedForReview ? (
                                     <>
+                                      {/* Quick Toggle Free Preview */}
+                                      <button
+                                        type="button"
+                                        onClick={() => toggleLessonPreview(section.id, lesson.id, Boolean(lesson.is_preview))}
+                                        className={`px-2 py-1 rounded-lg text-[10px] font-extrabold border transition-all cursor-pointer ${
+                                          lesson.is_preview
+                                            ? "bg-emerald-50 text-emerald-700 border-emerald-300 hover:bg-emerald-100"
+                                            : "bg-slate-50 text-slate-500 border-slate-200 hover:bg-slate-100"
+                                        }`}
+                                        title={isAr ? "تبديل المعاينة المجانية للدرس" : "Toggle Free Preview"}
+                                      >
+                                        <Eye size={11} className="inline mr-1 rtl:ml-1" />
+                                        <span>{t("freePreview")}</span>
+                                      </button>
+
+                                      {/* Move Lesson Up / Down */}
+                                      <div className="flex items-center gap-0.5 bg-slate-100 p-0.5 rounded-lg">
+                                        <button
+                                          type="button"
+                                          disabled={lIdx === 0}
+                                          onClick={() => moveLesson(section.id, lIdx, "up")}
+                                          className={`p-1 rounded transition-colors cursor-pointer ${
+                                            lIdx === 0 ? "opacity-30 cursor-not-allowed text-slate-400" : "text-slate-600 hover:text-[#0F5244] hover:bg-white"
+                                          }`}
+                                          title={isAr ? "نقل الدرس للأعلى" : "Move lesson up"}
+                                        >
+                                          <ChevronUp size={12} />
+                                        </button>
+                                        <button
+                                          type="button"
+                                          disabled={lIdx === section.lessons.length - 1}
+                                          onClick={() => moveLesson(section.id, lIdx, "down")}
+                                          className={`p-1 rounded transition-colors cursor-pointer ${
+                                            lIdx === section.lessons.length - 1 ? "opacity-30 cursor-not-allowed text-slate-400" : "text-slate-600 hover:text-[#0F5244] hover:bg-white"
+                                          }`}
+                                          title={isAr ? "نقل الدرس للأسفل" : "Move lesson down"}
+                                        >
+                                          <ChevronDown size={12} />
+                                        </button>
+                                      </div>
+
                                       <button
                                         type="button"
                                         onClick={() => openEditLessonModal(section.id, lesson)}
@@ -1683,9 +1912,7 @@ export function CreateCourseStudio() {
                 <div>
                   <h3 className="text-sm font-black">{t("readyToPublish")}</h3>
                   <p className="text-xs text-emerald-700 font-medium mt-0.5">
-                    {isAr
-                      ? "تم استيفاء جميع المتطلبات الأساسية ومرفقات الفيديو بنجاح."
-                      : "All course information, sections, and lesson videos have been validated."}
+                    {t("allRequirementsMet")}
                   </p>
                 </div>
               </div>
@@ -1947,13 +2174,7 @@ export function CreateCourseStudio() {
                   <PlayCircle className="h-5 w-5 text-[#0F5244]" />
                 </div>
                 <h3 className="text-base font-black text-slate-900">
-                  {editingLessonInfo.isNew
-                    ? isAr
-                      ? "إضافة درس جديد"
-                      : "Add New Lesson"
-                    : isAr
-                    ? "تعديل الدرس"
-                    : "Edit Lesson"}
+                  {editingLessonInfo.isNew ? t("addNewLesson") : t("editLesson")}
                 </h3>
               </div>
               <button
@@ -1986,7 +2207,7 @@ export function CreateCourseStudio() {
                         },
                       })
                     }
-                    placeholder="e.g. Introduction to Routing"
+                    placeholder={t("lessonTitleEnPlaceholder")}
                     className="w-full h-10 px-3.5 text-xs rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:outline-none focus:border-[#0F5244]"
                   />
                 </div>
@@ -2009,7 +2230,7 @@ export function CreateCourseStudio() {
                         },
                       })
                     }
-                    placeholder="مثال: مقدمة إلى التوجيه"
+                    placeholder={t("lessonTitleArPlaceholder")}
                     className="w-full h-10 px-3.5 text-xs rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:outline-none focus:border-[#0F5244] text-right"
                   />
                 </div>
@@ -2162,9 +2383,7 @@ export function CreateCourseStudio() {
                 {t("courseSubmittedSuccess")}
               </h3>
               <p className="text-xs sm:text-sm text-slate-600 font-medium">
-                {isAr
-                  ? "تم حفظ الدورة وإرسالها للمراجعة بنجاح! يمكنك الآن إدارة دوراتك ومتابعة حالتها."
-                  : "Your course has been submitted for review. You can track and manage it in your instructor dashboard."}
+                {t("courseSubmittedSuccessDesc")}
               </p>
             </div>
 

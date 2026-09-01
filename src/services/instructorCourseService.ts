@@ -79,7 +79,18 @@ export const instructorCourseService = {
   },
 
   /**
-   * 3c. Delete a lesson.
+   * 3c. Toggle free preview on a lesson.
+   * PATCH /api/instructor/lessons/{lessonId}
+   */
+  async toggleLessonPreview(lessonId: string | number, isPreview: boolean): Promise<any> {
+    const res = await apiClient.patch(`/instructor/lessons/${lessonId}`, {
+      is_preview: isPreview,
+    });
+    return res.data;
+  },
+
+  /**
+   * 3d. Delete a lesson.
    * DELETE /api/instructor/lessons/{lessonId}
    */
   async deleteLesson(lessonId: string | number): Promise<void> {

@@ -5,26 +5,30 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@/lib/store";
+import { updateUser } from "@/features/auth/slice";
+import { getInstructorDashboard } from "@/services/auth";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Award, Clock, LayoutDashboard, BookOpen, Users, CreditCard, Settings, User } from "lucide-react";
 import { VerifiedBadge } from "@/components/ui/VerifiedBadge";
 import { tokenManager } from "@/lib/tokenManager";
-import { getSavedInstructorOverrides, normalizeInstructorSlug } from "@/lib/mockInstructors";
+import { getSavedInstructorOverrides, normalizeInstructorSlug, getLocalizedHeadline } from "@/lib/mockInstructors";
 
 import { InstructorPendingModal } from "@/components/modals/InstructorPendingModal";
 
 export function InstructorLayoutClient({ children }: { children: React.ReactNode }) {
   const pathname = usePathname() || "";
   const locale = useLocale() || "en";
+  const isAr = locale === "ar";
   const router = useRouter();
   const t = useTranslations("account");
   const tInst = useTranslations("instructorSettings");
   const tDash = useTranslations("instructorDashboard");
 
+  const dispatch = useDispatch();
   const { user, isAuthenticated } = useSelector((state: RootState) => state.auth);
 
   const [mounted, setMounted] = useState(false);
@@ -55,6 +59,49 @@ export function InstructorLayoutClient({ children }: { children: React.ReactNode
       return;
     }
 
+    // Live sync approval status with backend GET /api/auth/instructor/dashboard
+    getInstructorDashboard()
+      .then(() => {
+        const headlineToSet =
+          user?.headline && !user.headline.toLowerCase().includes("student") && !user.headline.includes("طالب")
+            ? user.headline
+            : tInst("defaultHeadline");
+
+        dispatch(
+          updateUser({
+            role: "instructor",
+            approval_status: "approved",
+            approvalStatus: "approved",
+            headline: headlineToSet,
+          })
+        );
+        try {
+          const uStr = localStorage.getItem("user");
+          if (uStr) {
+            const uObj = JSON.parse(uStr);
+            uObj.role = "instructor";
+            uObj.approval_status = "approved";
+            uObj.approvalStatus = "approved";
+            uObj.headline = headlineToSet;
+            localStorage.setItem("user", JSON.stringify(uObj));
+          }
+        } catch {}
+      })
+      .catch((err: any) => {
+        if (err?.response?.status === 403) {
+          dispatch(updateUser({ approval_status: "pending", approvalStatus: "pending" }));
+          try {
+            const uStr = localStorage.getItem("user");
+            if (uStr) {
+              const uObj = JSON.parse(uStr);
+              uObj.approval_status = "pending";
+              uObj.approvalStatus = "pending";
+              localStorage.setItem("user", JSON.stringify(uObj));
+            }
+          } catch {}
+        }
+      });
+
     // Sync saved instructor profile overrides from localStorage if applicable
     const activeSlug = activeUser.fullName || activeUser.name ? normalizeInstructorSlug(activeUser.fullName || activeUser.name) : "";
     const overrides = activeSlug
@@ -66,7 +113,7 @@ export function InstructorLayoutClient({ children }: { children: React.ReactNode
     setLocalOverrides(overrides);
 
     setCheckingAuth(false);
-  }, [isAuthenticated, user, locale, pathname, router]);
+  }, [isAuthenticated, user, locale, pathname, router, dispatch]);
 
   const approvalStatus = (user?.approval_status || user?.approvalStatus || "pending").toLowerCase();
   const isApproved = approvalStatus === "approved";
@@ -90,10 +137,15 @@ export function InstructorLayoutClient({ children }: { children: React.ReactNode
 
   const email = (mounted ? user?.email : "") || "instructor@coachspace.com";
   const avatarPreview = (mounted ? user?.avatar : null) || localOverrides.avatar || null;
-  const headline =
-    (mounted ? user?.headline : "") ||
-    localOverrides.headline ||
-    tInst("defaultHeadline");
+  const rawHeadline = (mounted ? user?.headline : "") || localOverrides.headline || "";
+  const isStudentHeadline =
+    !rawHeadline ||
+    rawHeadline.toLowerCase().includes("student") ||
+    rawHeadline.includes("طالب");
+
+  const headline = isStudentHeadline
+    ? tInst("defaultHeadline")
+    : getLocalizedHeadline(rawHeadline, isAr, true);
 
   const handleRestrictedClick = (featureLabel: string) => (e: React.MouseEvent) => {
     e.preventDefault();

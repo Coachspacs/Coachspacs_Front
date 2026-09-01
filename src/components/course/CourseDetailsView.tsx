@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -64,8 +64,25 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
   const isFree = course.price === 0 || course.priceFormatted === "Free" || course.priceFormatted === "مجاني";
   const isInCart = cartItems.some((item: any) => (item.course?.id || item.courseId || item.id) === course.id);
   
-  // Enrolled check from API response (GET /api/catalog/courses/:id returns is_enrolled)
+  // Enrolled check from API response (GET /api/catalog/courses/:id returns is_enrolled) or localStorage
   const [isEnrolled, setIsEnrolled] = useState(Boolean(course.is_enrolled || (course as any).isEnrolled));
+
+  // Sync with local enrolled courses storage
+  useEffect(() => {
+    if (typeof window !== "undefined" && course?.id) {
+      try {
+        const saved = localStorage.getItem("coachspace_enrolled_courses");
+        if (saved) {
+          const list = JSON.parse(saved);
+          if (Array.isArray(list) && list.some((c: any) => String(c.id) === String(course.id))) {
+            setIsEnrolled(true);
+          }
+        }
+      } catch (err) {
+        console.warn("[CourseDetailsView] Could not check enrollment from storage:", err);
+      }
+    }
+  }, [course?.id]);
 
   // Tabs state
   const [activeTab, setActiveTab] = useState<"curriculum" | "description" | "instructor" | "reviews">("curriculum");
@@ -100,8 +117,42 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
   };
 
   const handleFreeEnroll = () => {
+    if (!isAuthenticated) {
+      router.push(`/${locale}/login?redirect=/${locale}/courses/${course.id}`);
+      return;
+    }
+
+    // Persist enrolled course to localStorage so student dashboard & course details stay synchronized
+    if (typeof window !== "undefined") {
+      try {
+        const saved = localStorage.getItem("coachspace_enrolled_courses");
+        const list = saved ? JSON.parse(saved) : [];
+        if (!list.some((c: any) => String(c.id) === String(course.id))) {
+          list.unshift({
+            id: String(course.id),
+            title: isAr ? course.titleAr || course.title : course.title,
+            instructor: isAr
+              ? instructorObj?.nameAr || course.instructorNameAr || course.instructorName
+              : instructorObj?.name || course.instructorName,
+            image:
+              course.coverImage ||
+              course.image ||
+              "https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1200&q=80",
+            progress: 0,
+            isCompleted: false,
+            enrolledAt: new Date().toISOString(),
+            certificateId: `CERT-${Math.floor(100000 + Math.random() * 900000)}`,
+          });
+          localStorage.setItem("coachspace_enrolled_courses", JSON.stringify(list));
+        }
+      } catch (e) {
+        console.warn("Failed to save enrollment:", e);
+      }
+    }
+
     setIsEnrolled(true);
-    router.push(`/${locale}/student/courses`);
+    // Direct immediately to the interactive learning classroom player!
+    router.push(`/${locale}/student/learn/${course.id}`);
   };
 
   const handleGoToCourse = () => {

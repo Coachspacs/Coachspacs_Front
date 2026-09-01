@@ -62,17 +62,13 @@ export function StudentLayoutClient({ children }: { children: React.ReactNode })
     );
   }
 
-  // Check if current route is the learning player page (full screen player without dashboard sidebar)
+  // Check if current route is the learning player page (dedicated classroom layout with its own unified header & light bar)
   const isLearnPage = pathname.includes("/student/learn");
 
   if (isLearnPage) {
     return (
-      <div className="min-h-screen bg-[#FAFCFB] flex flex-col font-sans">
-        <Header />
-        <main className="flex-grow py-6 sm:py-10 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
-          {children}
-        </main>
-        <Footer />
+      <div className="min-h-screen bg-[#F8FAFC] flex flex-col font-sans">
+        {children}
       </div>
     );
   }

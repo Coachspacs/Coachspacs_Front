@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useTranslations, useLocale } from "next-intl";
 import {
@@ -11,14 +11,18 @@ import {
   ArrowRight,
   Sparkles,
   Layers,
+  Palette,
+  Briefcase,
+  GraduationCap,
 } from "lucide-react";
+import { categoryService } from "@/services/categoryService";
 
 export function TopCategoriesSection() {
   const t = useTranslations("home");
-  const locale = useLocale();
+  const locale = useLocale() || "en";
   const isAr = locale === "ar";
 
-  const categories = [
+  const defaultCategories = [
     {
       id: "business-coaching",
       title: t("catBusiness"),
@@ -50,6 +54,45 @@ export function TopCategoriesSection() {
       href: `/${locale}/courses?category=Programming`,
     },
   ];
+
+  const [categories, setCategories] = useState<{ id: string | number; title: string; icon: any; href: string }[]>(defaultCategories);
+
+  useEffect(() => {
+    let isSubscribed = true;
+
+    const getCategoryIcon = (nameOrIcon: string) => {
+      const lower = (nameOrIcon || "").toLowerCase();
+      if (lower.includes("code") || lower.includes("program") || lower.includes("dev") || lower.includes("برمج")) return Code;
+      if (lower.includes("business") || lower.includes("chart") || lower.includes("manage") || lower.includes("أعمال")) return BarChart3;
+      if (lower.includes("career") || lower.includes("target") || lower.includes("goal") || lower.includes("مهن")) return Target;
+      if (lower.includes("mind") || lower.includes("life") || lower.includes("brain") || lower.includes("حياة") || lower.includes("وعي")) return Brain;
+      if (lower.includes("design") || lower.includes("pen") || lower.includes("art") || lower.includes("تصميم")) return Palette;
+      if (lower.includes("work") || lower.includes("lead") || lower.includes("قياد")) return Briefcase;
+      return Layers;
+    };
+
+    categoryService
+      .getCategories(locale)
+      .then((data) => {
+        if (!isSubscribed) return;
+        if (Array.isArray(data) && data.length > 0) {
+          const mapped = data.slice(0, 5).map((item) => ({
+            id: item.id,
+            title: item.name,
+            icon: getCategoryIcon(item.icon || item.name),
+            href: `/${locale}/courses?category=${item.id}`,
+          }));
+          setCategories(mapped);
+        }
+      })
+      .catch((err) => {
+        console.warn("[TopCategoriesSection] Failed to load categories from API:", err);
+      });
+
+    return () => {
+      isSubscribed = false;
+    };
+  }, [locale]);
 
   return (
     <section suppressHydrationWarning className="w-full bg-white pt-8 pb-16 sm:pb-24">

@@ -243,3 +243,22 @@ All requests require `Authorization: Bearer <access_token>` of an approved instr
 | `DELETE` | `/api/instructor/lessons/:id` | Delete lesson (204) |
 | `DELETE` | `/api/instructor/sections/:id` | Delete section (204) |
 | `DELETE` | `/api/instructor/courses/:id` | Delete (204) or archive if enrolled (200) |
+
+---
+
+## 💻 Frontend Connected Components Map
+
+| Feature Area | Connected UI Component | Service Called | Live Parameters |
+|---|---|---|---|
+| **Registration** | `src/components/auth/RegisterCard.tsx` | `authService.register` | `full_name`, `email`, `password`, `role` |
+| **Email Verification** | `src/app/[locale]/(auth)/verify-email/page.tsx` | `authService.verifyEmail`, `resendVerificationEmail` | `uid`, `token`, `email` |
+| **Login** | `src/components/auth/LoginCard.tsx` | `authService.login` | `email`, `password` |
+| **Forgot / Reset Password** | `ForgotPasswordCard.tsx`, `ResetPasswordCard.tsx` | `authService.forgotPassword`, `resetPassword` | `email`, `uid`, `token`, `new_password` |
+| **Profile Settings** | `StudentSettingsView.tsx`, `InstructorSettingsView.tsx`, `StudentWorkspace.tsx`, `InstructorWorkspace.tsx` | `userService.updateMyProfile`, `uploadAvatar`, `deleteAvatar`, `authService.changePassword` | `full_name`, `phone_number`, `preferred_language`, `avatar`, `current_password`, `new_password` |
+| **Email Change** | `ChangeEmailModal.tsx`, `confirm-email/page.tsx` | `userService.requestEmailChange`, `confirmEmailChange` | `new_email`, `uid`, `token` |
+| **Home Categories** | `src/components/home/TopCategoriesSection.tsx` | `categoryService.getCategories` | `Accept-Language: ar \| en`, links with `?category={id}` |
+| **Course Catalog** | `src/components/catalog/CourseCatalogView.tsx`, `FilterSidebar.tsx`, `SearchSortBar.tsx` | `courseService.getCourses` | `category`, `level`, `language`, `price_min`, `price_max`, `search`, `sort`, `page`, `page_size` |
+| **Course Details** | `src/app/[locale]/(public)/courses/[slug]/page.tsx`, `CourseDetailsView.tsx` | `courseService.getCourseById` | `id`, `Accept-Language`, Bearer token for `is_enrolled` |
+| **Course Builder** | `src/components/instructor/CreateCourseStudio.tsx` | `instructorCourseService.*` | Course CRUD, Cloudinary video signature, sections, lessons, preview toggle, reorder |
+| **Instructor Courses** | `src/components/instructor/InstructorWorkspace.tsx`, `InstructorDashboardView.tsx`, `InstructorCoursesPreview.tsx` | `instructorCourseService.getMyCourses`, `deleteCourse`, `updateCourse` | Courses listing, status filter, review submission, delete/archive |
+

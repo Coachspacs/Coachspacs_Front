@@ -15,42 +15,42 @@ export function RealStoriesSection() {
       name: t("story1Name"),
       role: t("story1Role"),
       quote: t("story1Quote"),
-      initials: "LH",
+      initials: t("story1Initials"),
     },
     {
       id: "story-2",
       name: t("story2Name"),
       role: t("story2Role"),
       quote: t("story2Quote"),
-      initials: "OK",
+      initials: t("story2Initials"),
     },
     {
       id: "story-3",
       name: t("story3Name"),
       role: t("story3Role"),
       quote: t("story3Quote"),
-      initials: "SA",
+      initials: t("story3Initials"),
     },
     {
       id: "story-4",
       name: t("story4Name"),
       role: t("story4Role"),
       quote: t("story4Quote"),
-      initials: "MA",
+      initials: t("story4Initials"),
     },
     {
       id: "story-5",
       name: t("story5Name"),
       role: t("story5Role"),
       quote: t("story5Quote"),
-      initials: "TM",
+      initials: t("story5Initials"),
     },
     {
       id: "story-6",
       name: t("story6Name"),
       role: t("story6Role"),
       quote: t("story6Quote"),
-      initials: "NS",
+      initials: t("story6Initials"),
     },
   ];
 
@@ -131,6 +131,9 @@ export function RealStoriesSection() {
         
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#0F5244]/10 border border-[#0F5244]/20 text-[#0F5244] text-xs font-bold tracking-wider uppercase mb-3">
+            <span>{t("storiesBadge")}</span>
+          </div>
           <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight">
             {t("storiesTitle")}
           </h2>
@@ -146,7 +149,7 @@ export function RealStoriesSection() {
           <button
             type="button"
             onClick={isRtl ? handleNext : handlePrev}
-            aria-label={isRtl ? "التالي" : "Previous"}
+            aria-label={isRtl ? t("nextSlide") : t("prevSlide")}
             className="absolute -left-2 sm:-left-6 top-1/2 -translate-y-1/2 z-20 w-11 h-11 sm:w-13 sm:h-13 rounded-full bg-white/95 backdrop-blur-md border border-[#0F5244]/25 text-[#0F5244] shadow-lg shadow-[#0F5244]/10 hover:bg-[#0F5244] hover:text-white hover:border-[#0F5244] hover:scale-110 transition-all duration-300 flex items-center justify-center cursor-pointer group active:scale-95"
           >
             <ChevronLeft className="w-6 h-6 stroke-[2.2] group-hover:-translate-x-0.5 transition-transform" />
@@ -227,7 +230,7 @@ export function RealStoriesSection() {
           <button
             type="button"
             onClick={isRtl ? handlePrev : handleNext}
-            aria-label={isRtl ? "السابق" : "Next"}
+            aria-label={isRtl ? t("prevSlide") : t("nextSlide")}
             className="absolute -right-2 sm:-right-6 top-1/2 -translate-y-1/2 z-20 w-11 h-11 sm:w-13 sm:h-13 rounded-full bg-white/95 backdrop-blur-md border border-[#0F5244]/25 text-[#0F5244] shadow-lg shadow-[#0F5244]/10 hover:bg-[#0F5244] hover:text-white hover:border-[#0F5244] hover:scale-110 transition-all duration-300 flex items-center justify-center cursor-pointer group active:scale-95"
           >
             <ChevronRight className="w-6 h-6 stroke-[2.2] group-hover:translate-x-0.5 transition-transform" />
@@ -245,7 +248,7 @@ export function RealStoriesSection() {
                 key={idx}
                 type="button"
                 onClick={() => setCurrentIndex(idx * itemsPerPage)}
-                aria-label={`Go to slide page ${idx + 1}`}
+                aria-label={t("goToSlide", { page: String(idx + 1) })}
                 className={`h-2.5 rounded-full transition-all duration-500 cursor-pointer ${
                   activePage === idx
                     ? "w-10 bg-[#0F5244] shadow-xs shadow-[#0F5244]/30"

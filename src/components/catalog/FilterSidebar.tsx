@@ -64,7 +64,7 @@ export function FilterSidebar({
       .getCategories(isAr ? "ar" : "en")
       .then((data) => {
         if (active && data && Array.isArray(data) && data.length > 0) {
-          setCategoriesList(data.map((item) => ({ id: String(item.name || item.id), name: item.name })));
+          setCategoriesList(data.map((item) => ({ id: String(item.id), name: item.name })));
         }
       })
       .catch(() => {

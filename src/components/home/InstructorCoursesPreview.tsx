@@ -6,9 +6,8 @@ import Image from "next/image";
 import { useTranslations, useLocale } from "next-intl";
 import { useSelector } from "react-redux";
 import { RootState } from "@/lib/store";
-import { BookOpen, Users, Star, PlusCircle, Edit3, Loader2 } from "lucide-react";
+import { BookOpen, Users, Star, PlusCircle, Edit3 } from "lucide-react";
 import { instructorCourseService } from "@/services/instructorCourseService";
-import { courseService } from "@/services/courseService";
 
 export function InstructorCoursesPreview() {
   const t = useTranslations("home");
@@ -41,12 +40,11 @@ export function InstructorCoursesPreview() {
         const isDraft = c.status === "draft" || (!c.published_at && !c.is_published && c.status !== "published");
         return {
           id: String(c.id),
-          title: c.title || c.title_en || c.title_ar || "Course",
+          title: (locale === "ar" ? (c.title_ar || c.title) : (c.title_en || c.title)) || c.title || t("untitledCourse"),
           image: c.cover_image || c.coverImage || c.image || "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&auto=format&fit=crop&q=80",
           studentsCount: Number(c.students_count) || 0,
           rating: Number(c.rating || 0),
           reviewsCount: Number(c.reviews_count) || 0,
-          status: isDraft ? "Draft" : "Published",
           isDraft: isDraft,
           price: Number(c.price) || 0,
         };
@@ -59,7 +57,7 @@ export function InstructorCoursesPreview() {
     } finally {
       setIsLoading(false);
     }
-  }, [isInstructor, isApproved]);
+  }, [isInstructor, isApproved, locale, t]);
 
   useEffect(() => {
     if (mounted && isInstructor && isApproved) {
@@ -90,7 +88,7 @@ export function InstructorCoursesPreview() {
           <div>
             <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-emerald-50 border border-emerald-200/80 text-[#0F5244] text-xs font-bold tracking-wider uppercase mb-2.5">
               <BookOpen className="w-3.5 h-3.5 text-[#0F5244]" />
-              <span>{t("myCoursesSectionTitle")}</span>
+              <span>{t("myCoursesBadge")}</span>
             </div>
             <h2 className="text-2xl sm:text-4xl font-black text-slate-900 tracking-tight">
               {t("myCoursesSectionTitle")}
@@ -155,10 +153,10 @@ export function InstructorCoursesPreview() {
           <div className="flex flex-col items-center justify-center p-10 bg-white rounded-3xl border border-dashed border-slate-300 text-center">
             <BookOpen className="w-12 h-12 text-slate-300 mb-3" />
             <h3 className="text-lg font-bold text-slate-800 mb-1">
-              {locale === "ar" ? "لا توجد دورات في هذا القسم حالياً" : "No courses found in this section"}
+              {t("emptyCoursesTitle")}
             </h3>
             <p className="text-xs text-slate-500 max-w-sm mb-5">
-              {locale === "ar" ? "ابدأ بإنشاء دورتك الأولى ونشرها للطلاب الآن." : "Start creating your first course and publish it to students."}
+              {t("emptyCoursesDesc")}
             </p>
             <Link
               href={`/${locale}/instructor/courses/new`}
@@ -187,7 +185,7 @@ export function InstructorCoursesPreview() {
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                     />
                     <div className="absolute top-2.5 rtl:right-2.5 ltr:left-2.5 bg-slate-900/85 backdrop-blur-md text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full">
-                      {course.status}
+                      {course.isDraft ? t("statusDraft") : t("statusPublished")}
                     </div>
                   </div>
 
@@ -196,7 +194,7 @@ export function InstructorCoursesPreview() {
                     <div className="flex items-center gap-1.5 text-amber-500 text-xs font-bold mb-1.5">
                       <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
                       <span>{Number(course.rating).toFixed(1)}</span>
-                      <span className="text-slate-400 font-normal text-[11px]">• {course.reviewsCount} reviews</span>
+                      <span className="text-slate-400 font-normal text-[11px]">• {course.reviewsCount} {t("reviews")}</span>
                     </div>
                   )}
                   <h3 className="text-base font-black text-slate-900 line-clamp-2 leading-snug group-hover:text-[#0F5244] transition-colors mb-3">
@@ -208,11 +206,11 @@ export function InstructorCoursesPreview() {
                 <div className="flex items-center justify-between pt-3.5 border-t border-slate-100 mt-2">
                   <div className="flex items-center gap-1.5 text-slate-600 text-xs font-bold">
                     <Users className="w-4 h-4 text-slate-500" />
-                    <span>{course.studentsCount} {t("totalStudentsCount")}</span>
+                    <span>{course.studentsCount} {t("studentsLabel")}</span>
                   </div>
 
                   <Link
-                    href={`/${locale}/instructor/courses/${course.id}/edit`}
+                    href={`/${locale}/instructor/courses/create?id=${course.id}`}
                     className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-800 hover:text-[#0F5244] bg-slate-50 hover:bg-emerald-50 px-3 py-1.5 rounded-lg border border-slate-200/80 transition-all cursor-pointer"
                   >
                     <Edit3 className="w-3.5 h-3.5 text-slate-500" />

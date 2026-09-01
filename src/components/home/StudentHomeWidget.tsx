@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useTranslations, useLocale } from "next-intl";
 import { useSelector } from "react-redux";
 import { RootState } from "@/lib/store";
-import { BookOpen, CheckCircle2, Award, Play, Sparkles, ArrowRight } from "lucide-react";
+import { BookOpen, CheckCircle2, Award, Sparkles, ArrowRight } from "lucide-react";
 
 export function StudentHomeWidget() {
   const t = useTranslations("home");
@@ -105,15 +105,15 @@ export function StudentHomeWidget() {
             <div className="space-y-3 z-10 flex-1 min-w-0">
               <div className="inline-flex items-center gap-1.5 bg-white/10 px-3 py-1 rounded-full text-[11px] font-bold text-emerald-200">
                 <span className="w-2 h-2 rounded-full bg-[#6CF8BB] animate-pulse" />
-                <span>{t("continueLearningTitle")}</span>
+                <span>{t("continueLearningBadge")}</span>
               </div>
 
               <h3 className="text-base sm:text-lg font-black text-white truncate">
-                {locale === "ar" ? "ابدأ باستكشاف وتعلّم مهارات جديدة" : "Explore certified courses & master new skills"}
+                {t("studentExploreTitle")}
               </h3>
 
               <p className="text-xs text-emerald-200/80 font-medium">
-                {locale === "ar" ? "تصفح الدورات التدريبية المعتمدة من خبراء المنصة." : "Browse certified courses from verified world-class mentors."}
+                {t("studentExploreDesc")}
               </p>
             </div>
 

@@ -2,14 +2,13 @@
 
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
-import { useTranslations, useLocale } from "next-intl";
+import { useLocale } from "next-intl";
+import arMessages from "../../../messages/ar.json";
+import enMessages from "../../../messages/en.json";
 import {
   X,
   PlayCircle,
-  Clock,
-  BookOpen,
   Award,
-  CheckCircle2,
   Tv,
   Users,
   Star,
@@ -20,7 +19,6 @@ import {
   Infinity as InfinityIcon,
   Play,
   Globe,
-  Sparkles,
   Layers,
 } from "lucide-react";
 
@@ -75,13 +73,23 @@ export function LiveCoursePreviewModal({
   sections = [],
   instructorName,
 }: LiveCoursePreviewModalProps) {
-  const t = useTranslations("liveCoursePreview");
   const locale = useLocale() || "en";
   const isAr = locale === "ar";
 
   const [previewLang, setPreviewLang] = useState<"ar" | "en">(isAr ? "ar" : "en");
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({});
   const [activeVideoModal, setActiveVideoModal] = useState<{ title: string; url: string } | null>(null);
+
+  const tp = (key: string, params?: Record<string, string | number>) => {
+    const dict = (previewLang === "ar" ? arMessages.liveCoursePreview : enMessages.liveCoursePreview) as Record<string, string>;
+    let str = dict[key] || key;
+    if (params) {
+      Object.entries(params).forEach(([k, v]) => {
+        str = str.replace(new RegExp(`\\{${k}\\}`, "g"), String(v));
+      });
+    }
+    return str;
+  };
 
   // Initialize all sections open by default in preview
   useEffect(() => {
@@ -114,17 +122,17 @@ export function LiveCoursePreviewModal({
 
   const currentTitle =
     previewLang === "ar"
-      ? titleAr.trim() || titleEn.trim() || "دورة تدريبية احترافية"
-      : titleEn.trim() || titleAr.trim() || "Professional Online Course";
+      ? titleAr.trim() || titleEn.trim() || tp("defaultTitle")
+      : titleEn.trim() || titleAr.trim() || tp("defaultTitle");
 
   const currentDesc =
     previewLang === "ar"
-      ? descAr.trim() || descEn.trim() || "اكتسب مهارات متقدمة وخبرة عملية يقودها نخبة من الخبراء والمدربين المعتمدين."
-      : descEn.trim() || descAr.trim() || "Gain in-demand skills and practical expertise coached by verified industry leaders.";
+      ? descAr.trim() || descEn.trim() || tp("defaultDesc")
+      : descEn.trim() || descAr.trim() || tp("defaultDesc");
 
   const numPrice = Number(price);
   const isFree = isNaN(numPrice) || numPrice === 0;
-  const formattedPrice = isFree ? t("freePrice") : `$${numPrice.toFixed(2)}`;
+  const formattedPrice = isFree ? tp("freePrice") : `$${numPrice.toFixed(2)}`;
 
   const totalLessons = sections.reduce((acc, s) => acc + (s.lessons?.length || 0), 0);
   const totalMinutes = sections.reduce(
@@ -152,7 +160,7 @@ export function LiveCoursePreviewModal({
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2 px-2.5 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-bold">
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
-            <span>{t("previewModeNotice")}</span>
+            <span>{tp("previewModeNotice")}</span>
           </div>
 
           {/* Language Preview Switcher */}
@@ -166,7 +174,7 @@ export function LiveCoursePreviewModal({
                   : "text-slate-400 hover:text-white"
               }`}
             >
-              {t("switchLangAr")}
+              {tp("switchLangAr")}
             </button>
             <button
               type="button"
@@ -177,7 +185,7 @@ export function LiveCoursePreviewModal({
                   : "text-slate-400 hover:text-white"
               }`}
             >
-              {t("switchLangEn")}
+              {tp("switchLangEn")}
             </button>
           </div>
         </div>
@@ -189,7 +197,7 @@ export function LiveCoursePreviewModal({
           className="px-4 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white text-xs font-black flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs"
         >
           <X className="w-4 h-4" />
-          <span>{t("closeBtn")}</span>
+          <span>{tp("closeBtn")}</span>
         </button>
       </div>
 
@@ -205,16 +213,16 @@ export function LiveCoursePreviewModal({
             <div className="flex items-center gap-2.5 flex-wrap">
               <span className="px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-extrabold flex items-center gap-1 shadow-2xs">
                 <Layers className="w-3.5 h-3.5 text-emerald-600" />
-                <span>{categoryName || "Development"}</span>
+                <span>{categoryName || tp("defaultCategory")}</span>
               </span>
 
               <span className="px-3 py-1 rounded-full bg-slate-100 border border-slate-200 text-slate-700 text-xs font-bold uppercase tracking-wider">
-                {level || "Beginner"}
+                {level || tp("defaultLevel")}
               </span>
 
               <span className="px-3 py-1 rounded-full bg-slate-100 border border-slate-200 text-slate-700 text-xs font-bold flex items-center gap-1">
                 <Globe className="w-3 h-3 text-slate-500" />
-                <span>{language || "Bilingual"}</span>
+                <span>{language || tp("defaultLanguage")}</span>
               </span>
             </div>
 
@@ -233,21 +241,21 @@ export function LiveCoursePreviewModal({
               <div className="flex items-center gap-1 text-amber-600 font-black">
                 <Star className="w-4 h-4 fill-amber-400 text-amber-400 shrink-0" />
                 <span>5.0</span>
-                <span className="text-slate-400 font-normal">({previewLang === "ar" ? "دورة جديدة" : "New"})</span>
+                <span className="text-slate-400 font-normal">({tp("newCourseBadge")})</span>
               </div>
 
               <span className="text-slate-300">•</span>
 
               <div className="flex items-center gap-1.5 text-slate-700">
                 <Users className="w-4 h-4 text-slate-400 shrink-0" />
-                <span>0 {previewLang === "ar" ? "طالب مسجل" : "Students"}</span>
+                <span>{tp("studentsCount", { count: 0 })}</span>
               </div>
 
               <span className="text-slate-300">•</span>
 
               <div className="flex items-center gap-1.5 text-emerald-800">
                 <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
-                <span>{instructorName || (previewLang === "ar" ? "مدرب معتمد" : "Verified Coach")}</span>
+                <span>{instructorName || tp("instructorBadge")}</span>
               </div>
             </div>
           </div>
@@ -268,7 +276,7 @@ export function LiveCoursePreviewModal({
               ) : (
                 <div className="w-full h-full flex flex-col items-center justify-center text-slate-400 gap-2">
                   <PlayCircle className="w-12 h-12 text-slate-500 stroke-[1.5]" />
-                  <span className="text-xs font-bold">{previewLang === "ar" ? "غلاف الدورة" : "Course Cover"}</span>
+                  <span className="text-xs font-bold">{tp("coverThumbnail")}</span>
                 </div>
               )}
 
@@ -280,8 +288,8 @@ export function LiveCoursePreviewModal({
                     setActiveVideoModal({
                       title:
                         previewLang === "ar"
-                          ? firstVideoLesson.title_ar || firstVideoLesson.title || "معاينة الفيديو"
-                          : firstVideoLesson.title_en || firstVideoLesson.title || "Video Preview",
+                          ? firstVideoLesson.title_ar || firstVideoLesson.title || tp("videoPreviewFallback")
+                          : firstVideoLesson.title_en || firstVideoLesson.title || tp("videoPreviewFallback"),
                       url: firstVideoLesson.video_url!,
                     })
                   }
@@ -291,7 +299,7 @@ export function LiveCoursePreviewModal({
                     <Play className="w-6 h-6 fill-[#0F5244] ml-0.5 rtl:mr-0.5" />
                   </div>
                   <span className="text-xs font-black tracking-wide drop-shadow-md">
-                    {t("previewLessonBadge")}
+                    {tp("previewLessonBadge")}
                   </span>
                 </button>
               )}
@@ -303,7 +311,7 @@ export function LiveCoursePreviewModal({
                 <span className="text-3xl font-black text-slate-900">{formattedPrice}</span>
               </div>
               <span className="text-xs font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200">
-                {previewLang === "ar" ? "ضمان استرجاع 30 يوم" : "30-Day Guarantee"}
+                {tp("moneyBackGuarantee")}
               </span>
             </div>
 
@@ -313,36 +321,36 @@ export function LiveCoursePreviewModal({
                 type="button"
                 className="w-full py-3.5 rounded-2xl bg-[#0F5244] text-white text-sm font-black shadow-md flex items-center justify-center gap-2 cursor-not-allowed opacity-90"
               >
-                <span>{t("enrollPreviewBtn", { price: formattedPrice })}</span>
+                <span>{tp("enrollPreviewBtn", { price: formattedPrice })}</span>
               </button>
 
               <button
                 type="button"
                 className="w-full py-3 rounded-2xl border border-slate-300 bg-white text-slate-800 text-xs font-black hover:bg-slate-50 cursor-not-allowed"
               >
-                <span>{t("addToCartPreviewBtn")}</span>
+                <span>{tp("addToCartPreviewBtn")}</span>
               </button>
             </div>
 
             {/* Course Features Inclusions */}
             <div className="space-y-3 pt-3 border-t border-slate-100 text-xs text-slate-700 font-semibold">
-              <h4 className="font-extrabold text-slate-900 text-xs">{t("courseIncludes")}</h4>
+              <h4 className="font-extrabold text-slate-900 text-xs">{tp("courseIncludes")}</h4>
               <ul className="space-y-2 text-slate-600">
                 <li className="flex items-center gap-2">
                   <Tv className="w-4 h-4 text-emerald-600 shrink-0" />
-                  <span>{t("featureVideos", { count: totalLessons })}</span>
+                  <span>{tp("featureVideos", { count: totalLessons })}</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <Award className="w-4 h-4 text-emerald-600 shrink-0" />
-                  <span>{t("featureCertificate")}</span>
+                  <span>{tp("featureCertificate")}</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <InfinityIcon className="w-4 h-4 text-emerald-600 shrink-0" />
-                  <span>{t("featureAccess")}</span>
+                  <span>{tp("featureAccess")}</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <Smartphone className="w-4 h-4 text-emerald-600 shrink-0" />
-                  <span>{t("featureDevices")}</span>
+                  <span>{tp("featureDevices")}</span>
                 </li>
               </ul>
             </div>
@@ -354,10 +362,10 @@ export function LiveCoursePreviewModal({
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
             <div>
               <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
-                {t("curriculumTitle")}
+                {tp("curriculumTitle")}
               </h2>
               <p className="text-xs sm:text-sm text-slate-500 font-bold mt-0.5">
-                {t("totalCurriculumStats", {
+                {tp("totalCurriculumStats", {
                   sections: sections.length,
                   lessons: totalLessons,
                   duration: totalMinutes,
@@ -370,15 +378,15 @@ export function LiveCoursePreviewModal({
           <div className="space-y-3.5">
             {sections.length === 0 ? (
               <div className="p-8 text-center text-slate-400 text-sm font-bold border-2 border-dashed border-slate-200 rounded-2xl">
-                {t("noSectionsYet")}
+                {tp("noSectionsYet")}
               </div>
             ) : (
               sections.map((section, sIdx) => {
                 const isSecOpen = openSections[section.id || `sec-${sIdx}`] ?? true;
                 const secTitle =
                   previewLang === "ar"
-                    ? section.title_ar || section.title || `القسم ${sIdx + 1}`
-                    : section.title_en || section.title || `Section ${sIdx + 1}`;
+                    ? section.title_ar || section.title || tp("sectionNumber", { num: sIdx + 1 })
+                    : section.title_en || section.title || tp("sectionNumber", { num: sIdx + 1 });
                 const secLessons = section.lessons || [];
 
                 return (
@@ -403,7 +411,7 @@ export function LiveCoursePreviewModal({
 
                       <div className="flex items-center gap-3 shrink-0 text-xs font-bold text-slate-500">
                         <span>
-                          {secLessons.length} {previewLang === "ar" ? "دروس" : "Lessons"}
+                          {tp("lessonsCount", { count: secLessons.length })}
                         </span>
                         {isSecOpen ? (
                           <ChevronUp className="w-4 h-4 text-slate-400" />
@@ -418,14 +426,14 @@ export function LiveCoursePreviewModal({
                       <div className="divide-y divide-slate-100 p-2 sm:p-3 space-y-1 bg-white">
                         {secLessons.length === 0 ? (
                           <div className="p-3 text-xs text-slate-400 font-medium">
-                            {previewLang === "ar" ? "لا توجد دروس في هذا القسم بعد." : "No lessons in this section yet."}
+                            {tp("noLessonsInSection")}
                           </div>
                         ) : (
                           secLessons.map((lesson, lIdx) => {
                             const lesTitle =
                               previewLang === "ar"
-                                ? lesson.title_ar || lesson.title || `الدرس ${lIdx + 1}`
-                                : lesson.title_en || lesson.title || `Lesson ${lIdx + 1}`;
+                                ? lesson.title_ar || lesson.title || tp("lessonNumber", { num: lIdx + 1 })
+                                : lesson.title_en || lesson.title || tp("lessonNumber", { num: lIdx + 1 });
                             const hasVideo = Boolean(lesson.video_url || lesson.video_public_id);
 
                             return (
@@ -440,7 +448,7 @@ export function LiveCoursePreviewModal({
                                   </span>
                                   {lesson.is_preview && (
                                     <span className="text-[10px] font-black text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200 shrink-0">
-                                      {t("previewLessonBadge")}
+                                      {tp("previewLessonBadge")}
                                     </span>
                                   )}
                                 </div>
@@ -458,11 +466,11 @@ export function LiveCoursePreviewModal({
                                       className="text-[10px] font-black text-emerald-700 hover:text-emerald-800 bg-emerald-50 hover:bg-emerald-100 px-2 py-1 rounded border border-emerald-200 flex items-center gap-1 cursor-pointer transition-colors"
                                     >
                                       <Play className="w-2.5 h-2.5 fill-emerald-700" />
-                                      <span>{t("videoAvailable")}</span>
+                                      <span>{tp("videoAvailable")}</span>
                                     </button>
                                   ) : (
                                     <span className="text-[10px] font-bold text-slate-400 bg-slate-50 px-2 py-0.5 rounded border border-slate-200">
-                                      {t("noVideo")}
+                                      {tp("noVideo")}
                                     </span>
                                   )}
                                   <span className="text-slate-400 font-mono text-[11px]">
