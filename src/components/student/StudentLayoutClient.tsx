@@ -10,8 +10,6 @@ import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { Sidebar } from "@/components/layout/Sidebar";
 
-import { Award } from "lucide-react";
-
 export function StudentLayoutClient({ children }: { children: React.ReactNode }) {
   const pathname = usePathname() || "";
   const locale = useLocale() || "en";
@@ -119,10 +117,6 @@ export function StudentLayoutClient({ children }: { children: React.ReactNode })
               <div className="space-y-1">
                 <div className="flex items-center justify-center sm:justify-start gap-2 flex-wrap">
                   <h1 className="text-base sm:text-xl font-black text-slate-900">{fullName}</h1>
-                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200/80 text-[11px] font-extrabold shadow-2xs">
-                    <Award className="h-3.5 w-3.5 text-emerald-600" />
-                    <span>{isInstructor ? tStudent("verifiedInstructorBadge") : tStudent("verifiedStudentBadge")}</span>
-                  </span>
                 </div>
                 <p className="text-xs sm:text-sm text-slate-600 font-semibold">{displayHeadline}</p>
                 <p className="text-[11px] text-slate-400 font-medium">{email}</p>
