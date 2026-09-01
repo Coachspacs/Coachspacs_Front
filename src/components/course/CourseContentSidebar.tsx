@@ -50,7 +50,7 @@ export function CourseContentSidebar({
 
   return (
     <aside
-      className={`w-full lg:w-88 xl:w-96 shrink-0 bg-white border border-slate-200/90 rounded-3xl shadow-xs flex flex-col overflow-hidden self-start lg:sticky lg:top-36 max-h-[calc(100vh-10rem)] transition-all z-20 ${className}`}
+      className={`w-full lg:w-88 xl:w-96 shrink-0 bg-white border border-slate-200/90 rounded-3xl shadow-xs flex flex-col overflow-hidden self-start lg:sticky lg:top-20 max-h-[calc(100vh-6rem)] transition-all z-20 ${className}`}
     >
       {/* Sidebar Header */}
       <div className="p-4 border-b border-slate-100 bg-slate-50/70 space-y-3 shrink-0">
