@@ -484,7 +484,7 @@ export async function syncCurrentUserProfile(
   }
 
   // 3. Determine final normalized role
-  let role: 'student' | 'instructor' = isExplicitInstructor ? 'instructor' : 'student';
+  const role: 'student' | 'instructor' = isExplicitInstructor ? 'instructor' : 'student';
 
   // 4. If instructor, verify approval status and live dashboard access
   let approval_status: 'approved' | 'pending' | 'rejected' = 'approved';

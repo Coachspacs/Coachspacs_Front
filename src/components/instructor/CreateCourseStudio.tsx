@@ -77,7 +77,11 @@ interface Section {
 
 type StudioStep = "info" | "curriculum" | "review";
 
-export function CreateCourseStudio() {
+interface CreateCourseStudioProps {
+  initialId?: string;
+}
+
+export function CreateCourseStudio({ initialId }: CreateCourseStudioProps = {}) {
   const t = useTranslations("courseStudio");
   const tIncomplete = useTranslations("courseIncompleteModal");
   const tInst = useTranslations("instructorSettings");
@@ -85,7 +89,7 @@ export function CreateCourseStudio() {
   const isAr = locale === "ar";
   const router = useRouter();
   const searchParams = useSearchParams();
-  const initialCourseId = searchParams?.get("courseId") || searchParams?.get("id") || "";
+  const initialCourseId = initialId || searchParams?.get("courseId") || searchParams?.get("id") || "";
   const { user } = useSelector((state: RootState) => state.auth);
 
   // Core Wizard Step State: 'info' -> 'curriculum' -> 'review'

@@ -27,9 +27,10 @@ interface HeaderProps {
   lang?: "EN" | "AR";
   onLanguageToggle?: () => void;
   variant?: "main" | "auth";
+  className?: string;
 }
 
-export function Header({ lang, onLanguageToggle, variant = "main" }: HeaderProps) {
+export function Header({ lang, onLanguageToggle, variant = "main", className = "" }: HeaderProps) {
   const tNav = useTranslations("nav");
   const tHeader = useTranslations("header");
   const locale = useLocale() || "en";
@@ -184,7 +185,7 @@ export function Header({ lang, onLanguageToggle, variant = "main" }: HeaderProps
   // MAIN HEADER VARIANT (For Public & Portal Pages)
   // ----------------------------------------------------
   return (
-    <header className="sticky top-0 z-50 w-full bg-white/95 backdrop-blur-md border-b border-slate-200/80 shadow-2xs font-sans transition-all">
+    <header className={`sticky top-0 z-50 w-full bg-white/95 backdrop-blur-md border-b border-slate-200/80 shadow-2xs font-sans transition-all ${className}`}>
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         
         {/* Left: Brand Logo */}
@@ -409,19 +410,13 @@ export function Header({ lang, onLanguageToggle, variant = "main" }: HeaderProps
               )}
             </div>
           ) : (
-            /* Guest Auth Buttons */
-            <div className="flex items-center gap-2">
+            /* Guest Auth Button */
+            <div className="flex items-center">
               <Link
                 href={`/${locale}/login`}
-                className="px-3.5 py-2 text-xs lg:text-sm font-bold text-slate-700 hover:text-[#0F5244] hover:bg-slate-50 rounded-xl transition-all"
-              >
-                {tNav("login")}
-              </Link>
-              <Link
-                href={`/${locale}/register`}
                 className="px-4 py-2 rounded-xl bg-[#0F5244] hover:bg-[#07382E] text-white text-xs lg:text-sm font-bold transition-all shadow-xs active:scale-98"
               >
-                {tNav("register")}
+                {tNav("login")}
               </Link>
             </div>
           )}
@@ -527,20 +522,13 @@ export function Header({ lang, onLanguageToggle, variant = "main" }: HeaderProps
                 </div>
               </div>
             ) : (
-              <div className="grid grid-cols-2 gap-2 pb-1">
+              <div className="pb-1">
                 <Link
                   href={`/${locale}/login`}
                   onClick={() => setMobileMenuOpen(false)}
-                  className="py-2.5 rounded-xl border border-slate-200 text-center text-xs font-bold text-slate-700 hover:bg-slate-50"
+                  className="block w-full py-2.5 rounded-xl bg-[#0F5244] text-center text-xs font-bold text-white hover:bg-[#07382E] shadow-xs"
                 >
                   {tNav("login")}
-                </Link>
-                <Link
-                  href={`/${locale}/register`}
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="py-2.5 rounded-xl bg-[#0F5244] text-center text-xs font-bold text-white hover:bg-[#07382E]"
-                >
-                  {tNav("register")}
                 </Link>
               </div>
             )}

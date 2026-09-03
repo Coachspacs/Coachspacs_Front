@@ -1,14 +1,14 @@
-import { apiClient } from "@/api/client";
-import { StudentProfile, ApiResponse } from "@/types";
+import { userService } from "./userService";
+import { UserProfileResponse, UpdateProfileRequest } from "@/types/user";
 
 export const studentService = {
-  async getProfile(): Promise<ApiResponse<StudentProfile>> {
-    const response = await apiClient.get<ApiResponse<StudentProfile>>("/users/me");
-    return response.data;
+  async getProfile(): Promise<UserProfileResponse> {
+    return userService.getMyProfile();
   },
 
-  async updateProfile(data: Partial<StudentProfile>): Promise<ApiResponse<StudentProfile>> {
-    const response = await apiClient.put<ApiResponse<StudentProfile>>("/users/me", data);
-    return response.data;
+  async updateProfile(data: UpdateProfileRequest): Promise<UserProfileResponse> {
+    return userService.updateMyProfile(data);
   },
 };
+
+export default studentService;

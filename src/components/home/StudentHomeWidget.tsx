@@ -11,10 +11,24 @@ export function StudentHomeWidget() {
   const t = useTranslations("home");
   const locale = useLocale();
   const [mounted, setMounted] = useState(false);
+  const [enrolledCourses, setEnrolledCourses] = useState<any[]>([]);
   const { user, isAuthenticated } = useSelector((state: RootState) => state.auth);
 
   useEffect(() => {
     setMounted(true);
+    if (typeof window !== "undefined") {
+      try {
+        const saved = localStorage.getItem("coachspace_enrolled_courses");
+        if (saved) {
+          const list = JSON.parse(saved);
+          if (Array.isArray(list)) {
+            setEnrolledCourses(list);
+          }
+        }
+      } catch (e) {
+        console.warn("[StudentHomeWidget] Could not load enrolled courses:", e);
+      }
+    }
   }, []);
 
   const isStudent = mounted && isAuthenticated && (user?.role || "").toLowerCase() === "student";
@@ -60,7 +74,7 @@ export function StudentHomeWidget() {
               </div>
               <div>
                 <div className="text-xl sm:text-2xl font-black text-slate-900">
-                  {Array.isArray((user as any)?.enrolled_courses) ? (user as any).enrolled_courses.length : 0}
+                  {enrolledCourses.length > 0 ? enrolledCourses.length : (Array.isArray((user as any)?.enrolled_courses) ? (user as any).enrolled_courses.length : 0)}
                 </div>
                 <div className="text-[11px] sm:text-xs font-semibold text-slate-500 mt-0.5 leading-tight">
                   {t("enrolledCourses")}
@@ -74,7 +88,9 @@ export function StudentHomeWidget() {
                 <CheckCircle2 className="w-4 h-4" />
               </div>
               <div>
-                <div className="text-xl sm:text-2xl font-black text-slate-900">0</div>
+                <div className="text-xl sm:text-2xl font-black text-slate-900">
+                  {enrolledCourses.filter((c) => c.isCompleted).length}
+                </div>
                 <div className="text-[11px] sm:text-xs font-semibold text-slate-500 mt-0.5 leading-tight">
                   {t("completedCourses")}
                 </div>
@@ -87,7 +103,9 @@ export function StudentHomeWidget() {
                 <Award className="w-4 h-4" />
               </div>
               <div>
-                <div className="text-xl sm:text-2xl font-black text-slate-900">0</div>
+                <div className="text-xl sm:text-2xl font-black text-slate-900">
+                  {enrolledCourses.filter((c) => c.isCompleted).length}
+                </div>
                 <div className="text-[11px] sm:text-xs font-semibold text-slate-500 mt-0.5 leading-tight">
                   {t("earnedCertificates")}
                 </div>
@@ -109,20 +127,22 @@ export function StudentHomeWidget() {
               </div>
 
               <h3 className="text-base sm:text-lg font-black text-white truncate">
-                {t("studentExploreTitle")}
+                {enrolledCourses.length > 0 ? enrolledCourses[0].title : t("studentExploreTitle")}
               </h3>
 
               <p className="text-xs text-emerald-200/80 font-medium">
-                {t("studentExploreDesc")}
+                {enrolledCourses.length > 0 && enrolledCourses[0].instructor
+                  ? enrolledCourses[0].instructor
+                  : t("studentExploreDesc")}
               </p>
             </div>
 
             <Link
-              href={`/${locale}/courses`}
+              href={enrolledCourses.length > 0 ? `/${locale}/student/learn/${enrolledCourses[0].id}` : `/${locale}/courses`}
               className="z-10 bg-[#6CF8BB] hover:bg-[#52e8a6] active:scale-95 text-[#08382E] font-black text-xs sm:text-sm px-6 py-3.5 rounded-xl transition-all shadow-md inline-flex items-center justify-center gap-2 shrink-0 w-full sm:w-auto cursor-pointer"
             >
               <BookOpen className="w-4 h-4" />
-              <span>{t("exploreCourses")}</span>
+              <span>{enrolledCourses.length > 0 ? t("myLearning") : t("exploreCourses")}</span>
             </Link>
 
           </div>
