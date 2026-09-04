@@ -14,7 +14,7 @@ import {
   updatePublicInstructorOverrides,
   getSavedInstructorOverrides,
   normalizeInstructorSlug,
-} from "@/lib/mockInstructors";
+} from "@/lib/instructorProfile";
 import {
   User,
   Lock,
@@ -110,7 +110,9 @@ export function InstructorSettingsView() {
 
     // 1. Fetch saved instructor overrides on mount if specific to current user
     const userFullName = user?.fullName || user?.name || "";
-    const activeSlug = userFullName ? normalizeInstructorSlug(userFullName) : "";
+    const activeSlug = userFullName
+      ? normalizeInstructorSlug(userFullName)
+      : "";
     const savedOverrides = activeSlug
       ? {
           ...(getSavedInstructorOverrides(activeSlug) || {}),
@@ -123,19 +125,70 @@ export function InstructorSettingsView() {
     if (Object.keys(merged).length > 0 || user) {
       setFormData((prev) => ({
         ...prev,
-        fullName: user?.fullName || user?.name || (merged.name as string) || prev.fullName,
-        headline: user?.headline || (merged.headline as string) || prev.headline,
-        specialization: user?.specialization || (merged.specialization as string) || prev.specialization,
-        experienceYears: (user as any)?.experienceYears ?? (merged.experienceYears as number) ?? prev.experienceYears,
+        fullName:
+          user?.fullName ||
+          user?.name ||
+          (merged.name as string) ||
+          prev.fullName,
+        headline:
+          user?.headline || (merged.headline as string) || prev.headline,
+        specialization:
+          user?.specialization ||
+          (merged.specialization as string) ||
+          prev.specialization,
+        experienceYears:
+          (user as any)?.experienceYears ??
+          (merged.experienceYears as number) ??
+          prev.experienceYears,
         bio: user?.bio || (merged.bio as string) || prev.bio,
-        skills: Array.isArray((user as any)?.skills) && (user as any).skills.length > 0 ? (user as any).skills : (Array.isArray(merged.skills) && merged.skills.length > 0 ? merged.skills : prev.skills),
-        hourlyRate: (user as any)?.hourlyRate !== undefined ? (user as any).hourlyRate : (merged.hourlyRate !== undefined ? merged.hourlyRate : prev.hourlyRate),
-        location: (user as any)?.location !== undefined ? (user as any).location : (merged.location !== undefined ? merged.location : prev.location),
-        website: (user as any)?.website !== undefined ? (user as any).website : (merged.socials?.website !== undefined ? merged.socials.website : prev.website),
-        linkedin: (user as any)?.linkedin !== undefined ? (user as any).linkedin : (merged.socials?.linkedin !== undefined ? merged.socials.linkedin : prev.linkedin),
-        twitter: (user as any)?.twitter !== undefined ? (user as any).twitter : (merged.socials?.twitter !== undefined ? merged.socials.twitter : prev.twitter),
-        github: (user as any)?.github !== undefined ? (user as any).github : (merged.socials?.github !== undefined ? merged.socials.github : prev.github),
-        socialEmail: user?.email || (merged.socials?.email !== undefined ? merged.socials.email : prev.socialEmail),
+        skills:
+          Array.isArray((user as any)?.skills) &&
+          (user as any).skills.length > 0
+            ? (user as any).skills
+            : Array.isArray(merged.skills) && merged.skills.length > 0
+              ? merged.skills
+              : prev.skills,
+        hourlyRate:
+          (user as any)?.hourlyRate !== undefined
+            ? (user as any).hourlyRate
+            : merged.hourlyRate !== undefined
+              ? merged.hourlyRate
+              : prev.hourlyRate,
+        location:
+          (user as any)?.location !== undefined
+            ? (user as any).location
+            : merged.location !== undefined
+              ? merged.location
+              : prev.location,
+        website:
+          (user as any)?.website !== undefined
+            ? (user as any).website
+            : merged.socials?.website !== undefined
+              ? merged.socials.website
+              : prev.website,
+        linkedin:
+          (user as any)?.linkedin !== undefined
+            ? (user as any).linkedin
+            : merged.socials?.linkedin !== undefined
+              ? merged.socials.linkedin
+              : prev.linkedin,
+        twitter:
+          (user as any)?.twitter !== undefined
+            ? (user as any).twitter
+            : merged.socials?.twitter !== undefined
+              ? merged.socials.twitter
+              : prev.twitter,
+        github:
+          (user as any)?.github !== undefined
+            ? (user as any).github
+            : merged.socials?.github !== undefined
+              ? merged.socials.github
+              : prev.github,
+        socialEmail:
+          user?.email ||
+          (merged.socials?.email !== undefined
+            ? merged.socials.email
+            : prev.socialEmail),
       }));
 
       if (merged.avatar) {
@@ -164,7 +217,11 @@ export function InstructorSettingsView() {
             email: profData.email || prev.email,
             phone: profData.phone_number || profData.phone || prev.phone,
           }));
-          const backendAvatar = profData.avatar || profData.avatar_url || profData.profile_picture || null;
+          const backendAvatar =
+            profData.avatar ||
+            profData.avatar_url ||
+            profData.profile_picture ||
+            null;
           setAvatarPreview(backendAvatar);
           if (backendAvatar === null && user?.avatar) {
             dispatch(updateUser({ avatar: null }));
@@ -172,14 +229,21 @@ export function InstructorSettingsView() {
         }
       } catch (err: any) {
         if (err?.response?.status !== 401 && err?.response?.status !== 403) {
-          console.warn("[InstructorSettingsView] getMyProfile fetch:", err?.message);
+          console.warn(
+            "[InstructorSettingsView] getMyProfile fetch:",
+            err?.message,
+          );
         }
       }
     }
     fetchProfile();
   }, [mounted, user?.avatar, dispatch]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >,
+  ) => {
     const { name, value, type } = e.target;
     if (type === "checkbox") {
       const checked = (e.target as HTMLInputElement).checked;
@@ -191,7 +255,9 @@ export function InstructorSettingsView() {
     }
   };
 
-  const handleAvatarFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAvatarFileChange = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -212,11 +278,7 @@ export function InstructorSettingsView() {
         setToastMessage(tInst("avatarUpdatedSuccess"));
       }
     } catch (err: any) {
-      const msg = getApiErrorMessage(
-        err,
-        tInst("avatarUploadFailed"),
-        isAr
-      );
+      const msg = getApiErrorMessage(err, tInst("avatarUploadFailed"), isAr);
       setErrorMessage(msg);
       setTimeout(() => setErrorMessage(null), 4000);
     } finally {
@@ -235,9 +297,14 @@ export function InstructorSettingsView() {
 
     if (typeof window !== "undefined") {
       try {
-        const globalActive = JSON.parse(localStorage.getItem("coachspace_active_instructor_profile") || "{}");
+        const globalActive = JSON.parse(
+          localStorage.getItem("coachspace_active_instructor_profile") || "{}",
+        );
         delete globalActive.avatar;
-        localStorage.setItem("coachspace_active_instructor_profile", JSON.stringify(globalActive));
+        localStorage.setItem(
+          "coachspace_active_instructor_profile",
+          JSON.stringify(globalActive),
+        );
       } catch {}
     }
 
@@ -245,7 +312,10 @@ export function InstructorSettingsView() {
       await userService.deleteAvatar();
       setToastMessage(t("avatarRemoved"));
     } catch (err: any) {
-      console.warn("[InstructorSettingsView] deleteAvatar error:", err?.message);
+      console.warn(
+        "[InstructorSettingsView] deleteAvatar error:",
+        err?.message,
+      );
       setToastMessage(t("avatarRemoved"));
     } finally {
       setIsUploadingAvatar(false);
@@ -325,7 +395,10 @@ export function InstructorSettingsView() {
 
       if (typeof window !== "undefined") {
         try {
-          localStorage.setItem("coachspace_active_instructor_profile", JSON.stringify(profileUpdates));
+          localStorage.setItem(
+            "coachspace_active_instructor_profile",
+            JSON.stringify(profileUpdates),
+          );
         } catch (e) {
           console.warn("Could not save to localStorage", e);
         }
@@ -365,17 +438,13 @@ export function InstructorSettingsView() {
           bio: formData.bio.trim(),
           specialization: formData.specialization.trim(),
           avatar: avatarPreview || user?.avatar,
-        })
+        }),
       );
 
       setToastMessage(tInst("profileSavedToast"));
       setTimeout(() => setToastMessage(null), 3500);
     } catch (err: any) {
-      const msg = getApiErrorMessage(
-        err,
-        tInst("profileSaveFailed"),
-        isAr
-      );
+      const msg = getApiErrorMessage(err, tInst("profileSaveFailed"), isAr);
       setErrorMessage(msg);
       setTimeout(() => setErrorMessage(null), 4000);
     } finally {
@@ -384,12 +453,14 @@ export function InstructorSettingsView() {
   };
 
   const publicProfileSlug = normalizeInstructorSlug(
-    formData.fullName || user?.fullName || user?.name || "instructor"
+    formData.fullName || user?.fullName || user?.name || "instructor",
   );
 
   return (
-    <div className="w-full space-y-6 animate-in fade-in duration-200 font-sans" dir={isAr ? "rtl" : "ltr"}>
-      
+    <div
+      className="w-full space-y-6 animate-in fade-in duration-200 font-sans"
+      dir={isAr ? "rtl" : "ltr"}
+    >
       {/* Toast Feedback */}
       {toastMessage && (
         <div className="fixed top-6 right-6 rtl:right-auto rtl:left-6 z-50 bg-[#0F5244] text-white px-5 py-3 rounded-2xl shadow-xl flex items-center gap-2.5 text-xs font-bold animate-in slide-in-from-top-3 duration-200">
@@ -455,9 +526,12 @@ export function InstructorSettingsView() {
       {/* Main Settings Card */}
       <div className="w-full bg-white rounded-3xl border border-slate-200/70 p-6 sm:p-8 shadow-xs">
         <form onSubmit={handleSave} className="space-y-8">
-          
           {/* Calm Underline Tabs */}
-          <div role="tablist" aria-label="Settings Tabs" className="flex items-center gap-6 border-b border-slate-100 pb-3 overflow-x-auto">
+          <div
+            role="tablist"
+            aria-label="Settings Tabs"
+            className="flex items-center gap-6 border-b border-slate-100 pb-3 overflow-x-auto"
+          >
             {[
               { id: "profile", label: tInst("tabBasicInfo"), icon: User },
               { id: "socials", label: tInst("tabSocialLinks"), icon: Globe },
@@ -481,7 +555,9 @@ export function InstructorSettingsView() {
                       : "text-slate-500 hover:text-slate-800"
                   }`}
                 >
-                  <Icon className={`h-4 w-4 ${active ? "text-[#0F5244]" : "text-slate-400"}`} />
+                  <Icon
+                    className={`h-4 w-4 ${active ? "text-[#0F5244]" : "text-slate-400"}`}
+                  />
                   <span>{tab.label}</span>
                   {active && (
                     <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#0F5244] rounded-full" />
@@ -494,7 +570,6 @@ export function InstructorSettingsView() {
           {/* ================= SECTION 1: BASIC INFO & BIO ================= */}
           {activeTab === "profile" && (
             <div className="space-y-6 animate-in fade-in duration-200">
-              
               {/* Soft Avatar Box */}
               <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5 p-5 rounded-2xl bg-slate-50/60 border border-slate-200/60">
                 <div
@@ -513,8 +588,14 @@ export function InstructorSettingsView() {
                       className="w-full h-full object-cover rounded-full"
                     />
                   ) : (
-                    <span suppressHydrationWarning className="select-none font-bold text-2xl text-[#0F5244]">
-                      {(mounted ? formData.fullName : "").trim().charAt(0).toUpperCase() || "U"}
+                    <span
+                      suppressHydrationWarning
+                      className="select-none font-bold text-2xl text-[#0F5244]"
+                    >
+                      {(mounted ? formData.fullName : "")
+                        .trim()
+                        .charAt(0)
+                        .toUpperCase() || "U"}
                     </span>
                   )}
 
@@ -563,10 +644,12 @@ export function InstructorSettingsView() {
 
               {/* Basic Info Inputs Grid */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                
                 {/* Full Name */}
                 <div className="space-y-1.5">
-                  <label htmlFor="fullName" className="block text-xs font-bold text-slate-700">
+                  <label
+                    htmlFor="fullName"
+                    className="block text-xs font-bold text-slate-700"
+                  >
                     {tInst("fullNameLabel")} *
                   </label>
                   <input
@@ -583,7 +666,10 @@ export function InstructorSettingsView() {
 
                 {/* Specialization */}
                 <div className="space-y-1.5">
-                  <label htmlFor="specialization" className="block text-xs font-bold text-slate-700">
+                  <label
+                    htmlFor="specialization"
+                    className="block text-xs font-bold text-slate-700"
+                  >
                     {tInst("specializationLabel")} *
                   </label>
                   <div className="relative">
@@ -603,7 +689,10 @@ export function InstructorSettingsView() {
 
                 {/* Headline */}
                 <div className="space-y-1.5">
-                  <label htmlFor="headline" className="block text-xs font-bold text-slate-700">
+                  <label
+                    htmlFor="headline"
+                    className="block text-xs font-bold text-slate-700"
+                  >
                     {tInst("headlineLabel")}
                   </label>
                   <input
@@ -619,7 +708,10 @@ export function InstructorSettingsView() {
 
                 {/* Location (Optional) */}
                 <div className="space-y-1.5">
-                  <label htmlFor="location" className="block text-xs font-bold text-slate-700">
+                  <label
+                    htmlFor="location"
+                    className="block text-xs font-bold text-slate-700"
+                  >
                     {tInst("locationLabel")}
                   </label>
                   <div className="relative">
@@ -638,7 +730,10 @@ export function InstructorSettingsView() {
 
                 {/* Phone */}
                 <div className="space-y-1.5">
-                  <label htmlFor="phone" className="block text-xs font-bold text-slate-700">
+                  <label
+                    htmlFor="phone"
+                    className="block text-xs font-bold text-slate-700"
+                  >
                     {t("phoneNumber")}
                   </label>
                   <input
@@ -654,7 +749,10 @@ export function InstructorSettingsView() {
                 {/* Account Email */}
                 <div className="space-y-1.5">
                   <div className="flex items-center justify-between">
-                    <label htmlFor="email" className="block text-xs font-bold text-slate-700">
+                    <label
+                      htmlFor="email"
+                      className="block text-xs font-bold text-slate-700"
+                    >
                       {t("emailAddress")} (Login)
                     </label>
                     <button
@@ -674,13 +772,14 @@ export function InstructorSettingsView() {
                     className="w-full h-11 rounded-xl border border-slate-200 bg-slate-100/70 px-3.5 text-xs font-semibold text-slate-600 cursor-not-allowed"
                   />
                 </div>
-
               </div>
 
               {/* ================= TAG PICKER & DYNAMIC SUGGESTIONS ================= */}
               <SkillSelector
                 selectedSkills={formData.skills}
-                onChange={(newSkills) => setFormData((prev) => ({ ...prev, skills: newSkills }))}
+                onChange={(newSkills) =>
+                  setFormData((prev) => ({ ...prev, skills: newSkills }))
+                }
                 maxSkills={6}
                 isAr={isAr}
                 label={tInst("selectedSkillsLabel")}
@@ -688,7 +787,10 @@ export function InstructorSettingsView() {
 
               {/* Bio Textarea */}
               <div className="space-y-1.5">
-                <label htmlFor="bio" className="block text-xs font-bold text-slate-700">
+                <label
+                  htmlFor="bio"
+                  className="block text-xs font-bold text-slate-700"
+                >
                   {tInst("bioLabel")} *
                 </label>
                 <textarea
@@ -702,14 +804,12 @@ export function InstructorSettingsView() {
                   className="w-full rounded-xl border border-slate-200 bg-slate-50/50 p-3.5 text-xs font-semibold text-slate-900 focus:bg-white focus:border-[#0F5244] focus:outline-none focus:ring-2 focus:ring-[#0F5244]/10 transition-all resize-none leading-relaxed"
                 />
               </div>
-
             </div>
           )}
 
           {/* ================= SECTION 2: SOCIAL LINKS ================= */}
           {activeTab === "socials" && (
             <div className="space-y-6 animate-in fade-in duration-200">
-              
               <div className="p-4 rounded-2xl bg-emerald-50/50 border border-emerald-100 flex items-start gap-3">
                 <HelpCircle className="h-4 w-4 text-[#0F5244] shrink-0 mt-0.5" />
                 <p className="text-xs text-emerald-900 font-medium leading-relaxed">
@@ -718,10 +818,12 @@ export function InstructorSettingsView() {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                
                 {/* Website */}
                 <div className="space-y-1.5">
-                  <label htmlFor="website" className="block text-xs font-bold text-slate-700">
+                  <label
+                    htmlFor="website"
+                    className="block text-xs font-bold text-slate-700"
+                  >
                     {tInst("websiteUrlLabel")}
                   </label>
                   <div className="relative">
@@ -740,7 +842,10 @@ export function InstructorSettingsView() {
 
                 {/* LinkedIn */}
                 <div className="space-y-1.5">
-                  <label htmlFor="linkedin" className="block text-xs font-bold text-slate-700">
+                  <label
+                    htmlFor="linkedin"
+                    className="block text-xs font-bold text-slate-700"
+                  >
                     {tInst("linkedinUrlLabel")}
                   </label>
                   <div className="relative">
@@ -759,7 +864,10 @@ export function InstructorSettingsView() {
 
                 {/* Twitter */}
                 <div className="space-y-1.5">
-                  <label htmlFor="twitter" className="block text-xs font-bold text-slate-700">
+                  <label
+                    htmlFor="twitter"
+                    className="block text-xs font-bold text-slate-700"
+                  >
                     {tInst("twitterUrlLabel")}
                   </label>
                   <div className="relative">
@@ -778,7 +886,10 @@ export function InstructorSettingsView() {
 
                 {/* Public Email */}
                 <div className="space-y-1.5">
-                  <label htmlFor="socialEmail" className="block text-xs font-bold text-slate-700">
+                  <label
+                    htmlFor="socialEmail"
+                    className="block text-xs font-bold text-slate-700"
+                  >
                     {tInst("publicEmailLabel")}
                   </label>
                   <div className="relative">
@@ -797,7 +908,10 @@ export function InstructorSettingsView() {
 
                 {/* GitHub */}
                 <div className="space-y-1.5">
-                  <label htmlFor="github" className="block text-xs font-bold text-slate-700">
+                  <label
+                    htmlFor="github"
+                    className="block text-xs font-bold text-slate-700"
+                  >
                     {tInst("githubUrlLabel")}
                   </label>
                   <div className="relative">
@@ -813,16 +927,13 @@ export function InstructorSettingsView() {
                     <Github className="h-4 w-4 text-slate-800 absolute right-3 rtl:right-auto rtl:left-3 top-3.5 pointer-events-none" />
                   </div>
                 </div>
-
               </div>
-
             </div>
           )}
 
           {/* ================= SECTION 3: PAYOUT & BILLING ================= */}
           {activeTab === "payout" && (
             <div className="space-y-6 animate-in fade-in duration-200">
-              
               <div className="space-y-3">
                 <label className="block text-xs font-bold text-slate-700">
                   {tInst("payoutMethod")}
@@ -865,14 +976,19 @@ export function InstructorSettingsView() {
                       className="accent-[#0F5244]"
                     />
                     <Globe className="h-4 w-4 text-[#0F5244]" />
-                    <span className="text-xs font-bold text-slate-800">PayPal</span>
+                    <span className="text-xs font-bold text-slate-800">
+                      PayPal
+                    </span>
                   </label>
                 </div>
               </div>
 
               {formData.payoutMethod === "bank" ? (
                 <div className="space-y-1.5">
-                  <label htmlFor="bankIban" className="block text-xs font-bold text-slate-700">
+                  <label
+                    htmlFor="bankIban"
+                    className="block text-xs font-bold text-slate-700"
+                  >
                     {tInst("bankIbanLabel")}
                   </label>
                   <input
@@ -886,7 +1002,10 @@ export function InstructorSettingsView() {
                 </div>
               ) : (
                 <div className="space-y-1.5">
-                  <label htmlFor="paypalEmail" className="block text-xs font-bold text-slate-700">
+                  <label
+                    htmlFor="paypalEmail"
+                    className="block text-xs font-bold text-slate-700"
+                  >
                     {tInst("paypalEmailLabel")}
                   </label>
                   <input
@@ -899,7 +1018,6 @@ export function InstructorSettingsView() {
                   />
                 </div>
               )}
-
             </div>
           )}
 
@@ -915,7 +1033,10 @@ export function InstructorSettingsView() {
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
                 <div className="space-y-1.5">
-                  <label htmlFor="currentPassword" className="block text-xs font-bold text-slate-700">
+                  <label
+                    htmlFor="currentPassword"
+                    className="block text-xs font-bold text-slate-700"
+                  >
                     {t("currentPassword")}
                   </label>
                   <input
@@ -930,7 +1051,10 @@ export function InstructorSettingsView() {
                 </div>
 
                 <div className="space-y-1.5">
-                  <label htmlFor="newPassword" className="block text-xs font-bold text-slate-700">
+                  <label
+                    htmlFor="newPassword"
+                    className="block text-xs font-bold text-slate-700"
+                  >
                     {t("newPassword")}
                   </label>
                   <input
@@ -945,7 +1069,10 @@ export function InstructorSettingsView() {
                 </div>
 
                 <div className="space-y-1.5">
-                  <label htmlFor="confirmPassword" className="block text-xs font-bold text-slate-700">
+                  <label
+                    htmlFor="confirmPassword"
+                    className="block text-xs font-bold text-slate-700"
+                  >
                     {t("confirmPassword")}
                   </label>
                   <input
@@ -988,7 +1115,6 @@ export function InstructorSettingsView() {
               )}
             </button>
           </div>
-
         </form>
       </div>
     </div>

@@ -12,14 +12,31 @@ import { getInstructorDashboard } from "@/services/auth";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { Sidebar } from "@/components/layout/Sidebar";
-import { Award, Clock, LayoutDashboard, BookOpen, Users, CreditCard, Settings, User } from "lucide-react";
+import {
+  Award,
+  Clock,
+  LayoutDashboard,
+  BookOpen,
+  Users,
+  CreditCard,
+  Settings,
+  User,
+} from "lucide-react";
 import { VerifiedBadge } from "@/components/ui/VerifiedBadge";
 import { tokenManager } from "@/lib/tokenManager";
-import { getSavedInstructorOverrides, normalizeInstructorSlug, getLocalizedHeadline } from "@/lib/mockInstructors";
+import {
+  getSavedInstructorOverrides,
+  normalizeInstructorSlug,
+  getLocalizedHeadline,
+} from "@/lib/instructorProfile";
 
 import { InstructorPendingModal } from "@/components/modals/InstructorPendingModal";
 
-export function InstructorLayoutClient({ children }: { children: React.ReactNode }) {
+export function InstructorLayoutClient({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const pathname = usePathname() || "";
   const locale = useLocale() || "en";
   const isAr = locale === "ar";
@@ -29,28 +46,36 @@ export function InstructorLayoutClient({ children }: { children: React.ReactNode
   const tDash = useTranslations("instructorDashboard");
 
   const dispatch = useDispatch();
-  const { user, isAuthenticated } = useSelector((state: RootState) => state.auth);
+  const { user, isAuthenticated } = useSelector(
+    (state: RootState) => state.auth,
+  );
 
   const [mounted, setMounted] = useState(false);
   const [checkingAuth, setCheckingAuth] = useState(true);
   const [isPendingModalOpen, setIsPendingModalOpen] = useState(false);
-  const [pendingFeatureName, setPendingFeatureName] = useState<string | undefined>(undefined);
+  const [pendingFeatureName, setPendingFeatureName] = useState<
+    string | undefined
+  >(undefined);
   const [localOverrides, setLocalOverrides] = useState<any>({});
 
   useEffect(() => {
     setMounted(true);
     const hasToken = tokenManager.hasSession();
-    const localUserStr = typeof window !== "undefined" ? localStorage.getItem("user") : null;
+    const localUserStr =
+      typeof window !== "undefined" ? localStorage.getItem("user") : null;
     let localUser = null;
     try {
       if (localUserStr) localUser = JSON.parse(localUserStr);
     } catch {}
 
-    const isUserLoggedIn = isAuthenticated || Boolean(hasToken && (user || localUser));
+    const isUserLoggedIn =
+      isAuthenticated || Boolean(hasToken && (user || localUser));
     const activeUser = user || localUser;
 
     if (!isUserLoggedIn || !activeUser) {
-      router.replace(`/${locale}/login?redirect=${encodeURIComponent(pathname)}`);
+      router.replace(
+        `/${locale}/login?redirect=${encodeURIComponent(pathname)}`,
+      );
       return;
     }
 
@@ -63,7 +88,9 @@ export function InstructorLayoutClient({ children }: { children: React.ReactNode
     getInstructorDashboard()
       .then(() => {
         const headlineToSet =
-          user?.headline && !user.headline.toLowerCase().includes("student") && !user.headline.includes("طالب")
+          user?.headline &&
+          !user.headline.toLowerCase().includes("student") &&
+          !user.headline.includes("طالب")
             ? user.headline
             : tInst("defaultHeadline");
 
@@ -73,7 +100,7 @@ export function InstructorLayoutClient({ children }: { children: React.ReactNode
             approval_status: "approved",
             approvalStatus: "approved",
             headline: headlineToSet,
-          })
+          }),
         );
         try {
           const uStr = localStorage.getItem("user");
@@ -89,7 +116,12 @@ export function InstructorLayoutClient({ children }: { children: React.ReactNode
       })
       .catch((err: any) => {
         if (err?.response?.status === 403) {
-          dispatch(updateUser({ approval_status: "pending", approvalStatus: "pending" }));
+          dispatch(
+            updateUser({
+              approval_status: "pending",
+              approvalStatus: "pending",
+            }),
+          );
           try {
             const uStr = localStorage.getItem("user");
             if (uStr) {
@@ -103,7 +135,10 @@ export function InstructorLayoutClient({ children }: { children: React.ReactNode
       });
 
     // Sync saved instructor profile overrides from localStorage if applicable
-    const activeSlug = activeUser.fullName || activeUser.name ? normalizeInstructorSlug(activeUser.fullName || activeUser.name) : "";
+    const activeSlug =
+      activeUser.fullName || activeUser.name
+        ? normalizeInstructorSlug(activeUser.fullName || activeUser.name)
+        : "";
     const overrides = activeSlug
       ? {
           ...(getSavedInstructorOverrides(activeSlug) || {}),
@@ -115,12 +150,20 @@ export function InstructorLayoutClient({ children }: { children: React.ReactNode
     setCheckingAuth(false);
   }, [isAuthenticated, user, locale, pathname, router, dispatch]);
 
-  const approvalStatus = (user?.approval_status || user?.approvalStatus || "pending").toLowerCase();
+  const approvalStatus = (
+    user?.approval_status ||
+    user?.approvalStatus ||
+    "pending"
+  ).toLowerCase();
   const isApproved = approvalStatus === "approved";
-  const isSettingsPage = pathname.includes("/instructor/settings") || pathname.includes("/instructor/profile");
+  const isSettingsPage =
+    pathname.includes("/instructor/settings") ||
+    pathname.includes("/instructor/profile");
 
   // Check if current route is studio/creation page
-  const isStudioPage = pathname.includes("/instructor/courses/new") || pathname.includes("/instructor/courses/create");
+  const isStudioPage =
+    pathname.includes("/instructor/courses/new") ||
+    pathname.includes("/instructor/courses/create");
 
   // If instructor is not approved and navigates to a restricted route, redirect to settings and open modal
   useEffect(() => {
@@ -136,8 +179,10 @@ export function InstructorLayoutClient({ children }: { children: React.ReactNode
     tDash("defaultInstructorName");
 
   const email = (mounted ? user?.email : "") || "instructor@coachspace.com";
-  const avatarPreview = (mounted ? user?.avatar : null) || localOverrides.avatar || null;
-  const rawHeadline = (mounted ? user?.headline : "") || localOverrides.headline || "";
+  const avatarPreview =
+    (mounted ? user?.avatar : null) || localOverrides.avatar || null;
+  const rawHeadline =
+    (mounted ? user?.headline : "") || localOverrides.headline || "";
   const isStudentHeadline =
     !rawHeadline ||
     rawHeadline.toLowerCase().includes("student") ||
@@ -147,11 +192,12 @@ export function InstructorLayoutClient({ children }: { children: React.ReactNode
     ? tInst("defaultHeadline")
     : getLocalizedHeadline(rawHeadline, isAr, true);
 
-  const handleRestrictedClick = (featureLabel: string) => (e: React.MouseEvent) => {
-    e.preventDefault();
-    setPendingFeatureName(featureLabel);
-    setIsPendingModalOpen(true);
-  };
+  const handleRestrictedClick =
+    (featureLabel: string) => (e: React.MouseEvent) => {
+      e.preventDefault();
+      setPendingFeatureName(featureLabel);
+      setIsPendingModalOpen(true);
+    };
 
   const navItems = [
     {
@@ -159,28 +205,36 @@ export function InstructorLayoutClient({ children }: { children: React.ReactNode
       label: tInst("analyticsRevenue"),
       icon: LayoutDashboard,
       href: `/${locale}/instructor/dashboard`,
-      onClick: !isApproved ? handleRestrictedClick(tInst("analyticsRevenue")) : undefined,
+      onClick: !isApproved
+        ? handleRestrictedClick(tInst("analyticsRevenue"))
+        : undefined,
     },
     {
       id: "courses",
       label: tInst("courseLifecycle"),
       icon: BookOpen,
       href: `/${locale}/instructor/courses`,
-      onClick: !isApproved ? handleRestrictedClick(tInst("courseLifecycle")) : undefined,
+      onClick: !isApproved
+        ? handleRestrictedClick(tInst("courseLifecycle"))
+        : undefined,
     },
     {
       id: "students",
       label: tInst("enrolledStudentsNav"),
       icon: Users,
       href: `/${locale}/instructor/students`,
-      onClick: !isApproved ? handleRestrictedClick(tInst("enrolledStudentsNav")) : undefined,
+      onClick: !isApproved
+        ? handleRestrictedClick(tInst("enrolledStudentsNav"))
+        : undefined,
     },
     {
       id: "payout",
       label: tInst("payoutAndBilling"),
       icon: CreditCard,
       href: `/${locale}/instructor/orders`,
-      onClick: !isApproved ? handleRestrictedClick(tInst("payoutAndBilling")) : undefined,
+      onClick: !isApproved
+        ? handleRestrictedClick(tInst("payoutAndBilling"))
+        : undefined,
     },
     {
       id: "profile",
@@ -223,7 +277,6 @@ export function InstructorLayoutClient({ children }: { children: React.ReactNode
       <Header />
       <main className="flex-grow py-6 sm:py-10 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
         <div className="w-full space-y-4 sm:space-y-6">
-          
           {/* Top Instructor Workspace Banner / Header Card */}
           <div className="bg-white rounded-2xl sm:rounded-3xl border border-slate-200/80 p-4 sm:p-6 shadow-2xs flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-5 text-center sm:text-start">
@@ -265,7 +318,9 @@ export function InstructorLayoutClient({ children }: { children: React.ReactNode
                   )}
                 </div>
                 <p className="text-xs text-slate-500 font-medium">{headline}</p>
-                <p className="text-[11px] text-slate-400 font-medium">{email}</p>
+                <p className="text-[11px] text-slate-400 font-medium">
+                  {email}
+                </p>
               </div>
             </div>
           </div>
@@ -284,11 +339,8 @@ export function InstructorLayoutClient({ children }: { children: React.ReactNode
               />
             </aside>
 
-            <div className="flex-1 w-full">
-              {children}
-            </div>
+            <div className="flex-1 w-full">{children}</div>
           </div>
-
         </div>
       </main>
       <Footer />

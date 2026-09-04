@@ -41,9 +41,15 @@ import {
 import { useSelector } from "react-redux";
 import { RootState } from "@/lib/store";
 import { LessonVideoUploader } from "@/components/instructor/LessonVideoUploader";
-import { CourseIncompleteModal, IncompleteItem } from "@/components/modals/CourseIncompleteModal";
+import {
+  CourseIncompleteModal,
+  IncompleteItem,
+} from "@/components/modals/CourseIncompleteModal";
 import { LiveCoursePreviewModal } from "@/components/modals/LiveCoursePreviewModal";
-import { getSavedCourseStatus, saveCourseStatus } from "@/lib/mockInstructors";
+import {
+  getSavedCourseStatus,
+  saveCourseStatus,
+} from "@/lib/instructorProfile";
 
 interface Lesson {
   id: string;
@@ -81,7 +87,9 @@ interface CreateCourseStudioProps {
   initialId?: string;
 }
 
-export function CreateCourseStudio({ initialId }: CreateCourseStudioProps = {}) {
+export function CreateCourseStudio({
+  initialId,
+}: CreateCourseStudioProps = {}) {
   const t = useTranslations("courseStudio");
   const tIncomplete = useTranslations("courseIncompleteModal");
   const tInst = useTranslations("instructorSettings");
@@ -89,7 +97,8 @@ export function CreateCourseStudio({ initialId }: CreateCourseStudioProps = {}) 
   const isAr = locale === "ar";
   const router = useRouter();
   const searchParams = useSearchParams();
-  const initialCourseId = initialId || searchParams?.get("courseId") || searchParams?.get("id") || "";
+  const initialCourseId =
+    initialId || searchParams?.get("courseId") || searchParams?.get("id") || "";
   const { user } = useSelector((state: RootState) => state.auth);
 
   // Core Wizard Step State: 'info' -> 'curriculum' -> 'review'
@@ -157,7 +166,8 @@ export function CreateCourseStudio({ initialId }: CreateCourseStudioProps = {}) 
     if (!initialCourseId) return;
     async function loadCourse() {
       try {
-        const data = await instructorCourseService.getInstructorCourse(initialCourseId);
+        const data =
+          await instructorCourseService.getInstructorCourse(initialCourseId);
         if (data) {
           setTitleEn(data.title_en || data.title || "");
           setTitleAr(data.title_ar || "");
@@ -186,7 +196,11 @@ export function CreateCourseStudio({ initialId }: CreateCourseStudioProps = {}) 
           if (data.category) setCategory(String(data.category));
           if (data.level) setLevel(data.level.toLowerCase());
           if (data.price) setPrice(String(data.price));
-          if (data.cover_image && typeof data.cover_image === "string" && !data.cover_image.includes("unsplash.com/photo-1516321318423")) {
+          if (
+            data.cover_image &&
+            typeof data.cover_image === "string" &&
+            !data.cover_image.includes("unsplash.com/photo-1516321318423")
+          ) {
             setCoverPreview(data.cover_image);
           }
 
@@ -194,13 +208,17 @@ export function CreateCourseStudio({ initialId }: CreateCourseStudioProps = {}) 
             setSections(
               data.sections.map((s: any) => ({
                 id: String(s.id),
-                title: isAr ? s.title_ar || s.title_en || s.title : s.title_en || s.title_ar || s.title,
+                title: isAr
+                  ? s.title_ar || s.title_en || s.title
+                  : s.title_en || s.title_ar || s.title,
                 title_en: s.title_en || s.title,
                 title_ar: s.title_ar || s.title,
                 lessons: Array.isArray(s.lessons)
                   ? s.lessons.map((l: any) => ({
                       id: String(l.id),
-                      title: isAr ? l.title_ar || l.title_en || l.title : l.title_en || l.title_ar || l.title,
+                      title: isAr
+                        ? l.title_ar || l.title_en || l.title
+                        : l.title_en || l.title_ar || l.title,
                       title_en: l.title_en || l.title,
                       title_ar: l.title_ar || l.title,
                       duration: l.duration || `${l.duration_minutes || 5}:00`,
@@ -210,7 +228,7 @@ export function CreateCourseStudio({ initialId }: CreateCourseStudioProps = {}) 
                       is_preview: l.is_preview,
                     }))
                   : [],
-              }))
+              })),
             );
           }
         }
@@ -227,7 +245,7 @@ export function CreateCourseStudio({ initialId }: CreateCourseStudioProps = {}) 
   const isCoverValid = Boolean(
     coverPreview &&
     typeof coverPreview === "string" &&
-    !coverPreview.includes("unsplash.com/photo-1516321318423")
+    !coverPreview.includes("unsplash.com/photo-1516321318423"),
   );
 
   const step1FieldErrors = {
@@ -236,7 +254,10 @@ export function CreateCourseStudio({ initialId }: CreateCourseStudioProps = {}) 
     descEn: !descEn.trim() ? t("validationDescEnRequired") : "",
     descAr: !descAr.trim() ? t("validationDescArRequired") : "",
     category: !category ? t("validationCategoryRequired") : "",
-    price: isNaN(Number(price)) || Number(price) < 0 ? t("validationPriceRequired") : "",
+    price:
+      isNaN(Number(price)) || Number(price) < 0
+        ? t("validationPriceRequired")
+        : "",
     cover: !isCoverValid ? t("validationCoverRequired") : "",
   };
 
@@ -248,7 +269,7 @@ export function CreateCourseStudio({ initialId }: CreateCourseStudioProps = {}) 
     category &&
     !isNaN(Number(price)) &&
     Number(price) >= 0 &&
-    isCoverValid
+    isCoverValid,
   );
 
   const isLockedForReview =
@@ -272,15 +293,21 @@ export function CreateCourseStudio({ initialId }: CreateCourseStudioProps = {}) 
     }
 
     sections.forEach((sec, sIdx) => {
-      const secTitle = (isAr ? sec.title_ar || sec.title : sec.title_en || sec.title) || `Section ${sIdx + 1}`;
+      const secTitle =
+        (isAr ? sec.title_ar || sec.title : sec.title_en || sec.title) ||
+        `Section ${sIdx + 1}`;
       if (!sec.lessons || sec.lessons.length === 0) {
         errors.push(t("sectionHasNoLessons", { section: secTitle }));
       } else {
         sec.lessons.forEach((les, lIdx) => {
-          const lesTitle = (isAr ? les.title_ar || les.title : les.title_en || les.title) || `Lesson ${lIdx + 1}`;
+          const lesTitle =
+            (isAr ? les.title_ar || les.title : les.title_en || les.title) ||
+            `Lesson ${lIdx + 1}`;
           const hasVideo = Boolean(les.video_url || les.video_public_id);
           if (!hasVideo) {
-            errors.push(t("lessonMissingVideo", { lesson: lesTitle, section: secTitle }));
+            errors.push(
+              t("lessonMissingVideo", { lesson: lesTitle, section: secTitle }),
+            );
           }
         });
       }
@@ -295,34 +322,50 @@ export function CreateCourseStudio({ initialId }: CreateCourseStudioProps = {}) 
   /**
    * Helper: Total Course Statistics
    */
-  const totalLessonsCount = sections.reduce((acc, sec) => acc + (sec.lessons?.length || 0), 0);
+  const totalLessonsCount = sections.reduce(
+    (acc, sec) => acc + (sec.lessons?.length || 0),
+    0,
+  );
   const totalDurationMins = sections.reduce(
     (acc, sec) =>
       acc +
-      (sec.lessons?.reduce((lAcc, les) => lAcc + (Number(les.duration_minutes) || 5), 0) || 0),
-    0
+      (sec.lessons?.reduce(
+        (lAcc, les) => lAcc + (Number(les.duration_minutes) || 5),
+        0,
+      ) || 0),
+    0,
   );
   const totalVideosAttachedCount = sections.reduce(
     (acc, sec) =>
       acc +
-      (sec.lessons?.filter((les) => Boolean(les.video_url || les.video_public_id)).length || 0),
-    0
+      (sec.lessons?.filter((les) =>
+        Boolean(les.video_url || les.video_public_id),
+      ).length || 0),
+    0,
   );
 
-  const selectedCategoryObj = categoriesList.find((c) => String(c.id) === String(category));
+  const selectedCategoryObj = categoriesList.find(
+    (c) => String(c.id) === String(category),
+  );
   const categoryDisplayName = selectedCategoryObj?.name || t("defaultCategory");
 
   /**
    * Ensures a real database course ID exists before requesting upload signatures or adding lessons
    */
   const ensureBackendCourseId = async (): Promise<string | number> => {
-    if (courseId && !String(courseId).startsWith("draft-") && !isNaN(Number(courseId))) {
+    if (
+      courseId &&
+      !String(courseId).startsWith("draft-") &&
+      !isNaN(Number(courseId))
+    ) {
       return courseId;
     }
 
     setIsInitializingCourse(true);
     try {
-      const selectedCatId = Number(category) || (categoriesList[0]?.id ? Number(categoriesList[0].id) : 1);
+      const selectedCatId =
+        Number(category) ||
+        (categoriesList[0]?.id ? Number(categoriesList[0].id) : 1);
       const created = await instructorCourseService.createCourse({
         title_ar: titleAr.trim() || t("defaultCourseTitleAr"),
         title_en: titleEn.trim() || t("defaultCourseTitleEn"),
@@ -341,15 +384,20 @@ export function CreateCourseStudio({ initialId }: CreateCourseStudioProps = {}) 
         // Auto-create initial section on backend if none exist
         if (sections.length === 0) {
           try {
-            const sec = await instructorCourseService.createSection(created.id, {
-              title_ar: t("initialSectionTitleAr"),
-              title_en: t("initialSectionTitleEn"),
-            });
+            const sec = await instructorCourseService.createSection(
+              created.id,
+              {
+                title_ar: t("initialSectionTitleAr"),
+                title_en: t("initialSectionTitleEn"),
+              },
+            );
             if (sec?.id) {
               setSections([
                 {
                   id: String(sec.id),
-                  title: isAr ? sec.title_ar || t("initialSectionTitleAr") : sec.title_en || t("initialSectionTitleEn"),
+                  title: isAr
+                    ? sec.title_ar || t("initialSectionTitleAr")
+                    : sec.title_en || t("initialSectionTitleEn"),
                   title_en: sec.title_en || t("initialSectionTitleEn"),
                   title_ar: sec.title_ar || t("initialSectionTitleAr"),
                   lessons: [],
@@ -388,7 +436,10 @@ export function CreateCourseStudio({ initialId }: CreateCourseStudioProps = {}) 
     try {
       const validCourseId = await ensureBackendCourseId();
       if (validCourseId) {
-        const res = await instructorCourseService.uploadCourseCoverImage(validCourseId, file);
+        const res = await instructorCourseService.uploadCourseCoverImage(
+          validCourseId,
+          file,
+        );
         if (res?.cover_image) {
           setCoverPreview(res.cover_image);
         }
@@ -419,25 +470,34 @@ export function CreateCourseStudio({ initialId }: CreateCourseStudioProps = {}) 
    */
   const ensureBackendSectionId = async (
     targetSecId: string,
-    currentCourseId: string | number
+    currentCourseId: string | number,
   ): Promise<string | number> => {
     if (targetSecId && !isNaN(Number(targetSecId))) {
       return targetSecId;
     }
 
     const targetSection = sections.find((s) => s.id === targetSecId);
-    const title_en = targetSection?.title_en || targetSection?.title || t("initialSectionTitleEn");
-    const title_ar = targetSection?.title_ar || targetSection?.title || t("initialSectionTitleAr");
+    const title_en =
+      targetSection?.title_en ||
+      targetSection?.title ||
+      t("initialSectionTitleEn");
+    const title_ar =
+      targetSection?.title_ar ||
+      targetSection?.title ||
+      t("initialSectionTitleAr");
 
     try {
-      const secRes = await instructorCourseService.createSection(currentCourseId, {
-        title_ar: title_ar,
-        title_en: title_en,
-      });
+      const secRes = await instructorCourseService.createSection(
+        currentCourseId,
+        {
+          title_ar: title_ar,
+          title_en: title_en,
+        },
+      );
       if (secRes?.id) {
         const realSecId = String(secRes.id);
         setSections((prev) =>
-          prev.map((s) => (s.id === targetSecId ? { ...s, id: realSecId } : s))
+          prev.map((s) => (s.id === targetSecId ? { ...s, id: realSecId } : s)),
         );
         return realSecId;
       }
@@ -460,10 +520,13 @@ export function CreateCourseStudio({ initialId }: CreateCourseStudioProps = {}) 
     let newSecId = `sec-${Date.now()}`;
 
     try {
-      const secRes = await instructorCourseService.createSection(validCourseId, {
-        title_ar: defaultAr,
-        title_en: defaultEn,
-      });
+      const secRes = await instructorCourseService.createSection(
+        validCourseId,
+        {
+          title_ar: defaultAr,
+          title_en: defaultEn,
+        },
+      );
       if (secRes?.id) {
         newSecId = String(secRes.id);
       }
@@ -507,7 +570,9 @@ export function CreateCourseStudio({ initialId }: CreateCourseStudioProps = {}) 
     const validCourseId = await ensureBackendCourseId();
     const validSecId = await ensureBackendSectionId(secId, validCourseId);
 
-    const isPreview = Boolean(lesson.is_preview ?? lesson.isFreePreview ?? false);
+    const isPreview = Boolean(
+      lesson.is_preview ?? lesson.isFreePreview ?? false,
+    );
     setEditingLessonInfo({
       sectionId: String(validSecId),
       lesson: {
@@ -523,7 +588,9 @@ export function CreateCourseStudio({ initialId }: CreateCourseStudioProps = {}) 
     if (isLockedForReview || !editingLessonInfo) return;
     const { sectionId, isNew } = editingLessonInfo;
 
-    const isPreviewVal = Boolean(updatedLesson.is_preview || updatedLesson.isFreePreview);
+    const isPreviewVal = Boolean(
+      updatedLesson.is_preview || updatedLesson.isFreePreview,
+    );
     const finalLesson = {
       ...updatedLesson,
       is_preview: isPreviewVal,
@@ -534,8 +601,10 @@ export function CreateCourseStudio({ initialId }: CreateCourseStudioProps = {}) 
       if (isNew) {
         if (!isNaN(Number(sectionId))) {
           const res = await instructorCourseService.createLesson(sectionId, {
-            title_ar: updatedLesson.title_ar || updatedLesson.title || t("newLesson"),
-            title_en: updatedLesson.title_en || updatedLesson.title || t("newLesson"),
+            title_ar:
+              updatedLesson.title_ar || updatedLesson.title || t("newLesson"),
+            title_en:
+              updatedLesson.title_en || updatedLesson.title || t("newLesson"),
             duration_minutes: Number(updatedLesson.duration_minutes) || 5,
             is_preview: isPreviewVal,
             video_public_id: updatedLesson.video_public_id,
@@ -580,11 +649,13 @@ export function CreateCourseStudio({ initialId }: CreateCourseStudioProps = {}) 
           }
           return {
             ...sec,
-            lessons: sec.lessons.map((l) => (l.id === finalLesson.id ? finalLesson : l)),
+            lessons: sec.lessons.map((l) =>
+              l.id === finalLesson.id ? finalLesson : l,
+            ),
           };
         }
         return sec;
-      })
+      }),
     );
     setEditingLessonInfo(null);
   };
@@ -618,7 +689,11 @@ export function CreateCourseStudio({ initialId }: CreateCourseStudioProps = {}) 
   /**
    * Reorder Lessons within a section via PUT /api/instructor/courses/{id}/reorder
    */
-  const moveLesson = async (secId: string, lessonIndex: number, direction: "up" | "down") => {
+  const moveLesson = async (
+    secId: string,
+    lessonIndex: number,
+    direction: "up" | "down",
+  ) => {
     if (isLockedForReview) return;
     const currentSection = sections.find((s) => s.id === secId);
     if (!currentSection) return;
@@ -631,7 +706,7 @@ export function CreateCourseStudio({ initialId }: CreateCourseStudioProps = {}) 
     newLessons.splice(targetIndex, 0, moved);
 
     const updatedSections = sections.map((sec) =>
-      sec.id === secId ? { ...sec, lessons: newLessons } : sec
+      sec.id === secId ? { ...sec, lessons: newLessons } : sec,
     );
     setSections(updatedSections);
 
@@ -647,7 +722,7 @@ export function CreateCourseStudio({ initialId }: CreateCourseStudioProps = {}) 
                 }
               : {
                   id: Number(sec.id) || sec.id,
-                }
+                },
           ),
         });
       } catch (err: any) {
@@ -659,7 +734,11 @@ export function CreateCourseStudio({ initialId }: CreateCourseStudioProps = {}) 
   /**
    * Toggle Free Preview on a lesson via PATCH /api/instructor/lessons/{lessonId}
    */
-  const toggleLessonPreview = async (secId: string, lesId: string, currentPreview: boolean) => {
+  const toggleLessonPreview = async (
+    secId: string,
+    lesId: string,
+    currentPreview: boolean,
+  ) => {
     if (isLockedForReview) return;
     const newPreviewState = !currentPreview;
 
@@ -670,18 +749,26 @@ export function CreateCourseStudio({ initialId }: CreateCourseStudioProps = {}) 
             ...sec,
             lessons: sec.lessons.map((l) =>
               l.id === lesId
-                ? { ...l, is_preview: newPreviewState, isPreview: newPreviewState, isFreePreview: newPreviewState }
-                : l
+                ? {
+                    ...l,
+                    is_preview: newPreviewState,
+                    isPreview: newPreviewState,
+                    isFreePreview: newPreviewState,
+                  }
+                : l,
             ),
           };
         }
         return sec;
-      })
+      }),
     );
 
     if (!isNaN(Number(lesId))) {
       try {
-        await instructorCourseService.toggleLessonPreview(lesId, newPreviewState);
+        await instructorCourseService.toggleLessonPreview(
+          lesId,
+          newPreviewState,
+        );
       } catch (err: any) {
         console.warn("[toggleLessonPreview] Toggle preview error:", err);
       }
@@ -721,7 +808,7 @@ export function CreateCourseStudio({ initialId }: CreateCourseStudioProps = {}) 
             };
           }
           return sec;
-        })
+        }),
       );
     }
   };
@@ -759,14 +846,17 @@ export function CreateCourseStudio({ initialId }: CreateCourseStudioProps = {}) 
     const hasCover = Boolean(
       coverPreview &&
       typeof coverPreview === "string" &&
-      !coverPreview.includes("unsplash.com/photo-1516321318423")
+      !coverPreview.includes("unsplash.com/photo-1516321318423"),
     );
     const hasSections = sections.length > 0;
-    const hasLessons = hasSections && sections.every((s) => s.lessons && s.lessons.length > 0);
+    const hasLessons =
+      hasSections && sections.every((s) => s.lessons && s.lessons.length > 0);
     const hasVideos =
       hasLessons &&
       sections.every((s) =>
-        s.lessons.every((l) => Boolean(l.video_url || l.video_public_id || l.videoUrl))
+        s.lessons.every((l) =>
+          Boolean(l.video_url || l.video_public_id || l.videoUrl),
+        ),
       );
 
     return [
@@ -861,7 +951,10 @@ export function CreateCourseStudio({ initialId }: CreateCourseStudioProps = {}) 
     setStep2Submitted(true);
 
     const checklist = getSubmissionChecklist();
-    const isIncomplete = !isStep1Valid || !isStep2Valid || checklist.some((item) => !item.isComplete);
+    const isIncomplete =
+      !isStep1Valid ||
+      !isStep2Valid ||
+      checklist.some((item) => !item.isComplete);
 
     if (isIncomplete) {
       setShowIncompleteModal(true);
@@ -919,7 +1012,6 @@ export function CreateCourseStudio({ initialId }: CreateCourseStudioProps = {}) 
 
       {/* Main Content Container */}
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8 space-y-6 flex-1 w-full">
-        
         {/* Course Under Review Lock Notification Banner */}
         {isLockedForReview && (
           <div className="p-4 sm:p-5 rounded-3xl bg-amber-500/10 border border-amber-500/30 text-amber-950 flex items-start gap-3.5 shadow-2xs animate-in fade-in">
@@ -960,10 +1052,12 @@ export function CreateCourseStudio({ initialId }: CreateCourseStudioProps = {}) 
               <p className="text-xs sm:text-sm text-rose-900/90 font-medium leading-relaxed">
                 {t("courseRejectedBannerDesc")}
               </p>
-              
+
               {/* Highlighted Reason Box */}
               <div className="p-3.5 rounded-2xl bg-white border border-rose-200/90 shadow-2xs text-xs font-semibold text-rose-900 leading-relaxed flex items-start gap-2.5">
-                <span className="font-black text-rose-950 shrink-0">{tInst("rejectionReasonLabel")}</span>
+                <span className="font-black text-rose-950 shrink-0">
+                  {tInst("rejectionReasonLabel")}
+                </span>
                 <span className="text-rose-800">
                   {rejectionReason || t("rejectionReasonFallback")}
                 </span>
@@ -1002,7 +1096,6 @@ export function CreateCourseStudio({ initialId }: CreateCourseStudioProps = {}) 
         {/* ========================================================= */}
         {activeStep === "info" && (
           <div className="space-y-6 animate-in fade-in duration-200">
-            
             {/* Header Title & Actions */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
@@ -1030,7 +1123,11 @@ export function CreateCourseStudio({ initialId }: CreateCourseStudioProps = {}) 
                   disabled={isSaving}
                   className="px-3.5 py-2 rounded-xl border border-slate-200/90 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 shadow-2xs"
                 >
-                  {isSaving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5 text-[#0F5244]" />}
+                  {isSaving ? (
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  ) : (
+                    <Save className="w-3.5 h-3.5 text-[#0F5244]" />
+                  )}
                   <span>{t("saveDraft")}</span>
                 </button>
               </div>
@@ -1041,15 +1138,31 @@ export function CreateCourseStudio({ initialId }: CreateCourseStudioProps = {}) 
               <div className="p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs sm:text-sm font-semibold flex items-start gap-3">
                 <AlertCircle className="w-5 h-5 text-rose-600 shrink-0 mt-0.5" />
                 <div className="space-y-1">
-                  <p className="font-extrabold">{t("validationFixErrorsPrompt")}</p>
+                  <p className="font-extrabold">
+                    {t("validationFixErrorsPrompt")}
+                  </p>
                   <ul className="list-disc list-inside space-y-0.5 text-xs text-rose-700">
-                    {step1FieldErrors.titleEn && <li>{step1FieldErrors.titleEn}</li>}
-                    {step1FieldErrors.titleAr && <li>{step1FieldErrors.titleAr}</li>}
-                    {step1FieldErrors.descEn && <li>{step1FieldErrors.descEn}</li>}
-                    {step1FieldErrors.descAr && <li>{step1FieldErrors.descAr}</li>}
-                    {step1FieldErrors.category && <li>{step1FieldErrors.category}</li>}
-                    {step1FieldErrors.price && <li>{step1FieldErrors.price}</li>}
-                    {step1FieldErrors.cover && <li>{step1FieldErrors.cover}</li>}
+                    {step1FieldErrors.titleEn && (
+                      <li>{step1FieldErrors.titleEn}</li>
+                    )}
+                    {step1FieldErrors.titleAr && (
+                      <li>{step1FieldErrors.titleAr}</li>
+                    )}
+                    {step1FieldErrors.descEn && (
+                      <li>{step1FieldErrors.descEn}</li>
+                    )}
+                    {step1FieldErrors.descAr && (
+                      <li>{step1FieldErrors.descAr}</li>
+                    )}
+                    {step1FieldErrors.category && (
+                      <li>{step1FieldErrors.category}</li>
+                    )}
+                    {step1FieldErrors.price && (
+                      <li>{step1FieldErrors.price}</li>
+                    )}
+                    {step1FieldErrors.cover && (
+                      <li>{step1FieldErrors.cover}</li>
+                    )}
                   </ul>
                 </div>
               </div>
@@ -1057,10 +1170,8 @@ export function CreateCourseStudio({ initialId }: CreateCourseStudioProps = {}) 
 
             {/* Form Grid */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
-              
               {/* Left Column (2 Cols): Basic Info & Attributes */}
               <div className="lg:col-span-2 space-y-6">
-                
                 {/* 1. Basic Information Card */}
                 <div className="bg-white rounded-3xl border border-slate-200/90 p-6 shadow-2xs space-y-5">
                   <div className="flex items-center gap-2 border-b border-slate-100 pb-3 text-[#0F5244]">
@@ -1073,7 +1184,8 @@ export function CreateCourseStudio({ initialId }: CreateCourseStudioProps = {}) 
                   {/* Course Title (EN & AR) */}
                   <div className="space-y-1.5">
                     <label className="block text-xs font-extrabold text-slate-700">
-                      {t("courseTitleLabel")} <span className="text-rose-500">*</span>
+                      {t("courseTitleLabel")}{" "}
+                      <span className="text-rose-500">*</span>
                     </label>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div>
@@ -1088,8 +1200,8 @@ export function CreateCourseStudio({ initialId }: CreateCourseStudioProps = {}) 
                             isLockedForReview
                               ? "bg-slate-100/80 cursor-not-allowed text-slate-600 border-slate-200"
                               : step1Submitted && !titleEn.trim()
-                              ? "border-rose-300 focus:border-rose-500 focus:ring-rose-200 bg-rose-50/20"
-                              : "border-slate-200 focus:border-[#0F5244] focus:ring-[#0F5244]/10"
+                                ? "border-rose-300 focus:border-rose-500 focus:ring-rose-200 bg-rose-50/20"
+                                : "border-slate-200 focus:border-[#0F5244] focus:ring-[#0F5244]/10"
                           }`}
                         />
                         {step1Submitted && !titleEn.trim() && (
@@ -1112,8 +1224,8 @@ export function CreateCourseStudio({ initialId }: CreateCourseStudioProps = {}) 
                             isLockedForReview
                               ? "bg-slate-100/80 cursor-not-allowed text-slate-600 border-slate-200"
                               : step1Submitted && !titleAr.trim()
-                              ? "border-rose-300 focus:border-rose-500 focus:ring-rose-200 bg-rose-50/20"
-                              : "border-slate-200 focus:border-[#0F5244] focus:ring-[#0F5244]/10"
+                                ? "border-rose-300 focus:border-rose-500 focus:ring-rose-200 bg-rose-50/20"
+                                : "border-slate-200 focus:border-[#0F5244] focus:ring-[#0F5244]/10"
                           }`}
                         />
                         {step1Submitted && !titleAr.trim() && (
@@ -1128,7 +1240,8 @@ export function CreateCourseStudio({ initialId }: CreateCourseStudioProps = {}) 
                   {/* Course Description (EN & AR) */}
                   <div className="space-y-1.5">
                     <label className="block text-xs font-extrabold text-slate-700">
-                      {t("courseDescLabel")} <span className="text-rose-500">*</span>
+                      {t("courseDescLabel")}{" "}
+                      <span className="text-rose-500">*</span>
                     </label>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div>
@@ -1143,8 +1256,8 @@ export function CreateCourseStudio({ initialId }: CreateCourseStudioProps = {}) 
                             isLockedForReview
                               ? "bg-slate-100/80 cursor-not-allowed text-slate-600 border-slate-200"
                               : step1Submitted && !descEn.trim()
-                              ? "border-rose-300 focus:border-rose-500 focus:ring-rose-200 bg-rose-50/20"
-                              : "border-slate-200 focus:border-[#0F5244] focus:ring-[#0F5244]/10"
+                                ? "border-rose-300 focus:border-rose-500 focus:ring-rose-200 bg-rose-50/20"
+                                : "border-slate-200 focus:border-[#0F5244] focus:ring-[#0F5244]/10"
                           }`}
                         />
                         {step1Submitted && !descEn.trim() && (
@@ -1167,8 +1280,8 @@ export function CreateCourseStudio({ initialId }: CreateCourseStudioProps = {}) 
                             isLockedForReview
                               ? "bg-slate-100/80 cursor-not-allowed text-slate-600 border-slate-200"
                               : step1Submitted && !descAr.trim()
-                              ? "border-rose-300 focus:border-rose-500 focus:ring-rose-200 bg-rose-50/20"
-                              : "border-slate-200 focus:border-[#0F5244] focus:ring-[#0F5244]/10"
+                                ? "border-rose-300 focus:border-rose-500 focus:ring-rose-200 bg-rose-50/20"
+                                : "border-slate-200 focus:border-[#0F5244] focus:ring-[#0F5244]/10"
                           }`}
                         />
                         {step1Submitted && !descAr.trim() && (
@@ -1194,7 +1307,8 @@ export function CreateCourseStudio({ initialId }: CreateCourseStudioProps = {}) 
                     {/* Category Select */}
                     <div className="space-y-1.5">
                       <label className="block text-xs font-extrabold text-slate-700">
-                        {t("categoryLabel")} <span className="text-rose-500">*</span>
+                        {t("categoryLabel")}{" "}
+                        <span className="text-rose-500">*</span>
                       </label>
                       <select
                         id="course-category-select"
@@ -1205,8 +1319,8 @@ export function CreateCourseStudio({ initialId }: CreateCourseStudioProps = {}) 
                           isLockedForReview
                             ? "bg-slate-100/80 cursor-not-allowed text-slate-600 border-slate-200"
                             : step1Submitted && !category
-                            ? "border-rose-300 focus:border-rose-500 focus:ring-rose-200 bg-rose-50/20"
-                            : "border-slate-200 focus:border-[#0F5244] focus:ring-[#0F5244]/10"
+                              ? "border-rose-300 focus:border-rose-500 focus:ring-rose-200 bg-rose-50/20"
+                              : "border-slate-200 focus:border-[#0F5244] focus:ring-[#0F5244]/10"
                         }`}
                       >
                         <option value="">{t("selectCategory")}</option>
@@ -1246,7 +1360,9 @@ export function CreateCourseStudio({ initialId }: CreateCourseStudioProps = {}) 
                         disabled={isLockedForReview}
                         onChange={(e) => setLevel(e.target.value)}
                         className={`w-full h-11 rounded-2xl border border-slate-200 px-3.5 text-xs sm:text-sm text-slate-800 focus:border-[#0F5244] focus:outline-none focus:ring-2 focus:ring-[#0F5244]/10 bg-slate-50/50 ${
-                          isLockedForReview ? "bg-slate-100/80 cursor-not-allowed text-slate-600" : ""
+                          isLockedForReview
+                            ? "bg-slate-100/80 cursor-not-allowed text-slate-600"
+                            : ""
                         }`}
                       >
                         <option value="beginner">Beginner</option>
@@ -1267,10 +1383,14 @@ export function CreateCourseStudio({ initialId }: CreateCourseStudioProps = {}) 
                         disabled={isLockedForReview}
                         onChange={(e) => setLanguage(e.target.value)}
                         className={`w-full h-11 rounded-2xl border border-slate-200 px-3.5 text-xs sm:text-sm text-slate-800 focus:border-[#0F5244] focus:outline-none focus:ring-2 focus:ring-[#0F5244]/10 bg-slate-50/50 ${
-                          isLockedForReview ? "bg-slate-100/80 cursor-not-allowed text-slate-600" : ""
+                          isLockedForReview
+                            ? "bg-slate-100/80 cursor-not-allowed text-slate-600"
+                            : ""
                         }`}
                       >
-                        <option value="Bilingual (EN/AR)">{t("bilingual")}</option>
+                        <option value="Bilingual (EN/AR)">
+                          {t("bilingual")}
+                        </option>
                         <option value="Arabic">{t("arabic")}</option>
                         <option value="English">{t("english")}</option>
                       </select>
@@ -1279,7 +1399,8 @@ export function CreateCourseStudio({ initialId }: CreateCourseStudioProps = {}) 
                     {/* Price Input */}
                     <div className="space-y-1.5">
                       <label className="block text-xs font-extrabold text-slate-700">
-                        {t("priceLabel")} <span className="text-rose-500">*</span>
+                        {t("priceLabel")}{" "}
+                        <span className="text-rose-500">*</span>
                       </label>
                       <div className="relative">
                         <span className="absolute left-3.5 rtl:left-auto rtl:right-3.5 top-1/2 -translate-y-1/2 text-slate-500 font-bold text-xs">
@@ -1295,21 +1416,22 @@ export function CreateCourseStudio({ initialId }: CreateCourseStudioProps = {}) 
                           className={`w-full h-11 rounded-2xl border pl-8 rtl:pl-3.5 rtl:pr-8 text-xs sm:text-sm text-slate-900 font-bold placeholder:text-slate-400 focus:outline-none focus:ring-2 bg-slate-50/50 ${
                             isLockedForReview
                               ? "bg-slate-100/80 cursor-not-allowed text-slate-600 border-slate-200"
-                              : step1Submitted && (isNaN(Number(price)) || Number(price) < 0)
-                              ? "border-rose-300 focus:border-rose-500 focus:ring-rose-200 bg-rose-50/20"
-                              : "border-slate-200 focus:border-[#0F5244] focus:ring-[#0F5244]/10"
+                              : step1Submitted &&
+                                  (isNaN(Number(price)) || Number(price) < 0)
+                                ? "border-rose-300 focus:border-rose-500 focus:ring-rose-200 bg-rose-50/20"
+                                : "border-slate-200 focus:border-[#0F5244] focus:ring-[#0F5244]/10"
                           }`}
                         />
                       </div>
-                      {step1Submitted && (isNaN(Number(price)) || Number(price) < 0) && (
-                        <span className="text-[11px] font-bold text-rose-600 mt-1 block">
-                          {t("validationPriceRequired")}
-                        </span>
-                      )}
+                      {step1Submitted &&
+                        (isNaN(Number(price)) || Number(price) < 0) && (
+                          <span className="text-[11px] font-bold text-rose-600 mt-1 block">
+                            {t("validationPriceRequired")}
+                          </span>
+                        )}
                     </div>
                   </div>
                 </div>
-
               </div>
 
               {/* Right Column (1 Col): Big Cover Image Upload Card */}
@@ -1317,7 +1439,8 @@ export function CreateCourseStudio({ initialId }: CreateCourseStudioProps = {}) 
                 <div className="flex items-center gap-2 border-b border-slate-100 pb-3 text-[#0F5244]">
                   <ImageIcon size={18} className="shrink-0 text-[#0F5244]" />
                   <h2 className="font-extrabold text-slate-900 text-base">
-                    {t("courseCoverTitle")} <span className="text-rose-500">*</span>
+                    {t("courseCoverTitle")}{" "}
+                    <span className="text-rose-500">*</span>
                   </h2>
                 </div>
 
@@ -1329,7 +1452,10 @@ export function CreateCourseStudio({ initialId }: CreateCourseStudioProps = {}) 
                     if (!isLockedForReview) fileInputRef.current?.click();
                   }}
                   onKeyDown={(e) => {
-                    if (!isLockedForReview && (e.key === "Enter" || e.key === " ")) {
+                    if (
+                      !isLockedForReview &&
+                      (e.key === "Enter" || e.key === " ")
+                    ) {
                       fileInputRef.current?.click();
                     }
                   }}
@@ -1339,10 +1465,10 @@ export function CreateCourseStudio({ initialId }: CreateCourseStudioProps = {}) 
                     isLockedForReview
                       ? "border-slate-200 bg-slate-50/50 cursor-default"
                       : step1Submitted && !isCoverValid
-                      ? "border-rose-300 bg-rose-50/30 cursor-pointer"
-                      : isCoverValid
-                      ? "border-emerald-300 bg-emerald-50/20 cursor-pointer"
-                      : "border-slate-300 hover:border-[#0F5244] hover:bg-emerald-50/20 cursor-pointer"
+                        ? "border-rose-300 bg-rose-50/30 cursor-pointer"
+                        : isCoverValid
+                          ? "border-emerald-300 bg-emerald-50/20 cursor-pointer"
+                          : "border-slate-300 hover:border-[#0F5244] hover:bg-emerald-50/20 cursor-pointer"
                   }`}
                 >
                   {isCoverValid && coverPreview ? (
@@ -1397,7 +1523,6 @@ export function CreateCourseStudio({ initialId }: CreateCourseStudioProps = {}) 
                   </div>
                 )}
               </div>
-
             </div>
 
             {/* Bottom Actions for Step 1 */}
@@ -1424,7 +1549,6 @@ export function CreateCourseStudio({ initialId }: CreateCourseStudioProps = {}) 
                 <ArrowRight className="w-4 h-4 rtl:rotate-180" />
               </button>
             </div>
-
           </div>
         )}
 
@@ -1433,7 +1557,6 @@ export function CreateCourseStudio({ initialId }: CreateCourseStudioProps = {}) 
         {/* ========================================================= */}
         {activeStep === "curriculum" && (
           <div className="space-y-6 animate-in fade-in duration-200">
-            
             {/* Header Bar */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
@@ -1460,10 +1583,16 @@ export function CreateCourseStudio({ initialId }: CreateCourseStudioProps = {}) 
                   onClick={handleSaveDraft}
                   disabled={isSaving || isLockedForReview}
                   className={`px-3.5 py-2 rounded-xl border border-slate-200/90 bg-white text-slate-700 text-xs font-bold transition-all flex items-center gap-1.5 shadow-2xs ${
-                    isLockedForReview ? "opacity-50 cursor-not-allowed" : "hover:bg-slate-50 cursor-pointer"
+                    isLockedForReview
+                      ? "opacity-50 cursor-not-allowed"
+                      : "hover:bg-slate-50 cursor-pointer"
                   }`}
                 >
-                  {isSaving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5 text-[#0F5244]" />}
+                  {isSaving ? (
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  ) : (
+                    <Save className="w-3.5 h-3.5 text-[#0F5244]" />
+                  )}
                   <span>{t("saveDraft")}</span>
                 </button>
 
@@ -1485,7 +1614,9 @@ export function CreateCourseStudio({ initialId }: CreateCourseStudioProps = {}) 
               <div className="p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs sm:text-sm font-semibold flex items-start gap-3">
                 <AlertCircle className="w-5 h-5 text-rose-600 shrink-0 mt-0.5" />
                 <div className="space-y-1.5">
-                  <p className="font-extrabold">{t("validationFixErrorsPrompt")}</p>
+                  <p className="font-extrabold">
+                    {t("validationFixErrorsPrompt")}
+                  </p>
                   <ul className="list-disc list-inside space-y-1 text-xs text-rose-700 font-medium">
                     {step2ErrorsList.map((errText, idx) => (
                       <li key={idx}>{errText}</li>
@@ -1497,10 +1628,8 @@ export function CreateCourseStudio({ initialId }: CreateCourseStudioProps = {}) 
 
             {/* Grid Layout: Left Sections List + Right Overview Card */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
-              
               {/* LEFT COLUMN: Sections & Lessons List */}
               <div className="lg:col-span-2 space-y-4">
-                
                 {sections.length === 0 ? (
                   <div className="rounded-3xl border-2 border-dashed border-slate-300 bg-white p-10 text-center flex flex-col items-center justify-center gap-3">
                     <div className="w-14 h-14 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center">
@@ -1525,23 +1654,31 @@ export function CreateCourseStudio({ initialId }: CreateCourseStudioProps = {}) 
                   </div>
                 ) : (
                   sections.map((section, sIdx) => {
-                    const hasLessons = section.lessons && section.lessons.length > 0;
+                    const hasLessons =
+                      section.lessons && section.lessons.length > 0;
                     return (
                       <div
                         key={section.id}
                         className={`bg-white rounded-3xl border p-5 sm:p-6 shadow-2xs space-y-3.5 transition-all ${
-                          !hasLessons && step2Submitted ? "border-amber-300 bg-amber-50/10" : "border-slate-200/90"
+                          !hasLessons && step2Submitted
+                            ? "border-amber-300 bg-amber-50/10"
+                            : "border-slate-200/90"
                         }`}
                       >
                         {/* Section Header Row */}
                         <div className="flex items-center justify-between gap-3 border-b border-slate-100 pb-3">
                           <div className="flex items-center gap-2.5 min-w-0">
-                            <GripVertical size={18} className="text-slate-400 cursor-grab shrink-0" />
+                            <GripVertical
+                              size={18}
+                              className="text-slate-400 cursor-grab shrink-0"
+                            />
                             <span className="font-black text-slate-900 text-sm sm:text-base truncate">
                               {section.title}
                             </span>
                             <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 shrink-0">
-                              {t("lessonsCount", { count: section.lessons.length })}
+                              {t("lessonsCount", {
+                                count: section.lessons.length,
+                              })}
                             </span>
                           </div>
 
@@ -1554,9 +1691,15 @@ export function CreateCourseStudio({ initialId }: CreateCourseStudioProps = {}) 
                                   disabled={sIdx === 0}
                                   onClick={() => moveSection(sIdx, "up")}
                                   className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
-                                    sIdx === 0 ? "opacity-30 cursor-not-allowed text-slate-400" : "text-slate-600 hover:text-[#0F5244] hover:bg-white"
+                                    sIdx === 0
+                                      ? "opacity-30 cursor-not-allowed text-slate-400"
+                                      : "text-slate-600 hover:text-[#0F5244] hover:bg-white"
                                   }`}
-                                  title={isAr ? "نقل القسم للأعلى" : "Move section up"}
+                                  title={
+                                    isAr
+                                      ? "نقل القسم للأعلى"
+                                      : "Move section up"
+                                  }
                                 >
                                   <ChevronUp size={14} />
                                 </button>
@@ -1565,9 +1708,15 @@ export function CreateCourseStudio({ initialId }: CreateCourseStudioProps = {}) 
                                   disabled={sIdx === sections.length - 1}
                                   onClick={() => moveSection(sIdx, "down")}
                                   className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
-                                    sIdx === sections.length - 1 ? "opacity-30 cursor-not-allowed text-slate-400" : "text-slate-600 hover:text-[#0F5244] hover:bg-white"
+                                    sIdx === sections.length - 1
+                                      ? "opacity-30 cursor-not-allowed text-slate-400"
+                                      : "text-slate-600 hover:text-[#0F5244] hover:bg-white"
                                   }`}
-                                  title={isAr ? "نقل القسم للأسفل" : "Move section down"}
+                                  title={
+                                    isAr
+                                      ? "نقل القسم للأسفل"
+                                      : "Move section down"
+                                  }
                                 >
                                   <ChevronDown size={14} />
                                 </button>
@@ -1578,15 +1727,20 @@ export function CreateCourseStudio({ initialId }: CreateCourseStudioProps = {}) 
                                 onClick={() => {
                                   const newTitle = prompt(
                                     t("editSectionTitlePrompt"),
-                                    section.title
+                                    section.title,
                                   );
                                   if (newTitle) {
                                     setSections(
                                       sections.map((s) =>
                                         s.id === section.id
-                                          ? { ...s, title: newTitle, title_en: newTitle, title_ar: newTitle }
-                                          : s
-                                      )
+                                          ? {
+                                              ...s,
+                                              title: newTitle,
+                                              title_en: newTitle,
+                                              title_ar: newTitle,
+                                            }
+                                          : s,
+                                      ),
                                     );
                                   }
                                 }}
@@ -1610,7 +1764,10 @@ export function CreateCourseStudio({ initialId }: CreateCourseStudioProps = {}) 
                         {/* Section Empty Warning Badge */}
                         {!hasLessons && (
                           <div className="p-3 rounded-2xl bg-amber-50 border border-amber-200 text-amber-800 text-xs font-bold flex items-center gap-2">
-                            <AlertTriangle size={15} className="text-amber-600 shrink-0" />
+                            <AlertTriangle
+                              size={15}
+                              className="text-amber-600 shrink-0"
+                            />
                             <span>{t("emptySectionWarning")}</span>
                           </div>
                         )}
@@ -1618,7 +1775,9 @@ export function CreateCourseStudio({ initialId }: CreateCourseStudioProps = {}) 
                         {/* Sub-Lessons List */}
                         <div className="space-y-2">
                           {section.lessons.map((lesson, lIdx) => {
-                            const hasVideo = Boolean(lesson.video_url || lesson.video_public_id);
+                            const hasVideo = Boolean(
+                              lesson.video_url || lesson.video_public_id,
+                            );
                             return (
                               <div
                                 key={lesson.id}
@@ -1629,7 +1788,10 @@ export function CreateCourseStudio({ initialId }: CreateCourseStudioProps = {}) 
                                 }`}
                               >
                                 <div className="flex items-center gap-2.5 min-w-0">
-                                  <GripVertical size={16} className="text-slate-400 cursor-grab shrink-0" />
+                                  <GripVertical
+                                    size={16}
+                                    className="text-slate-400 cursor-grab shrink-0"
+                                  />
                                   <div
                                     className={`flex h-8 w-8 items-center justify-center rounded-xl shrink-0 ${
                                       hasVideo
@@ -1641,13 +1803,17 @@ export function CreateCourseStudio({ initialId }: CreateCourseStudioProps = {}) 
                                   </div>
                                   <div className="min-w-0">
                                     <span className="text-slate-900 font-bold block truncate">
-                                      {isAr ? lesson.title_ar || lesson.title : lesson.title_en || lesson.title}
+                                      {isAr
+                                        ? lesson.title_ar || lesson.title
+                                        : lesson.title_en || lesson.title}
                                     </span>
                                     <div className="flex items-center gap-2 mt-0.5 flex-wrap">
                                       {hasVideo ? (
                                         <span className="inline-flex items-center gap-1 text-[10px] font-extrabold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
                                           <Check size={10} />
-                                          {lesson.video_public_id ? t("uploadedCloudinaryVideo") : t("externalVideoLink")}
+                                          {lesson.video_public_id
+                                            ? t("uploadedCloudinaryVideo")
+                                            : t("externalVideoLink")}
                                         </span>
                                       ) : (
                                         <span className="inline-flex items-center gap-1 text-[10px] font-extrabold text-rose-700 bg-rose-100/80 px-2 py-0.5 rounded-md border border-rose-300">
@@ -1667,7 +1833,8 @@ export function CreateCourseStudio({ initialId }: CreateCourseStudioProps = {}) 
 
                                 <div className="flex items-center gap-2.5 self-end sm:self-auto shrink-0">
                                   <span className="text-slate-500 text-xs font-mono">
-                                    {lesson.duration || `${lesson.duration_minutes || 5}:00`}
+                                    {lesson.duration ||
+                                      `${lesson.duration_minutes || 5}:00`}
                                   </span>
 
                                   {!isLockedForReview ? (
@@ -1675,15 +1842,28 @@ export function CreateCourseStudio({ initialId }: CreateCourseStudioProps = {}) 
                                       {/* Quick Toggle Free Preview */}
                                       <button
                                         type="button"
-                                        onClick={() => toggleLessonPreview(section.id, lesson.id, Boolean(lesson.is_preview))}
+                                        onClick={() =>
+                                          toggleLessonPreview(
+                                            section.id,
+                                            lesson.id,
+                                            Boolean(lesson.is_preview),
+                                          )
+                                        }
                                         className={`px-2 py-1 rounded-lg text-[10px] font-extrabold border transition-all cursor-pointer ${
                                           lesson.is_preview
                                             ? "bg-emerald-50 text-emerald-700 border-emerald-300 hover:bg-emerald-100"
                                             : "bg-slate-50 text-slate-500 border-slate-200 hover:bg-slate-100"
                                         }`}
-                                        title={isAr ? "تبديل المعاينة المجانية للدرس" : "Toggle Free Preview"}
+                                        title={
+                                          isAr
+                                            ? "تبديل المعاينة المجانية للدرس"
+                                            : "Toggle Free Preview"
+                                        }
                                       >
-                                        <Eye size={11} className="inline mr-1 rtl:ml-1" />
+                                        <Eye
+                                          size={11}
+                                          className="inline mr-1 rtl:ml-1"
+                                        />
                                         <span>{t("freePreview")}</span>
                                       </button>
 
@@ -1692,22 +1872,40 @@ export function CreateCourseStudio({ initialId }: CreateCourseStudioProps = {}) 
                                         <button
                                           type="button"
                                           disabled={lIdx === 0}
-                                          onClick={() => moveLesson(section.id, lIdx, "up")}
+                                          onClick={() =>
+                                            moveLesson(section.id, lIdx, "up")
+                                          }
                                           className={`p-1 rounded transition-colors cursor-pointer ${
-                                            lIdx === 0 ? "opacity-30 cursor-not-allowed text-slate-400" : "text-slate-600 hover:text-[#0F5244] hover:bg-white"
+                                            lIdx === 0
+                                              ? "opacity-30 cursor-not-allowed text-slate-400"
+                                              : "text-slate-600 hover:text-[#0F5244] hover:bg-white"
                                           }`}
-                                          title={isAr ? "نقل الدرس للأعلى" : "Move lesson up"}
+                                          title={
+                                            isAr
+                                              ? "نقل الدرس للأعلى"
+                                              : "Move lesson up"
+                                          }
                                         >
                                           <ChevronUp size={12} />
                                         </button>
                                         <button
                                           type="button"
-                                          disabled={lIdx === section.lessons.length - 1}
-                                          onClick={() => moveLesson(section.id, lIdx, "down")}
+                                          disabled={
+                                            lIdx === section.lessons.length - 1
+                                          }
+                                          onClick={() =>
+                                            moveLesson(section.id, lIdx, "down")
+                                          }
                                           className={`p-1 rounded transition-colors cursor-pointer ${
-                                            lIdx === section.lessons.length - 1 ? "opacity-30 cursor-not-allowed text-slate-400" : "text-slate-600 hover:text-[#0F5244] hover:bg-white"
+                                            lIdx === section.lessons.length - 1
+                                              ? "opacity-30 cursor-not-allowed text-slate-400"
+                                              : "text-slate-600 hover:text-[#0F5244] hover:bg-white"
                                           }`}
-                                          title={isAr ? "نقل الدرس للأسفل" : "Move lesson down"}
+                                          title={
+                                            isAr
+                                              ? "نقل الدرس للأسفل"
+                                              : "Move lesson down"
+                                          }
                                         >
                                           <ChevronDown size={12} />
                                         </button>
@@ -1715,7 +1913,12 @@ export function CreateCourseStudio({ initialId }: CreateCourseStudioProps = {}) 
 
                                       <button
                                         type="button"
-                                        onClick={() => openEditLessonModal(section.id, lesson)}
+                                        onClick={() =>
+                                          openEditLessonModal(
+                                            section.id,
+                                            lesson,
+                                          )
+                                        }
                                         className={`px-3 py-1.5 rounded-xl font-bold text-xs flex items-center gap-1.5 transition-all cursor-pointer ${
                                           hasVideo
                                             ? "bg-slate-100 hover:bg-[#0F5244] hover:text-white text-slate-700"
@@ -1723,12 +1926,18 @@ export function CreateCourseStudio({ initialId }: CreateCourseStudioProps = {}) 
                                         }`}
                                       >
                                         <Edit2 size={12} />
-                                        <span>{hasVideo ? t("editLesson") : t("fixLesson")}</span>
+                                        <span>
+                                          {hasVideo
+                                            ? t("editLesson")
+                                            : t("fixLesson")}
+                                        </span>
                                       </button>
 
                                       <button
                                         type="button"
-                                        onClick={() => deleteLesson(section.id, lesson.id)}
+                                        onClick={() =>
+                                          deleteLesson(section.id, lesson.id)
+                                        }
                                         className="p-1.5 text-slate-400 hover:text-rose-600 rounded-lg hover:bg-rose-50 transition-colors cursor-pointer"
                                         title="Delete Lesson"
                                       >
@@ -1777,12 +1986,14 @@ export function CreateCourseStudio({ initialId }: CreateCourseStudioProps = {}) 
                   }}
                   className="rounded-3xl border-2 border-dashed border-slate-300 bg-slate-100/40 p-6 text-center hover:border-[#0F5244] hover:bg-emerald-50/30 transition-all cursor-pointer flex flex-col items-center justify-center gap-2 group"
                 >
-                  <Plus size={22} className="text-slate-500 group-hover:text-[#0F5244] transition-colors" />
+                  <Plus
+                    size={22}
+                    className="text-slate-500 group-hover:text-[#0F5244] transition-colors"
+                  />
                   <span className="text-xs sm:text-sm font-extrabold text-slate-700 group-hover:text-[#0F5244]">
                     {t("clickToAddSection")}
                   </span>
                 </div>
-
               </div>
 
               {/* RIGHT COLUMN: Curriculum Checklist & Stats Card */}
@@ -1793,38 +2004,68 @@ export function CreateCourseStudio({ initialId }: CreateCourseStudioProps = {}) 
 
                 <div className="space-y-3 text-xs">
                   <div className="flex items-center justify-between p-3 rounded-2xl bg-slate-50">
-                    <span className="font-bold text-slate-600">{t("totalSections")}</span>
-                    <span className="font-black text-[#0F5244] text-sm">{sections.length}</span>
+                    <span className="font-bold text-slate-600">
+                      {t("totalSections")}
+                    </span>
+                    <span className="font-black text-[#0F5244] text-sm">
+                      {sections.length}
+                    </span>
                   </div>
 
                   <div className="flex items-center justify-between p-3 rounded-2xl bg-slate-50">
-                    <span className="font-bold text-slate-600">{t("totalLessons")}</span>
-                    <span className="font-black text-[#0F5244] text-sm">{totalLessonsCount}</span>
+                    <span className="font-bold text-slate-600">
+                      {t("totalLessons")}
+                    </span>
+                    <span className="font-black text-[#0F5244] text-sm">
+                      {totalLessonsCount}
+                    </span>
                   </div>
 
                   <div className="flex items-center justify-between p-3 rounded-2xl bg-slate-50">
-                    <span className="font-bold text-slate-600">{t("totalDuration")}</span>
-                    <span className="font-black text-slate-800 text-sm">{totalDurationMins} {t("minutes")}</span>
+                    <span className="font-bold text-slate-600">
+                      {t("totalDuration")}
+                    </span>
+                    <span className="font-black text-slate-800 text-sm">
+                      {totalDurationMins} {t("minutes")}
+                    </span>
                   </div>
                 </div>
 
                 {/* Validation Status Box */}
                 <div className="pt-2 border-t border-slate-100 space-y-2">
-                  <div className={`flex items-center gap-2 text-xs font-extrabold ${sections.length > 0 ? "text-emerald-700" : "text-rose-600"}`}>
-                    {sections.length > 0 ? <CheckCircle2 size={16} /> : <AlertCircle size={16} />}
+                  <div
+                    className={`flex items-center gap-2 text-xs font-extrabold ${sections.length > 0 ? "text-emerald-700" : "text-rose-600"}`}
+                  >
+                    {sections.length > 0 ? (
+                      <CheckCircle2 size={16} />
+                    ) : (
+                      <AlertCircle size={16} />
+                    )}
                     <span>{t("checklistSectionsPassed")}</span>
                   </div>
 
-                  <div className={`flex items-center gap-2 text-xs font-extrabold ${totalLessonsCount > 0 && totalVideosAttachedCount === totalLessonsCount ? "text-emerald-700" : "text-rose-600"}`}>
-                    {totalLessonsCount > 0 && totalVideosAttachedCount === totalLessonsCount ? <CheckCircle2 size={16} /> : <AlertCircle size={16} />}
-                    <span>{t("checklistVideosPassed")} ({totalVideosAttachedCount}/{totalLessonsCount})</span>
+                  <div
+                    className={`flex items-center gap-2 text-xs font-extrabold ${totalLessonsCount > 0 && totalVideosAttachedCount === totalLessonsCount ? "text-emerald-700" : "text-rose-600"}`}
+                  >
+                    {totalLessonsCount > 0 &&
+                    totalVideosAttachedCount === totalLessonsCount ? (
+                      <CheckCircle2 size={16} />
+                    ) : (
+                      <AlertCircle size={16} />
+                    )}
+                    <span>
+                      {t("checklistVideosPassed")} ({totalVideosAttachedCount}/
+                      {totalLessonsCount})
+                    </span>
                   </div>
                 </div>
 
                 {/* Cover Thumbnail Preview */}
                 {coverPreview && (
                   <div className="pt-2">
-                    <span className="block text-[11px] font-extrabold text-slate-500 mb-1.5">{t("courseCoverTitle")}</span>
+                    <span className="block text-[11px] font-extrabold text-slate-500 mb-1.5">
+                      {t("courseCoverTitle")}
+                    </span>
                     <div className="h-28 w-full rounded-2xl overflow-hidden border border-slate-200">
                       <Image
                         src={coverPreview}
@@ -1838,7 +2079,6 @@ export function CreateCourseStudio({ initialId }: CreateCourseStudioProps = {}) 
                   </div>
                 )}
               </div>
-
             </div>
 
             {/* Bottom Navigation for Step 2 */}
@@ -1864,7 +2104,6 @@ export function CreateCourseStudio({ initialId }: CreateCourseStudioProps = {}) 
                 <ArrowRight className="w-4 h-4 rtl:rotate-180" />
               </button>
             </div>
-
           </div>
         )}
 
@@ -1873,7 +2112,6 @@ export function CreateCourseStudio({ initialId }: CreateCourseStudioProps = {}) 
         {/* ========================================================= */}
         {activeStep === "review" && (
           <div className="space-y-6 animate-in fade-in duration-200">
-            
             {/* Header Title & Actions */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
@@ -1901,7 +2139,11 @@ export function CreateCourseStudio({ initialId }: CreateCourseStudioProps = {}) 
                   disabled={isSaving}
                   className="px-3.5 py-2 rounded-xl border border-slate-200/90 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 shadow-2xs"
                 >
-                  {isSaving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5 text-[#0F5244]" />}
+                  {isSaving ? (
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  ) : (
+                    <Save className="w-3.5 h-3.5 text-[#0F5244]" />
+                  )}
                   <span>{t("saveDraft")}</span>
                 </button>
               </div>
@@ -1924,7 +2166,9 @@ export function CreateCourseStudio({ initialId }: CreateCourseStudioProps = {}) 
               <div className="p-5 rounded-3xl bg-rose-50 border border-rose-200 text-rose-900 flex items-start gap-3.5 shadow-2xs">
                 <AlertCircle className="w-6 h-6 text-rose-600 shrink-0 mt-0.5" />
                 <div className="space-y-2">
-                  <h3 className="text-sm font-black">{t("missingItemsAlert")}</h3>
+                  <h3 className="text-sm font-black">
+                    {t("missingItemsAlert")}
+                  </h3>
                   <div className="flex gap-2.5 flex-wrap">
                     {!isStep1Valid && (
                       <button
@@ -1952,7 +2196,6 @@ export function CreateCourseStudio({ initialId }: CreateCourseStudioProps = {}) 
             {/* Course Summary Hero Card */}
             <div className="bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-8 shadow-2xs space-y-6">
               <div className="flex flex-col md:flex-row gap-6 items-start">
-                
                 {/* Cover Image */}
                 <div className="relative w-full md:w-64 h-44 rounded-2xl overflow-hidden border border-slate-200 shrink-0 shadow-2xs bg-slate-100">
                   {coverPreview ? (
@@ -2003,33 +2246,48 @@ export function CreateCourseStudio({ initialId }: CreateCourseStudioProps = {}) 
                     {descEn}
                   </p>
                 </div>
-
               </div>
 
               {/* Statistics Grid */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-6 border-t border-slate-100">
                 <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/70 text-center">
                   <BookOpen className="w-5 h-5 text-[#0F5244] mx-auto mb-1" />
-                  <span className="text-[11px] font-bold text-slate-500 block">{t("totalSections")}</span>
-                  <span className="text-base font-black text-slate-900">{sections.length}</span>
+                  <span className="text-[11px] font-bold text-slate-500 block">
+                    {t("totalSections")}
+                  </span>
+                  <span className="text-base font-black text-slate-900">
+                    {sections.length}
+                  </span>
                 </div>
 
                 <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/70 text-center">
                   <Film className="w-5 h-5 text-[#0F5244] mx-auto mb-1" />
-                  <span className="text-[11px] font-bold text-slate-500 block">{t("totalLessons")}</span>
-                  <span className="text-base font-black text-slate-900">{totalLessonsCount}</span>
+                  <span className="text-[11px] font-bold text-slate-500 block">
+                    {t("totalLessons")}
+                  </span>
+                  <span className="text-base font-black text-slate-900">
+                    {totalLessonsCount}
+                  </span>
                 </div>
 
                 <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/70 text-center">
                   <Clock className="w-5 h-5 text-[#0F5244] mx-auto mb-1" />
-                  <span className="text-[11px] font-bold text-slate-500 block">{t("totalDuration")}</span>
-                  <span className="text-base font-black text-slate-900">{totalDurationMins} {t("minutes")}</span>
+                  <span className="text-[11px] font-bold text-slate-500 block">
+                    {t("totalDuration")}
+                  </span>
+                  <span className="text-base font-black text-slate-900">
+                    {totalDurationMins} {t("minutes")}
+                  </span>
                 </div>
 
                 <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/70 text-center">
                   <DollarSign className="w-5 h-5 text-[#0F5244] mx-auto mb-1" />
-                  <span className="text-[11px] font-bold text-slate-500 block">{t("priceLabel")}</span>
-                  <span className="text-base font-black text-slate-900">${price}</span>
+                  <span className="text-[11px] font-bold text-slate-500 block">
+                    {t("priceLabel")}
+                  </span>
+                  <span className="text-base font-black text-slate-900">
+                    ${price}
+                  </span>
                 </div>
               </div>
             </div>
@@ -2053,7 +2311,10 @@ export function CreateCourseStudio({ initialId }: CreateCourseStudioProps = {}) 
 
               <div className="space-y-4">
                 {sections.map((sec, sIdx) => (
-                  <div key={sec.id} className="rounded-2xl border border-slate-200/80 p-4 space-y-3 bg-slate-50/50">
+                  <div
+                    key={sec.id}
+                    className="rounded-2xl border border-slate-200/80 p-4 space-y-3 bg-slate-50/50"
+                  >
                     <div className="flex items-center justify-between">
                       <span className="font-extrabold text-slate-900 text-sm">
                         {sIdx + 1}. {sec.title}
@@ -2065,16 +2326,24 @@ export function CreateCourseStudio({ initialId }: CreateCourseStudioProps = {}) 
 
                     <div className="space-y-2 pl-4 rtl:pl-0 rtl:pr-4 border-l-2 rtl:border-l-0 rtl:border-r-2 border-slate-200">
                       {sec.lessons.map((les, lIdx) => {
-                        const hasVideo = Boolean(les.video_url || les.video_public_id);
+                        const hasVideo = Boolean(
+                          les.video_url || les.video_public_id,
+                        );
                         return (
                           <div
                             key={les.id}
                             className="flex items-center justify-between p-2.5 rounded-xl bg-white border border-slate-200/70 text-xs"
                           >
                             <div className="flex items-center gap-2 truncate">
-                              <PlayCircle size={15} className="text-[#0F5244] shrink-0" />
+                              <PlayCircle
+                                size={15}
+                                className="text-[#0F5244] shrink-0"
+                              />
                               <span className="font-bold text-slate-800 truncate">
-                                {lIdx + 1}. {isAr ? les.title_ar || les.title : les.title_en || les.title}
+                                {lIdx + 1}.{" "}
+                                {isAr
+                                  ? les.title_ar || les.title
+                                  : les.title_en || les.title}
                               </span>
                               {les.is_preview && (
                                 <span className="text-[10px] font-extrabold text-emerald-700 bg-emerald-50 px-1.5 py-0.2 rounded border border-emerald-200 shrink-0">
@@ -2093,7 +2362,9 @@ export function CreateCourseStudio({ initialId }: CreateCourseStudioProps = {}) 
                                   {t("noVideoWarning")}
                                 </span>
                               )}
-                              <span className="text-slate-400 font-mono text-[11px]">{les.duration}</span>
+                              <span className="text-slate-400 font-mono text-[11px]">
+                                {les.duration}
+                              </span>
                             </div>
                           </div>
                         );
@@ -2132,7 +2403,11 @@ export function CreateCourseStudio({ initialId }: CreateCourseStudioProps = {}) 
                       disabled={isSaving}
                       className="px-5 py-3 rounded-2xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 text-xs sm:text-sm font-extrabold flex items-center gap-2 transition-all cursor-pointer shadow-2xs"
                     >
-                      {isSaving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
+                      {isSaving ? (
+                        <Loader2 size={16} className="animate-spin" />
+                      ) : (
+                        <Save size={16} />
+                      )}
                       <span>{t("saveDraft")}</span>
                     </button>
 
@@ -2162,10 +2437,8 @@ export function CreateCourseStudio({ initialId }: CreateCourseStudioProps = {}) 
                 )}
               </div>
             </div>
-
           </div>
         )}
-
       </div>
 
       {/* Lesson Edit / Video Upload Modal */}
@@ -2178,7 +2451,9 @@ export function CreateCourseStudio({ initialId }: CreateCourseStudioProps = {}) 
                   <PlayCircle className="h-5 w-5 text-[#0F5244]" />
                 </div>
                 <h3 className="text-base font-black text-slate-900">
-                  {editingLessonInfo.isNew ? t("addNewLesson") : t("editLesson")}
+                  {editingLessonInfo.isNew
+                    ? t("addNewLesson")
+                    : t("editLesson")}
                 </h3>
               </div>
               <button
@@ -2196,18 +2471,25 @@ export function CreateCourseStudio({ initialId }: CreateCourseStudioProps = {}) 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="space-y-1">
                   <label className="block text-xs font-bold text-slate-700">
-                    {t("lessonTitleEn")} <span className="text-rose-500">*</span>
+                    {t("lessonTitleEn")}{" "}
+                    <span className="text-rose-500">*</span>
                   </label>
                   <input
                     type="text"
-                    value={editingLessonInfo.lesson.title_en ?? editingLessonInfo.lesson.title ?? ""}
+                    value={
+                      editingLessonInfo.lesson.title_en ??
+                      editingLessonInfo.lesson.title ??
+                      ""
+                    }
                     onChange={(e) =>
                       setEditingLessonInfo({
                         ...editingLessonInfo,
                         lesson: {
                           ...editingLessonInfo.lesson,
                           title_en: e.target.value,
-                          title: isAr ? editingLessonInfo.lesson.title : e.target.value,
+                          title: isAr
+                            ? editingLessonInfo.lesson.title
+                            : e.target.value,
                         },
                       })
                     }
@@ -2230,7 +2512,9 @@ export function CreateCourseStudio({ initialId }: CreateCourseStudioProps = {}) 
                         lesson: {
                           ...editingLessonInfo.lesson,
                           title_ar: e.target.value,
-                          title: isAr ? e.target.value : editingLessonInfo.lesson.title,
+                          title: isAr
+                            ? e.target.value
+                            : editingLessonInfo.lesson.title,
                         },
                       })
                     }
@@ -2269,7 +2553,10 @@ export function CreateCourseStudio({ initialId }: CreateCourseStudioProps = {}) 
                   <label className="flex items-center gap-2 cursor-pointer select-none">
                     <input
                       type="checkbox"
-                      checked={Boolean(editingLessonInfo.lesson.is_preview || editingLessonInfo.lesson.isFreePreview)}
+                      checked={Boolean(
+                        editingLessonInfo.lesson.is_preview ||
+                        editingLessonInfo.lesson.isFreePreview,
+                      )}
                       onChange={(e) =>
                         setEditingLessonInfo({
                           ...editingLessonInfo,
@@ -2294,7 +2581,11 @@ export function CreateCourseStudio({ initialId }: CreateCourseStudioProps = {}) 
                 <LessonVideoUploader
                   courseId={courseId}
                   sectionId={editingLessonInfo.sectionId}
-                  lessonId={editingLessonInfo.isNew ? undefined : editingLessonInfo.lesson.id}
+                  lessonId={
+                    editingLessonInfo.isNew
+                      ? undefined
+                      : editingLessonInfo.lesson.id
+                  }
                   initialVideoUrl={editingLessonInfo.lesson.video_url}
                   isAr={isAr}
                   lessonData={{
@@ -2381,7 +2672,7 @@ export function CreateCourseStudio({ initialId }: CreateCourseStudioProps = {}) 
             <div className="w-16 h-16 rounded-3xl bg-emerald-100 text-[#0F5244] flex items-center justify-center mx-auto shadow-sm">
               <Sparkles size={32} />
             </div>
-            
+
             <div className="space-y-2">
               <h3 className="text-xl font-black text-slate-900">
                 {t("courseSubmittedSuccess")}
@@ -2432,7 +2723,9 @@ export function CreateCourseStudio({ initialId }: CreateCourseStudioProps = {}) 
         onAction={() => {
           setShowIncompleteModal(false);
           const checklist = getSubmissionChecklist();
-          const missingCover = checklist.some((i) => i.id === "cover" && !i.isComplete);
+          const missingCover = checklist.some(
+            (i) => i.id === "cover" && !i.isComplete,
+          );
           if (missingCover || !isStep1Valid) {
             setActiveStep("info");
           } else {

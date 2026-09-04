@@ -44,20 +44,32 @@ import { Sidebar } from "@/components/layout/Sidebar";
 import { VerifiedBadge } from "@/components/ui/VerifiedBadge";
 import { instructorCourseService } from "@/services/instructorCourseService";
 import { courseService } from "@/services/courseService";
-import { getSavedInstructorOverrides, normalizeInstructorSlug, getSavedCourseStatus, saveCourseStatus, removeCourseStatus } from "@/lib/mockInstructors";
+import {
+  getSavedInstructorOverrides,
+  normalizeInstructorSlug,
+  getSavedCourseStatus,
+  saveCourseStatus,
+  removeCourseStatus,
+} from "@/lib/instructorProfile";
 
 import { ArchiveCourseModal } from "@/components/modals/ArchiveCourseModal";
 import { DeleteCourseModal } from "@/components/modals/DeleteCourseModal";
 import { ChangeEmailModal } from "@/components/modals/ChangeEmailModal";
 import { InstructorPendingModal } from "@/components/modals/InstructorPendingModal";
-import { CourseIncompleteModal, IncompleteItem } from "@/components/modals/CourseIncompleteModal";
+import {
+  CourseIncompleteModal,
+  IncompleteItem,
+} from "@/components/modals/CourseIncompleteModal";
 
 interface InstructorWorkspaceProps {
   initialTab?: "overview" | "courses" | "students" | "payout" | "settings";
   hideSidebar?: boolean;
 }
 
-export function InstructorWorkspace({ initialTab = "courses", hideSidebar = true }: InstructorWorkspaceProps) {
+export function InstructorWorkspace({
+  initialTab = "courses",
+  hideSidebar = true,
+}: InstructorWorkspaceProps) {
   const locale = useLocale() || "en";
   const isAr = locale === "ar";
   const t = useTranslations("account");
@@ -76,18 +88,32 @@ export function InstructorWorkspace({ initialTab = "courses", hideSidebar = true
   const initialStatus = approvalStatus;
 
   // Active Workspace Section - default to settings if not approved
-  const defaultTab = initialStatus !== "approved" && initialTab !== "settings" ? "settings" : initialTab;
-  const [activeTab, setActiveTab] = useState<"overview" | "courses" | "students" | "payout" | "settings">(defaultTab);
+  const defaultTab =
+    initialStatus !== "approved" && initialTab !== "settings"
+      ? "settings"
+      : initialTab;
+  const [activeTab, setActiveTab] = useState<
+    "overview" | "courses" | "students" | "payout" | "settings"
+  >(defaultTab);
   const [studentSearch, setStudentSearch] = useState("");
-  const [courseFilter, setCourseFilter] = useState<"all" | "active" | "published" | "pending_review" | "draft" | "archived">("active");
+  const [courseFilter, setCourseFilter] = useState<
+    "all" | "active" | "published" | "pending_review" | "draft" | "archived"
+  >("active");
 
   // Toast & Modals
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [showEmailModal, setShowEmailModal] = useState(false);
   const [showPendingModal, setShowPendingModal] = useState(false);
-  const [pendingFeatureName, setPendingFeatureName] = useState<string | undefined>(undefined);
-  const [archiveModalCourseId, setArchiveModalCourseId] = useState<string | null>(null);
-  const [deleteModalCourse, setDeleteModalCourse] = useState<{ id: string; title: string } | null>(null);
+  const [pendingFeatureName, setPendingFeatureName] = useState<
+    string | undefined
+  >(undefined);
+  const [archiveModalCourseId, setArchiveModalCourseId] = useState<
+    string | null
+  >(null);
+  const [deleteModalCourse, setDeleteModalCourse] = useState<{
+    id: string;
+    title: string;
+  } | null>(null);
   const [isDeletingCourse, setIsDeletingCourse] = useState(false);
   const [incompleteModalData, setIncompleteModalData] = useState<{
     isOpen: boolean;
@@ -104,7 +130,9 @@ export function InstructorWorkspace({ initialTab = "courses", hideSidebar = true
   // Instructor Courses State
   const [courses, setCourses] = useState<any[]>([]);
   const [isLoadingCourses, setIsLoadingCourses] = useState(true);
-  const [submittingCourseId, setSubmittingCourseId] = useState<string | null>(null);
+  const [submittingCourseId, setSubmittingCourseId] = useState<string | null>(
+    null,
+  );
 
   // Fetch real instructor courses strictly for the authenticated instructor
   const fetchMyCourses = useCallback(async () => {
@@ -122,7 +150,12 @@ export function InstructorWorkspace({ initialTab = "courses", hideSidebar = true
       const realCourses = list.map((c: any) => {
         const rawStatus = String(c.status || "").toLowerCase();
         const savedStatus = getSavedCourseStatus(c.id);
-        let normalizedStatus: "published" | "pending_review" | "draft" | "rejected" | "archived" = "draft";
+        let normalizedStatus:
+          | "published"
+          | "pending_review"
+          | "draft"
+          | "rejected"
+          | "archived" = "draft";
         if (
           rawStatus === "pending_review" ||
           rawStatus === "pending" ||
@@ -130,7 +163,11 @@ export function InstructorWorkspace({ initialTab = "courses", hideSidebar = true
           rawStatus === "in_review"
         ) {
           normalizedStatus = "pending_review";
-        } else if (rawStatus === "published" || rawStatus === "approved" || (c.is_published && rawStatus !== "draft" && rawStatus !== "rejected")) {
+        } else if (
+          rawStatus === "published" ||
+          rawStatus === "approved" ||
+          (c.is_published && rawStatus !== "draft" && rawStatus !== "rejected")
+        ) {
           removeCourseStatus(c.id);
           normalizedStatus = "published";
         } else if (rawStatus === "rejected" || rawStatus === "declined") {
@@ -146,20 +183,28 @@ export function InstructorWorkspace({ initialTab = "courses", hideSidebar = true
 
         return {
           id: String(c.id),
-          title: isAr ? c.title_ar || c.title_en || c.title : c.title_en || c.title_ar || c.title,
+          title: isAr
+            ? c.title_ar || c.title_en || c.title
+            : c.title_en || c.title_ar || c.title,
           titleEn: c.title_en || c.title || tInst("untitledCourse"),
           titleAr: c.title_ar || c.title || tInst("untitledCourse"),
           studentsCount: Number(c.students_count || c.total_students || 0),
           rating: Number(c.rating || 0),
           reviewsCount: Number(c.reviews_count || c.reviewsCount || 0),
-          revenue: Number(c.revenue || (c.price ? Number(c.price) * (c.students_count || 0) : 0)),
+          revenue: Number(
+            c.revenue ||
+              (c.price ? Number(c.price) * (c.students_count || 0) : 0),
+          ),
           status: normalizedStatus,
           price: Number(c.price) || 0,
           level: c.level || "Beginner",
           image:
             c.cover_image ||
             c.coverImage ||
-            (typeof c.image === "string" && !c.image.includes("unsplash.com/photo-1516321318423") ? c.image : ""),
+            (typeof c.image === "string" &&
+            !c.image.includes("unsplash.com/photo-1516321318423")
+              ? c.image
+              : ""),
           rejectionReason:
             (isAr ? c.rejection_reason_ar : c.rejection_reason_en) ||
             c.rejection_reason ||
@@ -172,7 +217,11 @@ export function InstructorWorkspace({ initialTab = "courses", hideSidebar = true
             c.rejection_comment ||
             "",
           sections: c.sections || [],
-          enrolledStudents: Array.isArray(c.enrolled_students) ? c.enrolled_students : Array.isArray(c.students) ? c.students : [],
+          enrolledStudents: Array.isArray(c.enrolled_students)
+            ? c.enrolled_students
+            : Array.isArray(c.students)
+              ? c.students
+              : [],
           isReal: true,
         };
       });
@@ -184,16 +233,29 @@ export function InstructorWorkspace({ initialTab = "courses", hideSidebar = true
       const allDynamicStudents: any[] = [];
       realCourses.forEach((c: any) => {
         const count = Number(c.studentsCount || 0);
-        if (Array.isArray(c.enrolledStudents) && c.enrolledStudents.length > 0) {
+        if (
+          Array.isArray(c.enrolledStudents) &&
+          c.enrolledStudents.length > 0
+        ) {
           c.enrolledStudents.forEach((st: any, idx: number) => {
             allDynamicStudents.push({
               id: String(st.id || `${c.id}-st-${idx + 1}`),
               courseId: String(c.id),
-              name: st.full_name || st.name || st.email?.split("@")[0] || (isAr ? `طالب مسجل ${idx + 1}` : `Student ${idx + 1}`),
+              name:
+                st.full_name ||
+                st.name ||
+                st.email?.split("@")[0] ||
+                (isAr ? `طالب مسجل ${idx + 1}` : `Student ${idx + 1}`),
               email: st.email || `student${idx + 1}@example.com`,
               avatar: st.avatar || null,
               course: isAr ? c.titleAr : c.titleEn,
-              date: st.enrolled_at ? new Date(st.enrolled_at).toLocaleDateString(isAr ? "ar-EG" : "en-US") : (isAr ? "منذ يومين" : "2 days ago"),
+              date: st.enrolled_at
+                ? new Date(st.enrolled_at).toLocaleDateString(
+                    isAr ? "ar-EG" : "en-US",
+                  )
+                : isAr
+                  ? "منذ يومين"
+                  : "2 days ago",
               progress: typeof st.progress === "number" ? st.progress : 65,
               status: st.is_completed ? "completed" : "active",
             });
@@ -216,11 +278,15 @@ export function InstructorWorkspace({ initialTab = "courses", hideSidebar = true
 
   // Enrolled Students Data & Drawer State
   const [students, setStudents] = useState<any[]>([]);
-  const [expandedCourseStudentsId, setExpandedCourseStudentsId] = useState<string | null>(null);
+  const [expandedCourseStudentsId, setExpandedCourseStudentsId] = useState<
+    string | null
+  >(null);
 
   // Avatar & Profile State
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [avatarPreview, setAvatarPreview] = useState<string | null>(authUser?.avatar || null);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(
+    authUser?.avatar || null,
+  );
 
   // Form State
   const [formData, setFormData] = useState({
@@ -248,7 +314,9 @@ export function InstructorWorkspace({ initialTab = "courses", hideSidebar = true
 
   useEffect(() => {
     const userFullName = authUser?.fullName || authUser?.name || "";
-    const activeSlug = userFullName ? normalizeInstructorSlug(userFullName) : "";
+    const activeSlug = userFullName
+      ? normalizeInstructorSlug(userFullName)
+      : "";
     const overrides = activeSlug
       ? {
           ...(getSavedInstructorOverrides(activeSlug) || {}),
@@ -261,18 +329,25 @@ export function InstructorWorkspace({ initialTab = "courses", hideSidebar = true
       !rawHeadline ||
       rawHeadline.toLowerCase().includes("student") ||
       rawHeadline.includes("طالب");
-    const safeHeadline = isStudentHeadline ? tInst("defaultHeadline") : rawHeadline;
+    const safeHeadline = isStudentHeadline
+      ? tInst("defaultHeadline")
+      : rawHeadline;
 
     setFormData((prev) => ({
       ...prev,
-      fullName: authUser?.fullName || authUser?.name || overrides.name || prev.fullName,
+      fullName:
+        authUser?.fullName || authUser?.name || overrides.name || prev.fullName,
       headline: safeHeadline || prev.headline,
       email: authUser?.email || prev.email,
     }));
     setAvatarPreview(authUser?.avatar || overrides.avatar || null);
   }, [authUser]);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+  const handleInputChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >,
+  ) => {
     const { name, value, type } = e.target;
     if (type === "checkbox") {
       const checked = (e.target as HTMLInputElement).checked;
@@ -300,7 +375,7 @@ export function InstructorWorkspace({ initialTab = "courses", hideSidebar = true
           phone_number: updated.phone_number || undefined,
           preferred_language: updated.preferred_language || locale,
           preferredLanguage: updated.preferred_language || locale,
-        })
+        }),
       );
 
       setToastMessage(tInst("profileSavedToast"));
@@ -309,8 +384,12 @@ export function InstructorWorkspace({ initialTab = "courses", hideSidebar = true
       const errorMsg =
         err?.response?.data?.detail ||
         err?.response?.data?.message ||
-        (isAr ? "فشل حفظ الملف الشخصي. يرجى المحاولة مرة أخرى." : "Failed to save profile. Please try again.");
-      setToastMessage(typeof errorMsg === "string" ? errorMsg : tInst("profileSavedToast"));
+        (isAr
+          ? "فشل حفظ الملف الشخصي. يرجى المحاولة مرة أخرى."
+          : "Failed to save profile. Please try again.");
+      setToastMessage(
+        typeof errorMsg === "string" ? errorMsg : tInst("profileSavedToast"),
+      );
     } finally {
       setIsSaving(false);
       setTimeout(() => setToastMessage(null), 3500);
@@ -322,34 +401,53 @@ export function InstructorWorkspace({ initialTab = "courses", hideSidebar = true
       setSubmittingCourseId(courseId);
 
       // 1. Fetch full course details to inspect all sections, lessons, and cover image
-      let detailedCourse = courses.find((c) => String(c.id) === String(courseId));
+      let detailedCourse = courses.find(
+        (c) => String(c.id) === String(courseId),
+      );
       try {
-        const fetched = await instructorCourseService.getInstructorCourse(courseId);
+        const fetched =
+          await instructorCourseService.getInstructorCourse(courseId);
         if (fetched) {
           detailedCourse = {
             ...detailedCourse,
             ...fetched,
             sections: fetched.sections || detailedCourse?.sections || [],
-            cover_image: fetched.cover_image || fetched.coverImage || detailedCourse?.image,
+            cover_image:
+              fetched.cover_image ||
+              fetched.coverImage ||
+              detailedCourse?.image,
           };
         }
       } catch (fetchErr) {
-        console.warn("Could not fetch full course for validation check:", fetchErr);
+        console.warn(
+          "Could not fetch full course for validation check:",
+          fetchErr,
+        );
       }
 
       // 2. Comprehensive Course Completeness Validation (Image, Sections, Lessons, Videos)
       const hasCover = Boolean(
         detailedCourse?.cover_image ||
         detailedCourse?.coverImage ||
-        (detailedCourse?.image && typeof detailedCourse.image === "string" && !detailedCourse.image.includes("unsplash.com/photo-1516321318423"))
+        (detailedCourse?.image &&
+          typeof detailedCourse.image === "string" &&
+          !detailedCourse.image.includes("unsplash.com/photo-1516321318423")),
       );
 
       const sections = detailedCourse?.sections || [];
       const hasSections = Array.isArray(sections) && sections.length > 0;
-      const hasLessons = hasSections && sections.every((s: any) => Array.isArray(s.lessons) && s.lessons.length > 0);
-      const hasVideos = hasLessons && sections.every((s: any) =>
-        s.lessons.every((l: any) => Boolean(l.video_url || l.video_public_id || l.videoUrl))
-      );
+      const hasLessons =
+        hasSections &&
+        sections.every(
+          (s: any) => Array.isArray(s.lessons) && s.lessons.length > 0,
+        );
+      const hasVideos =
+        hasLessons &&
+        sections.every((s: any) =>
+          s.lessons.every((l: any) =>
+            Boolean(l.video_url || l.video_public_id || l.videoUrl),
+          ),
+        );
 
       const checklist: IncompleteItem[] = [
         {
@@ -391,13 +489,18 @@ export function InstructorWorkspace({ initialTab = "courses", hideSidebar = true
         setIncompleteModalData({
           isOpen: true,
           courseId: String(courseId),
-          courseTitle: (isAr ? detailedCourse?.titleAr || detailedCourse?.title : detailedCourse?.titleEn || detailedCourse?.title) || "",
+          courseTitle:
+            (isAr
+              ? detailedCourse?.titleAr || detailedCourse?.title
+              : detailedCourse?.titleEn || detailedCourse?.title) || "",
           missingItems: checklist,
         });
         return;
       }
 
-      const previousCourse = courses.find((c) => String(c.id) === String(courseId));
+      const previousCourse = courses.find(
+        (c) => String(c.id) === String(courseId),
+      );
       const previousStatus = previousCourse?.status || "draft";
 
       // Persist pending_review locally so it stays across refetches
@@ -405,7 +508,11 @@ export function InstructorWorkspace({ initialTab = "courses", hideSidebar = true
 
       // Optimistic local update: immediately switch to pending_review and clear actions
       setCourses((prev) =>
-        prev.map((c) => (String(c.id) === String(courseId) ? { ...c, status: "pending_review", rejectionReason: "" } : c))
+        prev.map((c) =>
+          String(c.id) === String(courseId)
+            ? { ...c, status: "pending_review", rejectionReason: "" }
+            : c,
+        ),
       );
 
       try {
@@ -417,7 +524,11 @@ export function InstructorWorkspace({ initialTab = "courses", hideSidebar = true
         removeCourseStatus(courseId);
         // Revert on actual API failure
         setCourses((prev) =>
-          prev.map((c) => (String(c.id) === String(courseId) ? { ...c, status: previousStatus } : c))
+          prev.map((c) =>
+            String(c.id) === String(courseId)
+              ? { ...c, status: previousStatus }
+              : c,
+          ),
         );
         const errorMsg =
           err?.response?.data?.detail ||
@@ -449,7 +560,9 @@ export function InstructorWorkspace({ initialTab = "courses", hideSidebar = true
     const nextStatus = isCurrentlyArchived ? "published" : "archived";
 
     try {
-      await instructorCourseService.updateCourse(courseId, { status: nextStatus });
+      await instructorCourseService.updateCourse(courseId, {
+        status: nextStatus,
+      });
       if (isCurrentlyArchived) {
         setToastMessage(tInst("courseUnarchivedToast"));
       } else {
@@ -459,9 +572,7 @@ export function InstructorWorkspace({ initialTab = "courses", hideSidebar = true
     } catch (err: any) {
       console.warn("Could not archive/unarchive course via API:", err);
       setCourses((prev) =>
-        prev.map((c) =>
-          c.id === courseId ? { ...c, status: nextStatus } : c
-        )
+        prev.map((c) => (c.id === courseId ? { ...c, status: nextStatus } : c)),
       );
       if (isCurrentlyArchived) {
         setToastMessage(tInst("courseUnarchivedToast"));
@@ -483,22 +594,28 @@ export function InstructorWorkspace({ initialTab = "courses", hideSidebar = true
     setIsDeletingCourse(true);
     try {
       const res = await instructorCourseService.deleteCourse(courseId);
-      
+
       if (res.status === 204) {
         // 204 No Content: Course had no enrollments and was permanently deleted
         setToastMessage(tInst("courseDeletedToast"));
-        setCourses((prev) => prev.filter((c) => String(c.id) !== String(courseId)));
+        setCourses((prev) =>
+          prev.filter((c) => String(c.id) !== String(courseId)),
+        );
       } else if (res.archived || res.status === 200) {
         // 200 OK: Course had enrollments -> automatically archived
         setToastMessage(tInst("courseArchivedNotice"));
         setCourses((prev) =>
           prev.map((c) =>
-            String(c.id) === String(courseId) ? { ...c, status: "archived" } : c
-          )
+            String(c.id) === String(courseId)
+              ? { ...c, status: "archived" }
+              : c,
+          ),
         );
       } else {
         setToastMessage(tInst("courseDeletedToast"));
-        setCourses((prev) => prev.filter((c) => String(c.id) !== String(courseId)));
+        setCourses((prev) =>
+          prev.filter((c) => String(c.id) !== String(courseId)),
+        );
       }
 
       // Re-fetch courses from backend
@@ -511,7 +628,8 @@ export function InstructorWorkspace({ initialTab = "courses", hideSidebar = true
       } else if (status === 403) {
         setToastMessage(tInst("deleteCourseForbidden"));
       } else {
-        const errorDetail = err?.response?.data?.detail || err?.response?.data?.message;
+        const errorDetail =
+          err?.response?.data?.detail || err?.response?.data?.message;
         setToastMessage(errorDetail || tInst("deleteCourseError"));
       }
     } finally {
@@ -541,16 +659,21 @@ export function InstructorWorkspace({ initialTab = "courses", hideSidebar = true
   const filteredStudents = students.filter(
     (s) =>
       s.name.toLowerCase().includes(studentSearch.toLowerCase()) ||
-      s.course.toLowerCase().includes(studentSearch.toLowerCase())
+      s.course.toLowerCase().includes(studentSearch.toLowerCase()),
   );
 
   return (
-    <div className="w-full space-y-4 sm:space-y-6 font-sans" dir={isAr ? "rtl" : "ltr"}>
+    <div
+      className="w-full space-y-4 sm:space-y-6 font-sans"
+      dir={isAr ? "rtl" : "ltr"}
+    >
       {/* Toast Notification */}
       {toastMessage && (
         <div className="fixed bottom-6 right-6 rtl:right-auto rtl:left-6 z-50 flex items-center gap-3 bg-slate-900/95 text-white px-5 py-3.5 rounded-2xl shadow-2xl border border-slate-800 backdrop-blur-md animate-in slide-in-from-bottom-4 duration-200">
           <CheckCircle2 className="h-4.5 w-4.5 text-emerald-400 shrink-0" />
-          <span className="text-xs sm:text-sm font-extrabold">{toastMessage}</span>
+          <span className="text-xs sm:text-sm font-extrabold">
+            {toastMessage}
+          </span>
           <button
             type="button"
             onClick={() => setToastMessage(null)}
@@ -591,7 +714,9 @@ export function InstructorWorkspace({ initialTab = "courses", hideSidebar = true
                     className="w-full h-full object-cover rounded-full"
                   />
                 ) : (
-                  <span className="font-extrabold text-2xl text-[#0F5244]">{formData.fullName.charAt(0)}</span>
+                  <span className="font-extrabold text-2xl text-[#0F5244]">
+                    {formData.fullName.charAt(0)}
+                  </span>
                 )}
               </div>
               <span className="absolute bottom-0 right-0 rtl:right-auto rtl:left-0 w-3.5 h-3.5 bg-emerald-500 border-2 border-white rounded-full" />
@@ -599,11 +724,17 @@ export function InstructorWorkspace({ initialTab = "courses", hideSidebar = true
 
             <div className="space-y-1">
               <div className="flex items-center justify-center sm:justify-start gap-2 flex-wrap">
-                <h1 className="text-lg sm:text-2xl font-black text-slate-900">{formData.fullName}</h1>
+                <h1 className="text-lg sm:text-2xl font-black text-slate-900">
+                  {formData.fullName}
+                </h1>
                 <VerifiedBadge size="sm" />
               </div>
-              <p className="text-xs text-slate-500 font-medium">{formData.headline}</p>
-              <p className="text-[11px] text-slate-400 font-medium pt-0.5">{formData.email}</p>
+              <p className="text-xs text-slate-500 font-medium">
+                {formData.headline}
+              </p>
+              <p className="text-[11px] text-slate-400 font-medium pt-0.5">
+                {formData.email}
+              </p>
             </div>
           </div>
         </div>
@@ -618,8 +749,8 @@ export function InstructorWorkspace({ initialTab = "courses", hideSidebar = true
                 approvalStatus === "approved"
                   ? "bg-emerald-50 text-[#0F5244] border-emerald-200"
                   : approvalStatus === "rejected"
-                  ? "bg-rose-50 text-rose-700 border-rose-200"
-                  : "bg-amber-50 text-amber-800 border-amber-200"
+                    ? "bg-rose-50 text-rose-700 border-rose-200"
+                    : "bg-amber-50 text-amber-800 border-amber-200"
               }`}
             >
               {approvalStatus === "approved" ? (
@@ -640,8 +771,8 @@ export function InstructorWorkspace({ initialTab = "courses", hideSidebar = true
                     approvalStatus === "approved"
                       ? "bg-emerald-100 text-[#0F5244] border border-emerald-200"
                       : approvalStatus === "rejected"
-                      ? "bg-rose-100 text-rose-800 border border-rose-200"
-                      : "bg-amber-50 text-amber-800 border border-amber-200/90 inline-flex items-center gap-1.5"
+                        ? "bg-rose-100 text-rose-800 border border-rose-200"
+                        : "bg-amber-50 text-amber-800 border border-amber-200/90 inline-flex items-center gap-1.5"
                   }`}
                 >
                   {approvalStatus === "pending" && (
@@ -651,8 +782,8 @@ export function InstructorWorkspace({ initialTab = "courses", hideSidebar = true
                     {approvalStatus === "approved"
                       ? tInst("approvedBadge")
                       : approvalStatus === "rejected"
-                      ? tInst("rejectedBadge")
-                      : tInst("underReviewBadge")}
+                        ? tInst("rejectedBadge")
+                        : tInst("underReviewBadge")}
                   </span>
                 </span>
               </div>
@@ -660,8 +791,8 @@ export function InstructorWorkspace({ initialTab = "courses", hideSidebar = true
                 {approvalStatus === "approved"
                   ? tInst("approvedDescription")
                   : approvalStatus === "rejected"
-                  ? tInst("rejectedDescription")
-                  : tInst("pendingNotice")}
+                    ? tInst("rejectedDescription")
+                    : tInst("pendingNotice")}
               </p>
             </div>
           </div>
@@ -669,7 +800,13 @@ export function InstructorWorkspace({ initialTab = "courses", hideSidebar = true
       )}
 
       {/* Main Workspace Layout */}
-      <div className={hideSidebar ? "w-full bg-white rounded-2xl sm:rounded-3xl border border-slate-200/80 p-4 sm:p-10 shadow-2xs" : "flex flex-col md:flex-row gap-6 sm:gap-8 lg:gap-10 items-start"}>
+      <div
+        className={
+          hideSidebar
+            ? "w-full bg-white rounded-2xl sm:rounded-3xl border border-slate-200/80 p-4 sm:p-10 shadow-2xs"
+            : "flex flex-col md:flex-row gap-6 sm:gap-8 lg:gap-10 items-start"
+        }
+      >
         {!hideSidebar && (
           <Sidebar
             activeTab={activeTab}
@@ -688,11 +825,31 @@ export function InstructorWorkspace({ initialTab = "courses", hideSidebar = true
               setActiveTab(tabId as any);
             }}
             items={[
-              { id: "overview", label: tInst("analyticsRevenue"), icon: LayoutDashboard },
-              { id: "courses", label: tInst("courseLifecycle"), icon: BookOpen },
-              { id: "students", label: tInst("enrolledStudentsNav"), icon: Users },
-              { id: "payout", label: tInst("payoutAndBilling"), icon: CreditCard },
-              { id: "profile", label: tInst("profileNav") || t("profile"), icon: User },
+              {
+                id: "overview",
+                label: tInst("analyticsRevenue"),
+                icon: LayoutDashboard,
+              },
+              {
+                id: "courses",
+                label: tInst("courseLifecycle"),
+                icon: BookOpen,
+              },
+              {
+                id: "students",
+                label: tInst("enrolledStudentsNav"),
+                icon: Users,
+              },
+              {
+                id: "payout",
+                label: tInst("payoutAndBilling"),
+                icon: CreditCard,
+              },
+              {
+                id: "profile",
+                label: tInst("profileNav") || t("profile"),
+                icon: User,
+              },
               { id: "settings", label: t("accountSettings"), icon: Settings },
             ]}
             user={{
@@ -705,8 +862,13 @@ export function InstructorWorkspace({ initialTab = "courses", hideSidebar = true
         )}
 
         {/* Display Area */}
-        <div className={hideSidebar ? "w-full" : "flex-1 w-full bg-white rounded-2xl sm:rounded-3xl border border-slate-200/80 p-4 sm:p-10 shadow-2xs"}>
-          
+        <div
+          className={
+            hideSidebar
+              ? "w-full"
+              : "flex-1 w-full bg-white rounded-2xl sm:rounded-3xl border border-slate-200/80 p-4 sm:p-10 shadow-2xs"
+          }
+        >
           {/* OVERVIEW / ANALYTICS TAB */}
           {activeTab === "overview" && (
             <div className="space-y-8 animate-in fade-in duration-150">
@@ -716,27 +878,45 @@ export function InstructorWorkspace({ initialTab = "courses", hideSidebar = true
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
                 <div className="p-5 rounded-2xl bg-emerald-50 border border-emerald-100">
-                  <span className="text-xs font-bold text-[#0F5244] uppercase">{tInst("enrolledStudentsNav")}</span>
+                  <span className="text-xs font-bold text-[#0F5244] uppercase">
+                    {tInst("enrolledStudentsNav")}
+                  </span>
                   <div className="text-2xl font-black text-[#0F5244]">
-                    {courses.reduce((acc, curr) => acc + Number(curr.studentsCount || 0), 0)}
+                    {courses.reduce(
+                      (acc, curr) => acc + Number(curr.studentsCount || 0),
+                      0,
+                    )}
                   </div>
                 </div>
                 <div className="p-5 rounded-2xl bg-teal-50 border border-teal-100">
-                  <span className="text-xs font-bold text-teal-800 uppercase">{tInst("payoutAndBilling")}</span>
+                  <span className="text-xs font-bold text-teal-800 uppercase">
+                    {tInst("payoutAndBilling")}
+                  </span>
                   <div className="text-2xl font-black text-teal-950">
-                    ${courses.reduce((acc, curr) => acc + Number(curr.revenue || 0), 0).toLocaleString()}
+                    $
+                    {courses
+                      .reduce((acc, curr) => acc + Number(curr.revenue || 0), 0)
+                      .toLocaleString()}
                   </div>
                 </div>
                 <div className="p-5 rounded-2xl bg-amber-50 border border-amber-100">
-                  <span className="text-xs font-bold text-amber-800 uppercase">{tInst("ratingLabel")}</span>
+                  <span className="text-xs font-bold text-amber-800 uppercase">
+                    {tInst("ratingLabel")}
+                  </span>
                   <div className="text-2xl font-black text-amber-900 flex items-center gap-1">
                     <span>
-                      {courses.filter((c) => Number(c.reviewsCount || 0) > 0).length > 0
+                      {courses.filter((c) => Number(c.reviewsCount || 0) > 0)
+                        .length > 0
                         ? (
                             courses
                               .filter((c) => Number(c.reviewsCount || 0) > 0)
-                              .reduce((acc, curr) => acc + Number(curr.rating || 0), 0) /
-                            courses.filter((c) => Number(c.reviewsCount || 0) > 0).length
+                              .reduce(
+                                (acc, curr) => acc + Number(curr.rating || 0),
+                                0,
+                              ) /
+                            courses.filter(
+                              (c) => Number(c.reviewsCount || 0) > 0,
+                            ).length
                           ).toFixed(1)
                         : "—"}
                     </span>
@@ -750,7 +930,6 @@ export function InstructorWorkspace({ initialTab = "courses", hideSidebar = true
           {/* COURSE MANAGER & LIFECYCLE TAB */}
           {activeTab === "courses" && (
             <div className="space-y-6 sm:space-y-8 animate-in fade-in duration-200">
-              
               {/* 1. Executive Gradient Hero Header Card */}
               <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#06241E] via-[#0F5244] to-[#0A3D33] text-white p-6 sm:p-8 shadow-xl border border-emerald-700/40">
                 {/* Ambient Decorative Background Glows */}
@@ -792,7 +971,9 @@ export function InstructorWorkspace({ initialTab = "courses", hideSidebar = true
                       <span>{tInst("totalCourses")}</span>
                       <Layers className="w-4 h-4 text-emerald-300" />
                     </div>
-                    <div className="text-2xl sm:text-3xl font-black text-white">{courses.length}</div>
+                    <div className="text-2xl sm:text-3xl font-black text-white">
+                      {courses.length}
+                    </div>
                   </div>
 
                   {/* Metric 2: Published */}
@@ -813,7 +994,10 @@ export function InstructorWorkspace({ initialTab = "courses", hideSidebar = true
                       <Clock className="w-4 h-4 text-amber-300" />
                     </div>
                     <div className="text-2xl sm:text-3xl font-black text-amber-200">
-                      {courses.filter((c) => c.status === "pending_review").length}
+                      {
+                        courses.filter((c) => c.status === "pending_review")
+                          .length
+                      }
                     </div>
                   </div>
 
@@ -824,7 +1008,12 @@ export function InstructorWorkspace({ initialTab = "courses", hideSidebar = true
                       <Edit2 className="w-4 h-4 text-slate-300" />
                     </div>
                     <div className="text-2xl sm:text-3xl font-black text-white">
-                      {courses.filter((c) => c.status === "draft" || c.status === "rejected").length}
+                      {
+                        courses.filter(
+                          (c) =>
+                            c.status === "draft" || c.status === "rejected",
+                        ).length
+                      }
                     </div>
                   </div>
                 </div>
@@ -895,7 +1084,10 @@ export function InstructorWorkspace({ initialTab = "courses", hideSidebar = true
                           : "bg-amber-100 text-amber-800"
                       }`}
                     >
-                      {courses.filter((c) => c.status === "pending_review").length}
+                      {
+                        courses.filter((c) => c.status === "pending_review")
+                          .length
+                      }
                     </span>
                   </button>
 
@@ -917,7 +1109,12 @@ export function InstructorWorkspace({ initialTab = "courses", hideSidebar = true
                           : "bg-slate-100 text-slate-600"
                       }`}
                     >
-                      {courses.filter((c) => c.status === "draft" || c.status === "rejected").length}
+                      {
+                        courses.filter(
+                          (c) =>
+                            c.status === "draft" || c.status === "rejected",
+                        ).length
+                      }
                     </span>
                   </button>
 
@@ -1015,11 +1212,16 @@ export function InstructorWorkspace({ initialTab = "courses", hideSidebar = true
                     </Link>
                   </div>
                 ) : courses.filter((c) => {
-                    if (courseFilter === "active") return c.status !== "archived";
-                    if (courseFilter === "published") return c.status === "published";
-                    if (courseFilter === "pending_review") return c.status === "pending_review";
-                    if (courseFilter === "draft") return c.status === "draft" || c.status === "rejected";
-                    if (courseFilter === "archived") return c.status === "archived";
+                    if (courseFilter === "active")
+                      return c.status !== "archived";
+                    if (courseFilter === "published")
+                      return c.status === "published";
+                    if (courseFilter === "pending_review")
+                      return c.status === "pending_review";
+                    if (courseFilter === "draft")
+                      return c.status === "draft" || c.status === "rejected";
+                    if (courseFilter === "archived")
+                      return c.status === "archived";
                     return true;
                   }).length === 0 ? (
                   <div className="text-center py-14 bg-white rounded-3xl border border-slate-200/90 p-8 space-y-3 shadow-2xs">
@@ -1041,11 +1243,14 @@ export function InstructorWorkspace({ initialTab = "courses", hideSidebar = true
                   courses
                     .filter((c) => {
                       if (courseFilter === "all") return true;
-                      if (courseFilter === "active") return c.status === "published";
+                      if (courseFilter === "active")
+                        return c.status === "published";
                       return c.status === courseFilter;
                     })
                     .map((c) => {
-                      const courseStudents = students.filter((s) => s.courseId === c.id);
+                      const courseStudents = students.filter(
+                        (s) => s.courseId === c.id,
+                      );
                       const isExpanded = expandedCourseStudentsId === c.id;
 
                       return (
@@ -1078,7 +1283,9 @@ export function InstructorWorkspace({ initialTab = "courses", hideSidebar = true
                               <div className="space-y-2 flex-1 min-w-0">
                                 <div className="flex items-center gap-2 flex-wrap">
                                   <h3 className="text-base sm:text-lg font-black text-slate-900 leading-snug hover:text-[#0F5244] transition-colors line-clamp-1">
-                                    {isAr ? c.titleAr || c.title : c.titleEn || c.title}
+                                    {isAr
+                                      ? c.titleAr || c.title
+                                      : c.titleEn || c.title}
                                   </h3>
 
                                   {/* Status Pill Badge */}
@@ -1087,23 +1294,29 @@ export function InstructorWorkspace({ initialTab = "courses", hideSidebar = true
                                       c.status === "published"
                                         ? "bg-emerald-100 text-[#0F5244] border border-emerald-200"
                                         : c.status === "pending_review"
-                                        ? "bg-amber-100 text-amber-800 border border-amber-200"
-                                        : c.status === "rejected"
-                                        ? "bg-rose-100 text-rose-800 border border-rose-200"
-                                        : "bg-slate-100 text-slate-700 border border-slate-200"
+                                          ? "bg-amber-100 text-amber-800 border border-amber-200"
+                                          : c.status === "rejected"
+                                            ? "bg-rose-100 text-rose-800 border border-rose-200"
+                                            : "bg-slate-100 text-slate-700 border border-slate-200"
                                     }`}
                                   >
-                                    {c.status === "published" && <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />}
-                                    {c.status === "pending_review" && <Clock className="w-3.5 h-3.5 text-amber-600 animate-pulse" />}
-                                    {c.status === "rejected" && <AlertTriangle className="w-3.5 h-3.5 text-rose-600" />}
+                                    {c.status === "published" && (
+                                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                                    )}
+                                    {c.status === "pending_review" && (
+                                      <Clock className="w-3.5 h-3.5 text-amber-600 animate-pulse" />
+                                    )}
+                                    {c.status === "rejected" && (
+                                      <AlertTriangle className="w-3.5 h-3.5 text-rose-600" />
+                                    )}
                                     <span>
                                       {c.status === "published"
                                         ? tInst("statusPublished")
                                         : c.status === "pending_review"
-                                        ? `${tInst("statusUnderReview")}`
-                                        : c.status === "rejected"
-                                        ? tInst("statusRejected")
-                                        : tInst("statusDraft")}
+                                          ? `${tInst("statusUnderReview")}`
+                                          : c.status === "rejected"
+                                            ? tInst("statusRejected")
+                                            : tInst("statusDraft")}
                                     </span>
                                   </span>
                                 </div>
@@ -1120,29 +1333,48 @@ export function InstructorWorkspace({ initialTab = "courses", hideSidebar = true
                                   {c.studentsCount > 0 ? (
                                     <button
                                       type="button"
-                                      onClick={() => setExpandedCourseStudentsId(isExpanded ? null : c.id)}
+                                      onClick={() =>
+                                        setExpandedCourseStudentsId(
+                                          isExpanded ? null : c.id,
+                                        )
+                                      }
                                       className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-emerald-50 text-emerald-800 border border-emerald-200/90 font-bold text-xs hover:bg-emerald-100/80 transition-all cursor-pointer shadow-2xs group"
-                                      title={isAr ? "انقر لعرض قائمة الطلاب المسجلين" : "Click to view enrolled students"}
+                                      title={
+                                        isAr
+                                          ? "انقر لعرض قائمة الطلاب المسجلين"
+                                          : "Click to view enrolled students"
+                                      }
                                     >
                                       <Users className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
                                       <span>
-                                        <strong className="text-emerald-950 font-black">{c.studentsCount}</strong> {tInst("enrolledStudentsCount")}
+                                        <strong className="text-emerald-950 font-black">
+                                          {c.studentsCount}
+                                        </strong>{" "}
+                                        {tInst("enrolledStudentsCount")}
                                       </span>
-                                      <ChevronDown className={`w-3.5 h-3.5 text-emerald-600 transition-transform duration-200 ${isExpanded ? "rotate-180" : ""}`} />
+                                      <ChevronDown
+                                        className={`w-3.5 h-3.5 text-emerald-600 transition-transform duration-200 ${isExpanded ? "rotate-180" : ""}`}
+                                      />
                                     </button>
                                   ) : (
                                     <span className="inline-flex items-center gap-1 text-slate-500 text-xs">
                                       <Users className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                                      <span>0 {tInst("enrolledStudentsCount")}</span>
+                                      <span>
+                                        0 {tInst("enrolledStudentsCount")}
+                                      </span>
                                     </span>
                                   )}
 
-                                  {c.status === "published" && Number(c.reviewsCount || 0) > 0 && Number(c.rating || 0) > 0 ? (
+                                  {c.status === "published" &&
+                                  Number(c.reviewsCount || 0) > 0 &&
+                                  Number(c.rating || 0) > 0 ? (
                                     <>
                                       <span className="text-slate-300">•</span>
                                       <span className="inline-flex items-center gap-1 text-amber-600 font-black">
                                         <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-                                        <span>{Number(c.rating).toFixed(1)}</span>
+                                        <span>
+                                          {Number(c.rating).toFixed(1)}
+                                        </span>
                                       </span>
                                     </>
                                   ) : null}
@@ -1159,15 +1391,21 @@ export function InstructorWorkspace({ initialTab = "courses", hideSidebar = true
                                 </div>
                               ) : (
                                 <>
-                                  {(c.status === "draft" || c.status === "rejected") && (
+                                  {(c.status === "draft" ||
+                                    c.status === "rejected") && (
                                     <button
                                       type="button"
                                       disabled={submittingCourseId === c.id}
-                                      onClick={() => handleSubmitForReview(c.id)}
+                                      onClick={() =>
+                                        handleSubmitForReview(c.id)
+                                      }
                                       className="px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 disabled:opacity-60 disabled:cursor-not-allowed text-white text-xs font-black transition-all cursor-pointer shadow-xs active:scale-95 flex items-center gap-1.5 whitespace-nowrap"
                                     >
                                       {submittingCourseId === c.id ? (
-                                        <Loader2 size={13} className="animate-spin" />
+                                        <Loader2
+                                          size={13}
+                                          className="animate-spin"
+                                        />
                                       ) : (
                                         <Send size={13} />
                                       )}
@@ -1207,16 +1445,31 @@ export function InstructorWorkspace({ initialTab = "courses", hideSidebar = true
                                           ? "bg-emerald-50 text-emerald-800 border-emerald-200 hover:bg-emerald-100"
                                           : "bg-slate-100 text-slate-600 border-slate-200/80 hover:bg-slate-200/80 hover:text-slate-900"
                                       }`}
-                                      title={c.status === "archived" ? tInst("unarchiveTitle") : tInst("archiveTitle")}
+                                      title={
+                                        c.status === "archived"
+                                          ? tInst("unarchiveTitle")
+                                          : tInst("archiveTitle")
+                                      }
                                     >
                                       <Archive className="h-3.5 w-3.5" />
-                                      <span className="hidden sm:inline">{c.status === "archived" ? tInst("unarchiveBtn") : tInst("archiveBtn")}</span>
+                                      <span className="hidden sm:inline">
+                                        {c.status === "archived"
+                                          ? tInst("unarchiveBtn")
+                                          : tInst("archiveBtn")}
+                                      </span>
                                     </button>
                                   )}
 
                                   <button
                                     type="button"
-                                    onClick={() => setDeleteModalCourse({ id: String(c.id), title: isAr ? c.titleAr || c.title : c.titleEn || c.title })}
+                                    onClick={() =>
+                                      setDeleteModalCourse({
+                                        id: String(c.id),
+                                        title: isAr
+                                          ? c.titleAr || c.title
+                                          : c.titleEn || c.title,
+                                      })
+                                    }
                                     className="p-2 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 border border-slate-200/80 hover:border-rose-200 transition-all cursor-pointer shadow-2xs shrink-0"
                                     title={tInst("deleteCourseTitle")}
                                   >
@@ -1233,7 +1486,12 @@ export function InstructorWorkspace({ initialTab = "courses", hideSidebar = true
                               <div className="flex items-center justify-between gap-2">
                                 <div className="flex items-center gap-2 font-black text-rose-950 text-xs sm:text-sm">
                                   <AlertTriangle className="h-4 w-4 text-rose-600 shrink-0" />
-                                  <span>{tInst("rejectionReasonLabel") || (isAr ? "سبب الرفض:" : "Rejection Reason:")}</span>
+                                  <span>
+                                    {tInst("rejectionReasonLabel") ||
+                                      (isAr
+                                        ? "سبب الرفض:"
+                                        : "Rejection Reason:")}
+                                  </span>
                                 </div>
                                 <span className="text-[11px] font-bold text-rose-700 bg-rose-100/90 px-2.5 py-0.5 rounded-full">
                                   {isAr ? "إشعار من الإدارة" : "Admin Notice"}
@@ -1267,7 +1525,9 @@ export function InstructorWorkspace({ initialTab = "courses", hideSidebar = true
 
                               {courseStudents.length === 0 ? (
                                 <div className="py-6 text-center text-xs text-slate-400 font-medium bg-slate-50 rounded-2xl border border-dashed border-slate-200">
-                                  {isAr ? "لم يسجل أي طالب في هذه الدورة بعد" : "No students enrolled in this course yet"}
+                                  {isAr
+                                    ? "لم يسجل أي طالب في هذه الدورة بعد"
+                                    : "No students enrolled in this course yet"}
                                 </div>
                               ) : (
                                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -1278,14 +1538,20 @@ export function InstructorWorkspace({ initialTab = "courses", hideSidebar = true
                                     >
                                       <div className="w-9 h-9 rounded-full bg-[#0F5244]/10 text-[#0F5244] font-black text-xs flex items-center justify-center shrink-0 border border-[#0F5244]/20">
                                         {st.avatar ? (
-                                          <img src={st.avatar} alt={st.name} className="w-full h-full rounded-full object-cover" />
+                                          <img
+                                            src={st.avatar}
+                                            alt={st.name}
+                                            className="w-full h-full rounded-full object-cover"
+                                          />
                                         ) : (
                                           st.name.charAt(0)
                                         )}
                                       </div>
                                       <div className="min-w-0 flex-1 space-y-0.5">
                                         <div className="flex items-center justify-between gap-1">
-                                          <p className="text-xs font-bold text-slate-900 truncate">{st.name}</p>
+                                          <p className="text-xs font-bold text-slate-900 truncate">
+                                            {st.name}
+                                          </p>
                                           <span
                                             className={`text-[10px] font-black px-2 py-0.5 rounded-full ${
                                               st.status === "completed"
@@ -1293,10 +1559,16 @@ export function InstructorWorkspace({ initialTab = "courses", hideSidebar = true
                                                 : "bg-blue-100 text-blue-800"
                                             }`}
                                           >
-                                            {st.status === "completed" ? (isAr ? "مكتمل" : "Completed") : `${st.progress}%`}
+                                            {st.status === "completed"
+                                              ? isAr
+                                                ? "مكتمل"
+                                                : "Completed"
+                                              : `${st.progress}%`}
                                           </span>
                                         </div>
-                                        <p className="text-[11px] text-slate-400 truncate">{st.email}</p>
+                                        <p className="text-[11px] text-slate-400 truncate">
+                                          {st.email}
+                                        </p>
                                         <div className="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden mt-1">
                                           <div
                                             className="h-full bg-[#0F5244] rounded-full"
@@ -1354,16 +1626,29 @@ export function InstructorWorkspace({ initialTab = "courses", hideSidebar = true
                   <table className="w-full text-start text-xs font-semibold text-slate-700">
                     <thead className="bg-slate-50 border-b border-slate-200 text-slate-400 font-extrabold uppercase text-[10px]">
                       <tr>
-                        <th className="px-4 py-3 text-start">{tInst("studentCol")}</th>
-                        <th className="px-4 py-3 text-start">{tInst("courseCol")}</th>
-                        <th className="px-4 py-3 text-start">{tInst("progressCol")}</th>
+                        <th className="px-4 py-3 text-start">
+                          {tInst("studentCol")}
+                        </th>
+                        <th className="px-4 py-3 text-start">
+                          {tInst("courseCol")}
+                        </th>
+                        <th className="px-4 py-3 text-start">
+                          {tInst("progressCol")}
+                        </th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100 bg-white">
                       {filteredStudents.map((student) => (
-                        <tr key={student.id} className="hover:bg-slate-50/60 transition-colors">
-                          <td className="px-4 py-3 font-bold text-slate-900">{student.name}</td>
-                          <td className="px-4 py-3 text-slate-600">{student.course}</td>
+                        <tr
+                          key={student.id}
+                          className="hover:bg-slate-50/60 transition-colors"
+                        >
+                          <td className="px-4 py-3 font-bold text-slate-900">
+                            {student.name}
+                          </td>
+                          <td className="px-4 py-3 text-slate-600">
+                            {student.course}
+                          </td>
                           <td className="px-4 py-3">
                             <span className="px-2.5 py-0.5 rounded-full bg-emerald-100 text-[#0F5244] text-[11px] font-extrabold">
                               {student.progress}%
@@ -1387,12 +1672,24 @@ export function InstructorWorkspace({ initialTab = "courses", hideSidebar = true
 
               <div className="p-6 rounded-3xl bg-slate-50 border border-slate-200/80 space-y-4">
                 <div className="space-y-1">
-                  <h3 className="text-sm font-bold text-slate-800">{tInst("autoPayout")}</h3>
-                  <p className="text-xs text-slate-500 font-medium">{tInst("autoPayoutSub")}</p>
+                  <h3 className="text-sm font-bold text-slate-800">
+                    {tInst("autoPayout")}
+                  </h3>
+                  <p className="text-xs text-slate-500 font-medium">
+                    {tInst("autoPayoutSub")}
+                  </p>
                 </div>
                 <div className="text-xs font-semibold text-slate-700">
-                  <p><strong>{tInst("payoutMethod")}:</strong> {formData.payoutMethod === "bank" ? tInst("bankTransfer") : "PayPal"}</p>
-                  <p className="mt-1"><strong>{tInst("bankIbanLabel")}</strong> {formData.bankIban}</p>
+                  <p>
+                    <strong>{tInst("payoutMethod")}:</strong>{" "}
+                    {formData.payoutMethod === "bank"
+                      ? tInst("bankTransfer")
+                      : "PayPal"}
+                  </p>
+                  <p className="mt-1">
+                    <strong>{tInst("bankIbanLabel")}</strong>{" "}
+                    {formData.bankIban}
+                  </p>
                 </div>
               </div>
             </div>
@@ -1400,15 +1697,24 @@ export function InstructorWorkspace({ initialTab = "courses", hideSidebar = true
 
           {/* FULL INSTRUCTOR SETTINGS TAB */}
           {activeTab === "settings" && (
-            <form onSubmit={handleSaveSettings} className="space-y-8 animate-in fade-in duration-150">
+            <form
+              onSubmit={handleSaveSettings}
+              className="space-y-8 animate-in fade-in duration-150"
+            >
               <div className="space-y-1">
-                <h2 className="text-xl sm:text-2xl font-black text-slate-900">{tInst("title")}</h2>
-                <p className="text-xs sm:text-sm text-slate-500 font-medium">{tInst("subtitle")}</p>
+                <h2 className="text-xl sm:text-2xl font-black text-slate-900">
+                  {tInst("title")}
+                </h2>
+                <p className="text-xs sm:text-sm text-slate-500 font-medium">
+                  {tInst("subtitle")}
+                </p>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div className="space-y-1.5">
-                  <label className="block text-xs font-bold text-slate-700">{t("fullName")}</label>
+                  <label className="block text-xs font-bold text-slate-700">
+                    {t("fullName")}
+                  </label>
                   <input
                     type="text"
                     name="fullName"
@@ -1420,7 +1726,9 @@ export function InstructorWorkspace({ initialTab = "courses", hideSidebar = true
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="block text-xs font-bold text-slate-700">{tInst("specialization")}</label>
+                  <label className="block text-xs font-bold text-slate-700">
+                    {tInst("specialization")}
+                  </label>
                   <input
                     type="text"
                     name="specialization"
@@ -1432,15 +1740,17 @@ export function InstructorWorkspace({ initialTab = "courses", hideSidebar = true
               </div>
 
               <div className="flex justify-end">
-                <button type="submit" disabled={isSaving} className="px-8 py-3 rounded-2xl bg-[#0F5244] text-white text-xs font-black shadow-sm active:scale-98 transition-all cursor-pointer">
+                <button
+                  type="submit"
+                  disabled={isSaving}
+                  className="px-8 py-3 rounded-2xl bg-[#0F5244] text-white text-xs font-black shadow-sm active:scale-98 transition-all cursor-pointer"
+                >
                   {isSaving ? t("saving") : t("saveChanges")}
                 </button>
               </div>
             </form>
           )}
-
         </div>
-
       </div>
 
       <ArchiveCourseModal
@@ -1452,7 +1762,9 @@ export function InstructorWorkspace({ initialTab = "courses", hideSidebar = true
           }
         }}
         courseTitle={
-          courses.find((c) => c.id === archiveModalCourseId)?.[isAr ? "titleAr" : "titleEn"]
+          courses.find((c) => c.id === archiveModalCourseId)?.[
+            isAr ? "titleAr" : "titleEn"
+          ]
         }
       />
 
@@ -1474,7 +1786,9 @@ export function InstructorWorkspace({ initialTab = "courses", hideSidebar = true
 
       <CourseIncompleteModal
         isOpen={incompleteModalData.isOpen}
-        onClose={() => setIncompleteModalData((prev) => ({ ...prev, isOpen: false }))}
+        onClose={() =>
+          setIncompleteModalData((prev) => ({ ...prev, isOpen: false }))
+        }
         courseId={incompleteModalData.courseId}
         courseTitle={incompleteModalData.courseTitle}
         missingItems={incompleteModalData.missingItems}

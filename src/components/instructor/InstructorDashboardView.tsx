@@ -39,10 +39,17 @@ import {
 } from "lucide-react";
 import { ArchiveCourseModal } from "@/components/modals/ArchiveCourseModal";
 import { DeleteCourseModal } from "@/components/modals/DeleteCourseModal";
-import { CourseIncompleteModal, IncompleteItem } from "@/components/modals/CourseIncompleteModal";
+import {
+  CourseIncompleteModal,
+  IncompleteItem,
+} from "@/components/modals/CourseIncompleteModal";
 import { instructorCourseService } from "@/services/instructorCourseService";
 import { courseService } from "@/services/courseService";
-import { getSavedCourseStatus, saveCourseStatus, removeCourseStatus } from "@/lib/mockInstructors";
+import {
+  getSavedCourseStatus,
+  saveCourseStatus,
+  removeCourseStatus,
+} from "@/lib/instructorProfile";
 import { VerifiedBadge } from "@/components/ui/VerifiedBadge";
 
 export function InstructorDashboardView() {
@@ -53,7 +60,9 @@ export function InstructorDashboardView() {
   const authUser = useSelector((state: RootState) => state.auth.user);
 
   // Active Tab
-  const [activeTab, setActiveTab] = useState<"courses" | "students" | "analytics">("courses");
+  const [activeTab, setActiveTab] = useState<
+    "courses" | "students" | "analytics"
+  >("courses");
   const [courseSearch, setCourseSearch] = useState("");
   const [studentSearch, setStudentSearch] = useState("");
 
@@ -63,8 +72,13 @@ export function InstructorDashboardView() {
   // Modal State for Course Editor & Curriculum Builder (US-08, US-09)
   const [showCourseModal, setShowCourseModal] = useState(false);
   const [editingCourseId, setEditingCourseId] = useState<string | null>(null);
-  const [archiveModalCourseId, setArchiveModalCourseId] = useState<string | null>(null);
-  const [deleteModalCourse, setDeleteModalCourse] = useState<{ id: string; title: string } | null>(null);
+  const [archiveModalCourseId, setArchiveModalCourseId] = useState<
+    string | null
+  >(null);
+  const [deleteModalCourse, setDeleteModalCourse] = useState<{
+    id: string;
+    title: string;
+  } | null>(null);
   const [isDeletingCourse, setIsDeletingCourse] = useState(false);
   const [incompleteModalData, setIncompleteModalData] = useState<{
     isOpen: boolean;
@@ -81,7 +95,9 @@ export function InstructorDashboardView() {
   // Instructor Courses State (Dynamic from live API only)
   const [courses, setCourses] = useState<any[]>([]);
   const [isLoadingCourses, setIsLoadingCourses] = useState(true);
-  const [submittingCourseId, setSubmittingCourseId] = useState<string | null>(null);
+  const [submittingCourseId, setSubmittingCourseId] = useState<string | null>(
+    null,
+  );
 
   // Fetch real instructor courses strictly for the authenticated instructor
   const fetchMyCourses = useCallback(async () => {
@@ -99,7 +115,12 @@ export function InstructorDashboardView() {
       const realCourses = list.map((c: any) => {
         const rawStatus = String(c.status || "").toLowerCase();
         const savedStatus = getSavedCourseStatus(c.id);
-        let normalizedStatus: "published" | "pending_review" | "draft" | "rejected" | "archived" = "draft";
+        let normalizedStatus:
+          | "published"
+          | "pending_review"
+          | "draft"
+          | "rejected"
+          | "archived" = "draft";
         if (
           rawStatus === "pending_review" ||
           rawStatus === "pending" ||
@@ -107,7 +128,11 @@ export function InstructorDashboardView() {
           rawStatus === "in_review"
         ) {
           normalizedStatus = "pending_review";
-        } else if (rawStatus === "published" || rawStatus === "approved" || (c.is_published && rawStatus !== "draft" && rawStatus !== "rejected")) {
+        } else if (
+          rawStatus === "published" ||
+          rawStatus === "approved" ||
+          (c.is_published && rawStatus !== "draft" && rawStatus !== "rejected")
+        ) {
           removeCourseStatus(c.id);
           normalizedStatus = "published";
         } else if (rawStatus === "rejected" || rawStatus === "declined") {
@@ -123,20 +148,28 @@ export function InstructorDashboardView() {
 
         return {
           id: String(c.id),
-          title: isAr ? c.title_ar || c.title_en || c.title : c.title_en || c.title_ar || c.title,
+          title: isAr
+            ? c.title_ar || c.title_en || c.title
+            : c.title_en || c.title_ar || c.title,
           titleEn: c.title_en || c.title || "Course",
           titleAr: c.title_ar || c.title || "دورة",
           studentsCount: Number(c.students_count || c.total_students || 0),
           rating: Number(c.rating || 0),
           reviewsCount: Number(c.reviews_count || c.reviewsCount || 0),
-          revenue: Number(c.revenue || (c.price ? Number(c.price) * (c.students_count || 0) : 0)),
+          revenue: Number(
+            c.revenue ||
+              (c.price ? Number(c.price) * (c.students_count || 0) : 0),
+          ),
           status: normalizedStatus,
           price: Number(c.price) || 0,
           level: c.level || "Beginner",
           image:
             c.cover_image ||
             c.coverImage ||
-            (typeof c.image === "string" && !c.image.includes("unsplash.com/photo-1516321318423") ? c.image : ""),
+            (typeof c.image === "string" &&
+            !c.image.includes("unsplash.com/photo-1516321318423")
+              ? c.image
+              : ""),
           rejectionReason:
             (isAr ? c.rejection_reason_ar : c.rejection_reason_en) ||
             c.rejection_reason ||
@@ -149,7 +182,11 @@ export function InstructorDashboardView() {
             c.rejection_comment ||
             "",
           sections: c.sections || [],
-          enrolledStudents: Array.isArray(c.enrolled_students) ? c.enrolled_students : Array.isArray(c.students) ? c.students : [],
+          enrolledStudents: Array.isArray(c.enrolled_students)
+            ? c.enrolled_students
+            : Array.isArray(c.students)
+              ? c.students
+              : [],
           isReal: true,
         };
       });
@@ -161,16 +198,29 @@ export function InstructorDashboardView() {
       const allDynamicStudents: any[] = [];
       realCourses.forEach((c: any) => {
         const count = Number(c.studentsCount || 0);
-        if (Array.isArray(c.enrolledStudents) && c.enrolledStudents.length > 0) {
+        if (
+          Array.isArray(c.enrolledStudents) &&
+          c.enrolledStudents.length > 0
+        ) {
           c.enrolledStudents.forEach((st: any, idx: number) => {
             allDynamicStudents.push({
               id: String(st.id || `${c.id}-st-${idx + 1}`),
               courseId: String(c.id),
-              name: st.full_name || st.name || st.email?.split("@")[0] || (isAr ? `طالب مسجل ${idx + 1}` : `Student ${idx + 1}`),
+              name:
+                st.full_name ||
+                st.name ||
+                st.email?.split("@")[0] ||
+                (isAr ? `طالب مسجل ${idx + 1}` : `Student ${idx + 1}`),
               email: st.email || `student${idx + 1}@example.com`,
               avatar: st.avatar || null,
               course: isAr ? c.titleAr : c.titleEn,
-              date: st.enrolled_at ? new Date(st.enrolled_at).toLocaleDateString(isAr ? "ar-EG" : "en-US") : (isAr ? "منذ يومين" : "2 days ago"),
+              date: st.enrolled_at
+                ? new Date(st.enrolled_at).toLocaleDateString(
+                    isAr ? "ar-EG" : "en-US",
+                  )
+                : isAr
+                  ? "منذ يومين"
+                  : "2 days ago",
               progress: typeof st.progress === "number" ? st.progress : 65,
               status: st.is_completed ? "completed" : "active",
             });
@@ -193,7 +243,9 @@ export function InstructorDashboardView() {
 
   // Enrolled Students Data & Drawer State
   const [students, setStudents] = useState<any[]>([]);
-  const [expandedCourseStudentsId, setExpandedCourseStudentsId] = useState<string | null>(null);
+  const [expandedCourseStudentsId, setExpandedCourseStudentsId] = useState<
+    string | null
+  >(null);
 
   // Pagination for Students List (US-17)
   const [currentPage, setCurrentPage] = useState(1);
@@ -217,34 +269,53 @@ export function InstructorDashboardView() {
       setSubmittingCourseId(courseId);
 
       // 1. Fetch full course details to inspect all sections, lessons, and cover image
-      let detailedCourse = courses.find((c) => String(c.id) === String(courseId));
+      let detailedCourse = courses.find(
+        (c) => String(c.id) === String(courseId),
+      );
       try {
-        const fetched = await instructorCourseService.getInstructorCourse(courseId);
+        const fetched =
+          await instructorCourseService.getInstructorCourse(courseId);
         if (fetched) {
           detailedCourse = {
             ...detailedCourse,
             ...fetched,
             sections: fetched.sections || detailedCourse?.sections || [],
-            cover_image: fetched.cover_image || fetched.coverImage || detailedCourse?.image,
+            cover_image:
+              fetched.cover_image ||
+              fetched.coverImage ||
+              detailedCourse?.image,
           };
         }
       } catch (fetchErr) {
-        console.warn("Could not fetch full course for validation check:", fetchErr);
+        console.warn(
+          "Could not fetch full course for validation check:",
+          fetchErr,
+        );
       }
 
       // 2. Comprehensive Course Completeness Validation (Image, Sections, Lessons, Videos)
       const hasCover = Boolean(
         detailedCourse?.cover_image ||
         detailedCourse?.coverImage ||
-        (detailedCourse?.image && typeof detailedCourse.image === "string" && !detailedCourse.image.includes("unsplash.com/photo-1516321318423"))
+        (detailedCourse?.image &&
+          typeof detailedCourse.image === "string" &&
+          !detailedCourse.image.includes("unsplash.com/photo-1516321318423")),
       );
 
       const sections = detailedCourse?.sections || [];
       const hasSections = Array.isArray(sections) && sections.length > 0;
-      const hasLessons = hasSections && sections.every((s: any) => Array.isArray(s.lessons) && s.lessons.length > 0);
-      const hasVideos = hasLessons && sections.every((s: any) =>
-        s.lessons.every((l: any) => Boolean(l.video_url || l.video_public_id || l.videoUrl))
-      );
+      const hasLessons =
+        hasSections &&
+        sections.every(
+          (s: any) => Array.isArray(s.lessons) && s.lessons.length > 0,
+        );
+      const hasVideos =
+        hasLessons &&
+        sections.every((s: any) =>
+          s.lessons.every((l: any) =>
+            Boolean(l.video_url || l.video_public_id || l.videoUrl),
+          ),
+        );
 
       const checklist: IncompleteItem[] = [
         {
@@ -252,7 +323,8 @@ export function InstructorDashboardView() {
           labelAr: "صورة غلاف الدورة",
           labelEn: "Course Cover Image",
           descriptionAr: "إرفاق صورة جذابة بدقة عالية لغلاف الدورة التدريبية.",
-          descriptionEn: "Upload a high-quality cover thumbnail for the course.",
+          descriptionEn:
+            "Upload a high-quality cover thumbnail for the course.",
           isComplete: hasCover,
         },
         {
@@ -260,7 +332,8 @@ export function InstructorDashboardView() {
           labelAr: "أقسام الدورة (Sections)",
           labelEn: "Course Sections",
           descriptionAr: "إضافة قسم واحد على الأقل لتنظيم المنهج التدريبي.",
-          descriptionEn: "Add at least one curriculum section to organize content.",
+          descriptionEn:
+            "Add at least one curriculum section to organize content.",
           isComplete: hasSections,
         },
         {
@@ -275,7 +348,8 @@ export function InstructorDashboardView() {
           id: "videos",
           labelAr: "فيديوهات الشرح لكل درس",
           labelEn: "Lesson Video Content",
-          descriptionAr: "رفع وإرفاق فيديو الشرح التعليمي لجميع الدروس المضافة.",
+          descriptionAr:
+            "رفع وإرفاق فيديو الشرح التعليمي لجميع الدروس المضافة.",
           descriptionEn: "Upload or attach video recordings for all lessons.",
           isComplete: hasVideos,
         },
@@ -286,13 +360,18 @@ export function InstructorDashboardView() {
         setIncompleteModalData({
           isOpen: true,
           courseId: String(courseId),
-          courseTitle: (isAr ? detailedCourse?.titleAr || detailedCourse?.title : detailedCourse?.titleEn || detailedCourse?.title) || "",
+          courseTitle:
+            (isAr
+              ? detailedCourse?.titleAr || detailedCourse?.title
+              : detailedCourse?.titleEn || detailedCourse?.title) || "",
           missingItems: checklist,
         });
         return;
       }
 
-      const previousCourse = courses.find((c) => String(c.id) === String(courseId));
+      const previousCourse = courses.find(
+        (c) => String(c.id) === String(courseId),
+      );
       const previousStatus = previousCourse?.status || "draft";
 
       // Persist pending_review locally so it stays across refetches
@@ -300,7 +379,11 @@ export function InstructorDashboardView() {
 
       // Optimistic local update: immediately switch to pending_review and clear actions
       setCourses((prev) =>
-        prev.map((c) => (String(c.id) === String(courseId) ? { ...c, status: "pending_review", rejectionReason: "" } : c))
+        prev.map((c) =>
+          String(c.id) === String(courseId)
+            ? { ...c, status: "pending_review", rejectionReason: "" }
+            : c,
+        ),
       );
 
       try {
@@ -312,13 +395,19 @@ export function InstructorDashboardView() {
         removeCourseStatus(courseId);
         // Revert optimistic state on API failure
         setCourses((prev) =>
-          prev.map((c) => (String(c.id) === String(courseId) ? { ...c, status: previousStatus } : c))
+          prev.map((c) =>
+            String(c.id) === String(courseId)
+              ? { ...c, status: previousStatus }
+              : c,
+          ),
         );
         const errorMsg =
           err?.response?.data?.detail ||
           err?.response?.data?.message ||
           err?.response?.data?.error ||
-          (isAr ? "فشل إرسال الكورس للمراجعة. يرجى التحقق من الاتصال والمحاولة مرة أخرى." : "Failed to submit course for review. Please try again.");
+          (isAr
+            ? "فشل إرسال الكورس للمراجعة. يرجى التحقق من الاتصال والمحاولة مرة أخرى."
+            : "Failed to submit course for review. Please try again.");
         setToastMessage(errorMsg);
       }
     } finally {
@@ -344,7 +433,9 @@ export function InstructorDashboardView() {
     const nextStatus = isCurrentlyArchived ? "published" : "archived";
 
     try {
-      await instructorCourseService.updateCourse(courseId, { status: nextStatus });
+      await instructorCourseService.updateCourse(courseId, {
+        status: nextStatus,
+      });
       if (isCurrentlyArchived) {
         setToastMessage(tInst("courseUnarchivedToast"));
       } else {
@@ -354,9 +445,7 @@ export function InstructorDashboardView() {
     } catch (err: any) {
       console.warn("Could not archive/unarchive course via API:", err);
       setCourses((prev) =>
-        prev.map((c) =>
-          c.id === courseId ? { ...c, status: nextStatus } : c
-        )
+        prev.map((c) => (c.id === courseId ? { ...c, status: nextStatus } : c)),
       );
       if (isCurrentlyArchived) {
         setToastMessage(tInst("courseUnarchivedToast"));
@@ -378,22 +467,28 @@ export function InstructorDashboardView() {
     setIsDeletingCourse(true);
     try {
       const res = await instructorCourseService.deleteCourse(courseId);
-      
+
       if (res.status === 204) {
         // 204 No Content: Course had no enrollments and was permanently deleted
         setToastMessage(tInst("courseDeletedToast"));
-        setCourses((prev) => prev.filter((c) => String(c.id) !== String(courseId)));
+        setCourses((prev) =>
+          prev.filter((c) => String(c.id) !== String(courseId)),
+        );
       } else if (res.archived || res.status === 200) {
         // 200 OK: Course had enrollments -> automatically archived
         setToastMessage(tInst("courseArchivedNotice"));
         setCourses((prev) =>
           prev.map((c) =>
-            String(c.id) === String(courseId) ? { ...c, status: "archived" } : c
-          )
+            String(c.id) === String(courseId)
+              ? { ...c, status: "archived" }
+              : c,
+          ),
         );
       } else {
         setToastMessage(tInst("courseDeletedToast"));
-        setCourses((prev) => prev.filter((c) => String(c.id) !== String(courseId)));
+        setCourses((prev) =>
+          prev.filter((c) => String(c.id) !== String(courseId)),
+        );
       }
 
       // Re-fetch courses from backend
@@ -406,7 +501,8 @@ export function InstructorDashboardView() {
       } else if (status === 403) {
         setToastMessage(tInst("deleteCourseForbidden"));
       } else {
-        const errorDetail = err?.response?.data?.detail || err?.response?.data?.message;
+        const errorDetail =
+          err?.response?.data?.detail || err?.response?.data?.message;
         setToastMessage(errorDetail || tInst("deleteCourseError"));
       }
     } finally {
@@ -432,12 +528,12 @@ export function InstructorDashboardView() {
                   titleKey: "",
                   title: lessonTitle,
                   videoType: "mp4",
-                  isFreePreview: false
-                }
-              ]
+                  isFreePreview: false,
+                },
+              ],
             }
-          : sec
-      )
+          : sec,
+      ),
     );
   };
 
@@ -454,10 +550,10 @@ export function InstructorDashboardView() {
                 price: Number(courseForm.price),
                 category: courseForm.category,
                 sections: courseSections,
-                status: c.status === "rejected" ? "draft" : c.status
+                status: c.status === "rejected" ? "draft" : c.status,
               }
-            : c
-        )
+            : c,
+        ),
       );
     } else {
       setCourses((prev) => [
@@ -475,11 +571,12 @@ export function InstructorDashboardView() {
           studentsCount: 0,
           rating: 0.0,
           status: "draft",
-          image: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=600&auto=format&fit=crop",
+          image:
+            "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=600&auto=format&fit=crop",
           rejectionReasonKey: "",
           rejectionReason: "",
-          sections: courseSections
-        }
+          sections: courseSections,
+        },
       ]);
     }
 
@@ -492,13 +589,13 @@ export function InstructorDashboardView() {
   const filteredStudents = students.filter(
     (s) =>
       s.name.toLowerCase().includes(studentSearch.toLowerCase()) ||
-      s.course.toLowerCase().includes(studentSearch.toLowerCase())
+      s.course.toLowerCase().includes(studentSearch.toLowerCase()),
   );
 
   const totalPages = Math.ceil(filteredStudents.length / itemsPerPage);
   const paginatedStudents = filteredStudents.slice(
     (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
+    currentPage * itemsPerPage,
   );
 
   return (
@@ -507,7 +604,9 @@ export function InstructorDashboardView() {
       {toastMessage && (
         <div className="fixed bottom-6 right-6 rtl:right-auto rtl:left-6 z-50 flex items-center gap-3 bg-slate-900/95 text-white px-5 py-3.5 rounded-2xl shadow-2xl border border-slate-800 backdrop-blur-md animate-in slide-in-from-bottom-4 duration-200">
           <CheckCircle2 className="h-4.5 w-4.5 text-emerald-400 shrink-0" />
-          <span className="text-xs sm:text-sm font-extrabold">{toastMessage}</span>
+          <span className="text-xs sm:text-sm font-extrabold">
+            {toastMessage}
+          </span>
           <button
             type="button"
             onClick={() => setToastMessage(null)}
@@ -525,7 +624,9 @@ export function InstructorDashboardView() {
             <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
               {tDash("title")}
             </h1>
-            {((authUser?.approval_status || (authUser as any)?.approvalStatus) === "approved" || (authUser as any)?.instructorStatus === "approved") && (
+            {((authUser?.approval_status ||
+              (authUser as any)?.approvalStatus) === "approved" ||
+              (authUser as any)?.instructorStatus === "approved") && (
               <VerifiedBadge size="sm" />
             )}
           </div>
@@ -537,7 +638,6 @@ export function InstructorDashboardView() {
 
       {/* Metric Cards (US-17) */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
-
         <div className="bg-white rounded-3xl border border-slate-200/80 p-6 shadow-2xs space-y-2">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">
@@ -566,9 +666,14 @@ export function InstructorDashboardView() {
             </div>
           </div>
           <div className="text-2xl sm:text-3xl font-black text-slate-900">
-            ${courses.reduce((acc, curr) => acc + Number(curr.revenue || 0), 0).toLocaleString()}
+            $
+            {courses
+              .reduce((acc, curr) => acc + Number(curr.revenue || 0), 0)
+              .toLocaleString()}
           </div>
-          <div className="text-xs text-slate-500 font-medium">{tInst("payoutAndBilling")}</div>
+          <div className="text-xs text-slate-500 font-medium">
+            {tInst("payoutAndBilling")}
+          </div>
         </div>
 
         <div className="bg-white rounded-3xl border border-slate-200/80 p-6 shadow-2xs space-y-2">
@@ -589,15 +694,20 @@ export function InstructorDashboardView() {
                   courses.filter((c) => Number(c.reviewsCount || 0) > 0).length
                 ).toFixed(1)
               : "—"}{" "}
-            {courses.filter((c) => Number(c.reviewsCount || 0) > 0).length > 0 && (
+            {courses.filter((c) => Number(c.reviewsCount || 0) > 0).length >
+              0 && (
               <span className="text-base text-slate-400 font-bold">/ 5</span>
             )}
           </div>
           <div className="text-xs text-slate-500 font-medium">
-            ({courses.reduce((acc, curr) => acc + Number(curr.reviewsCount || 0), 0)})
+            (
+            {courses.reduce(
+              (acc, curr) => acc + Number(curr.reviewsCount || 0),
+              0,
+            )}
+            )
           </div>
         </div>
-
       </div>
 
       {/* TAB 1: COURSE MANAGER & LIFECYCLE (US-08, US-09) */}
@@ -648,7 +758,9 @@ export function InstructorDashboardView() {
           ) : (
             <div className="grid grid-cols-1 gap-6">
               {courses.map((course) => {
-                const courseStudents = students.filter((s) => s.courseId === course.id);
+                const courseStudents = students.filter(
+                  (s) => s.courseId === course.id,
+                );
                 const isExpanded = expandedCourseStudentsId === course.id;
 
                 return (
@@ -664,7 +776,13 @@ export function InstructorDashboardView() {
                           {course.image ? (
                             <Image
                               src={course.image}
-                              alt={course.titleKey ? tDash(course.titleKey) : (isAr ? course.titleAr : course.titleEn)}
+                              alt={
+                                course.titleKey
+                                  ? tDash(course.titleKey)
+                                  : isAr
+                                    ? course.titleAr
+                                    : course.titleEn
+                              }
                               fill
                               className="object-cover group-hover:scale-105 transition-transform duration-300"
                             />
@@ -683,7 +801,11 @@ export function InstructorDashboardView() {
                           {/* Title & Status */}
                           <div className="flex items-center gap-2 flex-wrap">
                             <h3 className="text-base sm:text-lg font-black text-slate-900 leading-snug hover:text-[#0F5244] transition-colors line-clamp-1">
-                              {course.titleKey ? tDash(course.titleKey) : (isAr ? course.titleAr : course.titleEn)}
+                              {course.titleKey
+                                ? tDash(course.titleKey)
+                                : isAr
+                                  ? course.titleAr
+                                  : course.titleEn}
                             </h3>
 
                             {/* Status Badges */}
@@ -730,15 +852,28 @@ export function InstructorDashboardView() {
                             {course.studentsCount > 0 ? (
                               <button
                                 type="button"
-                                onClick={() => setExpandedCourseStudentsId(isExpanded ? null : course.id)}
+                                onClick={() =>
+                                  setExpandedCourseStudentsId(
+                                    isExpanded ? null : course.id,
+                                  )
+                                }
                                 className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-emerald-50 text-emerald-800 border border-emerald-200/90 font-bold text-xs hover:bg-emerald-100/80 transition-all cursor-pointer shadow-2xs group"
-                                title={isAr ? "انقر لعرض قائمة الطلاب المسجلين" : "Click to view enrolled students"}
+                                title={
+                                  isAr
+                                    ? "انقر لعرض قائمة الطلاب المسجلين"
+                                    : "Click to view enrolled students"
+                                }
                               >
                                 <Users className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
                                 <span>
-                                  <strong className="text-emerald-950 font-black">{course.studentsCount}</strong> {tInst("enrolledStudentsCount")}
+                                  <strong className="text-emerald-950 font-black">
+                                    {course.studentsCount}
+                                  </strong>{" "}
+                                  {tInst("enrolledStudentsCount")}
                                 </span>
-                                <ChevronDown className={`w-3.5 h-3.5 text-emerald-600 transition-transform duration-200 ${isExpanded ? "rotate-180" : ""}`} />
+                                <ChevronDown
+                                  className={`w-3.5 h-3.5 text-emerald-600 transition-transform duration-200 ${isExpanded ? "rotate-180" : ""}`}
+                                />
                               </button>
                             ) : (
                               <span className="inline-flex items-center gap-1 text-slate-500 text-xs">
@@ -747,15 +882,19 @@ export function InstructorDashboardView() {
                               </span>
                             )}
 
-                            {course.status === "published" && Number(course.reviewsCount || 0) > 0 && Number(course.rating || 0) > 0 && (
-                              <>
-                                <span className="text-slate-300">•</span>
-                                <span className="inline-flex items-center gap-1 text-amber-600 font-black">
-                                  <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400 shrink-0" />
-                                  <span>{Number(course.rating).toFixed(1)}</span>
-                                </span>
-                              </>
-                            )}
+                            {course.status === "published" &&
+                              Number(course.reviewsCount || 0) > 0 &&
+                              Number(course.rating || 0) > 0 && (
+                                <>
+                                  <span className="text-slate-300">•</span>
+                                  <span className="inline-flex items-center gap-1 text-amber-600 font-black">
+                                    <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400 shrink-0" />
+                                    <span>
+                                      {Number(course.rating).toFixed(1)}
+                                    </span>
+                                  </span>
+                                </>
+                              )}
                           </div>
                         </div>
                       </div>
@@ -769,7 +908,8 @@ export function InstructorDashboardView() {
                           </div>
                         ) : (
                           <>
-                            {(course.status === "draft" || course.status === "rejected") && (
+                            {(course.status === "draft" ||
+                              course.status === "rejected") && (
                               <button
                                 type="button"
                                 disabled={submittingCourseId === course.id}
@@ -808,7 +948,9 @@ export function InstructorDashboardView() {
                               className="px-3.5 py-2 rounded-xl bg-[#0F5244] hover:bg-[#0b3d32] text-white text-xs font-black flex items-center gap-1.5 shadow-xs transition-all active:scale-95 cursor-pointer whitespace-nowrap"
                             >
                               <Edit className="h-3.5 w-3.5" />
-                              <span>{tInst("editBtn") || (isAr ? "تعديل" : "Edit")}</span>
+                              <span>
+                                {tInst("editBtn") || (isAr ? "تعديل" : "Edit")}
+                              </span>
                             </Link>
 
                             {/* Archive Button */}
@@ -824,7 +966,11 @@ export function InstructorDashboardView() {
                                 title={tInst("archiveTitle")}
                               >
                                 <Archive className="h-3.5 w-3.5" />
-                                <span className="hidden sm:inline">{course.status === "archived" ? tInst("unarchiveBtn") : tInst("archiveBtn")}</span>
+                                <span className="hidden sm:inline">
+                                  {course.status === "archived"
+                                    ? tInst("unarchiveBtn")
+                                    : tInst("archiveBtn")}
+                                </span>
                               </button>
                             )}
 
@@ -834,7 +980,11 @@ export function InstructorDashboardView() {
                               onClick={() =>
                                 setDeleteModalCourse({
                                   id: String(course.id),
-                                  title: course.titleKey ? tDash(course.titleKey) : (isAr ? course.titleAr : course.titleEn),
+                                  title: course.titleKey
+                                    ? tDash(course.titleKey)
+                                    : isAr
+                                      ? course.titleAr
+                                      : course.titleEn,
                                 })
                               }
                               className="p-2 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 border border-slate-200/70 hover:border-rose-200 transition-all cursor-pointer shadow-2xs shrink-0"
@@ -853,7 +1003,10 @@ export function InstructorDashboardView() {
                         <div className="flex items-center justify-between gap-2">
                           <div className="flex items-center gap-2 font-black text-rose-950 text-xs sm:text-sm">
                             <AlertTriangle className="h-4 w-4 text-rose-600 shrink-0" />
-                            <span>{tInst("rejectionReasonLabel") || (isAr ? "سبب الرفض:" : "Rejection Reason:")}</span>
+                            <span>
+                              {tInst("rejectionReasonLabel") ||
+                                (isAr ? "سبب الرفض:" : "Rejection Reason:")}
+                            </span>
                           </div>
                           <span className="text-[11px] font-bold text-rose-700 bg-rose-100/90 px-2.5 py-0.5 rounded-full">
                             {isAr ? "إشعار من الإدارة" : "Admin Notice"}
@@ -863,7 +1016,9 @@ export function InstructorDashboardView() {
                           {course.rejectionReasonKey
                             ? tDash(course.rejectionReasonKey)
                             : course.rejectionReason ||
-                              (isAr ? "الكورس غير مناسب" : "Course content is not suitable")}
+                              (isAr
+                                ? "الكورس غير مناسب"
+                                : "Course content is not suitable")}
                         </p>
                       </div>
                     )}
@@ -887,7 +1042,9 @@ export function InstructorDashboardView() {
 
                         {courseStudents.length === 0 ? (
                           <div className="py-6 text-center text-xs text-slate-400 font-medium bg-slate-50 rounded-2xl border border-dashed border-slate-200">
-                            {isAr ? "لم يسجل أي طالب في هذه الدورة بعد" : "No students enrolled in this course yet"}
+                            {isAr
+                              ? "لم يسجل أي طالب في هذه الدورة بعد"
+                              : "No students enrolled in this course yet"}
                           </div>
                         ) : (
                           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -898,14 +1055,20 @@ export function InstructorDashboardView() {
                               >
                                 <div className="w-9 h-9 rounded-full bg-[#0F5244]/10 text-[#0F5244] font-black text-xs flex items-center justify-center shrink-0 border border-[#0F5244]/20">
                                   {st.avatar ? (
-                                    <img src={st.avatar} alt={st.name} className="w-full h-full rounded-full object-cover" />
+                                    <img
+                                      src={st.avatar}
+                                      alt={st.name}
+                                      className="w-full h-full rounded-full object-cover"
+                                    />
                                   ) : (
                                     st.name.charAt(0)
                                   )}
                                 </div>
                                 <div className="min-w-0 flex-1 space-y-0.5">
                                   <div className="flex items-center justify-between gap-1">
-                                    <p className="text-xs font-bold text-slate-900 truncate">{st.name}</p>
+                                    <p className="text-xs font-bold text-slate-900 truncate">
+                                      {st.name}
+                                    </p>
                                     <span
                                       className={`text-[10px] font-black px-2 py-0.5 rounded-full ${
                                         st.status === "completed"
@@ -913,10 +1076,16 @@ export function InstructorDashboardView() {
                                           : "bg-blue-100 text-blue-800"
                                       }`}
                                     >
-                                      {st.status === "completed" ? (isAr ? "مكتمل" : "Completed") : `${st.progress}%`}
+                                      {st.status === "completed"
+                                        ? isAr
+                                          ? "مكتمل"
+                                          : "Completed"
+                                        : `${st.progress}%`}
                                     </span>
                                   </div>
-                                  <p className="text-[11px] text-slate-400 truncate">{st.email}</p>
+                                  <p className="text-[11px] text-slate-400 truncate">
+                                    {st.email}
+                                  </p>
                                   <div className="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden mt-1">
                                     <div
                                       className="h-full bg-[#0F5244] rounded-full"
@@ -935,14 +1104,12 @@ export function InstructorDashboardView() {
               })}
             </div>
           )}
-
         </div>
       )}
 
       {/* TAB 2: ENROLLED STUDENTS LIST & PAGINATION (US-17) */}
       {activeTab === "students" && (
         <div className="bg-white rounded-3xl border border-slate-200/80 shadow-2xs overflow-hidden space-y-4 p-6 animate-in fade-in duration-150">
-          
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <h3 className="text-lg font-black text-slate-900">
               {tInst("enrolledStudentsTitle")}
@@ -965,20 +1132,31 @@ export function InstructorDashboardView() {
             <table className="w-full text-start text-xs font-semibold">
               <thead className="bg-slate-50 border-b border-slate-200/80 text-slate-600 uppercase text-[10px]">
                 <tr>
-                  <th className="py-3.5 px-6 text-start">{tInst("studentCol")}</th>
-                  <th className="py-3.5 px-6 text-start">{tInst("courseCol")}</th>
+                  <th className="py-3.5 px-6 text-start">
+                    {tInst("studentCol")}
+                  </th>
+                  <th className="py-3.5 px-6 text-start">
+                    {tInst("courseCol")}
+                  </th>
                   <th className="py-3.5 px-6 text-start">{tDash("dateCol")}</th>
-                  <th className="py-3.5 px-6 text-start">{tInst("progressCol")}</th>
+                  <th className="py-3.5 px-6 text-start">
+                    {tInst("progressCol")}
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {paginatedStudents.map((student) => (
-                  <tr key={student.id} className="hover:bg-slate-50/50 transition-colors">
+                  <tr
+                    key={student.id}
+                    className="hover:bg-slate-50/50 transition-colors"
+                  >
                     <td className="py-4 px-6 font-bold text-slate-900">
                       {student.nameKey ? tDash(student.nameKey) : student.name}
                     </td>
                     <td className="py-4 px-6 text-slate-700">
-                      {student.courseKey ? tDash(student.courseKey) : student.course}
+                      {student.courseKey
+                        ? tDash(student.courseKey)
+                        : student.course}
                     </td>
                     <td className="py-4 px-6 text-slate-500">{student.date}</td>
                     <td className="py-4 px-6">
@@ -989,7 +1167,9 @@ export function InstructorDashboardView() {
                             style={{ width: `${student.progress}%` }}
                           />
                         </div>
-                        <span className="text-xs font-bold text-slate-800">{student.progress}%</span>
+                        <span className="text-xs font-bold text-slate-800">
+                          {student.progress}%
+                        </span>
                       </div>
                     </td>
                   </tr>
@@ -1016,18 +1196,17 @@ export function InstructorDashboardView() {
               <button
                 type="button"
                 disabled={currentPage >= totalPages}
-                onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                onClick={() =>
+                  setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                }
                 className="p-2 rounded-xl border border-slate-200 text-slate-700 disabled:opacity-40 hover:bg-slate-100 cursor-pointer"
               >
                 <ChevronRight className="h-4 w-4 rtl:rotate-180" />
               </button>
             </div>
           </div>
-
         </div>
       )}
-
-
 
       <ArchiveCourseModal
         isOpen={!!archiveModalCourseId}
@@ -1037,13 +1216,15 @@ export function InstructorDashboardView() {
             confirmArchiveCourse(archiveModalCourseId);
           }
         }}
-        courseTitle={
-          (() => {
-            const found = courses.find((c) => c.id === archiveModalCourseId);
-            if (!found) return "";
-            return found.titleKey ? tDash(found.titleKey) : (isAr ? found.titleAr : found.titleEn);
-          })()
-        }
+        courseTitle={(() => {
+          const found = courses.find((c) => c.id === archiveModalCourseId);
+          if (!found) return "";
+          return found.titleKey
+            ? tDash(found.titleKey)
+            : isAr
+              ? found.titleAr
+              : found.titleEn;
+        })()}
       />
 
       <DeleteCourseModal
@@ -1058,7 +1239,9 @@ export function InstructorDashboardView() {
 
       <CourseIncompleteModal
         isOpen={incompleteModalData.isOpen}
-        onClose={() => setIncompleteModalData((prev) => ({ ...prev, isOpen: false }))}
+        onClose={() =>
+          setIncompleteModalData((prev) => ({ ...prev, isOpen: false }))
+        }
         courseId={incompleteModalData.courseId}
         courseTitle={incompleteModalData.courseTitle}
         missingItems={incompleteModalData.missingItems}

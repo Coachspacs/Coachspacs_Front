@@ -37,10 +37,10 @@ import {
   AlertCircle,
   Eye,
   EyeOff,
-  CreditCard
+  CreditCard,
 } from "lucide-react";
 import { Sidebar } from "@/components/layout/Sidebar";
-import { normalizeInstructorSlug } from "@/lib/mockInstructors";
+import { normalizeInstructorSlug } from "@/lib/instructorProfile";
 import { CartView } from "@/components/cart/CartView";
 import { OrderHistoryView } from "@/components/orders/OrderHistoryView";
 import { ChangeEmailModal } from "@/components/modals/ChangeEmailModal";
@@ -49,12 +49,27 @@ import { VerifiedBadge } from "@/components/ui/VerifiedBadge";
 function getSafeCourseImage(course: any): string {
   const defaultCover = "/images/courses/course-leadership.png";
   if (!course) return defaultCover;
-  const candidates = [course.image, course.cover_image, course.thumbnail, course.coverImage];
+  const candidates = [
+    course.image,
+    course.cover_image,
+    course.thumbnail,
+    course.coverImage,
+  ];
   for (const c of candidates) {
-    if (typeof c === "string" && c.trim().length > 0 && !c.includes("example.com")) {
+    if (
+      typeof c === "string" &&
+      c.trim().length > 0 &&
+      !c.includes("example.com")
+    ) {
       return c.trim();
     }
-    if (c && typeof c === "object" && typeof c.src === "string" && c.src.trim().length > 0 && !c.src.includes("example.com")) {
+    if (
+      c &&
+      typeof c === "object" &&
+      typeof c.src === "string" &&
+      c.src.trim().length > 0 &&
+      !c.src.includes("example.com")
+    ) {
       return c.src.trim();
     }
   }
@@ -65,18 +80,32 @@ function getSafeAvatar(avatar: any): string | null {
   if (typeof avatar === "string" && avatar.trim().length > 0) {
     return avatar.trim();
   }
-  if (avatar && typeof avatar === "object" && typeof avatar.src === "string" && avatar.src.trim().length > 0) {
+  if (
+    avatar &&
+    typeof avatar === "object" &&
+    typeof avatar.src === "string" &&
+    avatar.src.trim().length > 0
+  ) {
     return avatar.src.trim();
   }
   return null;
 }
 
 interface StudentWorkspaceProps {
-  initialTab?: "overview" | "courses" | "certificates" | "orders" | "cart" | "settings";
+  initialTab?:
+    | "overview"
+    | "courses"
+    | "certificates"
+    | "orders"
+    | "cart"
+    | "settings";
   hideSidebar?: boolean;
 }
 
-export function StudentWorkspace({ initialTab = "overview", hideSidebar = true }: StudentWorkspaceProps) {
+export function StudentWorkspace({
+  initialTab = "overview",
+  hideSidebar = true,
+}: StudentWorkspaceProps) {
   const locale = useLocale() || "en";
   const isAr = locale === "ar";
   const t = useTranslations("account");
@@ -90,9 +119,13 @@ export function StudentWorkspace({ initialTab = "overview", hideSidebar = true }
   const dispatch = useDispatch();
 
   // Active Workspace Section
-  const [activeTab, setActiveTab] = useState<"overview" | "courses" | "certificates" | "orders" | "cart" | "settings">(initialTab);
+  const [activeTab, setActiveTab] = useState<
+    "overview" | "courses" | "certificates" | "orders" | "cart" | "settings"
+  >(initialTab);
   const [searchQuery, setSearchQuery] = useState("");
-  const [courseFilter, setCourseFilter] = useState<"all" | "in_progress" | "completed">("all");
+  const [courseFilter, setCourseFilter] = useState<
+    "all" | "in_progress" | "completed"
+  >("all");
 
   // Toast & Modals
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -112,7 +145,8 @@ export function StudentWorkspace({ initialTab = "overview", hideSidebar = true }
     learningGoal: tStudent("defaultLearningGoal"),
     preferredCategory: "Data Science",
     videoSpeed: "1x",
-    certificateName: user?.fullName || user?.name || tStudent("defaultCertificateName"),
+    certificateName:
+      user?.fullName || user?.name || tStudent("defaultCertificateName"),
     publicProfile: true,
 
     // Password Change (US-03)
@@ -127,7 +161,8 @@ export function StudentWorkspace({ initialTab = "overview", hideSidebar = true }
 
   useEffect(() => {
     if (user) {
-      const userFullName = user.fullName || user.name || user.email?.split("@")[0] || "";
+      const userFullName =
+        user.fullName || user.name || user.email?.split("@")[0] || "";
       const userEmail = user.email || "";
       setFormData((prev) => ({
         ...prev,
@@ -177,7 +212,8 @@ export function StudentWorkspace({ initialTab = "overview", hideSidebar = true }
               progress,
               totalLessons: total,
               completedLessons:
-                enr.completed_lessons?.length || Math.round((progress / 100) * total),
+                enr.completed_lessons?.length ||
+                Math.round((progress / 100) * total),
               isCompleted: enr.is_completed || progress >= 100,
               certificateId:
                 enr.certificate?.id ||
@@ -187,12 +223,18 @@ export function StudentWorkspace({ initialTab = "overview", hideSidebar = true }
           });
           setCourses(mapped);
           if (typeof window !== "undefined") {
-            localStorage.setItem("coachspace_enrolled_courses", JSON.stringify(mapped));
+            localStorage.setItem(
+              "coachspace_enrolled_courses",
+              JSON.stringify(mapped),
+            );
           }
           return;
         }
       } catch (err) {
-        console.warn("[StudentWorkspace] Live enrollments fetch skipped / fallback to local:", err);
+        console.warn(
+          "[StudentWorkspace] Live enrollments fetch skipped / fallback to local:",
+          err,
+        );
       }
 
       // Fallback to localStorage
@@ -215,7 +257,10 @@ export function StudentWorkspace({ initialTab = "overview", hideSidebar = true }
             }
           }
         } catch (err) {
-          console.warn("[StudentWorkspace] Could not load enrolled courses:", err);
+          console.warn(
+            "[StudentWorkspace] Could not load enrolled courses:",
+            err,
+          );
         }
       }
     }
@@ -235,7 +280,11 @@ export function StudentWorkspace({ initialTab = "overview", hideSidebar = true }
     setTimeout(() => setToastMessage(null), 3000);
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+  const handleInputChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >,
+  ) => {
     const { name, value, type } = e.target;
     if (type === "checkbox") {
       const checked = (e.target as HTMLInputElement).checked;
@@ -245,7 +294,9 @@ export function StudentWorkspace({ initialTab = "overview", hideSidebar = true }
     }
   };
 
-  const handleAvatarFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAvatarFileChange = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -333,7 +384,7 @@ export function StudentWorkspace({ initialTab = "overview", hideSidebar = true }
           phone_number: updated.phone_number || undefined,
           preferred_language: updated.preferred_language || locale,
           preferredLanguage: updated.preferred_language || locale,
-        })
+        }),
       );
 
       setToastMessage(t("changesSaved"));
@@ -341,8 +392,9 @@ export function StudentWorkspace({ initialTab = "overview", hideSidebar = true }
       console.warn("[StudentWorkspace] Error saving settings:", err);
       const msg = getApiErrorMessage(
         err,
-        t("saveChangesFailed") || (isAr ? "فشل حفظ التغييرات" : "Failed to save changes"),
-        isAr
+        t("saveChangesFailed") ||
+          (isAr ? "فشل حفظ التغييرات" : "Failed to save changes"),
+        isAr,
       );
       setToastMessage(msg);
     } finally {
@@ -391,7 +443,9 @@ export function StudentWorkspace({ initialTab = "overview", hideSidebar = true }
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <span className="font-black text-2xl sm:text-3xl text-[#0F5244]">{formData.fullName.charAt(0)}</span>
+                  <span className="font-black text-2xl sm:text-3xl text-[#0F5244]">
+                    {formData.fullName.charAt(0)}
+                  </span>
                 )}
               </div>
               <span className="absolute bottom-0 right-0 rtl:right-auto rtl:left-0 w-3.5 h-3.5 bg-emerald-500 border-2 border-white rounded-full" />
@@ -399,22 +453,35 @@ export function StudentWorkspace({ initialTab = "overview", hideSidebar = true }
 
             <div className="space-y-1">
               <div className="flex items-center justify-center sm:justify-start gap-2 flex-wrap">
-                <h1 className="text-lg sm:text-2xl font-black text-slate-900">{formData.fullName}</h1>
+                <h1 className="text-lg sm:text-2xl font-black text-slate-900">
+                  {formData.fullName}
+                </h1>
                 <span className="px-2.5 py-0.5 rounded-full bg-emerald-100 text-[#0F5244] text-[11px] font-extrabold">
-                  {(user?.role || "").toLowerCase() === "instructor" || (user?.role || "").toLowerCase() === "coach"
+                  {(user?.role || "").toLowerCase() === "instructor" ||
+                  (user?.role || "").toLowerCase() === "coach"
                     ? tWs("instructorAccount")
                     : tWs("studentAccount")}
                 </span>
               </div>
-              <p className="text-xs text-slate-500 font-medium">{formData.headline}</p>
-              <p className="text-[11px] text-slate-400 font-medium pt-0.5">{formData.email}</p>
+              <p className="text-xs text-slate-500 font-medium">
+                {formData.headline}
+              </p>
+              <p className="text-[11px] text-slate-400 font-medium pt-0.5">
+                {formData.email}
+              </p>
             </div>
           </div>
         </div>
       )}
 
       {/* Master Workspace Layout */}
-      <div className={hideSidebar ? "w-full bg-white rounded-2xl sm:rounded-3xl border border-slate-200/80 p-4 sm:p-10 shadow-2xs" : "flex flex-col md:flex-row gap-6 sm:gap-8 lg:gap-10 items-start"}>
+      <div
+        className={
+          hideSidebar
+            ? "w-full bg-white rounded-2xl sm:rounded-3xl border border-slate-200/80 p-4 sm:p-10 shadow-2xs"
+            : "flex flex-col md:flex-row gap-6 sm:gap-8 lg:gap-10 items-start"
+        }
+      >
         {!hideSidebar && (
           <Sidebar
             activeTab={activeTab}
@@ -428,8 +495,13 @@ export function StudentWorkspace({ initialTab = "overview", hideSidebar = true }
         )}
 
         {/* Main Display Area */}
-        <div className={hideSidebar ? "w-full" : "flex-1 w-full bg-white rounded-2xl sm:rounded-3xl border border-slate-200/80 p-4 sm:p-10 shadow-2xs"}>
-          
+        <div
+          className={
+            hideSidebar
+              ? "w-full"
+              : "flex-1 w-full bg-white rounded-2xl sm:rounded-3xl border border-slate-200/80 p-4 sm:p-10 shadow-2xs"
+          }
+        >
           {/* OVERVIEW TAB */}
           {activeTab === "overview" && (
             <div className="space-y-8 animate-in fade-in duration-150">
@@ -439,12 +511,21 @@ export function StudentWorkspace({ initialTab = "overview", hideSidebar = true }
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200/60 space-y-1">
-                  <span className="text-xs font-bold text-slate-400 uppercase">{tWs("enrolled")}</span>
-                  <div className="text-2xl font-black text-slate-900">{courses.length} {tWs("courses")}</div>
+                  <span className="text-xs font-bold text-slate-400 uppercase">
+                    {tWs("enrolled")}
+                  </span>
+                  <div className="text-2xl font-black text-slate-900">
+                    {courses.length} {tWs("courses")}
+                  </div>
                 </div>
                 <div className="p-5 rounded-2xl bg-emerald-50 border border-emerald-200/60 space-y-1">
-                  <span className="text-xs font-bold text-emerald-800 uppercase">{tWs("certificatesCount")}</span>
-                  <div className="text-2xl font-black text-emerald-900">{courses.filter(c => c.isCompleted).length} {tWs("earned")}</div>
+                  <span className="text-xs font-bold text-emerald-800 uppercase">
+                    {tWs("certificatesCount")}
+                  </span>
+                  <div className="text-2xl font-black text-emerald-900">
+                    {courses.filter((c) => c.isCompleted).length}{" "}
+                    {tWs("earned")}
+                  </div>
                 </div>
               </div>
 
@@ -459,8 +540,12 @@ export function StudentWorkspace({ initialTab = "overview", hideSidebar = true }
 
                   <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div>
-                      <h4 className="text-lg sm:text-xl font-black">{courses[0]?.title}</h4>
-                      <p className="text-xs text-emerald-100 mt-1 font-medium">{courses[0]?.lastLessonTitle}</p>
+                      <h4 className="text-lg sm:text-xl font-black">
+                        {courses[0]?.title}
+                      </h4>
+                      <p className="text-xs text-emerald-100 mt-1 font-medium">
+                        {courses[0]?.lastLessonTitle}
+                      </p>
                     </div>
 
                     <Link
@@ -524,7 +609,8 @@ export function StudentWorkspace({ initialTab = "overview", hideSidebar = true }
                         : "text-slate-600 hover:text-slate-900"
                     }`}
                   >
-                    {tWs("inProgress")} ({courses.filter(c => !c.isCompleted).length})
+                    {tWs("inProgress")} (
+                    {courses.filter((c) => !c.isCompleted).length})
                   </button>
                   <button
                     type="button"
@@ -535,7 +621,8 @@ export function StudentWorkspace({ initialTab = "overview", hideSidebar = true }
                         : "text-slate-600 hover:text-slate-900"
                     }`}
                   >
-                    {tWs("completed")} ({courses.filter(c => c.isCompleted).length})
+                    {tWs("completed")} (
+                    {courses.filter((c) => c.isCompleted).length})
                   </button>
                 </div>
               </div>
@@ -565,8 +652,10 @@ export function StudentWorkspace({ initialTab = "overview", hideSidebar = true }
                 ) : (
                   courses
                     .filter((course) => {
-                      if (courseFilter === "in_progress") return !course.isCompleted;
-                      if (courseFilter === "completed") return course.isCompleted;
+                      if (courseFilter === "in_progress")
+                        return !course.isCompleted;
+                      if (courseFilter === "completed")
+                        return course.isCompleted;
                       return true;
                     })
                     .map((course) => (
@@ -574,95 +663,111 @@ export function StudentWorkspace({ initialTab = "overview", hideSidebar = true }
                         key={course.id}
                         className="h-full flex flex-col justify-between rounded-3xl border border-slate-200/80 p-5 hover:shadow-md transition-all bg-white"
                       >
-                      <div className="space-y-4">
-                        <Link
-                          href={`/${locale}/student/learn/${course.id}`}
-                          className="block relative h-44 rounded-2xl overflow-hidden bg-slate-100 shrink-0 group cursor-pointer"
-                          title={course.title}
-                        >
-                          <Image
-                            src={getSafeCourseImage(course)}
-                            alt={course.title || "Course Cover"}
-                            width={384}
-                            height={176}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                            unoptimized
-                          />
-                          <div className="absolute inset-0 bg-slate-950/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                            <span className="w-12 h-12 rounded-full bg-white/95 text-[#0F5244] flex items-center justify-center shadow-lg transform scale-90 group-hover:scale-100 transition-transform">
-                              <Play className="h-5 w-5 fill-current ml-0.5" />
-                            </span>
-                          </div>
-                          <span
-                            className={`absolute top-3 right-3 rtl:right-auto rtl:left-3 px-3 py-1 rounded-full text-white text-[11px] font-bold shadow-xs ${
-                              course.isCompleted ? "bg-emerald-600" : "bg-slate-900/80"
-                            }`}
-                          >
-                            {course.isCompleted ? tWs("completedPercent") : `${course.progress}%`}
-                          </span>
-                        </Link>
-
-                        <div className="space-y-1 min-h-[3.25rem] flex flex-col justify-start">
+                        <div className="space-y-4">
                           <Link
                             href={`/${locale}/student/learn/${course.id}`}
-                            className="text-base font-extrabold text-slate-900 line-clamp-2 leading-snug hover:text-[#0F5244] transition-colors"
+                            className="block relative h-44 rounded-2xl overflow-hidden bg-slate-100 shrink-0 group cursor-pointer"
                             title={course.title}
                           >
-                            {course.title}
-                          </Link>
-                          <Link
-                            href={`/${locale}/instructors/${normalizeInstructorSlug(course.instructor)}`}
-                            className="text-xs text-slate-500 hover:text-[#0F5244] hover:underline font-medium w-fit transition-colors inline-flex items-center gap-1"
-                            title={course.instructor}
-                          >
-                            <span>{course.instructor}</span>
-                            <VerifiedBadge size="xs" />
-                          </Link>
-                        </div>
-                      </div>
-
-                      {/* Bottom Footer Section (Progress Bar + Actions aligned at exact same bottom level) */}
-                      <div className="mt-auto pt-4 space-y-4">
-                        {/* Progress Bar */}
-                        <div className="space-y-1.5">
-                          <div className="flex justify-between text-[11px] font-extrabold text-slate-500">
-                            <span>{tWs("progressLabel")}</span>
-                            <span className={course.isCompleted ? "text-emerald-700 font-black" : "text-[#0F5244] font-black"}>
-                              {course.progress}%
-                            </span>
-                          </div>
-                          <div className="w-full h-2 rounded-full bg-slate-100 overflow-hidden">
-                            <div
-                              className={`h-full rounded-full transition-all duration-500 ${
-                                course.isCompleted ? "bg-emerald-500" : "bg-[#0F5244]"
-                              }`}
-                              style={{ width: `${course.progress}%` }}
+                            <Image
+                              src={getSafeCourseImage(course)}
+                              alt={course.title || "Course Cover"}
+                              width={384}
+                              height={176}
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                              unoptimized
                             />
+                            <div className="absolute inset-0 bg-slate-950/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                              <span className="w-12 h-12 rounded-full bg-white/95 text-[#0F5244] flex items-center justify-center shadow-lg transform scale-90 group-hover:scale-100 transition-transform">
+                                <Play className="h-5 w-5 fill-current ml-0.5" />
+                              </span>
+                            </div>
+                            <span
+                              className={`absolute top-3 right-3 rtl:right-auto rtl:left-3 px-3 py-1 rounded-full text-white text-[11px] font-bold shadow-xs ${
+                                course.isCompleted
+                                  ? "bg-emerald-600"
+                                  : "bg-slate-900/80"
+                              }`}
+                            >
+                              {course.isCompleted
+                                ? tWs("completedPercent")
+                                : `${course.progress}%`}
+                            </span>
+                          </Link>
+
+                          <div className="space-y-1 min-h-[3.25rem] flex flex-col justify-start">
+                            <Link
+                              href={`/${locale}/student/learn/${course.id}`}
+                              className="text-base font-extrabold text-slate-900 line-clamp-2 leading-snug hover:text-[#0F5244] transition-colors"
+                              title={course.title}
+                            >
+                              {course.title}
+                            </Link>
+                            <Link
+                              href={`/${locale}/instructors/${normalizeInstructorSlug(course.instructor)}`}
+                              className="text-xs text-slate-500 hover:text-[#0F5244] hover:underline font-medium w-fit transition-colors inline-flex items-center gap-1"
+                              title={course.instructor}
+                            >
+                              <span>{course.instructor}</span>
+                              <VerifiedBadge size="xs" />
+                            </Link>
                           </div>
                         </div>
 
-                        <div className="flex items-center gap-2">
-                          <Link
-                            href={`/${locale}/student/learn/${course.id}`}
-                            className="flex-1 py-2.5 rounded-2xl bg-[#0F5244] hover:bg-[#07382E] text-white text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer shadow-2xs active:scale-98"
-                          >
-                            <Play className="h-3.5 w-3.5 fill-current" />
-                            <span>{course.isCompleted ? tWs("completedStatus") : tWs("enrolledStatus")}</span>
-                          </Link>
+                        {/* Bottom Footer Section (Progress Bar + Actions aligned at exact same bottom level) */}
+                        <div className="mt-auto pt-4 space-y-4">
+                          {/* Progress Bar */}
+                          <div className="space-y-1.5">
+                            <div className="flex justify-between text-[11px] font-extrabold text-slate-500">
+                              <span>{tWs("progressLabel")}</span>
+                              <span
+                                className={
+                                  course.isCompleted
+                                    ? "text-emerald-700 font-black"
+                                    : "text-[#0F5244] font-black"
+                                }
+                              >
+                                {course.progress}%
+                              </span>
+                            </div>
+                            <div className="w-full h-2 rounded-full bg-slate-100 overflow-hidden">
+                              <div
+                                className={`h-full rounded-full transition-all duration-500 ${
+                                  course.isCompleted
+                                    ? "bg-emerald-500"
+                                    : "bg-[#0F5244]"
+                                }`}
+                                style={{ width: `${course.progress}%` }}
+                              />
+                            </div>
+                          </div>
 
-                          {course.isCompleted && (
+                          <div className="flex items-center gap-2">
                             <Link
-                              href={`/${locale}/student/certificates/${course.certificateId || "CERT-892401"}`}
-                              className="px-4 py-2.5 rounded-2xl bg-emerald-100 hover:bg-emerald-200 text-[#0F5244] text-xs font-extrabold flex items-center gap-1.5 transition-all active:scale-98"
+                              href={`/${locale}/student/learn/${course.id}`}
+                              className="flex-1 py-2.5 rounded-2xl bg-[#0F5244] hover:bg-[#07382E] text-white text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer shadow-2xs active:scale-98"
                             >
-                              <Award className="h-4 w-4" />
-                              <span>{tWs("certificateBtn")}</span>
+                              <Play className="h-3.5 w-3.5 fill-current" />
+                              <span>
+                                {course.isCompleted
+                                  ? tWs("completedStatus")
+                                  : tWs("enrolledStatus")}
+                              </span>
                             </Link>
-                          )}
+
+                            {course.isCompleted && (
+                              <Link
+                                href={`/${locale}/student/certificates/${course.certificateId || "CERT-892401"}`}
+                                className="px-4 py-2.5 rounded-2xl bg-emerald-100 hover:bg-emerald-200 text-[#0F5244] text-xs font-extrabold flex items-center gap-1.5 transition-all active:scale-98"
+                              >
+                                <Award className="h-4 w-4" />
+                                <span>{tWs("certificateBtn")}</span>
+                              </Link>
+                            )}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))
+                    ))
                 )}
               </div>
             </div>
@@ -682,27 +787,36 @@ export function StudentWorkspace({ initialTab = "overview", hideSidebar = true }
 
               {courses.filter((c) => c.isCompleted).length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {courses.filter((c) => c.isCompleted).map((cert) => (
-                    <div key={cert.id} className="p-6 rounded-3xl border border-emerald-100/90 bg-gradient-to-br from-emerald-50/40 via-white to-white space-y-4 shadow-2xs">
-                      <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 rounded-2xl bg-emerald-100 flex items-center justify-center text-emerald-700 shrink-0">
-                          <Award className="h-6 w-6" />
-                        </div>
-                        <div>
-                          <h4 className="text-sm font-extrabold text-slate-900">{cert.title}</h4>
-                          <span className="text-xs text-slate-400 font-mono">{cert.certificateId}</span>
-                        </div>
-                      </div>
-
-                      <Link
-                        href={`/${locale}/student/certificates/${cert.certificateId || "CERT-123"}`}
-                        className="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black flex items-center justify-center gap-2 transition-all shadow-xs active:scale-98"
+                  {courses
+                    .filter((c) => c.isCompleted)
+                    .map((cert) => (
+                      <div
+                        key={cert.id}
+                        className="p-6 rounded-3xl border border-emerald-100/90 bg-gradient-to-br from-emerald-50/40 via-white to-white space-y-4 shadow-2xs"
                       >
-                        <Download className="h-4 w-4" />
-                        <span>{tWs("downloadPdf")}</span>
-                      </Link>
-                    </div>
-                  ))}
+                        <div className="flex items-center gap-3">
+                          <div className="w-12 h-12 rounded-2xl bg-emerald-100 flex items-center justify-center text-emerald-700 shrink-0">
+                            <Award className="h-6 w-6" />
+                          </div>
+                          <div>
+                            <h4 className="text-sm font-extrabold text-slate-900">
+                              {cert.title}
+                            </h4>
+                            <span className="text-xs text-slate-400 font-mono">
+                              {cert.certificateId}
+                            </span>
+                          </div>
+                        </div>
+
+                        <Link
+                          href={`/${locale}/student/certificates/${cert.certificateId || "CERT-123"}`}
+                          className="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black flex items-center justify-center gap-2 transition-all shadow-xs active:scale-98"
+                        >
+                          <Download className="h-4 w-4" />
+                          <span>{tWs("downloadPdf")}</span>
+                        </Link>
+                      </div>
+                    ))}
                 </div>
               ) : (
                 <div className="w-full max-w-md mx-auto bg-white rounded-3xl p-8 sm:p-10 border border-slate-200/80 shadow-2xs text-center space-y-6">
@@ -733,16 +847,15 @@ export function StudentWorkspace({ initialTab = "overview", hideSidebar = true }
 
           {/* CART TAB */}
           {activeTab === "cart" && (
-            <CartView
-              items={cartItems}
-              onRemoveItem={handleRemoveFromCart}
-            />
+            <CartView items={cartItems} onRemoveItem={handleRemoveFromCart} />
           )}
 
           {/* FULL ACCOUNT PROFILE & SETTINGS TAB */}
           {activeTab === "settings" && (
-            <form onSubmit={handleSaveSettings} className="space-y-8 animate-in fade-in duration-150">
-              
+            <form
+              onSubmit={handleSaveSettings}
+              className="space-y-8 animate-in fade-in duration-150"
+            >
               <div className="space-y-1">
                 <h2 className="text-xl sm:text-2xl font-black text-slate-900">
                   {tStudent("title")}
@@ -819,9 +932,10 @@ export function StudentWorkspace({ initialTab = "overview", hideSidebar = true }
                 </h3>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                  
                   <div className="space-y-1.5">
-                    <label className="block text-xs font-bold text-slate-700">{t("fullName")}</label>
+                    <label className="block text-xs font-bold text-slate-700">
+                      {t("fullName")}
+                    </label>
                     <input
                       type="text"
                       name="fullName"
@@ -834,7 +948,9 @@ export function StudentWorkspace({ initialTab = "overview", hideSidebar = true }
 
                   <div className="space-y-1.5">
                     <div className="flex items-center justify-between">
-                      <label className="block text-xs font-bold text-slate-700">{t("emailAddress")}</label>
+                      <label className="block text-xs font-bold text-slate-700">
+                        {t("emailAddress")}
+                      </label>
                       <button
                         type="button"
                         onClick={() => setShowEmailModal(true)}
@@ -853,7 +969,9 @@ export function StudentWorkspace({ initialTab = "overview", hideSidebar = true }
                   </div>
 
                   <div className="space-y-1.5">
-                    <label className="block text-xs font-bold text-slate-700">{t("phoneNumber")}</label>
+                    <label className="block text-xs font-bold text-slate-700">
+                      {t("phoneNumber")}
+                    </label>
                     <input
                       type="tel"
                       name="phone"
@@ -864,7 +982,9 @@ export function StudentWorkspace({ initialTab = "overview", hideSidebar = true }
                   </div>
 
                   <div className="space-y-1.5">
-                    <label className="block text-xs font-bold text-slate-700">{t("headline")}</label>
+                    <label className="block text-xs font-bold text-slate-700">
+                      {t("headline")}
+                    </label>
                     <input
                       type="text"
                       name="headline"
@@ -873,7 +993,6 @@ export function StudentWorkspace({ initialTab = "overview", hideSidebar = true }
                       className="w-full h-11 rounded-2xl border border-slate-200 bg-slate-50/60 px-4 text-xs font-semibold text-slate-900 focus:bg-white focus:border-[#0F5244] focus:outline-none"
                     />
                   </div>
-
                 </div>
               </div>
 
@@ -894,7 +1013,9 @@ export function StudentWorkspace({ initialTab = "overview", hideSidebar = true }
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
                   <div className="space-y-1.5">
-                    <label className="block text-xs font-bold text-slate-700">{t("currentPassword")}</label>
+                    <label className="block text-xs font-bold text-slate-700">
+                      {t("currentPassword")}
+                    </label>
                     <div className="relative">
                       <input
                         type={showCurrentPassword ? "text" : "password"}
@@ -906,16 +1027,24 @@ export function StudentWorkspace({ initialTab = "overview", hideSidebar = true }
                       />
                       <button
                         type="button"
-                        onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                        onClick={() =>
+                          setShowCurrentPassword(!showCurrentPassword)
+                        }
                         className="absolute top-1/2 -translate-y-1/2 rtl:left-3 ltr:right-3 text-slate-400 hover:text-slate-600 cursor-pointer"
                       >
-                        {showCurrentPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                        {showCurrentPassword ? (
+                          <EyeOff className="h-4 w-4" />
+                        ) : (
+                          <Eye className="h-4 w-4" />
+                        )}
                       </button>
                     </div>
                   </div>
 
                   <div className="space-y-1.5">
-                    <label className="block text-xs font-bold text-slate-700">{t("newPassword")}</label>
+                    <label className="block text-xs font-bold text-slate-700">
+                      {t("newPassword")}
+                    </label>
                     <div className="relative">
                       <input
                         type={showNewPassword ? "text" : "password"}
@@ -930,13 +1059,19 @@ export function StudentWorkspace({ initialTab = "overview", hideSidebar = true }
                         onClick={() => setShowNewPassword(!showNewPassword)}
                         className="absolute top-1/2 -translate-y-1/2 rtl:left-3 ltr:right-3 text-slate-400 hover:text-slate-600 cursor-pointer"
                       >
-                        {showNewPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                        {showNewPassword ? (
+                          <EyeOff className="h-4 w-4" />
+                        ) : (
+                          <Eye className="h-4 w-4" />
+                        )}
                       </button>
                     </div>
                   </div>
 
                   <div className="space-y-1.5">
-                    <label className="block text-xs font-bold text-slate-700">{t("confirmPassword")}</label>
+                    <label className="block text-xs font-bold text-slate-700">
+                      {t("confirmPassword")}
+                    </label>
                     <div className="relative">
                       <input
                         type={showConfirmPassword ? "text" : "password"}
@@ -948,10 +1083,16 @@ export function StudentWorkspace({ initialTab = "overview", hideSidebar = true }
                       />
                       <button
                         type="button"
-                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                        onClick={() =>
+                          setShowConfirmPassword(!showConfirmPassword)
+                        }
                         className="absolute top-1/2 -translate-y-1/2 rtl:left-3 ltr:right-3 text-slate-400 hover:text-slate-600 cursor-pointer"
                       >
-                        {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                        {showConfirmPassword ? (
+                          <EyeOff className="h-4 w-4" />
+                        ) : (
+                          <Eye className="h-4 w-4" />
+                        )}
                       </button>
                     </div>
                   </div>
@@ -977,14 +1118,10 @@ export function StudentWorkspace({ initialTab = "overview", hideSidebar = true }
                   )}
                 </button>
               </div>
-
             </form>
           )}
-
         </div>
-
       </div>
-
     </div>
   );
 }

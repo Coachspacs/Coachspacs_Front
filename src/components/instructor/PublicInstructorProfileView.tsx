@@ -43,7 +43,7 @@ import {
   getLocalizedSpecialization,
   getLocalizedSkill,
   normalizeInstructorSlug,
-} from "@/lib/mockInstructors";
+} from "@/lib/instructorProfile";
 
 interface CompactCourseCardProps {
   course: any;
@@ -323,46 +323,50 @@ export function PublicInstructorProfileView({ instructor: initialInstructor }: P
         if (!isSubscribed) return;
 
         const targetSlug = normalizeInstructorSlug(initialInstructor.slug || initialInstructor.name || "");
-        const targetName = (initialInstructor.name || "").toLowerCase().trim();
-        const targetNameAr = (initialInstructor.nameAr || "").toLowerCase().trim();
         const targetId = String(initialInstructor.id || "").replace(/^inst-/, "");
+        const isNumericId = /^\d+$/.test(targetId);
 
-        // Filter courses matching this instructor
+        // Filter courses matching this instructor: STRICTLY BY ID when available!
         const matchingPublicCourses = results.filter((c: any) => {
           const instObj = typeof c.instructor === "object" ? c.instructor : null;
-          const instFullName = (instObj?.full_name || instObj?.name || (typeof c.instructor === "string" ? c.instructor : (c.instructorName || ""))).toLowerCase().trim();
           const instId = String(instObj?.id || c.instructor_id || "");
-          const courseSlug = normalizeInstructorSlug(instFullName);
 
-          // Match by instructor ID
-          if (targetId && instId && (targetId === instId || `inst-${instId}` === initialInstructor.id)) {
-            return true;
+          // 1. If we have a target instructor ID, match ONLY by ID!
+          if (targetId && instId) {
+            return targetId === instId || `inst-${instId}` === initialInstructor.id;
           }
-          // Match by slug
-          if (targetSlug && courseSlug && (targetSlug === courseSlug || courseSlug.includes(targetSlug) || targetSlug.includes(courseSlug))) {
-            return true;
+
+          // 2. Fallback only if no numeric ID exists
+          if (!isNumericId && targetSlug) {
+            const instFullName = (instObj?.full_name || instObj?.name || (typeof c.instructor === "string" ? c.instructor : (c.instructorName || ""))).toLowerCase().trim();
+            const courseSlug = normalizeInstructorSlug(instFullName);
+            return courseSlug === targetSlug;
           }
-          // Match by English / Arabic full name
-          if (targetName && instFullName && (targetName === instFullName || instFullName.includes(targetName) || targetName.includes(instFullName))) {
-            return true;
-          }
-          if (targetNameAr && instFullName && (targetNameAr === instFullName || instFullName.includes(targetNameAr))) {
-            return true;
-          }
+
           return false;
         });
 
+        let discoveredName: string | undefined = undefined;
+        let discoveredNameAr: string | undefined = undefined;
         let discoveredAvatar: string | undefined = undefined;
         for (const c of matchingPublicCourses) {
-          if (typeof c.instructor === "object" && c.instructor?.avatar) {
-            discoveredAvatar = c.instructor.avatar;
-            break;
+          if (typeof c.instructor === "object") {
+            if (!discoveredName && (c.instructor?.full_name || c.instructor?.name)) {
+              discoveredName = c.instructor.full_name || c.instructor.name;
+            }
+            if (!discoveredNameAr && c.instructor?.full_name_ar) {
+              discoveredNameAr = c.instructor.full_name_ar;
+            }
+            if (!discoveredAvatar && c.instructor?.avatar) {
+              discoveredAvatar = c.instructor.avatar;
+            }
+            if (discoveredName && discoveredAvatar) break;
           }
         }
 
         setInstructor((prev) => {
-          const instName = prev.name || initialInstructor.name || "Instructor";
-          const instNameAr = prev.nameAr || initialInstructor.nameAr || instName;
+          const instName = discoveredName || prev.name || initialInstructor.name || "Instructor";
+          const instNameAr = discoveredNameAr || prev.nameAr || initialInstructor.nameAr || instName;
           const instAvatar = prev.avatar || discoveredAvatar || initialInstructor.avatar;
 
           const formattedPublicCourses = matchingPublicCourses.map((c: any) =>
@@ -371,20 +375,19 @@ export function PublicInstructorProfileView({ instructor: initialInstructor }: P
 
           return {
             ...prev,
+            name: instName,
+            nameAr: instNameAr,
             avatar: instAvatar,
-            courses: formattedPublicCourses.length > 0 ? formattedPublicCourses : (prev.courses?.length ? prev.courses : []),
+            courses: formattedPublicCourses,
           };
         });
 
-        // 2. If the logged in user is this instructor, also fetch authenticated studio courses
+        // 2. If the logged in user is this instructor, STRICTLY MATCH BY USER ID!
         const isCurrentInstructor = Boolean(
           authUser &&
           ((authUser.role || "").toLowerCase() === "instructor" || (authUser.role || "").toLowerCase() === "coach") &&
-          (authUser.fullName === initialInstructor.name ||
-           authUser.name === initialInstructor.name ||
-           normalizeInstructorSlug(authUser.fullName || authUser.name || "") === targetSlug ||
-           initialInstructor.slug === "mohammed-katanani" ||
-           initialInstructor.id === "inst-mohammed-katanani")
+          targetId &&
+          String(authUser.id) === targetId
         );
 
         if (isCurrentInstructor) {
@@ -393,8 +396,8 @@ export function PublicInstructorProfileView({ instructor: initialInstructor }: P
             const studioList = Array.isArray(studioData) ? studioData : studioData?.results || [];
             if (studioList.length > 0 && isSubscribed) {
               setInstructor((prev) => {
-                const instName = prev.name || initialInstructor.name || "Instructor";
-                const instNameAr = prev.nameAr || initialInstructor.nameAr || instName;
+                const instName = discoveredName || prev.name || initialInstructor.name || "Instructor";
+                const instNameAr = discoveredNameAr || prev.nameAr || initialInstructor.nameAr || instName;
                 const instAvatar = prev.avatar || discoveredAvatar || initialInstructor.avatar;
 
                 const formattedStudioCourses = studioList.map((c: any) =>
