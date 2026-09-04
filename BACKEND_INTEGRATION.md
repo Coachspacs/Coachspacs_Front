@@ -246,6 +246,61 @@ All requests require `Authorization: Bearer <access_token>` of an approved instr
 
 ---
 
+## 🎯 9. Student Enrollments & Lesson Progress Tracking (Sprint 8 Delta US-13)
+
+All requests require `Authorization: Bearer <access_token>` of an enrolled student.
+
+### `GET /api/enrollments`
+- **Description**: Returns all course enrollments for the authenticated student, including progress percentages, completed lesson IDs, and completion certificates.
+- **Response (200 OK)**:
+```json
+[
+  {
+    "id": 14,
+    "course": {
+      "id": 5,
+      "title": "Full-Stack Web Development",
+      "cover_image": "https://...",
+      "instructor": { "name": "Sara Coach" }
+    },
+    "progress_percent": 45,
+    "completed_lessons": [101, 102],
+    "is_completed": false,
+    "certificate": null
+  }
+]
+```
+
+### `POST /api/enrollments/:enrollment_id/lessons/:lesson_id/complete`
+- **Description**: Marks a lesson as complete, stamps completion timestamp, and recalculates the enrollment's progress percentage. Reaching 100% automatically issues a certificate record.
+- **Payload**: None (Empty body).
+- **Response (200 OK)**:
+```json
+{
+  "lesson_id": 101,
+  "is_completed": true,
+  "progress_percent": 50,
+  "course_completed": false,
+  "certificate": null
+}
+```
+
+### `DELETE /api/enrollments/:enrollment_id/lessons/:lesson_id/complete`
+- **Description**: Marks a lesson as incomplete, clears completion timestamp, and recalculates the enrollment's progress percentage downward.
+- **Payload**: None.
+- **Response (200 OK)**:
+```json
+{
+  "lesson_id": 101,
+  "is_completed": false,
+  "progress_percent": 25,
+  "course_completed": false,
+  "certificate": null
+}
+```
+
+---
+
 ## 💻 Frontend Connected Components Map
 
 | Feature Area | Connected UI Component | Service Called | Live Parameters |
@@ -261,4 +316,6 @@ All requests require `Authorization: Bearer <access_token>` of an approved instr
 | **Course Details** | `src/app/[locale]/(public)/courses/[slug]/page.tsx`, `CourseDetailsView.tsx` | `courseService.getCourseById` | `id`, `Accept-Language`, Bearer token for `is_enrolled` |
 | **Course Builder** | `src/components/instructor/CreateCourseStudio.tsx` | `instructorCourseService.*` | Course CRUD, Cloudinary video signature, sections, lessons, preview toggle, reorder |
 | **Instructor Courses** | `src/components/instructor/InstructorWorkspace.tsx`, `InstructorDashboardView.tsx`, `InstructorCoursesPreview.tsx` | `instructorCourseService.getMyCourses`, `deleteCourse`, `updateCourse` | Courses listing, status filter, review submission, delete/archive |
+| **Lesson Progress & Complete** | `src/app/[locale]/student/learn/[courseId]/page.tsx`, `CourseContentSidebar.tsx` | `enrollmentService.markLessonComplete`, `markLessonIncomplete`, `getMyEnrollments` | `enrollment_id`, `lesson_id` |
+| **Enrolled Courses** | `src/components/student/StudentWorkspace.tsx`, `StudentHomeWidget.tsx` | `enrollmentService.getMyEnrollments` | `progress_percent`, `completed_lessons`, `is_completed` |
 

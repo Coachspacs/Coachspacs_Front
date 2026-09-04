@@ -8,9 +8,12 @@ import { useTranslations, useLocale } from "next-intl";
 import { useSelector } from "react-redux";
 import { RootState } from "@/lib/store";
 import { courseService } from "@/services/courseService";
+import { enrollmentService } from "@/services/enrollmentService";
 import { CourseContentSidebar } from "@/components/course/CourseContentSidebar";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
+import { VerifiedBadge } from "@/components/ui/VerifiedBadge";
+import { normalizeInstructorSlug } from "@/lib/mockInstructors";
 import {
   PlayCircle,
   CheckCircle,
@@ -53,6 +56,8 @@ export default function CoursePlayerPage() {
   const { user } = useSelector((state: RootState) => state.auth);
 
   const [course, setCourse] = useState<any>(null);
+  const [enrollmentId, setEnrollmentId] = useState<string | number | null>(null);
+  const [serverProgressPercent, setServerProgressPercent] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [activeLessonIndex, setActiveLessonIndex] = useState(0);
   const [completedLessonIds, setCompletedLessonIds] = useState<string[]>([]);
@@ -100,23 +105,52 @@ export default function CoursePlayerPage() {
     }
   };
 
-  // Load Course Data
+  // Load Course and Live Enrollment Data
   useEffect(() => {
-    async function loadCourse() {
+    async function loadCourseAndEnrollment() {
       setIsLoading(true);
       try {
         const data = await courseService.getCourseById(courseId, locale);
         if (data) {
           setCourse(data);
+          if (data.enrollment_id || data.enrollment?.id) {
+            setEnrollmentId(data.enrollment_id || data.enrollment?.id);
+          }
         }
       } catch (err) {
         console.warn("Failed to load course details:", err);
       } finally {
         setIsLoading(false);
       }
+
+      // Live Enrollment Discovery & Progress Sync (Sprint 8 Delta US-13)
+      try {
+        const enrollments = await enrollmentService.getMyEnrollments();
+        if (Array.isArray(enrollments)) {
+          const match = enrollments.find(
+            (e: any) =>
+              String(e.course?.id) === String(courseId) ||
+              String(e.course_id) === String(courseId) ||
+              String(e.id) === String(courseId)
+          );
+          if (match) {
+            setEnrollmentId(match.id);
+            if (typeof match.progress_percent === "number") {
+              setServerProgressPercent(match.progress_percent);
+            }
+            if (Array.isArray(match.completed_lessons) && match.completed_lessons.length > 0) {
+              const strIds = match.completed_lessons.map((id: any) => String(id));
+              setCompletedLessonIds((prev) => Array.from(new Set([...prev, ...strIds])));
+            }
+          }
+        }
+      } catch (e) {
+        console.warn("[CoursePlayer] Could not fetch live enrollments:", e);
+      }
     }
+
     if (courseId) {
-      loadCourse();
+      loadCourseAndEnrollment();
     }
   }, [courseId, locale]);
 
@@ -189,7 +223,8 @@ export default function CoursePlayerPage() {
 
   const totalLessons = allLessons.length;
   const completedCount = completedLessonIds.length;
-  const progressPercent = totalLessons > 0 ? Math.round((completedCount / totalLessons) * 100) : 0;
+  const calculatedProgress = totalLessons > 0 ? Math.round((completedCount / totalLessons) * 100) : 0;
+  const progressPercent = serverProgressPercent !== null ? serverProgressPercent : calculatedProgress;
 
   // Personal Lesson Notes State & Persistence
   const [activeTab, setActiveTab] = useState<"overview" | "notes">("overview");
@@ -276,20 +311,53 @@ export default function CoursePlayerPage() {
     return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
   };
 
-  // Toggle Lesson Completion
-  const toggleLessonCompletion = (lessonId: string | number) => {
+  // Toggle Lesson Completion (Sprint 8 Delta US-13)
+  const toggleLessonCompletion = async (lessonId: string | number) => {
     const idStr = String(lessonId);
-    let updated: string[];
-    if (completedLessonIds.includes(idStr)) {
-      updated = completedLessonIds.filter((id) => id !== idStr);
-    } else {
-      updated = [...completedLessonIds, idStr];
-      setToastMessage(t("lessonCompletedNotice"));
-      setTimeout(() => setToastMessage(null), 3500);
-    }
+    const isCurrentlyDone = completedLessonIds.includes(idStr);
+
+    // Optimistic UI update
+    const updated = isCurrentlyDone
+      ? completedLessonIds.filter((id) => id !== idStr)
+      : [...completedLessonIds, idStr];
+
     setCompletedLessonIds(updated);
     if (typeof window !== "undefined" && courseId) {
       localStorage.setItem(`coachspace_course_${courseId}_completed`, JSON.stringify(updated));
+    }
+
+    if (!isCurrentlyDone) {
+      setToastMessage(t("lessonCompletedNotice"));
+      setTimeout(() => setToastMessage(null), 3500);
+    }
+
+    // Call live Sprint 8 Delta API if enrollment is found
+    if (enrollmentId) {
+      try {
+        if (isCurrentlyDone) {
+          // DELETE /api/enrollments/:enrollmentId/lessons/:lessonId/complete
+          const res = await enrollmentService.markLessonIncomplete(enrollmentId, lessonId);
+          if (typeof res?.progress_percent === "number") {
+            setServerProgressPercent(res.progress_percent);
+          }
+        } else {
+          // POST /api/enrollments/:enrollmentId/lessons/:lessonId/complete
+          const res = await enrollmentService.markLessonComplete(enrollmentId, lessonId);
+          if (typeof res?.progress_percent === "number") {
+            setServerProgressPercent(res.progress_percent);
+          }
+          if (res?.course_completed || res?.certificate) {
+            setToastMessage(
+              isAr
+                ? "تهانينا! لقد أتممت الدورة بنجاح بنسبة 100% وتم إصدار الشهادة!"
+                : "Congratulations! You have completed 100% of the course and earned your certificate!"
+            );
+            setTimeout(() => setToastMessage(null), 5000);
+          }
+        }
+      } catch (err) {
+        console.warn("[CoursePlayer] Error calling complete/incomplete API:", err);
+      }
     }
   };
 
@@ -434,6 +502,20 @@ export default function CoursePlayerPage() {
     ? course.instructor?.full_name || course.instructor?.name || t("verifiedCoach")
     : course.instructor || t("verifiedCoach");
 
+  const instructorSlug =
+    typeof course.instructor === "object" && course.instructor?.slug
+      ? course.instructor.slug
+      : typeof course.instructor === "object" && course.instructor?.id
+      ? String(course.instructor.id)
+      : normalizeInstructorSlug(instructorName);
+
+  const instructorHeadline =
+    typeof course.instructor === "object"
+      ? (isAr ? course.instructor?.headline_ar || course.instructor?.headline : course.instructor?.headline || course.instructor?.headline_ar) ||
+        (isAr ? course.instructor?.role_ar || course.instructor?.role : course.instructor?.role) ||
+        (isAr ? "كبير معماريي البرمجيات ومدرب القيادة التقنية" : "Senior Software Architect & Executive Tech Coach")
+      : (isAr ? "كبير معماريي البرمجيات ومدرب القيادة التقنية" : "Senior Software Architect & Executive Tech Coach");
+
   return (
     <div
       dir={isAr ? "rtl" : "ltr"}
@@ -541,7 +623,8 @@ export default function CoursePlayerPage() {
 
             <div
               ref={playerContainerRef}
-              className="relative w-full aspect-video min-h-[240px] sm:min-h-[380px] md:min-h-[460px] rounded-2xl sm:rounded-3xl overflow-hidden bg-slate-950 border border-slate-850 shadow-2xl flex items-center justify-center"
+              className="relative w-full aspect-video min-h-[240px] sm:min-h-[380px] md:min-h-[460px] rounded-2xl sm:rounded-3xl overflow-hidden bg-slate-950 border border-slate-850 shadow-2xl flex items-center justify-center select-none"
+              onContextMenu={(e) => e.preventDefault()}
             >
               {embedVideoUrl ? (
                 <div className="w-full h-full relative">
@@ -557,6 +640,8 @@ export default function CoursePlayerPage() {
                   ref={videoRef}
                   key={activeLesson?.id}
                   controls
+                  controlsList="nodownload"
+                  onContextMenu={(e) => e.preventDefault()}
                   playsInline
                   autoPlay={isPlaying}
                   onTimeUpdate={() => {
@@ -784,37 +869,52 @@ export default function CoursePlayerPage() {
               <div className="pt-4 border-t border-slate-100">
                 <div className="bg-gradient-to-br from-slate-50/90 via-emerald-50/20 to-white border border-slate-200/80 p-4 sm:p-5 rounded-2xl flex items-center justify-between gap-4 shadow-2xs">
                   <div className="flex items-center gap-4 min-w-0">
-                    {course.instructor?.avatar ? (
-                      <div className="relative shrink-0">
-                        <Image
-                          src={course.instructor.avatar}
-                          alt={instructorName}
-                          width={48}
-                          height={48}
-                          className="w-12 h-12 rounded-2xl object-cover border-2 border-emerald-500/30 shadow-xs"
-                        />
-                        <span className="absolute -bottom-1 -right-1 rtl:-right-auto rtl:-left-1 w-4 h-4 rounded-full bg-emerald-500 border-2 border-white flex items-center justify-center">
-                          <Check size={9} className="text-white font-bold" />
-                        </span>
-                      </div>
-                    ) : (
-                      <div className="w-12 h-12 rounded-2xl bg-emerald-50 border-2 border-emerald-500/30 flex items-center justify-center text-base font-black text-[#0F5244] shrink-0 shadow-xs">
-                        {instructorName.charAt(0).toUpperCase()}
-                      </div>
-                    )}
+                    <Link
+                      href={`/${locale}/instructors/${instructorSlug}`}
+                      className="relative shrink-0 group/avatar cursor-pointer"
+                      title={instructorName}
+                    >
+                      {course.instructor?.avatar ? (
+                        <div className="relative shrink-0">
+                          <Image
+                            src={course.instructor.avatar}
+                            alt={instructorName}
+                            width={48}
+                            height={48}
+                            className="w-12 h-12 rounded-2xl object-cover border-2 border-emerald-500/30 shadow-xs group-hover/avatar:border-emerald-600 transition-colors"
+                          />
+                        </div>
+                      ) : (
+                        <div className="w-12 h-12 rounded-2xl bg-emerald-50 border-2 border-emerald-500/30 flex items-center justify-center text-base font-black text-[#0F5244] shrink-0 shadow-xs group-hover/avatar:border-emerald-600 transition-colors">
+                          {instructorName.charAt(0).toUpperCase()}
+                        </div>
+                      )}
+                    </Link>
+
                     <div className="min-w-0">
-                      <div className="flex items-center gap-2">
-                        <h4 className="text-sm sm:text-base font-black text-slate-900 truncate">{instructorName}</h4>
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-50 border border-emerald-200/80 text-[10px] font-black text-[#0F5244]">
-                          <ShieldCheck size={12} className="text-emerald-600 shrink-0" />
-                          <span>{t("verifiedCoach")}</span>
-                        </span>
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <Link
+                          href={`/${locale}/instructors/${instructorSlug}`}
+                          className="text-sm sm:text-base font-black text-slate-900 truncate hover:text-[#0F5244] transition-colors cursor-pointer"
+                          title={instructorName}
+                        >
+                          {instructorName}
+                        </Link>
+                        <VerifiedBadge size="sm" />
                       </div>
-                      <p className="text-xs text-slate-400 font-medium mt-0.5 truncate">
-                        {t("verifiedInstructor")}
+                      <p className="text-xs text-slate-500 font-medium mt-0.5 truncate">
+                        {instructorHeadline}
                       </p>
                     </div>
                   </div>
+
+                  <Link
+                    href={`/${locale}/instructors/${instructorSlug}`}
+                    className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-white hover:bg-emerald-50 text-[#0F5244] border border-slate-200 hover:border-emerald-300 text-xs font-bold transition-all shadow-2xs shrink-0 cursor-pointer"
+                  >
+                    <span>{isAr ? "عرض الملف" : "View Profile"}</span>
+                    <ArrowRight size={13} className="rtl:rotate-180" />
+                  </Link>
                 </div>
               </div>
             </div>

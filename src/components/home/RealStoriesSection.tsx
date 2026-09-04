@@ -248,7 +248,7 @@ export function RealStoriesSection() {
                 key={idx}
                 type="button"
                 onClick={() => setCurrentIndex(idx * itemsPerPage)}
-                aria-label={t("goToSlide", { page: String(idx + 1) })}
+                aria-label={isRtl ? `الانتقال إلى شريحة ${idx + 1}` : `Go to slide ${idx + 1}`}
                 className={`h-2.5 rounded-full transition-all duration-500 cursor-pointer ${
                   activePage === idx
                     ? "w-10 bg-[#0F5244] shadow-xs shadow-[#0F5244]/30"

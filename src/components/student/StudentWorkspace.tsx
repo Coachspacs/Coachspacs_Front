@@ -10,6 +10,7 @@ import { RootState } from "@/lib/store";
 import { updateUser } from "@/features/auth/slice";
 import { userService } from "@/services/userService";
 import { authService, getApiErrorMessage } from "@/services/auth";
+import { enrollmentService } from "@/services/enrollmentService";
 import {
   LayoutDashboard,
   BookOpen,
@@ -43,6 +44,32 @@ import { normalizeInstructorSlug } from "@/lib/mockInstructors";
 import { CartView } from "@/components/cart/CartView";
 import { OrderHistoryView } from "@/components/orders/OrderHistoryView";
 import { ChangeEmailModal } from "@/components/modals/ChangeEmailModal";
+import { VerifiedBadge } from "@/components/ui/VerifiedBadge";
+
+function getSafeCourseImage(course: any): string {
+  const defaultCover = "/images/courses/course-leadership.png";
+  if (!course) return defaultCover;
+  const candidates = [course.image, course.cover_image, course.thumbnail, course.coverImage];
+  for (const c of candidates) {
+    if (typeof c === "string" && c.trim().length > 0 && !c.includes("example.com")) {
+      return c.trim();
+    }
+    if (c && typeof c === "object" && typeof c.src === "string" && c.src.trim().length > 0 && !c.src.includes("example.com")) {
+      return c.src.trim();
+    }
+  }
+  return defaultCover;
+}
+
+function getSafeAvatar(avatar: any): string | null {
+  if (typeof avatar === "string" && avatar.trim().length > 0) {
+    return avatar.trim();
+  }
+  if (avatar && typeof avatar === "object" && typeof avatar.src === "string" && avatar.src.trim().length > 0) {
+    return avatar.src.trim();
+  }
+  return null;
+}
 
 interface StudentWorkspaceProps {
   initialTab?: "overview" | "courses" | "certificates" | "orders" | "cart" | "settings";
@@ -108,7 +135,7 @@ export function StudentWorkspace({ initialTab = "overview", hideSidebar = true }
         email: userEmail || prev.email,
         certificateName: userFullName || prev.certificateName,
       }));
-      setAvatarPreview(user.avatar || null);
+      setAvatarPreview(getSafeAvatar(user.avatar));
     }
   }, [user]);
 
@@ -122,22 +149,79 @@ export function StudentWorkspace({ initialTab = "overview", hideSidebar = true }
   // Enrolled Courses Data
   const [courses, setCourses] = useState<any[]>([]);
 
-  // Load enrolled courses from localStorage on mount
+  // Load enrolled courses from API with localStorage fallback
   useEffect(() => {
-    if (typeof window !== "undefined") {
+    async function fetchLiveEnrollments() {
+      const defaultCover = "/images/courses/course-leadership.png";
+
       try {
-        const saved = localStorage.getItem("coachspace_enrolled_courses");
-        if (saved) {
-          const list = JSON.parse(saved);
-          if (Array.isArray(list) && list.length > 0) {
-            setCourses(list);
+        const enrollments = await enrollmentService.getMyEnrollments();
+        if (Array.isArray(enrollments) && enrollments.length > 0) {
+          const mapped = enrollments.map((enr: any) => {
+            const c = enr.course || {};
+            const total = c.total_lessons || enr.total_lessons || 10;
+            const progress = enr.progress_percent || 0;
+            const validImg = getSafeCourseImage(c);
+
+            return {
+              id: c.id || enr.course_id || enr.id,
+              enrollmentId: enr.id,
+              title: isAr ? c.title_ar || c.title : c.title_en || c.title,
+              instructor:
+                typeof c.instructor === "object"
+                  ? c.instructor?.name || c.instructor?.full_name
+                  : c.instructor || "CoachSpace Instructor",
+              image: validImg,
+              cover_image: validImg,
+              thumbnail: validImg,
+              progress,
+              totalLessons: total,
+              completedLessons:
+                enr.completed_lessons?.length || Math.round((progress / 100) * total),
+              isCompleted: enr.is_completed || progress >= 100,
+              certificateId:
+                enr.certificate?.id ||
+                enr.certificate?.certificate_code ||
+                (progress >= 100 ? `CERT-${enr.id}` : null),
+            };
+          });
+          setCourses(mapped);
+          if (typeof window !== "undefined") {
+            localStorage.setItem("coachspace_enrolled_courses", JSON.stringify(mapped));
           }
+          return;
         }
       } catch (err) {
-        console.warn("[StudentWorkspace] Could not load enrolled courses:", err);
+        console.warn("[StudentWorkspace] Live enrollments fetch skipped / fallback to local:", err);
+      }
+
+      // Fallback to localStorage
+      if (typeof window !== "undefined") {
+        try {
+          const saved = localStorage.getItem("coachspace_enrolled_courses");
+          if (saved) {
+            const list = JSON.parse(saved);
+            if (Array.isArray(list) && list.length > 0) {
+              const sanitized = list.map((item: any) => {
+                const img = getSafeCourseImage(item);
+                return {
+                  ...item,
+                  image: img,
+                  thumbnail: img,
+                  cover_image: img,
+                };
+              });
+              setCourses(sanitized);
+            }
+          }
+        } catch (err) {
+          console.warn("[StudentWorkspace] Could not load enrolled courses:", err);
+        }
       }
     }
-  }, []);
+
+    fetchLiveEnrollments();
+  }, [isAr]);
 
   // Order History Data
   const [orders] = useState<any[]>([]);
@@ -297,9 +381,9 @@ export function StudentWorkspace({ initialTab = "overview", hideSidebar = true }
           <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-5 text-center sm:text-start">
             <div className="relative group shrink-0">
               <div className="w-16 h-16 sm:w-24 sm:h-24 rounded-full bg-[#E8F3F1] border-2 border-emerald-200/80 overflow-hidden shadow-2xs flex items-center justify-center">
-                {avatarPreview ? (
+                {getSafeAvatar(avatarPreview) ? (
                   <Image
-                    src={avatarPreview}
+                    src={getSafeAvatar(avatarPreview)!}
                     alt="Student"
                     width={96}
                     height={96}
@@ -379,14 +463,13 @@ export function StudentWorkspace({ initialTab = "overview", hideSidebar = true }
                       <p className="text-xs text-emerald-100 mt-1 font-medium">{courses[0]?.lastLessonTitle}</p>
                     </div>
 
-                    <button
-                      type="button"
-                      onClick={() => setActiveTab("courses")}
-                      className="px-6 py-3 rounded-2xl bg-white text-[#0F5244] hover:bg-emerald-50 text-xs font-black flex items-center justify-center gap-2 shrink-0 transition-all cursor-pointer shadow-2xs"
+                    <Link
+                      href={`/${locale}/student/learn/${courses[0]?.id}`}
+                      className="px-6 py-3 rounded-2xl bg-white text-[#0F5244] hover:bg-emerald-50 text-xs font-black flex items-center justify-center gap-2 shrink-0 transition-all cursor-pointer shadow-2xs active:scale-98"
                     >
                       <Play className="h-4 w-4 fill-current" />
                       <span>{tWs("myCoursesBtn")}</span>
-                    </button>
+                    </Link>
                   </div>
                 </div>
               ) : (
@@ -492,14 +575,24 @@ export function StudentWorkspace({ initialTab = "overview", hideSidebar = true }
                         className="h-full flex flex-col justify-between rounded-3xl border border-slate-200/80 p-5 hover:shadow-md transition-all bg-white"
                       >
                       <div className="space-y-4">
-                        <div className="relative h-44 rounded-2xl overflow-hidden bg-slate-100 shrink-0">
+                        <Link
+                          href={`/${locale}/student/learn/${course.id}`}
+                          className="block relative h-44 rounded-2xl overflow-hidden bg-slate-100 shrink-0 group cursor-pointer"
+                          title={course.title}
+                        >
                           <Image
-                            src={course.image}
-                            alt={course.title}
+                            src={getSafeCourseImage(course)}
+                            alt={course.title || "Course Cover"}
                             width={384}
                             height={176}
-                            className="w-full h-full object-cover"
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                            unoptimized
                           />
+                          <div className="absolute inset-0 bg-slate-950/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                            <span className="w-12 h-12 rounded-full bg-white/95 text-[#0F5244] flex items-center justify-center shadow-lg transform scale-90 group-hover:scale-100 transition-transform">
+                              <Play className="h-5 w-5 fill-current ml-0.5" />
+                            </span>
+                          </div>
                           <span
                             className={`absolute top-3 right-3 rtl:right-auto rtl:left-3 px-3 py-1 rounded-full text-white text-[11px] font-bold shadow-xs ${
                               course.isCompleted ? "bg-emerald-600" : "bg-slate-900/80"
@@ -507,16 +600,23 @@ export function StudentWorkspace({ initialTab = "overview", hideSidebar = true }
                           >
                             {course.isCompleted ? tWs("completedPercent") : `${course.progress}%`}
                           </span>
-                        </div>
+                        </Link>
 
                         <div className="space-y-1 min-h-[3.25rem] flex flex-col justify-start">
-                          <h3 className="text-base font-extrabold text-slate-900 line-clamp-2 leading-snug">{course.title}</h3>
+                          <Link
+                            href={`/${locale}/student/learn/${course.id}`}
+                            className="text-base font-extrabold text-slate-900 line-clamp-2 leading-snug hover:text-[#0F5244] transition-colors"
+                            title={course.title}
+                          >
+                            {course.title}
+                          </Link>
                           <Link
                             href={`/${locale}/instructors/${normalizeInstructorSlug(course.instructor)}`}
-                            className="text-xs text-slate-500 hover:text-[#0F5244] hover:underline font-medium w-fit transition-colors"
+                            className="text-xs text-slate-500 hover:text-[#0F5244] hover:underline font-medium w-fit transition-colors inline-flex items-center gap-1"
                             title={course.instructor}
                           >
-                            {course.instructor}
+                            <span>{course.instructor}</span>
+                            <VerifiedBadge size="xs" />
                           </Link>
                         </div>
                       </div>
@@ -542,19 +642,18 @@ export function StudentWorkspace({ initialTab = "overview", hideSidebar = true }
                         </div>
 
                         <div className="flex items-center gap-2">
-                          <button
-                            type="button"
-                            onClick={() => setActiveTab("courses")}
-                            className="flex-1 py-2.5 rounded-2xl bg-[#0F5244] hover:bg-[#07382E] text-white text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer shadow-2xs"
+                          <Link
+                            href={`/${locale}/student/learn/${course.id}`}
+                            className="flex-1 py-2.5 rounded-2xl bg-[#0F5244] hover:bg-[#07382E] text-white text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer shadow-2xs active:scale-98"
                           >
                             <Play className="h-3.5 w-3.5 fill-current" />
                             <span>{course.isCompleted ? tWs("completedStatus") : tWs("enrolledStatus")}</span>
-                          </button>
+                          </Link>
 
                           {course.isCompleted && (
                             <Link
                               href={`/${locale}/student/certificates/${course.certificateId || "CERT-892401"}`}
-                              className="px-4 py-2.5 rounded-2xl bg-emerald-100 hover:bg-emerald-200 text-[#0F5244] text-xs font-extrabold flex items-center gap-1.5 transition-all"
+                              className="px-4 py-2.5 rounded-2xl bg-emerald-100 hover:bg-emerald-200 text-[#0F5244] text-xs font-extrabold flex items-center gap-1.5 transition-all active:scale-98"
                             >
                               <Award className="h-4 w-4" />
                               <span>{tWs("certificateBtn")}</span>
@@ -659,9 +758,9 @@ export function StudentWorkspace({ initialTab = "overview", hideSidebar = true }
                   onClick={() => fileInputRef.current?.click()}
                   className="relative group w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-[#E8F3F1] border-2 border-emerald-200/80 overflow-hidden shrink-0 shadow-2xs cursor-pointer flex items-center justify-center"
                 >
-                  {avatarPreview ? (
+                  {getSafeAvatar(avatarPreview) ? (
                     <Image
-                      src={avatarPreview}
+                      src={getSafeAvatar(avatarPreview)!}
                       alt="Avatar"
                       width={112}
                       height={112}

@@ -746,6 +746,12 @@
       "addedToCart": "Added to Cart",
       "viewInstructorProfile": "View Instructor Profile"
     },
+    "courseCard": {
+      "free": "Free",
+      "addToCart": "Add to Cart",
+      "inCart": "In Cart",
+      "addedToCart": "Added to Cart"
+    },
     "pagination": {
       "previous": "Previous Page",
       "next": "Next Page",

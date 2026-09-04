@@ -21,6 +21,7 @@ import {
   Globe,
   Layers,
 } from "lucide-react";
+import { VerifiedBadge } from "@/components/ui/VerifiedBadge";
 
 export interface LiveCoursePreviewLesson {
   id: string;
@@ -253,9 +254,9 @@ export function LiveCoursePreviewModal({
 
               <span className="text-slate-300">•</span>
 
-              <div className="flex items-center gap-1.5 text-emerald-800">
-                <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
-                <span>{instructorName || tp("instructorBadge")}</span>
+              <div className="flex items-center gap-1.5 text-slate-800">
+                <span className="font-bold">{instructorName || tp("instructorBadge")}</span>
+                <VerifiedBadge size="xs" />
               </div>
             </div>
           </div>
@@ -510,10 +511,15 @@ export function LiveCoursePreviewModal({
               </button>
             </div>
 
-            <div className="aspect-video w-full rounded-2xl overflow-hidden bg-black flex items-center justify-center">
+            <div
+              className="aspect-video w-full rounded-2xl overflow-hidden bg-black flex items-center justify-center select-none"
+              onContextMenu={(e) => e.preventDefault()}
+            >
               <video
                 src={activeVideoModal.url}
                 controls
+                controlsList="nodownload"
+                onContextMenu={(e) => e.preventDefault()}
                 autoPlay
                 className="w-full h-full object-contain"
               />

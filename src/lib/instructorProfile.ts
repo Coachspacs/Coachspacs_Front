@@ -1,7 +1,5 @@
 import { PublicInstructor } from "@/types/publicInstructor";
 
-export const MOCK_INSTRUCTORS: PublicInstructor[] = [];
-
 /**
  * Normalizes an instructor name or ID into a clean URL-friendly slug
  */
@@ -28,7 +26,6 @@ export function getSavedInstructorOverrides(slugOrId: string): Partial<PublicIns
     const globalData = rawGlobal ? JSON.parse(rawGlobal) : {};
     const specificData = rawSpecific ? JSON.parse(rawSpecific) : {};
     
-    // Merge specificData, and only include globalData if it belongs to an actual instructor and matches slug
     const normalizedTarget = normalizeInstructorSlug(slugOrId);
     const globalSlug = normalizeInstructorSlug(globalData.slug || globalData.name || "");
     
@@ -38,7 +35,6 @@ export function getSavedInstructorOverrides(slugOrId: string): Partial<PublicIns
 
     const merged = isGlobalMatch ? { ...globalData, ...specificData } : { ...specificData };
 
-    // Strict guard: Never allow a student headline or bio to contaminate an instructor profile
     if (merged.headline === "Student & Lifelong Learner" || merged.headline === "طالب ومتعلم شغوف" || merged.headline === "طالب ومتعلم شغوف مدى الحياة") {
       delete merged.headline;
     }
@@ -97,74 +93,52 @@ export function removeCourseStatus(courseId: string | number): void {
 }
 
 /**
- * Get public instructor by ID, slug, or matching name with associated courses
+ * Build dynamic public instructor profile by ID or slug
  */
 export function getPublicInstructorByIdOrSlug(idOrSlug: string): PublicInstructor {
+  const cleanId = idOrSlug.replace(/^inst-/, "");
+  const isNumericId = /^\d+$/.test(cleanId);
   const normalized = normalizeInstructorSlug(idOrSlug);
-  
-  // 1. Direct match by slug or id
-  let foundInstructor = MOCK_INSTRUCTORS.find(
-    (inst) => inst.slug === normalized || inst.id === idOrSlug || inst.slug === idOrSlug
-  );
 
-  // 2. Name fuzzy match
-  if (!foundInstructor) {
-    const query = idOrSlug.toLowerCase().trim();
-    foundInstructor = MOCK_INSTRUCTORS.find((inst) => {
-      const nEn = inst.name.toLowerCase();
-      const nAr = inst.nameAr.toLowerCase();
-      return nEn.includes(query) || nAr.includes(query) || query.includes(inst.slug);
-    });
+  let displayName = "";
+  if (!isNumericId) {
+    const rawName = cleanId.replace(/-/g, " ");
+    displayName = rawName
+      .split(" ")
+      .map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+      .join(" ");
   }
 
-  // 3. Fallback: generate a dynamic instructor profile based on name or slug
-  let resolvedInstructor: PublicInstructor;
-  if (!foundInstructor) {
-    const rawName = idOrSlug.replace(/^inst-/, "").replace(/-/g, " ");
-    const displayName =
-      rawName
-        .split(" ")
-        .map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
-        .join(" ");
-    const displayNameAr = displayName;
+  const resolvedInstructor: PublicInstructor = {
+    id: isNumericId ? cleanId : `inst-${normalized}`,
+    slug: normalized || "instructor",
+    name: displayName,
+    nameAr: displayName,
+    headline: "",
+    headlineAr: "",
+    avatar: undefined,
+    coverImage: undefined,
+    bio: "",
+    bioAr: "",
+    aboutParagraphs: [],
+    aboutParagraphsAr: [],
+    specialization: "",
+    specializationAr: "",
+    rating: undefined,
+    reviewsCount: 0,
+    reviewsCountFormatted: undefined,
+    totalStudents: undefined,
+    totalStudentsFormatted: undefined,
+    totalCourses: 0,
+    experienceYears: undefined,
+    socials: {},
+    skills: [],
+    skillsAr: [],
+    highlights: [],
+    ratingBreakdown: undefined,
+    reviews: []
+  };
 
-    resolvedInstructor = {
-      id: `inst-${normalized}`,
-      slug: normalized || "instructor",
-      name: displayName,
-      nameAr: displayNameAr,
-      headline: "",
-      headlineAr: "",
-      avatar: undefined,
-      coverImage: undefined,
-      bio: "",
-      bioAr: "",
-      aboutParagraphs: [],
-      aboutParagraphsAr: [],
-      specialization: "",
-      specializationAr: "",
-      rating: undefined,
-      reviewsCount: 0,
-      reviewsCountFormatted: undefined,
-      totalStudents: undefined,
-      totalStudentsFormatted: undefined,
-      totalCourses: 0,
-      experienceYears: undefined,
-      socials: {},
-      skills: [],
-      skillsAr: [],
-      highlights: [],
-      ratingBreakdown: undefined,
-      reviews: []
-    };
-  } else {
-    resolvedInstructor = foundInstructor;
-  }
-
-  // Attach only actual matching courses for this instructor
-  const instructorCourses = resolvedInstructor.courses || [];
-
-  // Apply any custom runtime/local overrides from profile settings
   const overrides = getSavedInstructorOverrides(resolvedInstructor.id || resolvedInstructor.slug);
 
   return {
@@ -202,8 +176,8 @@ export function getPublicInstructorByIdOrSlug(idOrSlug: string): PublicInstructo
       ...(resolvedInstructor.socials || {}),
       ...(overrides.socials || {}),
     },
-    totalCourses: instructorCourses.length,
-    courses: instructorCourses
+    totalCourses: 0,
+    courses: []
   };
 }
 
@@ -242,16 +216,6 @@ export const HEADLINES_AR_MAP: Record<string, string> = {
 export const NAMES_AR_MAP: Record<string, string> = {
   "Mohammed Katanani": "محمد قطناني",
   "mohammed-katanani": "محمد قطناني",
-  "Dr. Tariq Al-Mansoor": "د. طارق المنصور",
-  "Dr. Sarah Jenkins": "د. سارة جينكينز",
-  "Layla Mahmoud": "ليلى محمود",
-  "Kareem Youssef": "كريم يوسف",
-  "Farah Al-Khalil": "فرح الخليل",
-  "Mousa Ibrahim": "موسى إبراهيم",
-  "Nour Al-Hassan": "نور الحسن",
-  "Omar Al-Fassi": "عمر الفاسي",
-  "Amira Al-Mansoor": "أميرة المنصور",
-  "Ahmed Al-Ghamdi": "أحمد الغامدي",
 };
 
 export const SKILLS_AR_MAP: Record<string, string> = {
@@ -301,9 +265,6 @@ export const SKILLS_AR_MAP: Record<string, string> = {
 
 export const BIOS_AR_MAP: Record<string, string> = {
   "Dedicated professional instructor on CoachSpace committed to delivering world-class educational experiences, real-world project skills, and career mentorship.": "مدرب محترف في منصة CoachSpace ملتزم بتقديم برامج تدريبية وتطبيقية عالية الجودة وتوجيه مهني متميز ونقل الخبرات العملية لبناء مهارات تقنية متقدمة.",
-  "Dedicated professional instructor on CoachSpace committed to delivering world-class educational experiences and practical career mentorship.": "مدرب محترف في منصة CoachSpace ملتزم بتقديم برامج تدريبية وتطبيقية عالية الجودة وتوجيه مهني متميز.",
-  "PhD in Computer Science with 14+ years of industry experience architecting scalable distributed systems and training high-performing engineering teams at top-tier tech companies.": "دكتوراه في علوم الحاسوب وخبرة أكثر من 14 عاماً في هندسة النظم السحابية الموزعة وبناء وتدريب الفرق الهندسية المتميزة في كبرى الشركات التقنية العالمية.",
-  "Senior Full-Stack Engineer and instructor specializing in modern web development, scalable cloud backends, and practical real-world engineering.": "كبير مهندسي Full-Stack ومدرب معتمد متخصص في تطوير تطبيقات الويب الحديثة، والأنظمة السحابية المتقدمة، وبناء المشاريع البرمجية العملية.",
 };
 
 export function getLocalizedSpecialization(spec?: string, isAr = false): string {
@@ -316,7 +277,6 @@ export function getLocalizedHeadline(headline?: string, isAr = false, isInstruct
   if (!headline) {
     return isInstructor ? (isAr ? "مدرب وخبير معتمد" : "Certified Instructor") : "";
   }
-  // Prevent student headline from appearing on instructor pages
   if (isInstructor && (headline === "Student & Lifelong Learner" || headline === "طالب ومتعلم شغوف" || headline === "طالب ومتعلم شغوف مدى الحياة")) {
     return isAr ? "كبير معماريي البرمجيات ومدرب القيادة التقنية التنفيذية" : "Senior Software Architect & Executive Tech Coach";
   }
@@ -329,10 +289,6 @@ export function getLocalizedBio(bio?: string, bioAr?: string, isAr = false): str
   if (!isAr) return bio || bioAr || "";
   if (bioAr && bioAr.trim() !== "" && bioAr !== bio) return bioAr;
   if (bio && BIOS_AR_MAP[bio.trim()]) return BIOS_AR_MAP[bio.trim()];
-  // Fallback check if bio contains standard text
-  if (bio && bio.includes("Dedicated professional instructor on CoachSpace")) {
-    return "مدرب محترف في منصة CoachSpace ملتزم بتقديم برامج تدريبية وتطبيقية عالية الجودة وتوجيه مهني متميز ونقل الخبرات العملية لبناء مهارات تقنية متقدمة.";
-  }
   return bioAr || bio || "";
 }
 

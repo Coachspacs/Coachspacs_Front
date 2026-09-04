@@ -7,7 +7,7 @@ import { useTranslations, useLocale } from "next-intl";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@/lib/store";
 import { Star } from "lucide-react";
-import { normalizeInstructorSlug } from "@/lib/mockInstructors";
+import { normalizeInstructorSlug } from "@/lib/instructorProfile";
 import { courseService } from "@/services/courseService";
 import { addToCart } from "@/features/cart/cartSlice";
 
@@ -33,11 +33,13 @@ export function MasterYourCraftSection() {
         const results = Array.isArray(data) ? data : data?.results || [];
         if (results.length > 0) {
           const mapped = results.slice(0, 3).map((c: any) => {
+            const instId = typeof c.instructor === "object" ? c.instructor?.id : c.instructor_id;
             const instName = typeof c.instructor === "object" ? (c.instructor?.full_name || c.instructor?.name || "") : (typeof c.instructor === "string" ? c.instructor : "");
             const priceNum = Number(c.price) || 0;
             return {
               id: String(c.id),
               title: isAr ? (c.title_ar || c.title || "دورة تدريبية") : (c.title || c.title_en || "Course"),
+              instructorId: instId ? String(instId) : undefined,
               instructorName: instName,
               instructorAvatar: (typeof c.instructor === "object" ? c.instructor?.avatar : undefined) || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=300&auto=format&fit=crop",
               price: priceNum === 0 ? t("free") : `$${priceNum.toFixed(2)}`,
@@ -184,7 +186,7 @@ export function MasterYourCraftSection() {
                       {/* Instructor Info */}
                       {course.instructorName && (
                         <Link
-                          href={`/${locale}/instructors/${normalizeInstructorSlug(course.instructorName)}`}
+                          href={`/${locale}/instructors/${course.instructorId || normalizeInstructorSlug(course.instructorName)}`}
                           className="flex items-center gap-2.5 pt-1 w-fit group/inst cursor-pointer"
                           title={course.instructorName}
                         >

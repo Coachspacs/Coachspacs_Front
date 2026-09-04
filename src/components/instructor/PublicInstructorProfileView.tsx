@@ -122,7 +122,7 @@ function CompactInstructorCourseCard({ course, isAr, locale }: CompactCourseCard
             <div className="flex items-center">
               <span className="text-sm sm:text-base font-black text-slate-900 leading-tight">
                 {isFree ? (
-                  <span className="text-emerald-600 font-extrabold">{tCatalog("courseCard.free")}</span>
+                  <span className="text-emerald-600 font-extrabold">{tCatalog("card.free")}</span>
                 ) : (
                   course.priceFormatted || `$${Number(course.price || 0).toFixed(2)}`
                 )}
@@ -133,7 +133,7 @@ function CompactInstructorCourseCard({ course, isAr, locale }: CompactCourseCard
               <button
                 type="button"
                 onClick={handleCartClick}
-                title={isInCart ? tCatalog("courseCard.inCart") : tCatalog("courseCard.addToCart")}
+                title={isInCart ? tCatalog("card.inCart") : tCatalog("card.addToCart")}
                 className={`p-2 rounded-xl border transition-all cursor-pointer flex items-center justify-center text-xs font-extrabold shadow-2xs active:scale-95 ${
                   isInCart
                     ? "bg-emerald-700 text-white border-emerald-700 hover:bg-emerald-800"

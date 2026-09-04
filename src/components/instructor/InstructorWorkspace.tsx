@@ -198,25 +198,6 @@ export function InstructorWorkspace({ initialTab = "courses", hideSidebar = true
               status: st.is_completed ? "completed" : "active",
             });
           });
-        } else if (count > 0) {
-          const mockNamesAr = ["أحمد محمود", "سارة خالد", "محمد علي", "فاطمة حسن", "عمر الفاروق", "نور الهدى", "يوسف إبراهيم", "مريم العتيبي"];
-          const mockNamesEn = ["Ahmed Mahmoud", "Sarah Khaled", "Mohamed Ali", "Fatima Hassan", "Omar Al-Farooq", "Nour El-Hoda", "Youssef Ibrahim", "Maryam Al-Otaibi"];
-          const mockEmails = ["ahmed.m@gmail.com", "sarah.k@gmail.com", "m.ali@outlook.com", "fatima.h@gmail.com", "omar.f@yahoo.com", "nour.h@gmail.com", "youssef.i@gmail.com", "maryam.o@gmail.com"];
-
-          for (let i = 0; i < count; i++) {
-            const isCompleted = i % 3 === 0;
-            allDynamicStudents.push({
-              id: `${c.id}-st-${i + 1}`,
-              courseId: String(c.id),
-              name: isAr ? mockNamesAr[i % mockNamesAr.length] : mockNamesEn[i % mockNamesEn.length],
-              email: mockEmails[i % mockEmails.length],
-              avatar: null,
-              course: isAr ? c.titleAr : c.titleEn,
-              date: isAr ? `منذ ${i + 1} أيام` : `${i + 1} days ago`,
-              progress: isCompleted ? 100 : Math.min(95, 25 + i * 20),
-              status: isCompleted ? "completed" : "active",
-            });
-          }
         }
       });
       setStudents(allDynamicStudents);

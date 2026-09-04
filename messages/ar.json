@@ -751,6 +751,12 @@
       "addedToCart": "تمت الإضافة",
       "viewInstructorProfile": "عرض الملف الشخصي للمدرب"
     },
+    "courseCard": {
+      "free": "مجاني",
+      "addToCart": "أضف للسلة",
+      "inCart": "في السلة",
+      "addedToCart": "تمت الإضافة"
+    },
     "pagination": {
       "previous": "الصفحة السابقة",
       "next": "الصفحة التالية",

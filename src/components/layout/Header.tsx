@@ -311,9 +311,9 @@ export function Header({ lang, onLanguageToggle, variant = "main", className = "
                 aria-label={tHeader("userMenu")}
                 aria-expanded={userDropdownOpen}
               >
-                {user?.avatar && !avatarError ? (
+                {typeof user?.avatar === "string" && user.avatar.trim() && !avatarError ? (
                   <Image
-                    src={user.avatar}
+                    src={user.avatar.trim()}
                     alt={user?.name || user?.fullName || "User Avatar"}
                     width={36}
                     height={36}
@@ -485,9 +485,9 @@ export function Header({ lang, onLanguageToggle, variant = "main", className = "
             {/* Top Area: Authenticated User Profile Banner OR Guest CTA Buttons */}
             {mounted && isAuthenticated ? (
               <div className="flex items-center gap-3 p-3 rounded-2xl bg-slate-50 border border-slate-200/80">
-                {user?.avatar && !avatarError ? (
+                {typeof user?.avatar === "string" && user.avatar.trim() && !avatarError ? (
                   <Image
-                    src={user.avatar}
+                    src={user.avatar.trim()}
                     alt={user?.name || user?.fullName || "User Avatar"}
                     width={40}
                     height={40}

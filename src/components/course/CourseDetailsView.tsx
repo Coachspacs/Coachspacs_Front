@@ -32,7 +32,8 @@ import { RootState } from "@/lib/store";
 import { addToCart } from "@/features/cart/cartSlice";
 import { VideoPreviewModal } from "./VideoPreviewModal";
 import { LockedLessonModal } from "./LockedLessonModal";
-import { normalizeInstructorSlug, getPublicInstructorByIdOrSlug } from "@/lib/mockInstructors";
+import { normalizeInstructorSlug, getPublicInstructorByIdOrSlug } from "@/lib/instructorProfile";
+import { VerifiedBadge } from "@/components/ui/VerifiedBadge";
 
 interface CourseDetailsViewProps {
   course: Course;
@@ -45,21 +46,24 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
   const router = useRouter();
   const dispatch = useDispatch();
 
-  const instructorSlug = normalizeInstructorSlug(course.instructorName || "");
-  const instructorObj = instructorSlug ? getPublicInstructorByIdOrSlug(instructorSlug) : null;
+  const instructorId =
+    course.instructorId ||
+    (typeof course.instructor === "object" ? course.instructor?.id : undefined) ||
+    (course as any).instructor_id;
+  const instructorTarget = instructorId ? String(instructorId) : normalizeInstructorSlug(course.instructorName || "");
+  const instructorObj = instructorTarget ? getPublicInstructorByIdOrSlug(instructorTarget) : null;
 
   // Redux Auth & Cart states
   const { user, isAuthenticated } = useSelector((state: RootState) => state.auth);
   const cartItems = useSelector((state: RootState) => state.cart?.items || []);
 
-  // State checks
+  // State checks: STRICTLY ID-BASED
   const isInstructor = Boolean(isAuthenticated && ((user?.role || "").toLowerCase() === "instructor" || (user?.role || "").toLowerCase() === "coach"));
   const isOwner = Boolean(
     isInstructor &&
-      ((course.instructor && (course.instructor.id === user?.id || String(course.instructor.id) === String(user?.id))) ||
-        (course.instructorName && user?.fullName && course.instructorName.toLowerCase() === user.fullName.toLowerCase()) ||
-        (course.instructorName && user?.name && course.instructorName.toLowerCase() === user.name.toLowerCase()) ||
-        ((user?.fullName || user?.name || "").toLowerCase().includes("katanani") && (course.instructorName || "").toLowerCase().includes("katanani")))
+      user?.id &&
+      instructorId &&
+      String(instructorId) === String(user.id)
   );
   const isFree = course.price === 0 || course.priceFormatted === "Free" || course.priceFormatted === "مجاني";
   const isInCart = cartItems.some((item: any) => (item.course?.id || item.courseId || item.id) === course.id);
@@ -281,10 +285,10 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
               <div className="flex flex-wrap items-center gap-4 sm:gap-6 pt-2 text-xs sm:text-sm text-slate-600 font-medium">
                 {/* Instructor Link */}
                 <Link
-                  href={`/${locale}/instructors/${instructorSlug}`}
+                  href={`/${locale}/instructors/${instructorTarget}`}
                   onClick={(e) => {
                     e.preventDefault();
-                    router.push(`/${locale}/instructors/${instructorSlug}`);
+                    router.push(`/${locale}/instructors/${instructorTarget}`);
                   }}
                   className="flex items-center gap-2.5 group/inst hover:opacity-90 transition-all cursor-pointer"
                   title={t("viewInstructorProfile")}
@@ -544,10 +548,10 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
               <div className="bg-gradient-to-br from-white via-emerald-50/20 to-white rounded-3xl p-6 sm:p-8 border border-emerald-950/10 shadow-sm space-y-6 animate-in fade-in duration-300">
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 pb-6 border-b border-slate-100">
                   <Link
-                    href={`/${locale}/instructors/${instructorSlug}`}
+                    href={`/${locale}/instructors/${instructorTarget}`}
                     onClick={(e) => {
                       e.preventDefault();
-                      router.push(`/${locale}/instructors/${instructorSlug}`);
+                      router.push(`/${locale}/instructors/${instructorTarget}`);
                     }}
                     className="flex items-center gap-4 sm:gap-5 group/tabinst cursor-pointer"
                     title={t("viewInstructorProfile")}
@@ -572,9 +576,7 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
                         <h3 className="text-lg sm:text-2xl font-black text-slate-900 group-hover/tabinst:text-[#0F5244] group-hover/tabinst:underline transition-colors tracking-tight">
                           {isAr ? (instructorObj?.nameAr || course.instructorNameAr || course.instructorName) : (instructorObj?.name || course.instructorName)}
                         </h3>
-                        <span className="inline-flex items-center text-emerald-600 bg-emerald-50 p-1 rounded-full border border-emerald-200/60">
-                          <ShieldCheck className="h-4 w-4" />
-                        </span>
+                        <VerifiedBadge size="sm" />
                       </div>
                       <p className="text-xs sm:text-sm font-bold text-slate-500">
                         {isAr ? (course.instructorRoleAr || instructorObj?.headlineAr || t("leadRole")) : (course.instructorRole || instructorObj?.headline || t("leadRole"))}
@@ -595,10 +597,10 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
                   </Link>
 
                   <Link
-                    href={`/${locale}/instructors/${instructorSlug}`}
+                    href={`/${locale}/instructors/${instructorTarget}`}
                     onClick={(e) => {
                       e.preventDefault();
-                      router.push(`/${locale}/instructors/${instructorSlug}`);
+                      router.push(`/${locale}/instructors/${instructorTarget}`);
                     }}
                     className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#0F5244] hover:bg-[#07382E] text-white font-black text-xs sm:text-sm shadow-md hover:shadow-lg transition-all active:scale-95 cursor-pointer group/btn"
                   >

@@ -73,7 +73,9 @@ export function StudentLayoutClient({ children }: { children: React.ReactNode })
 
   const fullName = (mounted ? user?.fullName || user?.name : "") || tWs("studentUserFallback");
   const email = (mounted ? user?.email : "") || "student@coachspace.com";
-  const avatarPreview = mounted ? user?.avatar || null : null;
+  const rawAvatar = mounted ? user?.avatar : null;
+  const avatarPreview =
+    typeof rawAvatar === "string" && rawAvatar.trim().length > 0 ? rawAvatar.trim() : null;
   const rawHeadline = mounted ? user?.headline : "";
   const displayHeadline =
     !rawHeadline ||

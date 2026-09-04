@@ -5,3 +5,4 @@ export * from './courseService';
 export * from './instructorService';
 export * from './instructorCourseService';
 export * from './studentService';
+export * from './enrollmentService';

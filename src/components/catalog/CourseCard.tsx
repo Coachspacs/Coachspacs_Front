@@ -8,9 +8,10 @@ import { useLocale, useTranslations } from "next-intl";
 import { useDispatch, useSelector } from "react-redux";
 import { Star, Clock, User, ShoppingCart, Check } from "lucide-react";
 import { Course } from "@/types/catalog";
-import { normalizeInstructorSlug } from "@/lib/mockInstructors";
+import { normalizeInstructorSlug } from "@/lib/instructorProfile";
 import { RootState } from "@/lib/store";
 import { addToCart } from "@/features/cart/cartSlice";
+import { VerifiedBadge } from "@/components/ui/VerifiedBadge";
 
 interface CourseCardProps {
   course: Course;
@@ -105,13 +106,19 @@ export function CourseCard({ course, isAr = false }: CourseCardProps) {
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                router.push(`/${locale}/instructors/${normalizeInstructorSlug(course.instructorName || "")}`);
+                const instructorTarget =
+                  course.instructorId ||
+                  (typeof course.instructor === "object" ? course.instructor?.id : undefined) ||
+                  (course as any).instructor_id ||
+                  normalizeInstructorSlug(course.instructorName || "");
+                router.push(`/${locale}/instructors/${instructorTarget}`);
               }}
               className="flex items-center gap-1.5 text-xs font-medium text-slate-500 hover:text-[#0F5244] pt-0.5 w-fit cursor-pointer transition-colors group/inst"
               title={t("viewInstructorProfile")}
             >
               <User className="h-3.5 w-3.5 text-slate-400 group-hover/inst:text-[#0F5244] transition-colors" />
               <span className="hover:underline font-semibold">{isAr ? course.instructorNameAr : course.instructorName}</span>
+              <VerifiedBadge size="xs" />
             </div>
           </div>
 

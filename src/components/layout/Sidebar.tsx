@@ -138,10 +138,15 @@ export function Sidebar({ activeTab, onTabChange, items, user }: SidebarProps) {
     router.push(`/${locale}/login`);
   };
 
+  const cleanAvatarUrl =
+    typeof user?.avatarUrl === "string" && user.avatarUrl.trim().length > 0
+      ? user.avatarUrl.trim()
+      : null;
+
   const defaultUser = {
     name: user?.name || t("defaultUser"),
     role: user?.role || t("studentRole"),
-    avatarUrl: user?.avatarUrl,
+    avatarUrl: cleanAvatarUrl,
   };
 
   const activeItem =

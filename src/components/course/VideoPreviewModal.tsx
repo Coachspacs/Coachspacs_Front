@@ -132,9 +132,11 @@ export function VideoPreviewModal({
               key={videoUrl}
               src={videoUrl}
               controls
+              controlsList="nodownload"
+              onContextMenu={(e) => e.preventDefault()}
               autoPlay
               playsInline
-              className="w-full h-full object-contain"
+              className="w-full h-full object-contain select-none"
               onError={() => setHasError(true)}
             >
               <source src={videoUrl} type="video/mp4" />

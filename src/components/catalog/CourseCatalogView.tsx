@@ -137,6 +137,7 @@ export function CourseCatalogView() {
           if (results.length > 0) {
             const liveCourses: CatalogCourse[] = results.map((c: any) => {
               const instName = typeof c.instructor === "object" ? (c.instructor?.full_name || c.instructor?.name || "") : (typeof c.instructor === "string" ? c.instructor : "");
+              const instId = typeof c.instructor === "object" ? c.instructor?.id : c.instructor_id;
               const catName = typeof c.category === "object" ? (c.category?.name || "") : (typeof c.category === "string" ? c.category : "");
               const catNameAr = typeof c.category === "object" && c.category?.name_ar ? c.category.name_ar : (c.category_ar || catName);
               const priceNum = Number(c.price) || 0;
@@ -148,6 +149,8 @@ export function CourseCatalogView() {
                 titleAr: c.title_ar || c.title || "دورة",
                 description: c.description || c.description_en || "",
                 descriptionAr: c.description_ar || c.description || "",
+                instructor: c.instructor,
+                instructorId: instId ? String(instId) : undefined,
                 instructorName: instName,
                 instructorNameAr: typeof c.instructor === "object" && c.instructor?.full_name_ar ? c.instructor.full_name_ar : instName,
                 instructorAvatar: (typeof c.instructor === "object" ? c.instructor?.avatar : undefined) || "",

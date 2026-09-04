@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useTranslations, useLocale } from "next-intl";
 import { useSelector } from "react-redux";
 import { RootState } from "@/lib/store";
+import { enrollmentService } from "@/services/enrollmentService";
 import { BookOpen, CheckCircle2, Award, Sparkles, ArrowRight } from "lucide-react";
 
 export function StudentHomeWidget() {
@@ -16,20 +17,54 @@ export function StudentHomeWidget() {
 
   useEffect(() => {
     setMounted(true);
-    if (typeof window !== "undefined") {
-      try {
-        const saved = localStorage.getItem("coachspace_enrolled_courses");
-        if (saved) {
-          const list = JSON.parse(saved);
-          if (Array.isArray(list)) {
-            setEnrolledCourses(list);
+
+    async function loadEnrollments() {
+      if (isAuthenticated) {
+        try {
+          const live = await enrollmentService.getMyEnrollments();
+          if (Array.isArray(live) && live.length > 0) {
+            const mapped = live.map((enr: any) => {
+              const c = enr.course || {};
+              return {
+                id: c.id || enr.course_id || enr.id,
+                title: locale === "ar" ? c.title_ar || c.title : c.title_en || c.title,
+                instructor:
+                  typeof c.instructor === "object"
+                    ? c.instructor?.name || c.instructor?.full_name
+                    : c.instructor,
+                progress: enr.progress_percent || 0,
+                isCompleted: enr.is_completed || enr.progress_percent >= 100,
+              };
+            });
+            setEnrolledCourses(mapped);
+            if (typeof window !== "undefined") {
+              localStorage.setItem("coachspace_enrolled_courses", JSON.stringify(mapped));
+            }
+            return;
           }
+        } catch (e) {
+          console.warn("[StudentHomeWidget] Could not fetch live enrollments:", e);
         }
-      } catch (e) {
-        console.warn("[StudentHomeWidget] Could not load enrolled courses:", e);
+      }
+
+      // Local storage fallback
+      if (typeof window !== "undefined") {
+        try {
+          const saved = localStorage.getItem("coachspace_enrolled_courses");
+          if (saved) {
+            const list = JSON.parse(saved);
+            if (Array.isArray(list)) {
+              setEnrolledCourses(list);
+            }
+          }
+        } catch (e) {
+          console.warn("[StudentHomeWidget] Could not load enrolled courses:", e);
+        }
       }
     }
-  }, []);
+
+    loadEnrollments();
+  }, [isAuthenticated, locale]);
 
   const isStudent = mounted && isAuthenticated && (user?.role || "").toLowerCase() === "student";
 

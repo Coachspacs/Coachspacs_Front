@@ -94,6 +94,7 @@ export interface Course {
   categoryAr?: string;
   categoryKey?: string;
   instructor?: any;
+  instructorId?: string;
   instructorName?: string;
   instructorNameAr?: string;
   instructorNameEn?: string;
