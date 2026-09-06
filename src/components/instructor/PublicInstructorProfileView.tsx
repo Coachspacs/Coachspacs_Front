@@ -45,114 +45,7 @@ import {
   normalizeInstructorSlug,
 } from "@/lib/instructorProfile";
 
-interface CompactCourseCardProps {
-  course: any;
-  isAr: boolean;
-  locale: string;
-}
 
-function CompactInstructorCourseCard({ course, isAr, locale }: CompactCourseCardProps) {
-  const tCatalog = useTranslations("catalog");
-  const tInst = useTranslations("instructorSettings");
-  const dispatch = useDispatch();
-  const cartItems = useSelector((state: RootState) => state.cart?.items || []);
-  const isInCart = cartItems.some(
-    (item: any) => String(item.course?.id || item.courseId || item.id) === String(course.id)
-  );
-
-  const [imgSrc, setImgSrc] = useState(
-    course.coverImage || course.image || ""
-  );
-
-  const handleCartClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (!isInCart) {
-      dispatch(addToCart(course));
-    }
-  };
-
-  const coursePath = `/${locale}/courses/${course.id}`;
-  const isFree = Boolean(course.isFree || course.price === 0 || course.priceFormatted === "Free" || course.priceFormatted === "مجاني");
-
-  return (
-    <Link href={coursePath} className="block group h-full select-none">
-      <div className="flex flex-col justify-between h-full rounded-2xl bg-white border border-slate-200/80 shadow-2xs hover:shadow-md hover:border-[#0F5244]/30 hover:-translate-y-1 transition-all duration-300 overflow-hidden cursor-pointer">
-        {/* Compact Thumbnail */}
-        <div className="relative w-full aspect-[16/10] bg-slate-100 overflow-hidden flex items-center justify-center">
-          {imgSrc ? (
-            <Image
-              src={imgSrc}
-              alt={isAr ? (course.titleAr || course.title || "") : (course.title || course.titleAr || "")}
-              fill
-              sizes="(max-width: 768px) 50vw, 240px"
-              onError={() => setImgSrc("")}
-              className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"
-            />
-          ) : (
-            <div className="w-full h-full flex flex-col items-center justify-center text-slate-400 bg-slate-50 gap-1 p-2 text-center">
-              <ImageIcon className="w-5 h-5 text-slate-300" />
-              <span className="text-[10px] font-bold text-slate-400">
-                {tInst("noCover")}
-              </span>
-            </div>
-          )}
-          {course.badge && (
-            <div className="absolute top-2 left-2 rtl:left-auto rtl:right-2">
-              <span className="inline-block px-2 py-0.5 text-[9px] font-black rounded-md uppercase tracking-wider bg-[#38BDF8] text-slate-900 shadow-2xs">
-                {course.badge}
-              </span>
-            </div>
-          )}
-        </div>
-
-        {/* Card Body */}
-        <div className="flex flex-col flex-1 p-3.5 justify-between space-y-2.5">
-          <div className="space-y-1.5">
-            <span className="inline-block text-[10px] font-extrabold uppercase tracking-wider text-[#0F5244] bg-[#E8F3F1] px-2 py-0.5 rounded-md truncate max-w-full">
-              {isAr ? course.categoryAr || course.category : course.category}
-            </span>
-            <h4 className="text-xs sm:text-sm font-extrabold text-slate-900 group-hover:text-[#0F5244] transition-colors line-clamp-2 leading-snug tracking-tight">
-              {isAr ? course.titleAr || course.title : course.title || course.titleAr}
-            </h4>
-          </div>
-
-          {/* Footer: Price & Add to Cart */}
-          <div className="flex items-center justify-between pt-2 border-t border-slate-100">
-            <div className="flex items-center">
-              <span className="text-sm sm:text-base font-black text-slate-900 leading-tight">
-                {isFree ? (
-                  <span className="text-emerald-600 font-extrabold">{tCatalog("card.free")}</span>
-                ) : (
-                  course.priceFormatted || `$${Number(course.price || 0).toFixed(2)}`
-                )}
-              </span>
-            </div>
-
-            {!isFree && (
-              <button
-                type="button"
-                onClick={handleCartClick}
-                title={isInCart ? tCatalog("card.inCart") : tCatalog("card.addToCart")}
-                className={`p-2 rounded-xl border transition-all cursor-pointer flex items-center justify-center text-xs font-extrabold shadow-2xs active:scale-95 ${
-                  isInCart
-                    ? "bg-emerald-700 text-white border-emerald-700 hover:bg-emerald-800"
-                    : "bg-emerald-50 text-emerald-800 border-emerald-200/80 hover:bg-emerald-600 hover:text-white"
-                }`}
-              >
-                {isInCart ? (
-                  <Check className="h-3.5 w-3.5" />
-                ) : (
-                  <ShoppingCart className="h-3.5 w-3.5" />
-                )}
-              </button>
-            )}
-          </div>
-        </div>
-      </div>
-    </Link>
-  );
-}
 
 interface PublicInstructorProfileViewProps {
   instructor: PublicInstructor;
@@ -211,6 +104,10 @@ export function PublicInstructorProfileView({ instructor: initialInstructor }: P
 
   // Mouse Drag Events
   const handleMouseDown = (e: React.MouseEvent) => {
+    if (e.button !== 0) return;
+    // Don't initiate drag if clicking buttons (like cart button)
+    if ((e.target as HTMLElement).closest("button")) return;
+
     const el = coursesScrollRef.current;
     if (!el) return;
     isDraggingRef.current = true;
@@ -222,12 +119,18 @@ export function PublicInstructorProfileView({ instructor: initialInstructor }: P
 
   const handleMouseMove = (e: React.MouseEvent) => {
     if (!isDraggingRef.current) return;
+    // If user is not holding the mouse button down, cancel drag immediately
+    if (e.buttons !== 1) {
+      isDraggingRef.current = false;
+      setIsCursorGrabbing(false);
+      return;
+    }
     const el = coursesScrollRef.current;
     if (!el) return;
     e.preventDefault();
     const x = e.pageX - el.offsetLeft;
-    const walk = (x - startXRef.current) * 1.5;
-    if (Math.abs(walk) > 4) {
+    const walk = (x - startXRef.current) * 1.2;
+    if (Math.abs(walk) > 5) {
       hasDraggedRef.current = true;
     }
     el.scrollLeft = scrollLeftRef.current - walk;
@@ -241,6 +144,24 @@ export function PublicInstructorProfileView({ instructor: initialInstructor }: P
       checkScroll();
     }
   };
+
+  // Global mouseup / pointerup to ensure drag is released even outside container
+  useEffect(() => {
+    const handleGlobalMouseUp = () => {
+      if (isDraggingRef.current) {
+        isDraggingRef.current = false;
+        setIsCursorGrabbing(false);
+        checkScroll();
+      }
+    };
+
+    window.addEventListener("mouseup", handleGlobalMouseUp);
+    window.addEventListener("pointerup", handleGlobalMouseUp);
+    return () => {
+      window.removeEventListener("mouseup", handleGlobalMouseUp);
+      window.removeEventListener("pointerup", handleGlobalMouseUp);
+    };
+  }, [checkScroll]);
 
   // Sync client profile state and dynamically fetch public instructor courses from Backend API
   useEffect(() => {
@@ -310,7 +231,7 @@ export function PublicInstructorProfileView({ instructor: initialInstructor }: P
         durationFormatted: `${durationNum > 0 ? durationNum : 10} hours`,
         coverImage: c.cover_image || c.coverImage || (typeof c.image === "string" && !c.image.includes("unsplash.com/photo-1516321318423") ? c.image : ""),
         image: c.cover_image || c.coverImage || (typeof c.image === "string" && !c.image.includes("unsplash.com/photo-1516321318423") ? c.image : ""),
-        badge: c.is_new ? "New" : c.is_bestseller ? "Bestseller" : undefined,
+        badge: c.is_bestseller ? "Bestseller" : undefined,
       };
     };
 
@@ -820,14 +741,18 @@ export function PublicInstructorProfileView({ instructor: initialInstructor }: P
                     onMouseMove={handleMouseMove}
                     onMouseUp={handleMouseUpOrLeave}
                     onMouseLeave={handleMouseUpOrLeave}
+                    onDragStart={(e) => e.preventDefault()}
                     onClickCapture={(e) => {
                       if (hasDraggedRef.current) {
                         e.preventDefault();
                         e.stopPropagation();
+                        hasDraggedRef.current = false;
                       }
                     }}
-                    className={`flex gap-4 overflow-x-auto pb-4 pt-1 scroll-smooth snap-x snap-proximity select-none scrollbar-none [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden ${
-                      isCursorGrabbing ? "cursor-grabbing" : "cursor-grab"
+                    className={`flex gap-4 overflow-x-auto pb-4 pt-1 select-none scrollbar-none [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden ${
+                      isCursorGrabbing
+                        ? "cursor-grabbing scroll-auto snap-none"
+                        : "cursor-grab scroll-smooth snap-x snap-proximity"
                     }`}
                   >
                     {courses.map((course) => (
@@ -836,7 +761,7 @@ export function PublicInstructorProfileView({ instructor: initialInstructor }: P
                         data-course-card
                         className="w-[205px] sm:w-[220px] md:w-[230px] shrink-0 snap-start transition-transform hover:-translate-y-0.5 duration-150"
                       >
-                        <CompactInstructorCourseCard course={course} isAr={isAr} locale={locale} />
+                        <CourseCard course={course} variant="compact" isAr={isAr} />
                       </div>
                     ))}
                   </div>

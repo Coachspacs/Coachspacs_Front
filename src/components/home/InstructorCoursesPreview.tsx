@@ -8,6 +8,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "@/lib/store";
 import { BookOpen, Users, Star, PlusCircle, Edit3 } from "lucide-react";
 import { instructorCourseService } from "@/services/instructorCourseService";
+import { CourseCard } from "@/components/course/CourseCard";
 
 export function InstructorCoursesPreview() {
   const t = useTranslations("home");
@@ -170,54 +171,12 @@ export function InstructorCoursesPreview() {
           /* Courses Grid */
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredCourses.map((course) => (
-              <div
+              <CourseCard
                 key={course.id}
-                className="bg-white rounded-3xl p-5 border border-slate-200/80 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between group"
-              >
-                <div>
-                  {/* Thumbnail */}
-                  <div className="relative w-full aspect-[16/10] rounded-2xl overflow-hidden bg-slate-100 mb-4 border border-slate-100">
-                    <Image
-                      src={course.image}
-                      alt={course.title}
-                      fill
-                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
-                    <div className="absolute top-2.5 rtl:right-2.5 ltr:left-2.5 bg-slate-900/85 backdrop-blur-md text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full">
-                      {course.isDraft ? t("statusDraft") : t("statusPublished")}
-                    </div>
-                  </div>
-
-                  {/* Rating & Title */}
-                  {!course.isDraft && course.reviewsCount > 0 && course.rating > 0 && (
-                    <div className="flex items-center gap-1.5 text-amber-500 text-xs font-bold mb-1.5">
-                      <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-                      <span>{Number(course.rating).toFixed(1)}</span>
-                      <span className="text-slate-400 font-normal text-[11px]">• {course.reviewsCount} {t("reviews")}</span>
-                    </div>
-                  )}
-                  <h3 className="text-base font-black text-slate-900 line-clamp-2 leading-snug group-hover:text-[#0F5244] transition-colors mb-3">
-                    {course.title}
-                  </h3>
-                </div>
-
-                {/* Card Footer */}
-                <div className="flex items-center justify-between pt-3.5 border-t border-slate-100 mt-2">
-                  <div className="flex items-center gap-1.5 text-slate-600 text-xs font-bold">
-                    <Users className="w-4 h-4 text-slate-500" />
-                    <span>{course.studentsCount} {t("studentsLabel")}</span>
-                  </div>
-
-                  <Link
-                    href={`/${locale}/instructor/courses/create?id=${course.id}`}
-                    className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-800 hover:text-[#0F5244] bg-slate-50 hover:bg-emerald-50 px-3 py-1.5 rounded-lg border border-slate-200/80 transition-all cursor-pointer"
-                  >
-                    <Edit3 className="w-3.5 h-3.5 text-slate-500" />
-                    <span>{t("openCourseStudio")}</span>
-                  </Link>
-                </div>
-              </div>
+                course={course}
+                variant="instructor-preview"
+                isAr={locale === "ar"}
+              />
             ))}
           </div>
         )}

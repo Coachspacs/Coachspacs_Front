@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { CourseCard } from "./CourseCard";
 import { Course } from "@/types/catalog";
 import { SlidersHorizontal, AlertCircle, RotateCcw } from "lucide-react";
+import { CourseCardSkeleton } from "@/components/ui/Skeleton";
 
 interface CourseGridProps {
   courses: Course[];
@@ -56,26 +57,7 @@ export function CourseGrid({
   if (isLoading) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {[...Array(6)].map((_, i) => (
-          <div
-            key={`skeleton-${i}`}
-            className="flex flex-col h-[380px] rounded-2xl bg-white border border-slate-200/80 shadow-2xs overflow-hidden animate-pulse"
-          >
-            <div className="w-full aspect-[16/10] bg-slate-200" />
-            <div className="flex flex-col flex-1 p-5 justify-between space-y-4">
-              <div className="space-y-2.5">
-                <div className="h-4 w-20 bg-slate-200 rounded-md" />
-                <div className="h-5 w-full bg-slate-200 rounded-md" />
-                <div className="h-4 w-3/4 bg-slate-200 rounded-md" />
-                <div className="h-4 w-1/3 bg-slate-200 rounded-md" />
-              </div>
-              <div className="flex items-center justify-between pt-2 border-t border-slate-100">
-                <div className="h-5 w-16 bg-slate-200 rounded-md" />
-                <div className="h-4 w-16 bg-slate-200 rounded-md" />
-              </div>
-            </div>
-          </div>
-        ))}
+        <CourseCardSkeleton count={6} />
       </div>
     );
   }

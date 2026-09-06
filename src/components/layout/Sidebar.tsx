@@ -250,53 +250,53 @@ export function Sidebar({ activeTab, onTabChange, items, user }: SidebarProps) {
       </div>
 
       {/* ================= DESKTOP VERTICAL SIDEBAR (>= md) ================= */}
-      <aside className="hidden md:flex w-64 lg:w-72 shrink-0 bg-white border border-slate-200/80 rounded-3xl p-5 flex-col justify-between shadow-2xs min-h-[560px]">
-        <div className="space-y-6">
+      <aside className="hidden md:flex w-64 lg:w-72 shrink-0 bg-white border border-slate-200/80 rounded-2xl sm:rounded-3xl p-4 sm:p-5 flex-col justify-between shadow-2xs min-h-[560px]">
+        <div className="space-y-5">
           {/* Top Section: Integrated User Card */}
-          <div className="p-3.5 rounded-2xl bg-gradient-to-br from-emerald-50/60 via-slate-50/70 to-emerald-50/30 border border-emerald-100/90 flex items-center gap-3 shadow-2xs">
+          <div className="p-3 rounded-2xl bg-slate-50/80 border border-slate-100 flex items-center gap-3">
             <div className="relative shrink-0">
-              <div className="w-12 h-12 rounded-full bg-white border-2 border-emerald-300 overflow-hidden shadow-2xs flex items-center justify-center">
+              <div className="w-10 h-10 rounded-full bg-white border border-slate-200 overflow-hidden shadow-2xs flex items-center justify-center">
                 {defaultUser.avatarUrl && !avatarError ? (
                   <Image
                     src={defaultUser.avatarUrl}
                     alt={defaultUser.name}
-                    width={48}
-                    height={48}
+                    width={40}
+                    height={40}
                     onError={() => setAvatarError(true)}
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <span className="font-extrabold text-base text-emerald-700">
+                  <span className="font-bold text-sm text-emerald-700">
                     {(defaultUser.name || "U").trim().charAt(0).toUpperCase()}
                   </span>
                 )}
               </div>
-              <span className="absolute bottom-0 right-0 rtl:right-auto rtl:left-0 w-3 h-3 bg-emerald-500 border-2 border-white rounded-full" />
+              <span className="absolute bottom-0 right-0 rtl:right-auto rtl:left-0 w-2.5 h-2.5 bg-emerald-500 border-2 border-white rounded-full" />
             </div>
 
             <div className="min-w-0 flex-1">
-              <h3 className="text-xs sm:text-sm font-extrabold text-slate-900 truncate">
+              <h3 className="text-xs sm:text-sm font-bold text-slate-900 truncate">
                 {defaultUser.name}
               </h3>
-              <span className="inline-block px-2 py-0.5 mt-0.5 rounded-md bg-emerald-100 text-emerald-800 text-[10px] font-black">
+              <span className="inline-block px-2 py-0.5 mt-0.5 rounded-md bg-emerald-50 text-emerald-700 text-[10px] font-semibold border border-emerald-100/70">
                 {defaultUser.role}
               </span>
             </div>
           </div>
 
           {/* Navigation Links */}
-          <nav className="space-y-1.5" aria-label="Sidebar Navigation">
+          <nav className="space-y-1" aria-label="Sidebar Navigation">
             {navItems.map((item) => {
               const Icon = item?.icon || LayoutDashboard;
               const active = isItemActive(item.id, item.href);
 
               const content = (
                 <>
-                  <Icon className={`h-4.5 w-4.5 shrink-0 transition-colors ${active ? "text-emerald-700" : "text-slate-500 group-hover:text-emerald-700"}`} />
-                  <span className="text-xs sm:text-sm font-extrabold">{item.label}</span>
+                  <Icon className={`h-4.5 w-4.5 shrink-0 transition-colors ${active ? "text-emerald-700" : "text-slate-400 group-hover:text-slate-700"}`} />
+                  <span className="text-xs sm:text-sm font-semibold">{item.label}</span>
                   {item.id === "cart" && cartItems.length > 0 && (
-                    <span className={`ml-auto rtl:ml-0 rtl:mr-auto px-2 py-0.5 rounded-full text-[10px] font-black ${
-                      active ? "bg-emerald-600 text-white" : "bg-emerald-500 text-white"
+                    <span className={`ml-auto rtl:ml-0 rtl:mr-auto px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                      active ? "bg-emerald-600 text-white" : "bg-emerald-100 text-emerald-800"
                     }`}>
                       {cartItems.length}
                     </span>
@@ -319,8 +319,8 @@ export function Sidebar({ activeTab, onTabChange, items, user }: SidebarProps) {
                     }}
                     className={`group w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm transition-all cursor-pointer ${
                       active
-                        ? "bg-emerald-50 text-emerald-800 border border-emerald-200/80 font-black shadow-2xs"
-                        : "text-slate-600 hover:text-slate-900 hover:bg-slate-50 font-bold"
+                        ? "bg-emerald-50/80 text-emerald-900 border border-emerald-100 font-bold shadow-2xs"
+                        : "text-slate-600 hover:text-slate-900 hover:bg-slate-50 font-medium"
                     }`}
                   >
                     {content}
@@ -335,8 +335,8 @@ export function Sidebar({ activeTab, onTabChange, items, user }: SidebarProps) {
                   aria-current={active ? "page" : undefined}
                   className={`group flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm transition-all cursor-pointer ${
                     active
-                      ? "bg-emerald-50 text-emerald-800 border border-emerald-200/80 font-black shadow-2xs"
-                      : "text-slate-600 hover:text-slate-900 hover:bg-slate-50 font-bold"
+                      ? "bg-emerald-50/80 text-emerald-900 border border-emerald-100 font-bold shadow-2xs"
+                      : "text-slate-600 hover:text-slate-900 hover:bg-slate-50 font-medium"
                   }`}
                 >
                   {content}
@@ -347,11 +347,11 @@ export function Sidebar({ activeTab, onTabChange, items, user }: SidebarProps) {
         </div>
 
         {/* Bottom Section: Sign Out */}
-        <div className="pt-4 border-t border-slate-100">
+        <div className="pt-3 border-t border-slate-100">
           <button
             type="button"
             onClick={handleSignOut}
-            className="w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-slate-600 hover:text-red-600 hover:bg-red-50/80 transition-colors cursor-pointer"
+            className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs sm:text-sm font-medium text-slate-500 hover:text-red-600 hover:bg-red-50/60 transition-colors cursor-pointer"
           >
             <LogOut className="h-4 w-4 shrink-0 text-slate-400 group-hover:text-red-600" />
             <span>{t("signOut")}</span>

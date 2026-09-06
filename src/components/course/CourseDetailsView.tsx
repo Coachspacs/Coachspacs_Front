@@ -7,7 +7,6 @@ import { useRouter } from "next/navigation";
 import { useTranslations, useLocale } from "next-intl";
 import { useSelector, useDispatch } from "react-redux";
 import { 
-  Star, 
   Users, 
   PlayCircle, 
   Lock, 
@@ -89,7 +88,7 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
   }, [course?.id]);
 
   // Tabs state
-  const [activeTab, setActiveTab] = useState<"curriculum" | "description" | "instructor" | "reviews">("curriculum");
+  const [activeTab, setActiveTab] = useState<"curriculum" | "description" | "instructor">("curriculum");
 
   // Accordion state
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({
@@ -316,16 +315,7 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
                   </div>
                 </Link>
 
-                {/* Rating */}
-                <div className="flex items-center gap-1.5 bg-amber-50 border border-amber-200/60 px-2.5 py-1 rounded-lg">
-                  <span className="font-extrabold text-slate-900">{course.rating.toFixed(1)}</span>
-                  <div className="flex text-amber-400">
-                    {[...Array(5)].map((_, i) => (
-                      <Star key={i} className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
-                    ))}
-                  </div>
-                  <span className="text-slate-500 font-semibold text-xs">({course.reviewsCountFormatted} {t("reviewsCount")})</span>
-                </div>
+
 
                 {/* Enrolled Count */}
                 <div className="flex items-center gap-1.5 text-slate-600 font-semibold">
@@ -385,20 +375,7 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
                   )}
                 </button>
 
-                <button
-                  type="button"
-                  onClick={() => setActiveTab("reviews")}
-                  className={`pb-3 text-sm sm:text-base font-extrabold transition-all relative ${
-                    activeTab === "reviews"
-                      ? "text-[#0F5244]"
-                      : "text-slate-500 hover:text-slate-800"
-                  }`}
-                >
-                  {t("reviews")}
-                  {activeTab === "reviews" && (
-                    <span className="absolute bottom-0 left-0 right-0 h-1 bg-[#0F5244] rounded-t-full" />
-                  )}
-                </button>
+
               </div>
             </div>
 
@@ -582,10 +559,7 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
                         {isAr ? (course.instructorRoleAr || instructorObj?.headlineAr || t("leadRole")) : (course.instructorRole || instructorObj?.headline || t("leadRole"))}
                       </p>
                       <div className="flex flex-wrap items-center gap-2.5 pt-0.5 text-xs text-slate-600 font-bold">
-                        <span className="inline-flex items-center gap-1 text-amber-800 bg-amber-50 px-2 py-0.5 rounded-md border border-amber-200/60">
-                          <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
-                          {(instructorObj?.rating || course.rating).toFixed(1)}
-                        </span>
+
                         <span className="inline-flex items-center gap-1 text-[#0F5244] bg-[#E8F3F1] px-2 py-0.5 rounded-md">
                           <Users className="h-3.5 w-3.5" />
                           <span>
@@ -619,26 +593,6 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
               </div>
             )}
 
-            {/* Tab 4: REVIEWS */}
-            {activeTab === "reviews" && (
-              <div className="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-2xs space-y-4 animate-in fade-in duration-200">
-                <div className="flex items-center gap-4">
-                  <div className="text-3xl font-black text-slate-900">{course.rating ? course.rating.toFixed(1) : "5.0"}</div>
-                  <div>
-                    <div className="flex text-amber-400">
-                      {[...Array(5)].map((_, i) => (
-                        <Star key={i} className="h-4 w-4 fill-amber-400 text-amber-400" />
-                      ))}
-                    </div>
-                    <span className="text-xs font-medium text-slate-500">
-                      {course.reviewsCount && course.reviewsCount > 0
-                        ? `${course.reviewsCount} ${t("reviewsCount")}`
-                        : t("noReviewsYet")}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            )}
 
           </div>
 

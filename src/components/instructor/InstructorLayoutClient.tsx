@@ -20,7 +20,7 @@ import {
   Users,
   CreditCard,
   Settings,
-  User,
+  ExternalLink,
 } from "lucide-react";
 import { VerifiedBadge } from "@/components/ui/VerifiedBadge";
 import { tokenManager } from "@/lib/tokenManager";
@@ -237,12 +237,6 @@ export function InstructorLayoutClient({
         : undefined,
     },
     {
-      id: "profile",
-      label: tInst("profileNav") || t("profile"),
-      icon: User,
-      href: `/${locale}/instructor/profile`,
-    },
-    {
       id: "settings",
       label: t("accountSettings"),
       icon: Settings,
@@ -278,26 +272,26 @@ export function InstructorLayoutClient({
       <main className="flex-grow py-6 sm:py-10 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
         <div className="w-full space-y-4 sm:space-y-6">
           {/* Top Instructor Workspace Banner / Header Card */}
-          <div className="bg-white rounded-2xl sm:rounded-3xl border border-slate-200/80 p-4 sm:p-6 shadow-2xs flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-5 text-center sm:text-start">
+          <div className="bg-white rounded-2xl border border-slate-200/80 p-4 sm:p-5 shadow-2xs flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="flex flex-col sm:flex-row items-center gap-4 text-center sm:text-start">
               <div className="relative group shrink-0">
-                <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-[#E6F3EF] border-2 border-slate-200/90 overflow-hidden shadow-2xs flex items-center justify-center">
+                <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-slate-50 border border-slate-200/90 overflow-hidden shadow-2xs flex items-center justify-center">
                   {avatarPreview ? (
                     <Image
                       src={avatarPreview}
                       alt={fullName || "Instructor"}
-                      width={64}
-                      height={64}
+                      width={56}
+                      height={56}
                       className="w-full h-full object-cover"
                     />
                   ) : (
-                    <span className="font-extrabold text-xl text-[#0F5244]">
+                    <span className="font-bold text-lg text-[#0F5244]">
                       {fullName.trim().charAt(0).toUpperCase() || "I"}
                     </span>
                   )}
                 </div>
                 <span
-                  className={`absolute bottom-0 right-0 rtl:right-auto rtl:left-0 w-3.5 h-3.5 border-2 border-white rounded-full ${
+                  className={`absolute bottom-0 right-0 rtl:right-auto rtl:left-0 w-3 h-3 border-2 border-white rounded-full ${
                     isApproved ? "bg-emerald-500" : "bg-amber-400"
                   }`}
                 />
@@ -305,24 +299,34 @@ export function InstructorLayoutClient({
 
               <div className="space-y-0.5">
                 <div className="flex items-center justify-center sm:justify-start gap-2 flex-wrap">
-                  <h1 className="text-base sm:text-lg font-black text-slate-900">
+                  <h1 className="text-sm sm:text-base font-bold text-slate-900">
                     {fullName}
                   </h1>
                   {isApproved ? (
                     <VerifiedBadge size="sm" />
                   ) : (
-                    <span className="px-2 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200/80 text-[10px] font-bold flex items-center gap-1">
+                    <span className="px-2 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200/80 text-[10px] font-semibold flex items-center gap-1">
                       <Clock className="h-3 w-3 text-amber-600 shrink-0" />
                       <span>{tInst("underReviewBadge")}</span>
                     </span>
                   )}
                 </div>
-                <p className="text-xs text-slate-500 font-medium">{headline}</p>
-                <p className="text-[11px] text-slate-400 font-medium">
+                <p className="text-xs text-slate-500 font-normal">{headline}</p>
+                <p className="text-[11px] text-slate-400 font-normal">
                   {email}
                 </p>
               </div>
             </div>
+
+            {isApproved && (
+              <Link
+                href={`/${locale}/instructors/${user?.id || normalizeInstructorSlug(fullName)}`}
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl border border-slate-200/80 bg-slate-50/80 hover:bg-slate-100/80 text-slate-600 hover:text-slate-900 text-xs font-semibold transition-all shadow-2xs shrink-0"
+              >
+                <span>{isAr ? "عرض الملف العام" : "Public Profile"}</span>
+                <ExternalLink className="w-3.5 h-3.5 text-slate-400 rtl:rotate-180" />
+              </Link>
+            )}
           </div>
 
           {/* Persistent Dashboard Layout: Left Sidebar + Main Dynamic Area */}

@@ -27,7 +27,6 @@ import {
   Image as ImageIcon,
   Eye,
   Send,
-  User,
   Sparkles,
   TrendingUp,
   Layers,
@@ -60,6 +59,16 @@ import {
   CourseIncompleteModal,
   IncompleteItem,
 } from "@/components/modals/CourseIncompleteModal";
+import { CourseCard } from "@/components/course/CourseCard";
+import { Toast } from "@/components/ui/Toast";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  InstructorOverviewTab,
+  InstructorCoursesTab,
+  InstructorStudentsTab,
+  InstructorPayoutTab,
+  InstructorSettingsTab,
+} from "./tabs";
 
 interface InstructorWorkspaceProps {
   initialTab?: "overview" | "courses" | "students" | "payout" | "settings";
@@ -96,6 +105,7 @@ export function InstructorWorkspace({
     "overview" | "courses" | "students" | "payout" | "settings"
   >(defaultTab);
   const [studentSearch, setStudentSearch] = useState("");
+  const [courseSearch, setCourseSearch] = useState("");
   const [courseFilter, setCourseFilter] = useState<
     "all" | "active" | "published" | "pending_review" | "draft" | "archived"
   >("active");
@@ -311,8 +321,12 @@ export function InstructorWorkspace({
   });
 
   const [isSaving, setIsSaving] = useState(false);
+  const isSettingsInitializedRef = useRef(false);
 
   useEffect(() => {
+    if (isSettingsInitializedRef.current) return;
+    if (!authUser) return;
+
     const userFullName = authUser?.fullName || authUser?.name || "";
     const activeSlug = userFullName
       ? normalizeInstructorSlug(userFullName)
@@ -341,6 +355,7 @@ export function InstructorWorkspace({
       email: authUser?.email || prev.email,
     }));
     setAvatarPreview(authUser?.avatar || overrides.avatar || null);
+    isSettingsInitializedRef.current = true;
   }, [authUser]);
 
   const handleInputChange = (
@@ -393,6 +408,27 @@ export function InstructorWorkspace({
     } finally {
       setIsSaving(false);
       setTimeout(() => setToastMessage(null), 3500);
+    }
+  };
+
+  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const previewUrl = URL.createObjectURL(file);
+    setAvatarPreview(previewUrl);
+    try {
+      const updated = await userService.uploadAvatar(file);
+      if (updated?.avatar) {
+        setAvatarPreview(updated.avatar);
+        dispatch(updateUser({ avatar: updated.avatar }));
+      }
+      setToastMessage(
+        isAr
+          ? "تم تحديث الصورة الشخصية بنجاح"
+          : "Profile picture updated successfully",
+      );
+    } catch (err) {
+      console.warn("Could not upload avatar:", err);
     }
   };
 
@@ -668,21 +704,7 @@ export function InstructorWorkspace({
       dir={isAr ? "rtl" : "ltr"}
     >
       {/* Toast Notification */}
-      {toastMessage && (
-        <div className="fixed bottom-6 right-6 rtl:right-auto rtl:left-6 z-50 flex items-center gap-3 bg-slate-900/95 text-white px-5 py-3.5 rounded-2xl shadow-2xl border border-slate-800 backdrop-blur-md animate-in slide-in-from-bottom-4 duration-200">
-          <CheckCircle2 className="h-4.5 w-4.5 text-emerald-400 shrink-0" />
-          <span className="text-xs sm:text-sm font-extrabold">
-            {toastMessage}
-          </span>
-          <button
-            type="button"
-            onClick={() => setToastMessage(null)}
-            className="text-slate-400 hover:text-white transition-colors cursor-pointer"
-          >
-            <X className="h-4 w-4" />
-          </button>
-        </div>
-      )}
+      <Toast message={toastMessage} onClose={() => setToastMessage(null)} />
 
       {/* Change Email Modal */}
       {showEmailModal && (
@@ -845,11 +867,6 @@ export function InstructorWorkspace({
                 label: tInst("payoutAndBilling"),
                 icon: CreditCard,
               },
-              {
-                id: "profile",
-                label: tInst("profileNav") || t("profile"),
-                icon: User,
-              },
               { id: "settings", label: t("accountSettings"), icon: Settings },
             ]}
             user={{
@@ -869,887 +886,106 @@ export function InstructorWorkspace({
               : "flex-1 w-full bg-white rounded-2xl sm:rounded-3xl border border-slate-200/80 p-4 sm:p-10 shadow-2xs"
           }
         >
-          {/* OVERVIEW / ANALYTICS TAB */}
-          {activeTab === "overview" && (
-            <div className="space-y-8 animate-in fade-in duration-150">
-              <h2 className="text-xl sm:text-2xl font-black text-slate-900">
-                {tInst("instructorOverviewTitle")}
-              </h2>
+          <AnimatePresence mode="wait">
+            {activeTab === "overview" && (
+              <motion.div
+                key="overview"
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -6 }}
+                transition={{ duration: 0.15 }}
+              >
+                <InstructorOverviewTab courses={courses} />
+              </motion.div>
+            )}
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
-                <div className="p-5 rounded-2xl bg-emerald-50 border border-emerald-100">
-                  <span className="text-xs font-bold text-[#0F5244] uppercase">
-                    {tInst("enrolledStudentsNav")}
-                  </span>
-                  <div className="text-2xl font-black text-[#0F5244]">
-                    {courses.reduce(
-                      (acc, curr) => acc + Number(curr.studentsCount || 0),
-                      0,
-                    )}
-                  </div>
-                </div>
-                <div className="p-5 rounded-2xl bg-teal-50 border border-teal-100">
-                  <span className="text-xs font-bold text-teal-800 uppercase">
-                    {tInst("payoutAndBilling")}
-                  </span>
-                  <div className="text-2xl font-black text-teal-950">
-                    $
-                    {courses
-                      .reduce((acc, curr) => acc + Number(curr.revenue || 0), 0)
-                      .toLocaleString()}
-                  </div>
-                </div>
-                <div className="p-5 rounded-2xl bg-amber-50 border border-amber-100">
-                  <span className="text-xs font-bold text-amber-800 uppercase">
-                    {tInst("ratingLabel")}
-                  </span>
-                  <div className="text-2xl font-black text-amber-900 flex items-center gap-1">
-                    <span>
-                      {courses.filter((c) => Number(c.reviewsCount || 0) > 0)
-                        .length > 0
-                        ? (
-                            courses
-                              .filter((c) => Number(c.reviewsCount || 0) > 0)
-                              .reduce(
-                                (acc, curr) => acc + Number(curr.rating || 0),
-                                0,
-                              ) /
-                            courses.filter(
-                              (c) => Number(c.reviewsCount || 0) > 0,
-                            ).length
-                          ).toFixed(1)
-                        : "—"}
-                    </span>
-                    <Star className="h-5 w-5 fill-amber-500 text-amber-500 inline shrink-0" />
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
+            {activeTab === "courses" && (
+              <motion.div
+                key="courses"
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -6 }}
+                transition={{ duration: 0.15 }}
+              >
+                <InstructorCoursesTab
+                  courses={courses}
+                  isLoadingCourses={isLoadingCourses}
+                  courseFilter={courseFilter}
+                  setCourseFilter={setCourseFilter}
+                  courseSearch={courseSearch}
+                  setCourseSearch={setCourseSearch}
+                  students={students}
+                  expandedCourseStudentsId={expandedCourseStudentsId}
+                  setExpandedCourseStudentsId={setExpandedCourseStudentsId}
+                  handleSubmitForReview={handleSubmitForReview}
+                  submittingCourseId={submittingCourseId}
+                  handleArchiveCourse={handleArchiveCourse}
+                  setDeleteModalCourse={setDeleteModalCourse}
+                />
+              </motion.div>
+            )}
 
-          {/* COURSE MANAGER & LIFECYCLE TAB */}
-          {activeTab === "courses" && (
-            <div className="space-y-6 sm:space-y-8 animate-in fade-in duration-200">
-              {/* 1. Executive Gradient Hero Header Card */}
-              <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#06241E] via-[#0F5244] to-[#0A3D33] text-white p-6 sm:p-8 shadow-xl border border-emerald-700/40">
-                {/* Ambient Decorative Background Glows */}
-                <div className="absolute -top-16 -right-16 w-64 h-64 rounded-full bg-emerald-400/15 blur-3xl pointer-events-none" />
-                <div className="absolute -bottom-16 -left-16 w-64 h-64 rounded-full bg-teal-400/10 blur-3xl pointer-events-none" />
+            {activeTab === "students" && (
+              <motion.div
+                key="students"
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -6 }}
+                transition={{ duration: 0.15 }}
+              >
+                <InstructorStudentsTab
+                  students={students}
+                  studentSearch={studentSearch}
+                  setStudentSearch={setStudentSearch}
+                  isLoading={isLoadingCourses}
+                />
+              </motion.div>
+            )}
 
-                <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-                  <div className="space-y-2 max-w-2xl">
-                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-400/30 text-emerald-300 text-xs font-black uppercase tracking-wider backdrop-blur-xs">
-                      <Sparkles className="w-3.5 h-3.5 text-emerald-300 animate-pulse" />
-                      <span>{tInst("lifecycleManagementTitle")}</span>
-                    </div>
+            {activeTab === "payout" && (
+              <motion.div
+                key="payout"
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -6 }}
+                transition={{ duration: 0.15 }}
+              >
+                <InstructorPayoutTab
+                  formData={formData}
+                  courses={courses}
+                  onSavePayout={async (payoutData) => {
+                    setFormData((prev) => ({ ...prev, ...payoutData }));
+                    setToastMessage(
+                      isAr
+                        ? "تم حفظ إعدادات الدفع بنجاح"
+                        : "Payout settings saved successfully",
+                    );
+                    setTimeout(() => setToastMessage(null), 3000);
+                  }}
+                />
+              </motion.div>
+            )}
 
-                    <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-white leading-tight">
-                      {tInst("courseLifecycleManagement")}
-                    </h2>
-
-                    <p className="text-xs sm:text-sm text-emerald-100/80 font-medium leading-relaxed">
-                      {tInst("lifecycleManagementSubtitle")}
-                    </p>
-                  </div>
-
-                  <div className="flex items-center gap-3 shrink-0">
-                    <Link
-                      href={`/${locale}/instructor/courses/new`}
-                      className="inline-flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-2xl bg-gradient-to-r from-emerald-400 to-emerald-500 hover:from-emerald-300 hover:to-emerald-400 text-slate-950 text-xs sm:text-sm font-black shadow-lg shadow-emerald-500/25 active:scale-98 transition-all shrink-0 cursor-pointer group"
-                    >
-                      <Plus className="h-4 w-4 stroke-[3] transition-transform group-hover:rotate-90" />
-                      <span>{tDash("createNewCourse")}</span>
-                    </Link>
-                  </div>
-                </div>
-
-                {/* 2. Integrated Metric Highlights Grid */}
-                <div className="relative z-10 grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mt-6 pt-6 border-t border-emerald-700/40">
-                  {/* Metric 1: Total */}
-                  <div className="p-3.5 rounded-2xl bg-white/10 backdrop-blur-md border border-white/10 flex flex-col justify-between">
-                    <div className="flex items-center justify-between text-emerald-200 text-xs font-bold mb-1">
-                      <span>{tInst("totalCourses")}</span>
-                      <Layers className="w-4 h-4 text-emerald-300" />
-                    </div>
-                    <div className="text-2xl sm:text-3xl font-black text-white">
-                      {courses.length}
-                    </div>
-                  </div>
-
-                  {/* Metric 2: Published */}
-                  <div className="p-3.5 rounded-2xl bg-emerald-500/15 backdrop-blur-md border border-emerald-400/30 flex flex-col justify-between">
-                    <div className="flex items-center justify-between text-emerald-300 text-xs font-bold mb-1">
-                      <span>{tInst("statusPublished")}</span>
-                      <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                    </div>
-                    <div className="text-2xl sm:text-3xl font-black text-emerald-200">
-                      {courses.filter((c) => c.status === "published").length}
-                    </div>
-                  </div>
-
-                  {/* Metric 3: Pending Review */}
-                  <div className="p-3.5 rounded-2xl bg-amber-500/15 backdrop-blur-md border border-amber-400/30 flex flex-col justify-between">
-                    <div className="flex items-center justify-between text-amber-200 text-xs font-bold mb-1">
-                      <span>{tInst("statusPendingReview")}</span>
-                      <Clock className="w-4 h-4 text-amber-300" />
-                    </div>
-                    <div className="text-2xl sm:text-3xl font-black text-amber-200">
-                      {
-                        courses.filter((c) => c.status === "pending_review")
-                          .length
-                      }
-                    </div>
-                  </div>
-
-                  {/* Metric 4: Drafts */}
-                  <div className="p-3.5 rounded-2xl bg-white/10 backdrop-blur-md border border-white/10 flex flex-col justify-between">
-                    <div className="flex items-center justify-between text-slate-200 text-xs font-bold mb-1">
-                      <span>{tInst("statusDraft")}</span>
-                      <Edit2 className="w-4 h-4 text-slate-300" />
-                    </div>
-                    <div className="text-2xl sm:text-3xl font-black text-white">
-                      {
-                        courses.filter(
-                          (c) =>
-                            c.status === "draft" || c.status === "rejected",
-                        ).length
-                      }
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* 3. Segmented Filter Control Bar */}
-              <div className="bg-white rounded-2xl p-2 sm:p-2.5 border border-slate-200/90 shadow-2xs flex flex-wrap items-center justify-between gap-3">
-                <div className="inline-flex items-center gap-1.5 flex-wrap">
-                  {/* Filter: Active */}
-                  <button
-                    type="button"
-                    onClick={() => setCourseFilter("active")}
-                    className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-black transition-all cursor-pointer ${
-                      courseFilter === "active"
-                        ? "bg-[#0F5244] text-white shadow-xs"
-                        : "text-slate-600 hover:text-slate-900 hover:bg-slate-100/70"
-                    }`}
-                  >
-                    <span>{tInst("activeFilter")}</span>
-                    <span
-                      className={`px-2 py-0.5 rounded-full text-[10px] font-black ${
-                        courseFilter === "active"
-                          ? "bg-white/20 text-white"
-                          : "bg-slate-100 text-slate-600"
-                      }`}
-                    >
-                      {courses.filter((c) => c.status !== "archived").length}
-                    </span>
-                  </button>
-
-                  {/* Filter: Published */}
-                  <button
-                    type="button"
-                    onClick={() => setCourseFilter("published")}
-                    className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-black transition-all cursor-pointer ${
-                      courseFilter === "published"
-                        ? "bg-emerald-600 text-white shadow-xs"
-                        : "text-slate-600 hover:text-slate-900 hover:bg-slate-100/70"
-                    }`}
-                  >
-                    <span>{tInst("statusPublished")}</span>
-                    <span
-                      className={`px-2 py-0.5 rounded-full text-[10px] font-black ${
-                        courseFilter === "published"
-                          ? "bg-white/20 text-white"
-                          : "bg-emerald-100 text-emerald-800"
-                      }`}
-                    >
-                      {courses.filter((c) => c.status === "published").length}
-                    </span>
-                  </button>
-
-                  {/* Filter: Pending Review */}
-                  <button
-                    type="button"
-                    onClick={() => setCourseFilter("pending_review")}
-                    className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-black transition-all cursor-pointer ${
-                      courseFilter === "pending_review"
-                        ? "bg-amber-500 text-white shadow-xs"
-                        : "text-slate-600 hover:text-slate-900 hover:bg-slate-100/70"
-                    }`}
-                  >
-                    <span>{tInst("statusPendingReview")}</span>
-                    <span
-                      className={`px-2 py-0.5 rounded-full text-[10px] font-black ${
-                        courseFilter === "pending_review"
-                          ? "bg-white/20 text-white"
-                          : "bg-amber-100 text-amber-800"
-                      }`}
-                    >
-                      {
-                        courses.filter((c) => c.status === "pending_review")
-                          .length
-                      }
-                    </span>
-                  </button>
-
-                  {/* Filter: Drafts */}
-                  <button
-                    type="button"
-                    onClick={() => setCourseFilter("draft")}
-                    className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-black transition-all cursor-pointer ${
-                      courseFilter === "draft"
-                        ? "bg-slate-800 text-white shadow-xs"
-                        : "text-slate-600 hover:text-slate-900 hover:bg-slate-100/70"
-                    }`}
-                  >
-                    <span>{tInst("statusDraft")}</span>
-                    <span
-                      className={`px-2 py-0.5 rounded-full text-[10px] font-black ${
-                        courseFilter === "draft"
-                          ? "bg-white/20 text-white"
-                          : "bg-slate-100 text-slate-600"
-                      }`}
-                    >
-                      {
-                        courses.filter(
-                          (c) =>
-                            c.status === "draft" || c.status === "rejected",
-                        ).length
-                      }
-                    </span>
-                  </button>
-
-                  {/* Filter: Archived */}
-                  <button
-                    type="button"
-                    onClick={() => setCourseFilter("archived")}
-                    className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-black transition-all cursor-pointer ${
-                      courseFilter === "archived"
-                        ? "bg-slate-700 text-white shadow-xs"
-                        : "text-slate-600 hover:text-slate-900 hover:bg-slate-100/70"
-                    }`}
-                  >
-                    <span>{tInst("archivedFilter")}</span>
-                    <span
-                      className={`px-2 py-0.5 rounded-full text-[10px] font-black ${
-                        courseFilter === "archived"
-                          ? "bg-white/20 text-white"
-                          : "bg-slate-100 text-slate-600"
-                      }`}
-                    >
-                      {courses.filter((c) => c.status === "archived").length}
-                    </span>
-                  </button>
-
-                  {/* Filter: All */}
-                  <button
-                    type="button"
-                    onClick={() => setCourseFilter("all")}
-                    className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-black transition-all cursor-pointer ${
-                      courseFilter === "all"
-                        ? "bg-slate-900 text-white shadow-xs"
-                        : "text-slate-600 hover:text-slate-900 hover:bg-slate-100/70"
-                    }`}
-                  >
-                    <span>{tInst("allCoursesFilter")}</span>
-                    <span
-                      className={`px-2 py-0.5 rounded-full text-[10px] font-black ${
-                        courseFilter === "all"
-                          ? "bg-white/20 text-white"
-                          : "bg-slate-100 text-slate-600"
-                      }`}
-                    >
-                      {courses.length}
-                    </span>
-                  </button>
-                </div>
-              </div>
-
-              {/* 4. Course Cards List */}
-              <div className="space-y-4">
-                {isLoadingCourses ? (
-                  <div className="space-y-4">
-                    {[1, 2, 3].map((i) => (
-                      <div
-                        key={i}
-                        className="p-5 sm:p-6 rounded-3xl border border-slate-200/80 bg-white shadow-2xs space-y-4 animate-pulse"
-                      >
-                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                          <div className="flex items-center gap-4">
-                            <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-slate-200 shrink-0" />
-                            <div className="space-y-2">
-                              <div className="h-4 w-48 sm:w-64 bg-slate-200 rounded-lg" />
-                              <div className="h-3 w-28 bg-slate-200 rounded-md" />
-                              <div className="h-3 w-36 bg-slate-200 rounded-md" />
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <div className="h-9 w-24 bg-slate-200 rounded-xl" />
-                            <div className="h-9 w-24 bg-slate-200 rounded-xl" />
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : courses.length === 0 ? (
-                  <div className="py-16 text-center border-2 border-dashed border-emerald-200/80 rounded-3xl p-8 space-y-4 bg-gradient-to-b from-emerald-50/30 to-slate-50/50">
-                    <div className="w-16 h-16 rounded-3xl bg-emerald-50 text-[#0F5244] mx-auto flex items-center justify-center border border-emerald-200/80 shadow-2xs">
-                      <BookOpen className="w-8 h-8 text-[#0F5244]" />
-                    </div>
-                    <div className="space-y-1 max-w-md mx-auto">
-                      <h3 className="text-base sm:text-lg font-black text-slate-900">
-                        {tDash("noCoursesYetTitle")}
-                      </h3>
-                      <p className="text-xs sm:text-sm text-slate-500">
-                        {tDash("noCoursesYetSubtitle")}
-                      </p>
-                    </div>
-                    <Link
-                      href={`/${locale}/instructor/courses/new`}
-                      className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-[#0F5244] hover:bg-[#08382E] text-white text-xs sm:text-sm font-extrabold shadow-md shadow-emerald-900/15 transition-all cursor-pointer active:scale-95"
-                    >
-                      <Plus className="w-4 h-4 stroke-[2.5]" />
-                      <span>{tDash("createNewCourse")}</span>
-                    </Link>
-                  </div>
-                ) : courses.filter((c) => {
-                    if (courseFilter === "active")
-                      return c.status !== "archived";
-                    if (courseFilter === "published")
-                      return c.status === "published";
-                    if (courseFilter === "pending_review")
-                      return c.status === "pending_review";
-                    if (courseFilter === "draft")
-                      return c.status === "draft" || c.status === "rejected";
-                    if (courseFilter === "archived")
-                      return c.status === "archived";
-                    return true;
-                  }).length === 0 ? (
-                  <div className="text-center py-14 bg-white rounded-3xl border border-slate-200/90 p-8 space-y-3 shadow-2xs">
-                    <div className="w-14 h-14 rounded-2xl bg-slate-100 text-slate-400 mx-auto flex items-center justify-center">
-                      <Archive className="w-7 h-7" />
-                    </div>
-                    <h3 className="text-sm sm:text-base font-extrabold text-slate-800">
-                      {courseFilter === "archived"
-                        ? tInst("noArchivedCourses")
-                        : tInst("noCoursesInTab")}
-                    </h3>
-                    <p className="text-xs text-slate-400 max-w-sm mx-auto">
-                      {courseFilter === "archived"
-                        ? tInst("noArchivedCoursesNotice")
-                        : tInst("noCoursesInTabDesc")}
-                    </p>
-                  </div>
-                ) : (
-                  courses
-                    .filter((c) => {
-                      if (courseFilter === "all") return true;
-                      if (courseFilter === "active")
-                        return c.status === "published";
-                      return c.status === courseFilter;
-                    })
-                    .map((c) => {
-                      const courseStudents = students.filter(
-                        (s) => s.courseId === c.id,
-                      );
-                      const isExpanded = expandedCourseStudentsId === c.id;
-
-                      return (
-                        <div
-                          key={c.id}
-                          className="p-5 sm:p-6 rounded-3xl border border-slate-200/90 bg-white hover:border-slate-300 hover:shadow-md transition-all duration-300 space-y-4 shadow-2xs"
-                        >
-                          <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-5">
-                            <div className="flex items-start sm:items-center gap-4 sm:gap-5 flex-1 min-w-0 w-full lg:w-auto">
-                              {/* Course Cover Thumbnail */}
-                              <div className="relative w-24 h-20 sm:w-32 sm:h-24 rounded-2xl overflow-hidden shrink-0 border border-slate-200/90 shadow-2xs bg-slate-100 flex items-center justify-center group">
-                                {c.image ? (
-                                  <Image
-                                    src={c.image}
-                                    alt={c.titleEn || c.title}
-                                    fill
-                                    className="object-cover group-hover:scale-105 transition-transform duration-300"
-                                  />
-                                ) : (
-                                  <div className="w-full h-full flex flex-col items-center justify-center text-slate-400 bg-gradient-to-br from-slate-50 to-slate-100 gap-1 p-1 text-center">
-                                    <ImageIcon className="w-5 h-5 text-slate-300" />
-                                    <span className="text-[9px] font-bold text-slate-400 leading-tight">
-                                      {tInst("noCover")}
-                                    </span>
-                                  </div>
-                                )}
-                              </div>
-
-                              {/* Details */}
-                              <div className="space-y-2 flex-1 min-w-0">
-                                <div className="flex items-center gap-2 flex-wrap">
-                                  <h3 className="text-base sm:text-lg font-black text-slate-900 leading-snug hover:text-[#0F5244] transition-colors line-clamp-1">
-                                    {isAr
-                                      ? c.titleAr || c.title
-                                      : c.titleEn || c.title}
-                                  </h3>
-
-                                  {/* Status Pill Badge */}
-                                  <span
-                                    className={`px-2.5 py-0.5 rounded-full text-[11px] font-black inline-flex items-center gap-1.5 shadow-2xs ${
-                                      c.status === "published"
-                                        ? "bg-emerald-100 text-[#0F5244] border border-emerald-200"
-                                        : c.status === "pending_review"
-                                          ? "bg-amber-100 text-amber-800 border border-amber-200"
-                                          : c.status === "rejected"
-                                            ? "bg-rose-100 text-rose-800 border border-rose-200"
-                                            : "bg-slate-100 text-slate-700 border border-slate-200"
-                                    }`}
-                                  >
-                                    {c.status === "published" && (
-                                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                                    )}
-                                    {c.status === "pending_review" && (
-                                      <Clock className="w-3.5 h-3.5 text-amber-600 animate-pulse" />
-                                    )}
-                                    {c.status === "rejected" && (
-                                      <AlertTriangle className="w-3.5 h-3.5 text-rose-600" />
-                                    )}
-                                    <span>
-                                      {c.status === "published"
-                                        ? tInst("statusPublished")
-                                        : c.status === "pending_review"
-                                          ? `${tInst("statusUnderReview")}`
-                                          : c.status === "rejected"
-                                            ? tInst("statusRejected")
-                                            : tInst("statusDraft")}
-                                    </span>
-                                  </span>
-                                </div>
-
-                                {/* Metadata Row */}
-                                <div className="flex items-center gap-2 sm:gap-3 text-xs font-semibold text-slate-500 flex-wrap pt-0.5">
-                                  <span className="px-2.5 py-0.5 rounded-lg bg-slate-100 text-slate-900 font-black text-xs">
-                                    ${Number(c.price || 0).toFixed(2)}
-                                  </span>
-
-                                  <span className="text-slate-300">•</span>
-
-                                  {/* Enrolled Students Dynamic Chip */}
-                                  {c.studentsCount > 0 ? (
-                                    <button
-                                      type="button"
-                                      onClick={() =>
-                                        setExpandedCourseStudentsId(
-                                          isExpanded ? null : c.id,
-                                        )
-                                      }
-                                      className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-emerald-50 text-emerald-800 border border-emerald-200/90 font-bold text-xs hover:bg-emerald-100/80 transition-all cursor-pointer shadow-2xs group"
-                                      title={
-                                        isAr
-                                          ? "انقر لعرض قائمة الطلاب المسجلين"
-                                          : "Click to view enrolled students"
-                                      }
-                                    >
-                                      <Users className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                                      <span>
-                                        <strong className="text-emerald-950 font-black">
-                                          {c.studentsCount}
-                                        </strong>{" "}
-                                        {tInst("enrolledStudentsCount")}
-                                      </span>
-                                      <ChevronDown
-                                        className={`w-3.5 h-3.5 text-emerald-600 transition-transform duration-200 ${isExpanded ? "rotate-180" : ""}`}
-                                      />
-                                    </button>
-                                  ) : (
-                                    <span className="inline-flex items-center gap-1 text-slate-500 text-xs">
-                                      <Users className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                                      <span>
-                                        0 {tInst("enrolledStudentsCount")}
-                                      </span>
-                                    </span>
-                                  )}
-
-                                  {c.status === "published" &&
-                                  Number(c.reviewsCount || 0) > 0 &&
-                                  Number(c.rating || 0) > 0 ? (
-                                    <>
-                                      <span className="text-slate-300">•</span>
-                                      <span className="inline-flex items-center gap-1 text-amber-600 font-black">
-                                        <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-                                        <span>
-                                          {Number(c.rating).toFixed(1)}
-                                        </span>
-                                      </span>
-                                    </>
-                                  ) : null}
-                                </div>
-                              </div>
-                            </div>
-
-                            {/* Course Action Buttons Area */}
-                            <div className="flex items-center gap-2 w-full lg:w-auto justify-end border-t lg:border-t-0 pt-3 lg:pt-0 border-slate-100 shrink-0 flex-nowrap">
-                              {c.status === "pending_review" ? (
-                                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-900 text-xs font-black select-none shadow-2xs">
-                                  <Clock className="w-3.5 h-3.5 text-amber-600 animate-pulse" />
-                                  <span>{tInst("waitingForAdminReview")}</span>
-                                </div>
-                              ) : (
-                                <>
-                                  {(c.status === "draft" ||
-                                    c.status === "rejected") && (
-                                    <button
-                                      type="button"
-                                      disabled={submittingCourseId === c.id}
-                                      onClick={() =>
-                                        handleSubmitForReview(c.id)
-                                      }
-                                      className="px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 disabled:opacity-60 disabled:cursor-not-allowed text-white text-xs font-black transition-all cursor-pointer shadow-xs active:scale-95 flex items-center gap-1.5 whitespace-nowrap"
-                                    >
-                                      {submittingCourseId === c.id ? (
-                                        <Loader2
-                                          size={13}
-                                          className="animate-spin"
-                                        />
-                                      ) : (
-                                        <Send size={13} />
-                                      )}
-                                      <span>
-                                        {submittingCourseId === c.id
-                                          ? tInst("submittingReview")
-                                          : tInst("submitReviewBtn")}
-                                      </span>
-                                    </button>
-                                  )}
-
-                                  {c.status === "published" && (
-                                    <Link
-                                      href={`/${locale}/courses/${c.slug || c.id}`}
-                                      target="_blank"
-                                      className="px-3.5 py-2 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 text-xs font-black transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs whitespace-nowrap"
-                                    >
-                                      <Eye size={13} />
-                                      <span>{tInst("viewLiveBtn")}</span>
-                                    </Link>
-                                  )}
-
-                                  <Link
-                                    href={`/${locale}/instructor/courses/create?id=${c.id}`}
-                                    className="px-3.5 py-2 rounded-xl bg-[#0F5244] hover:bg-[#0b3d32] text-white text-xs font-black transition-all flex items-center gap-1.5 cursor-pointer shadow-xs active:scale-95 whitespace-nowrap"
-                                  >
-                                    <Edit2 size={13} />
-                                    <span>{tInst("editBtn")}</span>
-                                  </Link>
-
-                                  {c.status !== "rejected" && (
-                                    <button
-                                      type="button"
-                                      onClick={() => handleArchiveCourse(c.id)}
-                                      className={`px-3 py-2 rounded-xl text-xs font-black border transition-all cursor-pointer ${
-                                        c.status === "archived"
-                                          ? "bg-emerald-50 text-emerald-800 border-emerald-200 hover:bg-emerald-100"
-                                          : "bg-slate-100 text-slate-600 border-slate-200/80 hover:bg-slate-200/80 hover:text-slate-900"
-                                      }`}
-                                      title={
-                                        c.status === "archived"
-                                          ? tInst("unarchiveTitle")
-                                          : tInst("archiveTitle")
-                                      }
-                                    >
-                                      <Archive className="h-3.5 w-3.5" />
-                                      <span className="hidden sm:inline">
-                                        {c.status === "archived"
-                                          ? tInst("unarchiveBtn")
-                                          : tInst("archiveBtn")}
-                                      </span>
-                                    </button>
-                                  )}
-
-                                  <button
-                                    type="button"
-                                    onClick={() =>
-                                      setDeleteModalCourse({
-                                        id: String(c.id),
-                                        title: isAr
-                                          ? c.titleAr || c.title
-                                          : c.titleEn || c.title,
-                                      })
-                                    }
-                                    className="p-2 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 border border-slate-200/80 hover:border-rose-200 transition-all cursor-pointer shadow-2xs shrink-0"
-                                    title={tInst("deleteCourseTitle")}
-                                  >
-                                    <Trash2 size={13} />
-                                  </button>
-                                </>
-                              )}
-                            </div>
-                          </div>
-
-                          {/* Rejection Alert Box */}
-                          {c.status === "rejected" && (
-                            <div className="p-4 rounded-2xl bg-gradient-to-r from-rose-50/95 via-rose-50/60 to-white border-s-4 border-rose-500 border border-rose-200/80 text-xs text-rose-900 shadow-2xs space-y-1.5 animate-in fade-in duration-200">
-                              <div className="flex items-center justify-between gap-2">
-                                <div className="flex items-center gap-2 font-black text-rose-950 text-xs sm:text-sm">
-                                  <AlertTriangle className="h-4 w-4 text-rose-600 shrink-0" />
-                                  <span>
-                                    {tInst("rejectionReasonLabel") ||
-                                      (isAr
-                                        ? "سبب الرفض:"
-                                        : "Rejection Reason:")}
-                                  </span>
-                                </div>
-                                <span className="text-[11px] font-bold text-rose-700 bg-rose-100/90 px-2.5 py-0.5 rounded-full">
-                                  {isAr ? "إشعار من الإدارة" : "Admin Notice"}
-                                </span>
-                              </div>
-                              <p className="font-extrabold text-rose-900 text-xs sm:text-sm leading-relaxed pr-6 rtl:pr-0 rtl:pl-6">
-                                {c.rejectionReason ||
-                                  (isAr
-                                    ? "الكورس غير مناسب"
-                                    : "Course content is not suitable")}
-                              </p>
-                            </div>
-                          )}
-
-                          {/* Expanded Enrolled Students Drawer */}
-                          {isExpanded && (
-                            <div className="pt-4 border-t border-slate-100 space-y-3 animate-in fade-in slide-in-from-top-2 duration-200">
-                              <div className="flex items-center justify-between gap-2">
-                                <div className="flex items-center gap-2">
-                                  <Users className="w-4 h-4 text-[#0F5244]" />
-                                  <h4 className="text-xs sm:text-sm font-black text-slate-900">
-                                    {isAr
-                                      ? `الطلاب المسجلون في هذه الدورة (${courseStudents.length})`
-                                      : `Enrolled Students in this Course (${courseStudents.length})`}
-                                  </h4>
-                                </div>
-                                <span className="text-[11px] font-bold text-slate-500">
-                                  {isAr ? "محدث تلقائياً" : "Auto-synced"}
-                                </span>
-                              </div>
-
-                              {courseStudents.length === 0 ? (
-                                <div className="py-6 text-center text-xs text-slate-400 font-medium bg-slate-50 rounded-2xl border border-dashed border-slate-200">
-                                  {isAr
-                                    ? "لم يسجل أي طالب في هذه الدورة بعد"
-                                    : "No students enrolled in this course yet"}
-                                </div>
-                              ) : (
-                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                                  {courseStudents.map((st) => (
-                                    <div
-                                      key={st.id}
-                                      className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/70 flex items-center gap-3 shadow-2xs hover:bg-white hover:border-[#0F5244]/30 transition-all"
-                                    >
-                                      <div className="w-9 h-9 rounded-full bg-[#0F5244]/10 text-[#0F5244] font-black text-xs flex items-center justify-center shrink-0 border border-[#0F5244]/20">
-                                        {st.avatar ? (
-                                          <img
-                                            src={st.avatar}
-                                            alt={st.name}
-                                            className="w-full h-full rounded-full object-cover"
-                                          />
-                                        ) : (
-                                          st.name.charAt(0)
-                                        )}
-                                      </div>
-                                      <div className="min-w-0 flex-1 space-y-0.5">
-                                        <div className="flex items-center justify-between gap-1">
-                                          <p className="text-xs font-bold text-slate-900 truncate">
-                                            {st.name}
-                                          </p>
-                                          <span
-                                            className={`text-[10px] font-black px-2 py-0.5 rounded-full ${
-                                              st.status === "completed"
-                                                ? "bg-emerald-100 text-emerald-800"
-                                                : "bg-blue-100 text-blue-800"
-                                            }`}
-                                          >
-                                            {st.status === "completed"
-                                              ? isAr
-                                                ? "مكتمل"
-                                                : "Completed"
-                                              : `${st.progress}%`}
-                                          </span>
-                                        </div>
-                                        <p className="text-[11px] text-slate-400 truncate">
-                                          {st.email}
-                                        </p>
-                                        <div className="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden mt-1">
-                                          <div
-                                            className="h-full bg-[#0F5244] rounded-full"
-                                            style={{ width: `${st.progress}%` }}
-                                          />
-                                        </div>
-                                      </div>
-                                    </div>
-                                  ))}
-                                </div>
-                              )}
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* ENROLLED STUDENTS TAB */}
-          {activeTab === "students" && (
-            <div className="space-y-6 animate-in fade-in duration-150">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <h2 className="text-xl sm:text-2xl font-black text-slate-900">
-                  {tInst("enrolledStudentsTitle")}
-                </h2>
-
-                <div className="relative w-full sm:w-64">
-                  <Search className="absolute top-1/2 -translate-y-1/2 rtl:right-3 ltr:left-3 h-4 w-4 text-slate-400" />
-                  <input
-                    type="text"
-                    value={studentSearch}
-                    onChange={(e) => setStudentSearch(e.target.value)}
-                    placeholder={tDash("searchStudentPlaceholder")}
-                    className="w-full h-10 rounded-2xl border border-slate-200 bg-slate-50/60 rtl:pr-9 ltr:pl-9 px-3 text-xs font-semibold text-slate-900 focus:bg-white focus:border-[#0F5244] focus:outline-none"
-                  />
-                </div>
-              </div>
-
-              {/* Students Table */}
-              <div className="overflow-x-auto rounded-3xl border border-slate-200/80">
-                {filteredStudents.length === 0 ? (
-                  <div className="py-12 text-center bg-white p-6 space-y-2">
-                    <Users className="w-8 h-8 text-slate-300 mx-auto mb-2" />
-                    <h3 className="text-sm font-extrabold text-slate-700">
-                      {tInst("noEnrolledStudents")}
-                    </h3>
-                    <p className="text-xs text-slate-400">
-                      {tInst("noEnrolledStudentsDesc")}
-                    </p>
-                  </div>
-                ) : (
-                  <table className="w-full text-start text-xs font-semibold text-slate-700">
-                    <thead className="bg-slate-50 border-b border-slate-200 text-slate-400 font-extrabold uppercase text-[10px]">
-                      <tr>
-                        <th className="px-4 py-3 text-start">
-                          {tInst("studentCol")}
-                        </th>
-                        <th className="px-4 py-3 text-start">
-                          {tInst("courseCol")}
-                        </th>
-                        <th className="px-4 py-3 text-start">
-                          {tInst("progressCol")}
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100 bg-white">
-                      {filteredStudents.map((student) => (
-                        <tr
-                          key={student.id}
-                          className="hover:bg-slate-50/60 transition-colors"
-                        >
-                          <td className="px-4 py-3 font-bold text-slate-900">
-                            {student.name}
-                          </td>
-                          <td className="px-4 py-3 text-slate-600">
-                            {student.course}
-                          </td>
-                          <td className="px-4 py-3">
-                            <span className="px-2.5 py-0.5 rounded-full bg-emerald-100 text-[#0F5244] text-[11px] font-extrabold">
-                              {student.progress}%
-                            </span>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* PAYOUT TAB */}
-          {activeTab === "payout" && (
-            <div className="space-y-6 animate-in fade-in duration-150">
-              <h2 className="text-xl sm:text-2xl font-black text-slate-900">
-                {tInst("payoutAndBilling")}
-              </h2>
-
-              <div className="p-6 rounded-3xl bg-slate-50 border border-slate-200/80 space-y-4">
-                <div className="space-y-1">
-                  <h3 className="text-sm font-bold text-slate-800">
-                    {tInst("autoPayout")}
-                  </h3>
-                  <p className="text-xs text-slate-500 font-medium">
-                    {tInst("autoPayoutSub")}
-                  </p>
-                </div>
-                <div className="text-xs font-semibold text-slate-700">
-                  <p>
-                    <strong>{tInst("payoutMethod")}:</strong>{" "}
-                    {formData.payoutMethod === "bank"
-                      ? tInst("bankTransfer")
-                      : "PayPal"}
-                  </p>
-                  <p className="mt-1">
-                    <strong>{tInst("bankIbanLabel")}</strong>{" "}
-                    {formData.bankIban}
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* FULL INSTRUCTOR SETTINGS TAB */}
-          {activeTab === "settings" && (
-            <form
-              onSubmit={handleSaveSettings}
-              className="space-y-8 animate-in fade-in duration-150"
-            >
-              <div className="space-y-1">
-                <h2 className="text-xl sm:text-2xl font-black text-slate-900">
-                  {tInst("title")}
-                </h2>
-                <p className="text-xs sm:text-sm text-slate-500 font-medium">
-                  {tInst("subtitle")}
-                </p>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                <div className="space-y-1.5">
-                  <label className="block text-xs font-bold text-slate-700">
-                    {t("fullName")}
-                  </label>
-                  <input
-                    type="text"
-                    name="fullName"
-                    value={formData.fullName}
-                    onChange={handleInputChange}
-                    required
-                    className="w-full h-11 rounded-2xl border border-slate-200 bg-slate-50/60 px-4 text-xs font-semibold text-slate-900 focus:bg-white focus:border-[#0F5244] focus:outline-none"
-                  />
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="block text-xs font-bold text-slate-700">
-                    {tInst("specialization")}
-                  </label>
-                  <input
-                    type="text"
-                    name="specialization"
-                    value={formData.specialization}
-                    onChange={handleInputChange}
-                    className="w-full h-11 rounded-2xl border border-slate-200 bg-slate-50/60 px-4 text-xs font-semibold text-slate-900 focus:bg-white focus:border-[#0F5244] focus:outline-none"
-                  />
-                </div>
-              </div>
-
-              <div className="flex justify-end">
-                <button
-                  type="submit"
-                  disabled={isSaving}
-                  className="px-8 py-3 rounded-2xl bg-[#0F5244] text-white text-xs font-black shadow-sm active:scale-98 transition-all cursor-pointer"
-                >
-                  {isSaving ? t("saving") : t("saveChanges")}
-                </button>
-              </div>
-            </form>
-          )}
+            {activeTab === "settings" && (
+              <motion.div
+                key="settings"
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -6 }}
+                transition={{ duration: 0.15 }}
+              >
+                <InstructorSettingsTab
+                  formData={formData}
+                  avatarPreview={avatarPreview}
+                  onAvatarChange={handleAvatarChange}
+                  onInputChange={handleInputChange}
+                  onSaveSettings={handleSaveSettings}
+                  isSaving={isSaving}
+                  onOpenEmailModal={() => setShowEmailModal(true)}
+                />
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </div>
 

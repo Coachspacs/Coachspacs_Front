@@ -11,7 +11,6 @@ import {
   Award,
   Tv,
   Users,
-  Star,
   ChevronDown,
   ChevronUp,
   ShieldCheck,
@@ -237,15 +236,8 @@ export function LiveCoursePreviewModal({
               {currentDesc}
             </p>
 
-            {/* Meta Row: Rating, Students, Instructor */}
+            {/* Meta Row: Students, Instructor */}
             <div className="flex items-center gap-4 text-xs sm:text-sm text-slate-600 font-bold flex-wrap pt-2 border-t border-slate-200/80">
-              <div className="flex items-center gap-1 text-amber-600 font-black">
-                <Star className="w-4 h-4 fill-amber-400 text-amber-400 shrink-0" />
-                <span>5.0</span>
-                <span className="text-slate-400 font-normal">({tp("newCourseBadge")})</span>
-              </div>
-
-              <span className="text-slate-300">•</span>
 
               <div className="flex items-center gap-1.5 text-slate-700">
                 <Users className="w-4 h-4 text-slate-400 shrink-0" />

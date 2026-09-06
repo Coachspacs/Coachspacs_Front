@@ -16,7 +16,6 @@ import {
   Camera,
   CheckCircle2,
   AlertCircle,
-  Trash2,
   Award,
   Sparkles,
   ShieldCheck,
@@ -221,27 +220,6 @@ export function StudentSettingsView() {
     }
   };
 
-  // Delete Avatar Completely
-  const handleRemoveAvatar = async () => {
-    setIsUploadingAvatar(true);
-    setAvatarPreview(null);
-    dispatch(updateUser({ avatar: null }));
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
-
-    try {
-      await userService.deleteAvatar();
-      setToastMessage(tStudent("avatarRemoved"));
-    } catch (err: any) {
-      console.warn("[StudentSettingsView] deleteAvatar info:", err?.message);
-      setToastMessage(tStudent("avatarRemoved"));
-    } finally {
-      setIsUploadingAvatar(false);
-      setTimeout(() => setToastMessage(null), 3000);
-    }
-  };
-
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSaving(true);
@@ -375,8 +353,8 @@ export function StudentSettingsView() {
       )}
 
       {/* Main Settings Card */}
-      <div className="w-full bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-8 lg:p-10 shadow-xs">
-        <form onSubmit={handleSave} className="space-y-8">
+      <div className="w-full bg-white rounded-3xl border border-slate-200/90 p-4 sm:p-6 lg:p-8 shadow-xs">
+        <form onSubmit={handleSave} className="space-y-6 sm:space-y-8">
           
           {/* ================= ULTRA-MODERN HEADER ================= */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-100">
@@ -401,7 +379,7 @@ export function StudentSettingsView() {
           </div>
 
           {/* ================= SLEEK SEGMENTED TAB NAVIGATION ================= */}
-          <div className="bg-slate-100/70 p-1.5 rounded-2xl flex items-center gap-2 overflow-x-auto border border-slate-200/60 backdrop-blur-xs scrollbar-none">
+          <div className="bg-slate-100/80 p-1.5 rounded-2xl flex items-center gap-1.5 sm:gap-2 overflow-x-auto border border-slate-200/60 backdrop-blur-xs scrollbar-none no-scrollbar w-full">
             {tabsConfig.map((tab) => {
               const Icon = tab.icon;
               const active = activeTab === tab.id;
@@ -410,16 +388,16 @@ export function StudentSettingsView() {
                   key={tab.id}
                   type="button"
                   onClick={() => setActiveTab(tab.id)}
-                  className={`group relative flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-xs sm:text-sm font-extrabold transition-all duration-200 cursor-pointer whitespace-nowrap ${
+                  className={`group relative flex-1 min-w-fit sm:min-w-0 flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-xs sm:text-sm font-extrabold transition-all duration-200 cursor-pointer whitespace-nowrap shrink-0 sm:shrink ${
                     active
                       ? "bg-white text-emerald-800 shadow-sm border border-emerald-200/80 font-black"
                       : "text-slate-600 hover:text-slate-900 hover:bg-white/60 font-bold"
                   }`}
                 >
-                  <div className={`w-7 h-7 rounded-lg flex items-center justify-center transition-all ${
+                  <div className={`w-6 h-6 sm:w-7 sm:h-7 rounded-lg flex items-center justify-center shrink-0 transition-all ${
                     active ? "bg-emerald-50 text-emerald-700" : "bg-transparent text-slate-400 group-hover:text-slate-600"
                   }`}>
-                    <Icon className="h-4 w-4" />
+                    <Icon className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                   </div>
                   <span>{tab.label}</span>
                 </button>
@@ -429,13 +407,13 @@ export function StudentSettingsView() {
 
           {/* ================= TAB 1: PROFILE ================= */}
           {activeTab === "profile" && (
-            <div key="profile" className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
+            <div key="profile" className="space-y-6 sm:space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
               
               {/* Avatar Upload Card with Interactive Hover */}
-              <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 p-6 rounded-2xl bg-gradient-to-br from-emerald-50/60 via-slate-50/70 to-emerald-50/30 border border-emerald-100/90 shadow-2xs">
+              <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6 p-4 sm:p-6 rounded-2xl bg-gradient-to-br from-emerald-50/60 via-slate-50/70 to-emerald-50/30 border border-emerald-100/90 shadow-2xs">
                 <div
                   onClick={() => fileInputRef.current?.click()}
-                  className="relative group w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-white border-2 border-emerald-300 overflow-hidden shrink-0 shadow-sm hover:shadow-md cursor-pointer flex items-center justify-center transition-transform duration-300 hover:scale-105"
+                  className="relative group w-20 h-20 sm:w-24 sm:h-24 lg:w-28 lg:h-28 rounded-full bg-white border-2 border-emerald-300 overflow-hidden shrink-0 shadow-sm hover:shadow-md cursor-pointer flex items-center justify-center transition-transform duration-300 hover:scale-105"
                 >
                   {avatarPreview ? (
                     <Image
@@ -449,14 +427,14 @@ export function StudentSettingsView() {
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                     />
                   ) : (
-                    <span suppressHydrationWarning className="select-none font-black text-3xl sm:text-4xl text-emerald-700">
+                    <span suppressHydrationWarning className="select-none font-black text-2xl sm:text-3xl lg:text-4xl text-emerald-700">
                       {formData.fullName ? formData.fullName.charAt(0).toUpperCase() : "U"}
                     </span>
                   )}
 
                   {/* Camera overlay on hover */}
                   <div className="absolute inset-0 bg-slate-900/50 backdrop-blur-2xs opacity-0 group-hover:opacity-100 transition-all duration-200 flex flex-col items-center justify-center text-white gap-1">
-                    <Camera className="h-6 w-6 animate-bounce" />
+                    <Camera className="h-5 w-5 sm:h-6 sm:w-6 animate-bounce" />
                     <span className="text-[10px] font-extrabold">{tStudent("edit")}</span>
                   </div>
 
@@ -475,7 +453,7 @@ export function StudentSettingsView() {
                   className="hidden"
                 />
 
-                <div className="space-y-2 text-center sm:text-start flex-1">
+                <div className="space-y-1.5 sm:space-y-2 text-center sm:text-start flex-1 min-w-0">
                   <h3 className="text-base sm:text-lg font-extrabold text-slate-900">
                     {t("avatarTitle")}
                   </h3>
@@ -486,7 +464,7 @@ export function StudentSettingsView() {
                     {tStudent("avatarAllowedFormats")}
                   </p>
 
-                  <div className="flex items-center justify-center sm:justify-start gap-2.5 pt-2">
+                  <div className="flex items-center justify-center sm:justify-start gap-2.5 pt-1.5">
                     <button
                       type="button"
                       disabled={isUploadingAvatar}
@@ -500,18 +478,6 @@ export function StudentSettingsView() {
                           : tStudent("uploadPhoto")}
                       </span>
                     </button>
-
-                    {avatarPreview && (
-                      <button
-                        type="button"
-                        disabled={isUploadingAvatar}
-                        onClick={handleRemoveAvatar}
-                        className="px-3.5 py-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs font-extrabold transition-all active:scale-95 flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
-                      >
-                        <Trash2 className="h-3.5 w-3.5" />
-                        <span>{tStudent("removePhoto")}</span>
-                      </button>
-                    )}
                   </div>
                 </div>
               </div>

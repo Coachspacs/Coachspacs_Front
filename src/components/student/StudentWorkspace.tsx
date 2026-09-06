@@ -44,7 +44,15 @@ import { normalizeInstructorSlug } from "@/lib/instructorProfile";
 import { CartView } from "@/components/cart/CartView";
 import { OrderHistoryView } from "@/components/orders/OrderHistoryView";
 import { ChangeEmailModal } from "@/components/modals/ChangeEmailModal";
-import { VerifiedBadge } from "@/components/ui/VerifiedBadge";
+import { CourseCard } from "@/components/course/CourseCard";
+import { Toast } from "@/components/ui/Toast";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  StudentOverviewTab,
+  StudentCoursesTab,
+  StudentCertificatesTab,
+  StudentSettingsTab,
+} from "./tabs";
 
 function getSafeCourseImage(course: any): string {
   const defaultCover = "/images/courses/course-leadership.png";
@@ -183,19 +191,21 @@ export function StudentWorkspace({
 
   // Enrolled Courses Data
   const [courses, setCourses] = useState<any[]>([]);
+  const [isLoadingCourses, setIsLoadingCourses] = useState(true);
 
   // Load enrolled courses from API with localStorage fallback
   useEffect(() => {
     async function fetchLiveEnrollments() {
+      setIsLoadingCourses(true);
       const defaultCover = "/images/courses/course-leadership.png";
 
       try {
         const enrollments = await enrollmentService.getMyEnrollments();
-        if (Array.isArray(enrollments) && enrollments.length > 0) {
+        if (Array.isArray(enrollments)) {
           const mapped = enrollments.map((enr: any) => {
             const c = enr.course || {};
             const total = c.total_lessons || enr.total_lessons || 10;
-            const progress = enr.progress_percent || 0;
+            const progress = enr.progress_percent ?? 0;
             const validImg = getSafeCourseImage(c);
 
             return {
@@ -206,15 +216,18 @@ export function StudentWorkspace({
                 typeof c.instructor === "object"
                   ? c.instructor?.name || c.instructor?.full_name
                   : c.instructor || "CoachSpace Instructor",
+              instructorId:
+                typeof c.instructor === "object" ? c.instructor?.id : undefined,
               image: validImg,
               cover_image: validImg,
+              coverImage: validImg,
               thumbnail: validImg,
               progress,
               totalLessons: total,
               completedLessons:
                 enr.completed_lessons?.length ||
                 Math.round((progress / 100) * total),
-              isCompleted: enr.is_completed || progress >= 100,
+              isCompleted: Boolean(enr.is_completed || progress >= 100),
               certificateId:
                 enr.certificate?.id ||
                 enr.certificate?.certificate_code ||
@@ -228,6 +241,7 @@ export function StudentWorkspace({
               JSON.stringify(mapped),
             );
           }
+          setIsLoadingCourses(false);
           return;
         }
       } catch (err) {
@@ -251,6 +265,7 @@ export function StudentWorkspace({
                   image: img,
                   thumbnail: img,
                   cover_image: img,
+                  coverImage: img,
                 };
               });
               setCourses(sanitized);
@@ -263,6 +278,7 @@ export function StudentWorkspace({
           );
         }
       }
+      setIsLoadingCourses(false);
     }
 
     fetchLiveEnrollments();
@@ -317,24 +333,6 @@ export function StudentWorkspace({
       }
     } catch (err: any) {
       console.warn("[StudentWorkspace] uploadAvatar error:", err?.message);
-    } finally {
-      setTimeout(() => setToastMessage(null), 3000);
-    }
-  };
-
-  const handleRemoveAvatar = async () => {
-    setAvatarPreview(null);
-    dispatch(updateUser({ avatar: null }));
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
-
-    try {
-      await userService.deleteAvatar();
-      setToastMessage(tStudent("avatarRemoved"));
-    } catch (err: any) {
-      console.warn("[StudentWorkspace] deleteAvatar error:", err?.message);
-      setToastMessage(tStudent("avatarRemoved"));
     } finally {
       setTimeout(() => setToastMessage(null), 3000);
     }
@@ -406,12 +404,7 @@ export function StudentWorkspace({
   return (
     <div className="w-full space-y-4 sm:space-y-6">
       {/* Toast */}
-      {toastMessage && (
-        <div className="fixed bottom-6 right-6 rtl:right-auto rtl:left-6 z-50 flex items-center gap-2.5 bg-[#0F5244] text-white px-5 py-3.5 rounded-2xl shadow-2xl animate-in slide-in-from-bottom-4 duration-200">
-          <CheckCircle2 className="h-4 w-4 text-emerald-300 shrink-0" />
-          <span className="text-xs sm:text-sm font-bold">{toastMessage}</span>
-        </div>
-      )}
+      <Toast message={toastMessage} onClose={() => setToastMessage(null)} />
 
       {/* Email Change Modal */}
       {showEmailModal && (
@@ -478,7 +471,7 @@ export function StudentWorkspace({
       <div
         className={
           hideSidebar
-            ? "w-full bg-white rounded-2xl sm:rounded-3xl border border-slate-200/80 p-4 sm:p-10 shadow-2xs"
+            ? "w-full bg-white rounded-2xl sm:rounded-3xl border border-slate-200/80 p-4 sm:p-6 lg:p-8 shadow-2xs"
             : "flex flex-col md:flex-row gap-6 sm:gap-8 lg:gap-10 items-start"
         }
       >
@@ -499,627 +492,91 @@ export function StudentWorkspace({
           className={
             hideSidebar
               ? "w-full"
-              : "flex-1 w-full bg-white rounded-2xl sm:rounded-3xl border border-slate-200/80 p-4 sm:p-10 shadow-2xs"
+              : "flex-1 w-full bg-white rounded-2xl sm:rounded-3xl border border-slate-200/80 p-4 sm:p-6 lg:p-8 shadow-2xs"
           }
         >
-          {/* OVERVIEW TAB */}
-          {activeTab === "overview" && (
-            <div className="space-y-8 animate-in fade-in duration-150">
-              <h2 className="text-xl sm:text-2xl font-black text-slate-900">
-                {tWs("overviewSubtitle")}
-              </h2>
+          <AnimatePresence mode="wait">
+            {activeTab === "overview" && (
+              <motion.div
+                key="overview"
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -6 }}
+                transition={{ duration: 0.15 }}
+              >
+                <StudentOverviewTab courses={courses} isLoading={isLoadingCourses} />
+              </motion.div>
+            )}
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200/60 space-y-1">
-                  <span className="text-xs font-bold text-slate-400 uppercase">
-                    {tWs("enrolled")}
-                  </span>
-                  <div className="text-2xl font-black text-slate-900">
-                    {courses.length} {tWs("courses")}
-                  </div>
-                </div>
-                <div className="p-5 rounded-2xl bg-emerald-50 border border-emerald-200/60 space-y-1">
-                  <span className="text-xs font-bold text-emerald-800 uppercase">
-                    {tWs("certificatesCount")}
-                  </span>
-                  <div className="text-2xl font-black text-emerald-900">
-                    {courses.filter((c) => c.isCompleted).length}{" "}
-                    {tWs("earned")}
-                  </div>
-                </div>
-              </div>
+            {activeTab === "courses" && (
+              <motion.div
+                key="courses"
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -6 }}
+                transition={{ duration: 0.15 }}
+              >
+                <StudentCoursesTab courses={courses} isLoading={isLoadingCourses} />
+              </motion.div>
+            )}
 
-              {courses.length > 0 ? (
-                <div className="p-6 rounded-3xl bg-[#0F5244] text-white space-y-4 shadow-md">
-                  <div className="flex items-center gap-2">
-                    <Sparkles className="h-5 w-5 text-emerald-300" />
-                    <h3 className="text-sm font-extrabold text-emerald-200 uppercase tracking-wider">
-                      {tWs("continueLearning")}
-                    </h3>
-                  </div>
+            {activeTab === "certificates" && (
+              <motion.div
+                key="certificates"
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -6 }}
+                transition={{ duration: 0.15 }}
+              >
+                <StudentCertificatesTab courses={courses} />
+              </motion.div>
+            )}
 
-                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                    <div>
-                      <h4 className="text-lg sm:text-xl font-black">
-                        {courses[0]?.title}
-                      </h4>
-                      <p className="text-xs text-emerald-100 mt-1 font-medium">
-                        {courses[0]?.lastLessonTitle}
-                      </p>
-                    </div>
+            {activeTab === "orders" && (
+              <motion.div
+                key="orders"
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -6 }}
+                transition={{ duration: 0.15 }}
+              >
+                <OrderHistoryView />
+              </motion.div>
+            )}
 
-                    <Link
-                      href={`/${locale}/student/learn/${courses[0]?.id}`}
-                      className="px-6 py-3 rounded-2xl bg-white text-[#0F5244] hover:bg-emerald-50 text-xs font-black flex items-center justify-center gap-2 shrink-0 transition-all cursor-pointer shadow-2xs active:scale-98"
-                    >
-                      <Play className="h-4 w-4 fill-current" />
-                      <span>{tWs("myCoursesBtn")}</span>
-                    </Link>
-                  </div>
-                </div>
-              ) : (
-                <div className="p-6 rounded-3xl bg-slate-50 border border-slate-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                  <div className="space-y-1">
-                    <h3 className="text-base font-extrabold text-slate-900">
-                      {tWs("startJourneyTitle")}
-                    </h3>
-                    <p className="text-xs text-slate-500">
-                      {tWs("startJourneySubtitle")}
-                    </p>
-                  </div>
-                  <Link
-                    href={`/${locale}/courses`}
-                    className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-[#0F5244] hover:bg-[#07382E] text-white text-xs font-extrabold shadow-sm transition-all shrink-0"
-                  >
-                    <BookOpen className="w-4 h-4" />
-                    <span>{tWs("exploreCourses")}</span>
-                  </Link>
-                </div>
-              )}
-            </div>
-          )}
+            {activeTab === "cart" && (
+              <motion.div
+                key="cart"
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -6 }}
+                transition={{ duration: 0.15 }}
+              >
+                <CartView items={cartItems} onRemoveItem={handleRemoveFromCart} />
+              </motion.div>
+            )}
 
-          {/* MY COURSES TAB */}
-          {activeTab === "courses" && (
-            <div className="space-y-6 animate-in fade-in duration-150">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <h2 className="text-xl sm:text-2xl font-black text-slate-900">
-                  {tWs("enrolledCourses")}
-                </h2>
-
-                {/* Course Filter Sub-Tabs */}
-                <div className="inline-flex items-center gap-1 p-1.5 rounded-2xl bg-slate-100/90 border border-slate-200/60 shrink-0">
-                  <button
-                    type="button"
-                    onClick={() => setCourseFilter("all")}
-                    className={`px-3.5 py-1.5 rounded-xl text-xs font-extrabold transition-all cursor-pointer ${
-                      courseFilter === "all"
-                        ? "bg-white text-[#0F5244] shadow-2xs"
-                        : "text-slate-600 hover:text-slate-900"
-                    }`}
-                  >
-                    {tWs("all")} ({courses.length})
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setCourseFilter("in_progress")}
-                    className={`px-3.5 py-1.5 rounded-xl text-xs font-extrabold transition-all cursor-pointer ${
-                      courseFilter === "in_progress"
-                        ? "bg-white text-[#0F5244] shadow-2xs"
-                        : "text-slate-600 hover:text-slate-900"
-                    }`}
-                  >
-                    {tWs("inProgress")} (
-                    {courses.filter((c) => !c.isCompleted).length})
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setCourseFilter("completed")}
-                    className={`px-3.5 py-1.5 rounded-xl text-xs font-extrabold transition-all cursor-pointer ${
-                      courseFilter === "completed"
-                        ? "bg-white text-[#0F5244] shadow-2xs"
-                        : "text-slate-600 hover:text-slate-900"
-                    }`}
-                  >
-                    {tWs("completed")} (
-                    {courses.filter((c) => c.isCompleted).length})
-                  </button>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
-                {courses.length === 0 ? (
-                  <div className="col-span-full py-16 text-center border-2 border-dashed border-slate-200 rounded-3xl p-8 space-y-4 bg-slate-50/40">
-                    <div className="w-14 h-14 rounded-2xl bg-emerald-50 text-[#0F5244] mx-auto flex items-center justify-center">
-                      <BookOpen className="w-7 h-7 text-[#0F5244]" />
-                    </div>
-                    <div className="space-y-1">
-                      <h3 className="text-base font-extrabold text-slate-900">
-                        {tWs("noEnrolledCourses")}
-                      </h3>
-                      <p className="text-xs text-slate-500 max-w-sm mx-auto">
-                        {tWs("noEnrolledCoursesDesc")}
-                      </p>
-                    </div>
-                    <Link
-                      href={`/${locale}/courses`}
-                      className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#0F5244] hover:bg-[#07382E] text-white text-xs font-extrabold shadow-md transition-all cursor-pointer"
-                    >
-                      <BookOpen className="w-4 h-4" />
-                      <span>{tWs("exploreCourses")}</span>
-                    </Link>
-                  </div>
-                ) : (
-                  courses
-                    .filter((course) => {
-                      if (courseFilter === "in_progress")
-                        return !course.isCompleted;
-                      if (courseFilter === "completed")
-                        return course.isCompleted;
-                      return true;
-                    })
-                    .map((course) => (
-                      <div
-                        key={course.id}
-                        className="h-full flex flex-col justify-between rounded-3xl border border-slate-200/80 p-5 hover:shadow-md transition-all bg-white"
-                      >
-                        <div className="space-y-4">
-                          <Link
-                            href={`/${locale}/student/learn/${course.id}`}
-                            className="block relative h-44 rounded-2xl overflow-hidden bg-slate-100 shrink-0 group cursor-pointer"
-                            title={course.title}
-                          >
-                            <Image
-                              src={getSafeCourseImage(course)}
-                              alt={course.title || "Course Cover"}
-                              width={384}
-                              height={176}
-                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                              unoptimized
-                            />
-                            <div className="absolute inset-0 bg-slate-950/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                              <span className="w-12 h-12 rounded-full bg-white/95 text-[#0F5244] flex items-center justify-center shadow-lg transform scale-90 group-hover:scale-100 transition-transform">
-                                <Play className="h-5 w-5 fill-current ml-0.5" />
-                              </span>
-                            </div>
-                            <span
-                              className={`absolute top-3 right-3 rtl:right-auto rtl:left-3 px-3 py-1 rounded-full text-white text-[11px] font-bold shadow-xs ${
-                                course.isCompleted
-                                  ? "bg-emerald-600"
-                                  : "bg-slate-900/80"
-                              }`}
-                            >
-                              {course.isCompleted
-                                ? tWs("completedPercent")
-                                : `${course.progress}%`}
-                            </span>
-                          </Link>
-
-                          <div className="space-y-1 min-h-[3.25rem] flex flex-col justify-start">
-                            <Link
-                              href={`/${locale}/student/learn/${course.id}`}
-                              className="text-base font-extrabold text-slate-900 line-clamp-2 leading-snug hover:text-[#0F5244] transition-colors"
-                              title={course.title}
-                            >
-                              {course.title}
-                            </Link>
-                            <Link
-                              href={`/${locale}/instructors/${normalizeInstructorSlug(course.instructor)}`}
-                              className="text-xs text-slate-500 hover:text-[#0F5244] hover:underline font-medium w-fit transition-colors inline-flex items-center gap-1"
-                              title={course.instructor}
-                            >
-                              <span>{course.instructor}</span>
-                              <VerifiedBadge size="xs" />
-                            </Link>
-                          </div>
-                        </div>
-
-                        {/* Bottom Footer Section (Progress Bar + Actions aligned at exact same bottom level) */}
-                        <div className="mt-auto pt-4 space-y-4">
-                          {/* Progress Bar */}
-                          <div className="space-y-1.5">
-                            <div className="flex justify-between text-[11px] font-extrabold text-slate-500">
-                              <span>{tWs("progressLabel")}</span>
-                              <span
-                                className={
-                                  course.isCompleted
-                                    ? "text-emerald-700 font-black"
-                                    : "text-[#0F5244] font-black"
-                                }
-                              >
-                                {course.progress}%
-                              </span>
-                            </div>
-                            <div className="w-full h-2 rounded-full bg-slate-100 overflow-hidden">
-                              <div
-                                className={`h-full rounded-full transition-all duration-500 ${
-                                  course.isCompleted
-                                    ? "bg-emerald-500"
-                                    : "bg-[#0F5244]"
-                                }`}
-                                style={{ width: `${course.progress}%` }}
-                              />
-                            </div>
-                          </div>
-
-                          <div className="flex items-center gap-2">
-                            <Link
-                              href={`/${locale}/student/learn/${course.id}`}
-                              className="flex-1 py-2.5 rounded-2xl bg-[#0F5244] hover:bg-[#07382E] text-white text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer shadow-2xs active:scale-98"
-                            >
-                              <Play className="h-3.5 w-3.5 fill-current" />
-                              <span>
-                                {course.isCompleted
-                                  ? tWs("completedStatus")
-                                  : tWs("enrolledStatus")}
-                              </span>
-                            </Link>
-
-                            {course.isCompleted && (
-                              <Link
-                                href={`/${locale}/student/certificates/${course.certificateId || "CERT-892401"}`}
-                                className="px-4 py-2.5 rounded-2xl bg-emerald-100 hover:bg-emerald-200 text-[#0F5244] text-xs font-extrabold flex items-center gap-1.5 transition-all active:scale-98"
-                              >
-                                <Award className="h-4 w-4" />
-                                <span>{tWs("certificateBtn")}</span>
-                              </Link>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    ))
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* CERTIFICATES TAB */}
-          {activeTab === "certificates" && (
-            <div className="space-y-6 animate-in fade-in duration-150">
-              <div className="space-y-1">
-                <h2 className="text-xl sm:text-2xl font-black text-slate-900">
-                  {tWs("earnedCertificatesTitle")}
-                </h2>
-                <p className="text-xs sm:text-sm text-slate-500 font-medium">
-                  {tWs("earnedCertificatesDesc")}
-                </p>
-              </div>
-
-              {courses.filter((c) => c.isCompleted).length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {courses
-                    .filter((c) => c.isCompleted)
-                    .map((cert) => (
-                      <div
-                        key={cert.id}
-                        className="p-6 rounded-3xl border border-emerald-100/90 bg-gradient-to-br from-emerald-50/40 via-white to-white space-y-4 shadow-2xs"
-                      >
-                        <div className="flex items-center gap-3">
-                          <div className="w-12 h-12 rounded-2xl bg-emerald-100 flex items-center justify-center text-emerald-700 shrink-0">
-                            <Award className="h-6 w-6" />
-                          </div>
-                          <div>
-                            <h4 className="text-sm font-extrabold text-slate-900">
-                              {cert.title}
-                            </h4>
-                            <span className="text-xs text-slate-400 font-mono">
-                              {cert.certificateId}
-                            </span>
-                          </div>
-                        </div>
-
-                        <Link
-                          href={`/${locale}/student/certificates/${cert.certificateId || "CERT-123"}`}
-                          className="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black flex items-center justify-center gap-2 transition-all shadow-xs active:scale-98"
-                        >
-                          <Download className="h-4 w-4" />
-                          <span>{tWs("downloadPdf")}</span>
-                        </Link>
-                      </div>
-                    ))}
-                </div>
-              ) : (
-                <div className="w-full max-w-md mx-auto bg-white rounded-3xl p-8 sm:p-10 border border-slate-200/80 shadow-2xs text-center space-y-6">
-                  <div className="w-20 h-20 rounded-full bg-emerald-50 border-2 border-emerald-200 flex items-center justify-center mx-auto text-emerald-600 shadow-2xs">
-                    <Award className="h-9 w-9 stroke-[1.8]" />
-                  </div>
-                  <div className="space-y-2">
-                    <h3 className="text-lg sm:text-xl font-black text-slate-900">
-                      {tWs("noCertificatesTitle")}
-                    </h3>
-                    <p className="text-xs text-slate-500 font-medium leading-relaxed max-w-xs mx-auto">
-                      {tWs("noCertificatesDesc")}
-                    </p>
-                  </div>
-                  <Link
-                    href={`/${locale}/courses`}
-                    className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black transition-all shadow-xs active:scale-98"
-                  >
-                    <span>{tWs("exploreCourses")}</span>
-                  </Link>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* ORDERS TAB */}
-          {activeTab === "orders" && <OrderHistoryView />}
-
-          {/* CART TAB */}
-          {activeTab === "cart" && (
-            <CartView items={cartItems} onRemoveItem={handleRemoveFromCart} />
-          )}
-
-          {/* FULL ACCOUNT PROFILE & SETTINGS TAB */}
-          {activeTab === "settings" && (
-            <form
-              onSubmit={handleSaveSettings}
-              className="space-y-8 animate-in fade-in duration-150"
-            >
-              <div className="space-y-1">
-                <h2 className="text-xl sm:text-2xl font-black text-slate-900">
-                  {tStudent("title")}
-                </h2>
-                <p className="text-xs sm:text-sm text-slate-500 font-medium">
-                  {tStudent("subtitle")}
-                </p>
-              </div>
-
-              {/* Avatar Change Section (5MB Limit) */}
-              <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
-                <div
-                  onClick={() => fileInputRef.current?.click()}
-                  className="relative group w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-[#E8F3F1] border-2 border-emerald-200/80 overflow-hidden shrink-0 shadow-2xs cursor-pointer flex items-center justify-center"
-                >
-                  {getSafeAvatar(avatarPreview) ? (
-                    <Image
-                      src={getSafeAvatar(avatarPreview)!}
-                      alt="Avatar"
-                      width={112}
-                      height={112}
-                      unoptimized
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <span className="font-black text-3xl sm:text-4xl text-[#0F5244]">
-                      {formData.fullName.charAt(0)}
-                    </span>
-                  )}
-
-                  <div className="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white">
-                    <Camera className="h-6 w-6" />
-                  </div>
-                </div>
-
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/jpeg,image/png,image/webp"
-                  onChange={handleAvatarFileChange}
-                  className="hidden"
+            {activeTab === "settings" && (
+              <motion.div
+                key="settings"
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -6 }}
+                transition={{ duration: 0.15 }}
+              >
+                <StudentSettingsTab
+                  formData={formData}
+                  avatarPreview={avatarPreview}
+                  onAvatarChange={handleAvatarFileChange}
+                  onInputChange={handleInputChange}
+                  onSaveSettings={handleSaveSettings}
+                  isSaving={isSaving}
+                  onOpenEmailModal={() => setShowEmailModal(true)}
+                  passwordError={passwordError}
                 />
-
-                <div className="space-y-1 text-center sm:text-start pt-1">
-                  <h3 className="text-lg sm:text-xl font-black text-slate-900">
-                    {t("avatarTitle")}
-                  </h3>
-                  <p className="text-xs sm:text-sm text-slate-500 font-medium leading-relaxed max-w-sm">
-                    {t("avatarSubtitle")}
-                  </p>
-                  <p className="text-[11px] text-slate-400 font-medium pt-1">
-                    {tWs("avatarLimitNotice")}
-                  </p>
-
-                  {avatarPreview && (
-                    <button
-                      type="button"
-                      onClick={handleRemoveAvatar}
-                      className="inline-flex items-center gap-1 mt-2 text-xs font-bold text-red-600 hover:text-red-700 cursor-pointer"
-                    >
-                      <Trash2 className="h-3.5 w-3.5" />
-                      <span>{tWs("removePhoto")}</span>
-                    </button>
-                  )}
-                </div>
-              </div>
-
-              <div className="border-b border-slate-100" />
-
-              {/* Personal Information Fields */}
-              <div className="space-y-4">
-                <h3 className="text-xs font-extrabold text-slate-400 uppercase tracking-wider">
-                  {t("personalDetails")}
-                </h3>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                  <div className="space-y-1.5">
-                    <label className="block text-xs font-bold text-slate-700">
-                      {t("fullName")}
-                    </label>
-                    <input
-                      type="text"
-                      name="fullName"
-                      value={formData.fullName}
-                      onChange={handleInputChange}
-                      required
-                      className="w-full h-11 rounded-2xl border border-slate-200 bg-slate-50/60 px-4 text-xs font-semibold text-slate-900 focus:bg-white focus:border-[#0F5244] focus:outline-none"
-                    />
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <div className="flex items-center justify-between">
-                      <label className="block text-xs font-bold text-slate-700">
-                        {t("emailAddress")}
-                      </label>
-                      <button
-                        type="button"
-                        onClick={() => setShowEmailModal(true)}
-                        className="text-xs font-extrabold text-[#0F5244] hover:underline cursor-pointer"
-                      >
-                        {t("change")}
-                      </button>
-                    </div>
-                    <input
-                      type="email"
-                      name="email"
-                      value={formData.email}
-                      readOnly
-                      className="w-full h-11 rounded-2xl border border-slate-200 bg-slate-100 px-4 text-xs font-semibold text-slate-600 cursor-not-allowed"
-                    />
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <label className="block text-xs font-bold text-slate-700">
-                      {t("phoneNumber")}
-                    </label>
-                    <input
-                      type="tel"
-                      name="phone"
-                      value={formData.phone}
-                      onChange={handleInputChange}
-                      className="w-full h-11 rounded-2xl border border-slate-200 bg-slate-50/60 px-4 text-xs font-semibold text-slate-900 focus:bg-white focus:border-[#0F5244] focus:outline-none"
-                    />
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <label className="block text-xs font-bold text-slate-700">
-                      {t("headline")}
-                    </label>
-                    <input
-                      type="text"
-                      name="headline"
-                      value={formData.headline}
-                      onChange={handleInputChange}
-                      className="w-full h-11 rounded-2xl border border-slate-200 bg-slate-50/60 px-4 text-xs font-semibold text-slate-900 focus:bg-white focus:border-[#0F5244] focus:outline-none"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div className="border-b border-slate-100" />
-
-              {/* Password Change Section (US-03) */}
-              <div className="space-y-4">
-                <h3 className="text-xs font-extrabold text-slate-400 uppercase tracking-wider">
-                  {t("securityAndPassword")}
-                </h3>
-
-                {passwordError && (
-                  <div className="flex items-center gap-2 p-3 rounded-xl bg-red-50 text-red-600 text-xs font-bold">
-                    <AlertCircle className="h-4 w-4 shrink-0" />
-                    <span>{passwordError}</span>
-                  </div>
-                )}
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-                  <div className="space-y-1.5">
-                    <label className="block text-xs font-bold text-slate-700">
-                      {t("currentPassword")}
-                    </label>
-                    <div className="relative">
-                      <input
-                        type={showCurrentPassword ? "text" : "password"}
-                        name="currentPassword"
-                        value={formData.currentPassword}
-                        onChange={handleInputChange}
-                        placeholder="••••••••"
-                        className="w-full h-11 rounded-2xl border border-slate-200 bg-slate-50/60 px-4 text-xs font-semibold text-slate-900 focus:bg-white focus:border-[#0F5244] focus:outline-none rtl:pl-10 ltr:pr-10"
-                      />
-                      <button
-                        type="button"
-                        onClick={() =>
-                          setShowCurrentPassword(!showCurrentPassword)
-                        }
-                        className="absolute top-1/2 -translate-y-1/2 rtl:left-3 ltr:right-3 text-slate-400 hover:text-slate-600 cursor-pointer"
-                      >
-                        {showCurrentPassword ? (
-                          <EyeOff className="h-4 w-4" />
-                        ) : (
-                          <Eye className="h-4 w-4" />
-                        )}
-                      </button>
-                    </div>
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <label className="block text-xs font-bold text-slate-700">
-                      {t("newPassword")}
-                    </label>
-                    <div className="relative">
-                      <input
-                        type={showNewPassword ? "text" : "password"}
-                        name="newPassword"
-                        value={formData.newPassword}
-                        onChange={handleInputChange}
-                        placeholder="••••••••"
-                        className="w-full h-11 rounded-2xl border border-slate-200 bg-slate-50/60 px-4 text-xs font-semibold text-slate-900 focus:bg-white focus:border-[#0F5244] focus:outline-none rtl:pl-10 ltr:pr-10"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowNewPassword(!showNewPassword)}
-                        className="absolute top-1/2 -translate-y-1/2 rtl:left-3 ltr:right-3 text-slate-400 hover:text-slate-600 cursor-pointer"
-                      >
-                        {showNewPassword ? (
-                          <EyeOff className="h-4 w-4" />
-                        ) : (
-                          <Eye className="h-4 w-4" />
-                        )}
-                      </button>
-                    </div>
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <label className="block text-xs font-bold text-slate-700">
-                      {t("confirmPassword")}
-                    </label>
-                    <div className="relative">
-                      <input
-                        type={showConfirmPassword ? "text" : "password"}
-                        name="confirmPassword"
-                        value={formData.confirmPassword}
-                        onChange={handleInputChange}
-                        placeholder="••••••••"
-                        className="w-full h-11 rounded-2xl border border-slate-200 bg-slate-50/60 px-4 text-xs font-semibold text-slate-900 focus:bg-white focus:border-[#0F5244] focus:outline-none rtl:pl-10 ltr:pr-10"
-                      />
-                      <button
-                        type="button"
-                        onClick={() =>
-                          setShowConfirmPassword(!showConfirmPassword)
-                        }
-                        className="absolute top-1/2 -translate-y-1/2 rtl:left-3 ltr:right-3 text-slate-400 hover:text-slate-600 cursor-pointer"
-                      >
-                        {showConfirmPassword ? (
-                          <EyeOff className="h-4 w-4" />
-                        ) : (
-                          <Eye className="h-4 w-4" />
-                        )}
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="border-b border-slate-100" />
-
-              {/* Save Button */}
-              <div className="flex justify-end">
-                <button
-                  type="submit"
-                  disabled={isSaving}
-                  className="px-8 py-3 rounded-2xl bg-[#0F5244] hover:bg-[#07382E] text-[#FFFFFF] text-xs sm:text-sm font-extrabold shadow-sm active:scale-98 transition-all cursor-pointer disabled:opacity-70 flex items-center gap-2"
-                >
-                  {isSaving ? (
-                    <>
-                      <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                      <span>{t("saving")}</span>
-                    </>
-                  ) : (
-                    <span>{t("saveChanges")}</span>
-                  )}
-                </button>
-              </div>
-            </form>
-          )}
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </div>
     </div>

@@ -169,7 +169,7 @@ export function CourseCatalogView() {
                 durationFormatted: `${durationNum > 0 ? durationNum : 10} hours`,
                 coverImage: c.cover_image || c.coverImage || c.image || "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&auto=format&fit=crop&q=80",
                 image: c.cover_image || c.coverImage || c.image || "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&auto=format&fit=crop&q=80",
-                badge: c.is_new ? "New" : c.is_bestseller ? "Bestseller" : undefined,
+                badge: c.is_bestseller ? "Bestseller" : undefined,
               };
             });
 
