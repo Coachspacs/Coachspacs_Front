@@ -68,7 +68,7 @@ function VerifyEmailContent() {
         if (!isMounted) return;
         const msg = getApiErrorMessage(
           err,
-          t("verifyFailed") || (isAr ? "فشل التحقق من البريد الإلكتروني أو انتهت صلاحية الرابط." : "Email verification failed or link is expired."),
+          t("verifyFailed"),
           isAr
         );
         setVerifyError(msg);
@@ -84,7 +84,7 @@ function VerifyEmailContent() {
   const handleResend = async (manualEmail?: string) => {
     const targetEmail = (manualEmail || emailInput || emailParam).trim();
     if (!targetEmail || !targetEmail.includes("@")) {
-      setResendErrorMessage(isAr ? "يرجى إدخال بريد إلكتروني صحيح لإعادة الإرسال." : "Please enter a valid email address.");
+      setResendErrorMessage(t("invalidEmailError"));
       return;
     }
 
@@ -97,13 +97,12 @@ function VerifyEmailContent() {
       setResendSuccessMessage(
         res.message ||
           (typeof res.detail === "string" ? res.detail : null) ||
-          t("resendSuccessMessage") ||
-          (isAr ? "تم إرسال رابط تفعيل جديد بنجاح! يرجى مراجعة صندوق الوارد." : "New verification link sent successfully! Check your inbox.")
+          t("resendSuccessMessage")
       );
     } catch (err: any) {
       const msg = getApiErrorMessage(
         err,
-        t("resendFailed") || (isAr ? "فشل إعادة إرسال رابط التحقق. يرجى المحاولة لاحقاً." : "Failed to resend verification email."),
+        t("resendFailed"),
         isAr
       );
       setResendErrorMessage(msg);
@@ -129,10 +128,10 @@ function VerifyEmailContent() {
             <Loader2 className="h-7 w-7 animate-spin" />
           </div>
           <h1 className="text-lg sm:text-xl font-extrabold text-slate-900 tracking-tight mb-1.5">
-            {t("verifyingTitle") || (isAr ? "جاري التحقق من بريدك..." : "Verifying Your Email...")}
+            {t("verifyingTitle")}
           </h1>
           <p className="text-xs text-slate-500 max-w-xs leading-relaxed">
-            {t("verifyingSubtitle") || (isAr ? "يرجى الانتظار لحظات لتأكيد حسابك في CoachSpace." : "Please wait a moment while we confirm your account.")}
+            {t("verifyingSubtitle")}
           </p>
         </div>
       )}
@@ -144,16 +143,16 @@ function VerifyEmailContent() {
             <CheckCircle2 size={32} className="text-[#0F5244]" />
           </div>
           <h1 className="text-lg sm:text-xl font-extrabold text-slate-900 tracking-tight mb-1.5">
-            {t("emailVerifiedTitle") || (isAr ? "تم تأكيد البريد بنجاح!" : "Email Verified Successfully!")}
+            {t("emailVerifiedTitle")}
           </h1>
           <p className="text-xs text-slate-600 mb-5 max-w-xs leading-relaxed font-medium">
-            {t("emailVerifiedSubtitle") || (isAr ? "تم تفعيل حسابك بالكامل. يمكنك الآن تسجيل الدخول والبدء." : "Your account is now fully verified. You can log in.")}
+            {t("emailVerifiedSubtitle")}
           </p>
           <Link
             href={`/${locale}/login`}
             className="group flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#0F5244] hover:bg-[#083A30] px-5 text-xs sm:text-sm font-extrabold text-white shadow-md transition-all active:scale-[0.99] cursor-pointer"
           >
-            <span>{t("login") || (isAr ? "تسجيل الدخول" : "Sign In")}</span>
+            <span>{t("login")}</span>
             <ArrowRight
               size={16}
               className={`transition-transform group-hover:translate-x-1 rtl:group-hover:-translate-x-1 ${isAr ? "rotate-180" : ""}`}
@@ -169,7 +168,7 @@ function VerifyEmailContent() {
             <XCircle size={32} />
           </div>
           <h1 className="text-lg sm:text-xl font-extrabold text-slate-900 tracking-tight mb-1.5">
-            {t("verificationFailedTitle") || (isAr ? "فشل تأكيد البريد" : "Verification Failed")}
+            {t("verificationFailedTitle")}
           </h1>
           <p className="text-xs text-rose-600 font-semibold mb-4 max-w-xs leading-relaxed">
             {verifyError}
@@ -179,7 +178,7 @@ function VerifyEmailContent() {
           {!emailInput && (
             <div className="w-full mb-3 text-start">
               <label htmlFor="resend-email" className="block text-xs font-semibold text-slate-700 mb-1">
-                {isAr ? "أدخل بريدك لإعادة إرسال رابط التفعيل:" : "Enter your email to receive a new link:"}
+                {t("enterEmailToResend")}
               </label>
               <div className="relative">
                 <input
@@ -205,7 +204,7 @@ function VerifyEmailContent() {
             ) : (
               <>
                 <RefreshCw size={15} />
-                <span>{t("resendVerificationEmail") || (isAr ? "إعادة إرسال رابط التحقق" : "Resend Verification Link")}</span>
+                <span>{t("resendVerificationEmail")}</span>
               </>
             )}
           </button>
@@ -228,7 +227,7 @@ function VerifyEmailContent() {
               href={`/${locale}/login`}
               className="text-xs font-bold text-[#0F5244] hover:underline"
             >
-              {isAr ? "العودة لتسجيل الدخول" : "Back to Sign In"}
+              {t("backToSignIn")}
             </Link>
           </div>
         </div>
@@ -242,13 +241,11 @@ function VerifyEmailContent() {
           </div>
 
           <h1 className="text-lg sm:text-xl font-extrabold text-slate-900 tracking-tight mb-1.5">
-            {isAr ? "تحقق من بريدك الإلكتروني" : "Check Your Inbox"}
+            {t("checkEmailTitle")}
           </h1>
 
           <p className="text-xs text-slate-500 leading-relaxed max-w-xs mb-1">
-            {isAr
-              ? "لقد أرسلنا رسالة تحتوي على رابط التفعيل إلى بريدك:"
-              : "We've sent a verification link to your email:"}
+            {t("weSentLinkToEmail")}
           </p>
 
           {/* Clean Email Pill or Input */}
@@ -270,9 +267,7 @@ function VerifyEmailContent() {
           )}
 
           <p className="text-[11px] sm:text-xs text-slate-400 mb-4 max-w-xs leading-relaxed">
-            {isAr
-              ? "يرجى فتح الرسالة والنقر على الرابط لتفعيل حسابك والبدء فوراً."
-              : "Please open the message and click the link to activate your account."}
+            {t("clickLinkInstruction")}
           </p>
 
           {/* Primary Action Button */}
@@ -280,7 +275,7 @@ function VerifyEmailContent() {
             href={`/${locale}/login`}
             className="group mb-3.5 flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#0F5244] hover:bg-[#083A30] px-5 text-xs sm:text-sm font-extrabold text-white shadow-md transition-all active:scale-[0.99] cursor-pointer"
           >
-            <span>{isAr ? "الانتقال لتسجيل الدخول" : "Proceed to Sign In"}</span>
+            <span>{t("proceedToSignIn")}</span>
             <ArrowRight
               size={16}
               className={`transition-transform group-hover:translate-x-1 rtl:group-hover:-translate-x-1 ${isAr ? "rotate-180" : ""}`}
@@ -290,7 +285,7 @@ function VerifyEmailContent() {
           {/* Inline One-Click Resend Link */}
           <div className="w-full pt-3 border-t border-slate-100">
             <div className="flex items-center justify-center gap-1.5 text-xs text-slate-500">
-              <span>{isAr ? "لم تصلك الرسالة؟" : "Didn't receive the email?"}</span>
+              <span>{t("didntReceiveEmail")}</span>
               <button
                 type="button"
                 disabled={resending}
@@ -298,7 +293,7 @@ function VerifyEmailContent() {
                 className="font-bold text-[#0F5244] hover:underline cursor-pointer disabled:opacity-50 inline-flex items-center gap-1"
               >
                 {resending && <Loader2 size={12} className="animate-spin inline" />}
-                <span>{isAr ? "إعادة إرسال الرابط" : "Resend Link"}</span>
+                <span>{t("resendLink")}</span>
               </button>
             </div>
 
@@ -322,7 +317,7 @@ function VerifyEmailContent() {
       <div className="mt-4 border-t border-slate-100 pt-3 text-center">
         <div className="flex items-center justify-center gap-1.5 text-[11px] text-slate-400 font-medium">
           <ShieldCheck size={13} className="text-emerald-600" />
-          <span>{t("encryptedConnection") || (isAr ? "بياناتك محمية ومشفرة 100%" : "Secure 256-bit SSL Encryption")}</span>
+          <span>{t("encryptedConnection")}</span>
         </div>
       </div>
     </div>

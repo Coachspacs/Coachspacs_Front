@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { useDispatch, useSelector } from "react-redux";
@@ -14,12 +15,16 @@ import {
   Mail,
   AlertCircle,
   Bell,
-  Info
+  Info,
 } from "lucide-react";
 import { RootState } from "@/lib/store";
 import { authService } from "@/services/auth";
 import { updateUser, logout } from "@/features/auth/slice";
-import { getSavedInstructorOverrides, normalizeInstructorSlug } from "@/lib/mockInstructors";
+import { tokenManager } from "@/lib/tokenManager";
+import {
+  getSavedInstructorOverrides,
+  normalizeInstructorSlug,
+} from "@/lib/instructorProfile";
 
 export function InstructorPendingApproval() {
   const locale = useLocale() || "en";
@@ -41,12 +46,16 @@ export function InstructorPendingApproval() {
 
   useEffect(() => {
     setMounted(true);
-    const activeSlug = normalizeInstructorSlug(user?.fullName || user?.name || "Mohammed Katanani");
-    const overrides = {
-      ...getSavedInstructorOverrides("global"),
-      ...(activeSlug ? getSavedInstructorOverrides(activeSlug) : {}),
-      ...(activeSlug ? getSavedInstructorOverrides(`inst-${activeSlug}`) : {}),
-    };
+    const userFullName = user?.fullName || user?.name || "";
+    const activeSlug = userFullName
+      ? normalizeInstructorSlug(userFullName)
+      : "";
+    const overrides = activeSlug
+      ? {
+          ...(getSavedInstructorOverrides(activeSlug) || {}),
+          ...(getSavedInstructorOverrides(`inst-${activeSlug}`) || {}),
+        }
+      : {};
     setLocalOverrides(overrides);
   }, [user?.fullName, user?.name]);
 
@@ -55,7 +64,8 @@ export function InstructorPendingApproval() {
     setFeedback(null);
 
     try {
-      const { user: updatedUser, approval_status } = await authService.syncCurrentUserProfile();
+      const { user: updatedUser, approval_status } =
+        await authService.syncCurrentUserProfile();
       dispatch(updateUser(updatedUser));
 
       if (approval_status === "approved") {
@@ -88,37 +98,44 @@ export function InstructorPendingApproval() {
   };
 
   const handleLogout = () => {
+    tokenManager.clearTokens();
     dispatch(logout());
     router.push(`/${locale}/login`);
   };
 
   const fullName =
-    localOverrides.name ||
     (mounted ? user?.fullName || user?.name : "") ||
+    localOverrides.name ||
     tInst("roleInstructor");
 
   const email = (mounted ? user?.email : "") || "instructor@coachspace.com";
-  const avatarPreview = localOverrides.avatar || (mounted ? user?.avatar || null : null);
+  const avatarPreview =
+    (mounted ? user?.avatar : null) || localOverrides.avatar || null;
 
   return (
-    <div className="w-full max-w-2xl mx-auto py-6 sm:py-10 animate-in fade-in duration-200 font-sans" dir={isAr ? "rtl" : "ltr"}>
-      
+    <div
+      className="w-full max-w-2xl mx-auto py-6 sm:py-10 animate-in fade-in duration-200 font-sans"
+      dir={isAr ? "rtl" : "ltr"}
+    >
       {/* Main Card */}
       <div className="bg-white rounded-3xl border border-slate-200/90 shadow-md shadow-slate-100 overflow-hidden">
-        
         <div className="p-6 sm:p-8 space-y-6">
-          
           {/* User Identity & Brand Status Badge */}
           <div className="flex flex-col sm:flex-row items-center sm:items-start justify-between gap-4 pb-5 border-b border-slate-100">
             <div className="flex flex-col sm:flex-row items-center gap-4 text-center sm:text-start">
-              
               {/* Avatar */}
               <div className="relative shrink-0">
                 <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-[#E6F3EF] border-2 border-slate-200/90 shadow-2xs flex items-center justify-center overflow-hidden">
                   {avatarPreview ? (
-                    <img src={avatarPreview} alt={fullName} className="w-full h-full object-cover rounded-full" />
+                    <Image
+                      src={avatarPreview}
+                      alt={fullName}
+                      width={64}
+                      height={64}
+                      className="w-full h-full object-cover rounded-full"
+                    />
                   ) : (
-                    <span suppressHydrationWarning className="font-extrabold text-xl text-[#0F5244]">
+                    <span className="font-extrabold text-xl text-[#0F5244]">
                       {fullName.trim().charAt(0).toUpperCase() || "I"}
                     </span>
                   )}
@@ -131,13 +148,23 @@ export function InstructorPendingApproval() {
               {/* Name & Brand State Tag */}
               <div className="space-y-1">
                 <div className="flex items-center justify-center sm:justify-start gap-2 flex-wrap">
-                  <h1 suppressHydrationWarning className="text-base sm:text-lg font-black text-slate-900">{fullName}</h1>
+                  <h1
+                    suppressHydrationWarning
+                    className="text-base sm:text-lg font-black text-slate-900"
+                  >
+                    {fullName}
+                  </h1>
                   <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200/60 text-[11px] font-bold">
                     <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
                     <span>{tInst("underReviewBadge")}</span>
                   </span>
                 </div>
-                <p suppressHydrationWarning className="text-xs text-slate-400 font-medium">{email}</p>
+                <p
+                  suppressHydrationWarning
+                  className="text-xs text-slate-400 font-medium"
+                >
+                  {email}
+                </p>
               </div>
             </div>
 
@@ -202,8 +229,8 @@ export function InstructorPendingApproval() {
                 feedback.type === "success"
                   ? "bg-emerald-50 text-emerald-800 border-emerald-200"
                   : feedback.type === "error"
-                  ? "bg-red-50 text-red-800 border-red-200"
-                  : "bg-amber-50 text-amber-900 border-amber-200"
+                    ? "bg-red-50 text-red-800 border-red-200"
+                    : "bg-amber-50 text-amber-900 border-amber-200"
               }`}
             >
               {feedback.type === "success" ? (
@@ -225,8 +252,12 @@ export function InstructorPendingApproval() {
               disabled={isChecking}
               className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-[#0F5244] hover:bg-[#07382E] text-white text-xs sm:text-sm font-bold shadow-xs transition-all active:scale-[0.98] disabled:opacity-60 cursor-pointer"
             >
-              <RefreshCw className={`w-3.5 h-3.5 ${isChecking ? "animate-spin" : ""}`} />
-              <span>{isChecking ? tInst("statusChecking") : tInst("checkStatusBtn")}</span>
+              <RefreshCw
+                className={`w-3.5 h-3.5 ${isChecking ? "animate-spin" : ""}`}
+              />
+              <span>
+                {isChecking ? tInst("statusChecking") : tInst("checkStatusBtn")}
+              </span>
             </button>
 
             <Link
@@ -237,11 +268,8 @@ export function InstructorPendingApproval() {
               <span>{tInst("editProfileBtn")}</span>
             </Link>
           </div>
-
         </div>
-
       </div>
-
     </div>
   );
 }

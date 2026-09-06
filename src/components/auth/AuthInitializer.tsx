@@ -12,6 +12,11 @@ export function AuthInitializer() {
   const { user, isAuthenticated } = useSelector((state: RootState) => state.auth);
   const initializedTokenRef = useRef<string | null>(null);
   const isFetchingRef = useRef(false);
+  const userRef = useRef(user);
+
+  useEffect(() => {
+    userRef.current = user;
+  }, [user]);
 
   useEffect(() => {
     const hasToken = tokenManager.hasSession();
@@ -22,13 +27,25 @@ export function AuthInitializer() {
       return;
     }
 
-    // Only run if user data is missing or not yet in memory
+    // Immediately restore cached local user from localStorage post-hydration if Redux user is not yet set
+    let localCachedUser = null;
+    try {
+      const stored = typeof window !== "undefined" ? localStorage.getItem("user") : null;
+      if (stored) localCachedUser = JSON.parse(stored);
+    } catch {}
+
+    if (localCachedUser && !isAuthenticated) {
+      dispatch(setCredentials({ user: localCachedUser, token }));
+    }
+
+    const currentUser = userRef.current;
+    // Only run API profile sync if user data is missing or incomplete
     const isUserDataMissing =
-      !user ||
-      !user.email ||
-      user.name === "User" ||
-      user.fullName === "User" ||
-      !user.fullName;
+      !currentUser ||
+      !currentUser.email ||
+      currentUser.name === "User" ||
+      currentUser.fullName === "User" ||
+      !currentUser.fullName;
 
     if (isUserDataMissing || !isAuthenticated) {
       isFetchingRef.current = true;
@@ -39,34 +56,35 @@ export function AuthInitializer() {
         .then((profileRes) => {
           const profData = (profileRes as any)?.user || profileRes;
           if (profData && (profData.email || profData.full_name || profData.fullName)) {
+            const activeUser = userRef.current;
             const fullName =
               profData.full_name ||
               profData.fullName ||
               profData.name ||
               (profData.email ? profData.email.split("@")[0] : "User");
-            const role = (profData.role || user?.role || "student").toLowerCase();
+            const role = (profData.role || activeUser?.role || "student").toLowerCase();
             const approvalStatus = (
               profData.approval_status ||
               profData.approvalStatus ||
-              user?.approval_status ||
+              activeUser?.approval_status ||
               "approved"
             ).toLowerCase();
 
             const normalized = {
-              id: String(profData.id || user?.id || "1"),
-              email: profData.email || user?.email || "",
+              id: String(profData.id || activeUser?.id || "1"),
+              email: profData.email || activeUser?.email || "",
               fullName,
               name: fullName,
               role,
               approvalStatus,
               approval_status: approvalStatus,
-              phone: profData.phone_number || profData.phone || user?.phone || "",
-              phoneNumber: profData.phone_number || profData.phone || user?.phone || "",
-              avatar: profData.avatar || user?.avatar || null,
-              preferredLanguage: profData.preferred_language || user?.preferredLanguage || "en",
-              preferred_language: profData.preferred_language || user?.preferredLanguage || "en",
-              headline: profData.headline || user?.headline || (role === "instructor" ? "Instructor" : "Student"),
-              bio: profData.bio || user?.bio || "",
+              phone: profData.phone_number || profData.phone || activeUser?.phone || "",
+              phoneNumber: profData.phone_number || profData.phone || activeUser?.phone || "",
+              avatar: profData.avatar || activeUser?.avatar || null,
+              preferredLanguage: profData.preferred_language || activeUser?.preferredLanguage || "en",
+              preferred_language: profData.preferred_language || activeUser?.preferredLanguage || "en",
+              headline: profData.headline || activeUser?.headline || (role === "instructor" ? "Instructor" : "Student"),
+              bio: profData.bio || activeUser?.bio || "",
             };
 
             dispatch(setCredentials({ user: normalized as any, token }));

@@ -1,6 +1,6 @@
 import React from 'react';
 import { NextIntlClientProvider } from 'next-intl';
-import { getMessages } from 'next-intl/server';
+import { getMessages, setRequestLocale } from 'next-intl/server';
 import StoreProvider from '@/components/StoreProvider';
 import { AuthInitializer } from '@/components/auth/AuthInitializer';
 
@@ -11,7 +11,11 @@ export default async function LocaleLayout({
   children: React.ReactNode;
   params: Promise<{ locale: string }>;
 }) {
-  const { locale } = await params;
+  const { locale: rawLocale } = await params;
+  const locale = rawLocale === 'ar' || rawLocale === 'en' ? rawLocale : 'en';
+
+  setRequestLocale(locale);
+
   const messages = await getMessages();
   const dir = locale === 'ar' ? 'rtl' : 'ltr';
 

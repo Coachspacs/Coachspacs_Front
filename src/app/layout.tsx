@@ -38,6 +38,16 @@ export const metadata = {
   authors: [{ name: 'CoachSpace Team' }],
   creator: 'CoachSpace',
   publisher: 'CoachSpace',
+  icons: {
+    icon: [
+      { url: '/icon.png', type: 'image/png' },
+      { url: '/favicon.ico', sizes: 'any' },
+    ],
+    apple: [
+      { url: '/apple-icon.png', type: 'image/png' },
+    ],
+    shortcut: '/favicon.ico',
+  },
   robots: {
     index: true,
     follow: true,

@@ -1,5 +1,5 @@
 import React from "react";
-import { getPublicInstructorByIdOrSlug } from "@/lib/mockInstructors";
+import { getPublicInstructorByIdOrSlug } from "@/lib/instructorProfile";
 import { PublicInstructorProfileView } from "@/components/instructor/PublicInstructorProfileView";
 
 interface InstructorPageProps {

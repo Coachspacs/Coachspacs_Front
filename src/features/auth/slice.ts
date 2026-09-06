@@ -2,47 +2,13 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { User, AuthState } from '@/types';
 import { tokenManager } from '@/lib/tokenManager';
 
-const getInitialState = (): AuthState => {
-  if (typeof window === 'undefined') {
-    return {
-      user: null,
-      token: null,
-      refreshToken: null,
-      isAuthenticated: false,
-      isLoading: false,
-    };
-  }
-
-  const token = tokenManager.getAccessToken();
-  const refreshToken = tokenManager.getRefreshToken();
-  let user: User | null = null;
-
-  try {
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      user = JSON.parse(storedUser);
-    }
-  } catch (e) {
-    user = null;
-  }
-
-  const isAuthenticated = Boolean(token && user);
-
-  if (isAuthenticated && user && token) {
-    const status = (user as any)?.approval_status || (user as any)?.approvalStatus || '';
-    tokenManager.setAccessToken(token, user.role, status);
-  }
-
-  return {
-    user,
-    token,
-    refreshToken,
-    isAuthenticated,
-    isLoading: false,
-  };
+const initialState: AuthState = {
+  user: null,
+  token: null,
+  refreshToken: null,
+  isAuthenticated: false,
+  isLoading: false,
 };
-
-const initialState: AuthState = getInitialState();
 
 export const authSlice = createSlice({
   name: 'auth',

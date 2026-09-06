@@ -1,8 +1,8 @@
 "use client";
 
 import React from "react";
-import { StudentWorkspace } from "@/components/student/StudentWorkspace";
+import { OrderHistoryView } from "@/components/orders/OrderHistoryView";
 
 export default function OrdersPage() {
-  return <StudentWorkspace initialTab="orders" />;
+  return <OrderHistoryView />;
 }

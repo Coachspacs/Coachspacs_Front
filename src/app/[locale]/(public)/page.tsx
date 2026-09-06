@@ -5,17 +5,18 @@ import { useSelector } from "react-redux";
 import { RootState } from "@/lib/store";
 import { InstructorStatusBanner } from "@/components/home/InstructorStatusBanner";
 import { HeroSection } from "@/components/home/HeroSection";
+import { TopCategoriesSection } from "@/components/home/TopCategoriesSection";
 import { InstructorPendingWidget } from "@/components/home/InstructorPendingWidget";
 import { InstructorStudioWidget } from "@/components/home/InstructorStudioWidget";
-import { InstructorCoursesPreview } from "@/components/home/InstructorCoursesPreview";
 import { InstructorAcademySection } from "@/components/home/InstructorAcademySection";
 import { InstructorFaqSection } from "@/components/home/InstructorFaqSection";
-import { TopCategoriesSection } from "@/components/home/TopCategoriesSection";
-import { MasterYourCraftSection } from "@/components/home/MasterYourCraftSection";
 import { WhyCoachSpaceStandsOutSection } from "@/components/home/WhyCoachSpaceStandsOutSection";
 import { RealStoriesSection } from "@/components/home/RealStoriesSection";
 import { FaqSection } from "@/components/home/FaqSection";
 import { JoinFutureSection } from "@/components/home/JoinFutureSection";
+
+import { MasterYourCraftSection } from "@/components/home/MasterYourCraftSection";
+import { InstructorCoursesPreview } from "@/components/home/InstructorCoursesPreview";
 
 export default function HomePage() {
   const [mounted, setMounted] = useState(false);
@@ -33,7 +34,6 @@ export default function HomePage() {
       <HeroSection />
 
       {isInstructor ? (
-        /* Instructor-Specific Teaching Hub Flow */
         <>
           <InstructorPendingWidget />
           <InstructorStudioWidget />
@@ -42,7 +42,6 @@ export default function HomePage() {
           <InstructorFaqSection />
         </>
       ) : (
-        /* Student & Guest (Visitor) Flow */
         <>
           <TopCategoriesSection />
           <MasterYourCraftSection />

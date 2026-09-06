@@ -2,6 +2,8 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useTranslations, useLocale } from "next-intl";
 import { Trash2, ArrowRight, ShoppingBag, Search } from "lucide-react";
 
@@ -12,30 +14,6 @@ export interface CartItem {
   price: number;
   image: string;
 }
-
-const defaultDemoItems: CartItem[] = [
-  {
-    id: "1",
-    title: "Advanced UI Patterns",
-    instructor: "Sarah Jenkins",
-    price: 89.99,
-    image: "https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?auto=format&fit=crop&w=600&q=80",
-  },
-  {
-    id: "2",
-    title: "Leadership Foundations",
-    instructor: "Marcus Thorne",
-    price: 49.99,
-    image: "https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=600&q=80",
-  },
-  {
-    id: "3",
-    title: "Data-Driven Decision Making",
-    instructor: "Dr. Emily Chen",
-    price: 59.99,
-    image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=600&q=80",
-  },
-];
 
 export interface CartViewProps {
   items?: CartItem[];
@@ -48,8 +26,9 @@ export function CartView({ items, onRemoveItem, onCheckout }: CartViewProps) {
   const t = useTranslations("cart");
   const locale = useLocale() || "en";
   const isAr = locale === "ar";
+  const router = useRouter();
 
-  const [localItems, setLocalItems] = useState<CartItem[]>(items && items.length > 0 ? items : defaultDemoItems);
+  const [localItems, setLocalItems] = useState<CartItem[]>(items || []);
 
   const displayItems = items !== undefined ? items : localItems;
 
@@ -58,6 +37,14 @@ export function CartView({ items, onRemoveItem, onCheckout }: CartViewProps) {
       onRemoveItem(id);
     } else {
       setLocalItems((prev) => prev.filter((item) => item.id !== id));
+    }
+  };
+
+  const handleCheckoutClick = () => {
+    if (onCheckout) {
+      onCheckout();
+    } else {
+      router.push(`/${locale}/student/checkout`);
     }
   };
 
@@ -80,13 +67,11 @@ export function CartView({ items, onRemoveItem, onCheckout }: CartViewProps) {
         <div className="bg-white rounded-3xl border border-slate-200/80 p-8 sm:p-14 text-center space-y-6 shadow-2xs max-w-2xl mx-auto">
           {/* Centered Mint Green Shopping Bag Image */}
           <div className="flex justify-center">
-            <img
+            <Image
               src="/images/empty-cart-bag.png"
               alt="Empty Cart Bag"
               width={224}
               height={176}
-              loading="lazy"
-              decoding="async"
               className="w-44 h-36 sm:w-56 sm:h-44 object-contain shrink-0"
             />
           </div>
@@ -104,7 +89,7 @@ export function CartView({ items, onRemoveItem, onCheckout }: CartViewProps) {
           {/* Browse Courses Button */}
           <div className="pt-2">
             <Link
-              href={`/${locale}/catalog`}
+              href={`/${locale}/courses`}
               className="px-6 py-3.5 rounded-2xl bg-[#0F5244] hover:bg-[#07382E] text-white text-xs sm:text-sm font-extrabold shadow-sm hover:shadow-md active:scale-98 transition-all inline-flex items-center justify-center gap-2 cursor-pointer"
             >
               <Search className="h-4 w-4 shrink-0" />
@@ -124,13 +109,11 @@ export function CartView({ items, onRemoveItem, onCheckout }: CartViewProps) {
               >
                 {/* Course Image & Metadata */}
                 <div className="flex items-center gap-4 sm:gap-5 w-full sm:w-auto">
-                  <img
+                  <Image
                     src={item.image}
                     alt={item.title}
                     width={128}
                     height={80}
-                    loading="lazy"
-                    decoding="async"
                     className="w-24 h-16 sm:w-32 sm:h-20 rounded-2xl object-cover border border-slate-100 shrink-0 shadow-2xs"
                   />
                   <div className="space-y-1 min-w-0">
@@ -195,7 +178,7 @@ export function CartView({ items, onRemoveItem, onCheckout }: CartViewProps) {
               <div className="space-y-3 pt-1">
                 <button
                   type="button"
-                  onClick={onCheckout}
+                  onClick={handleCheckoutClick}
                   className="w-full py-3.5 px-6 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-extrabold shadow-sm hover:shadow-md active:scale-98 transition-all cursor-pointer flex items-center justify-center gap-2"
                 >
                   <span>{t("checkout")}</span>

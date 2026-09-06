@@ -7,8 +7,9 @@ import { AlertTriangle } from "lucide-react";
 export interface ArchiveCourseModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onConfirm: () => void;
+  onConfirm: () => void | Promise<void>;
   courseTitle?: string;
+  isLoading?: boolean;
 }
 
 export function ArchiveCourseModal({
@@ -16,6 +17,7 @@ export function ArchiveCourseModal({
   onClose,
   onConfirm,
   courseTitle,
+  isLoading = false,
 }: ArchiveCourseModalProps) {
   const t = useTranslations("archiveModal");
   const locale = useLocale() || "en";
@@ -23,7 +25,7 @@ export function ArchiveCourseModal({
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
+      if (e.key === "Escape" && !isLoading) {
         onClose();
       }
     };
@@ -31,7 +33,7 @@ export function ArchiveCourseModal({
       window.addEventListener("keydown", handleKeyDown);
     }
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isOpen, onClose]);
+  }, [isOpen, onClose, isLoading]);
 
   if (!isOpen) return null;
 
@@ -39,7 +41,7 @@ export function ArchiveCourseModal({
     <div
       dir={isAr ? "rtl" : "ltr"}
       onClick={(e) => {
-        if (e.target === e.currentTarget) onClose();
+        if (e.target === e.currentTarget && !isLoading) onClose();
       }}
       className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-50 flex items-center justify-center p-4 animate-in fade-in duration-150"
     >
@@ -74,19 +76,18 @@ export function ArchiveCourseModal({
           <button
             type="button"
             onClick={onClose}
-            className="px-5 py-2.5 rounded-xl border border-slate-300 hover:bg-slate-50 text-slate-700 font-extrabold text-xs sm:text-sm cursor-pointer transition-all active:scale-98"
+            disabled={isLoading}
+            className="px-5 py-2.5 rounded-xl border border-slate-300 hover:bg-slate-50 text-slate-700 font-extrabold text-xs sm:text-sm cursor-pointer transition-all active:scale-98 disabled:opacity-50"
           >
             {t("cancel")}
           </button>
           <button
             type="button"
-            onClick={() => {
-              onConfirm();
-              onClose();
-            }}
-            className="px-5 py-2.5 rounded-xl bg-[#0F5244] hover:bg-[#07382E] text-white font-extrabold text-xs sm:text-sm shadow-xs hover:shadow-md cursor-pointer transition-all active:scale-98"
+            onClick={onConfirm}
+            disabled={isLoading}
+            className="px-5 py-2.5 rounded-xl bg-[#0F5244] hover:bg-[#07382E] text-white font-extrabold text-xs sm:text-sm shadow-xs hover:shadow-md cursor-pointer transition-all active:scale-98 disabled:opacity-50 flex items-center gap-2"
           >
-            {t("archive")}
+            {isLoading ? "..." : t("archive")}
           </button>
         </div>
       </div>

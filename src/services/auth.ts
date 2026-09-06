@@ -357,6 +357,32 @@ export async function uploadAvatar(file: File): Promise<{ avatar: string }> {
 }
 
 /**
+ * Delete user avatar
+ * DELETE /api/users/me/avatar
+ */
+export async function deleteAvatar(): Promise<any> {
+  try {
+    const response = await axiosInstance.delete('/users/me/avatar');
+    return response.data;
+  } catch (err: any) {
+    if (err?.response?.status === 404 || err?.response?.status === 405) {
+      try {
+        const response = await axiosInstance.delete('/users/me/avatar/');
+        return response.data;
+      } catch (slashErr) {
+        try {
+          const response = await axiosInstance.put('/users/me', { avatar: null });
+          return response.data;
+        } catch {
+          return null;
+        }
+      }
+    }
+    return null;
+  }
+}
+
+/**
  * Request changing account email address
  * POST /api/users/me/email/change
  */
@@ -427,6 +453,7 @@ export async function syncCurrentUserProfile(
     decoded?.role_name ||
     decoded?.user_type ||
     (loginResponse?.role ? loginResponse.role : undefined) ||
+    (typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('user') || '{}')?.role : undefined) ||
     ''
   ).toLowerCase();
 
@@ -436,22 +463,28 @@ export async function syncCurrentUserProfile(
     rawUser.is_student === true ||
     decoded?.is_student === true;
 
-  const isExplicitInstructor =
+  let isExplicitInstructor =
     candidateRole.includes('instructor') ||
     candidateRole.includes('coach') ||
     candidateRole.includes('teacher') ||
     rawUser.is_instructor === true ||
     decoded?.is_instructor === true;
 
-  // 3. Determine final normalized role
-  let role: 'student' | 'instructor' = 'student';
-  if (isExplicitStudent && !isExplicitInstructor) {
-    role = 'student';
-  } else if (isExplicitInstructor) {
-    role = 'instructor';
-  } else {
-    role = 'student';
+  // If role is still ambiguous, probe the instructor dashboard endpoint
+  if (!isExplicitInstructor && !isExplicitStudent && activeToken) {
+    try {
+      const dashRes = await getInstructorDashboard();
+      if (dashRes) {
+        isExplicitInstructor = true;
+        instructorAccessOk = true;
+      }
+    } catch {
+      // not an instructor
+    }
   }
+
+  // 3. Determine final normalized role
+  const role: 'student' | 'instructor' = isExplicitInstructor ? 'instructor' : 'student';
 
   // 4. If instructor, verify approval status and live dashboard access
   let approval_status: 'approved' | 'pending' | 'rejected' = 'approved';
@@ -522,7 +555,13 @@ export async function syncCurrentUserProfile(
     name: fullName,
     role,
     avatar: rawUser.avatar || rawUser.profile_picture || rawUser.image || null,
-    headline: rawUser.headline || rawUser.title || (role === 'instructor' ? 'Certified Instructor' : 'Student & Lifelong Learner'),
+    headline:
+      rawUser.headline &&
+      (role === 'instructor'
+        ? !rawUser.headline.toLowerCase().includes('student') && !rawUser.headline.includes('طالب')
+        : true)
+        ? rawUser.headline
+        : rawUser.title || (role === 'instructor' ? 'Certified Instructor' : 'Student & Lifelong Learner'),
     bio: rawUser.bio || rawUser.description || '',
     phone: rawUser.phone || rawUser.phone_number || '',
     phoneNumber: rawUser.phone_number || rawUser.phone || '',
@@ -560,6 +599,7 @@ export const authService = {
   changePassword,
   updateProfile,
   uploadAvatar,
+  deleteAvatar,
   getInstructorDashboard,
   getProfile,
   decodeJwt,

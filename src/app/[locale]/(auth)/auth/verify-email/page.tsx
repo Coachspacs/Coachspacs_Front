@@ -1,3 +1,5 @@
-import VerifyEmailPage from "../../verify-email/page";
+import VerifyEmailComponent from "@/app/[locale]/(auth)/verify-email/page";
 
-export default VerifyEmailPage;
+export default function AuthVerifyEmailPage() {
+  return <VerifyEmailComponent />;
+}

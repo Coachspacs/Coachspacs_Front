@@ -3,6 +3,7 @@
 import React, { useState, useRef, useMemo, useCallback } from "react";
 import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
 import { Plus, X, Search, Sparkles, Check, AlertCircle } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 export interface SkillSelectorProps {
   selectedSkills: string[];
@@ -83,6 +84,7 @@ export function SkillSelector({
   className = "",
   label,
 }: SkillSelectorProps) {
+  const t = useTranslations("skillSelector");
   const [searchQuery, setSearchQuery] = useState("");
   const [ghosts, setGhosts] = useState<FlyingGhost[]>([]);
   const [limitWarning, setLimitWarning] = useState(false);
@@ -219,13 +221,11 @@ export function SkillSelector({
           <label className="block text-xs font-bold text-slate-800 flex items-center gap-1.5">
             <Sparkles className="h-3.5 w-3.5 text-[#0F5244]" />
             <span>
-              {label || (isAr ? "المهارات والتخصصات المختارة" : "Selected Skills & Domains")}
+              {label || t("defaultLabel")}
             </span>
           </label>
           <span className="text-[11px] text-slate-400 font-medium">
-            {isAr
-              ? `(يمكنك اختيار حتى ${maxSkills} مهارات كحد أقصى)`
-              : `(Choose up to ${maxSkills} skills maximum)`}
+            {t("chooseUpTo", { max: maxSkills })}
           </span>
         </div>
 
@@ -255,9 +255,7 @@ export function SkillSelector({
           >
             <AlertCircle className="h-4 w-4 shrink-0 text-amber-600" />
             <span>
-              {isAr
-                ? `لقد وصلت للحد الأقصى (${maxSkills} مهارات). يرجى إزالة مهارة لإضافة غيرها.`
-                : `Maximum limit reached (${maxSkills} skills). Please remove a skill to add another.`}
+              {t("maxLimitReached", { max: maxSkills })}
             </span>
           </motion.div>
         )}
@@ -297,7 +295,7 @@ export function SkillSelector({
                     handleRemoveSkill(skill);
                   }}
                   className="hover:text-rose-600 transition-colors cursor-pointer p-0.5 rounded-full hover:bg-rose-50 text-[#0F5244]/70"
-                  title={isAr ? `إزالة ${skill}` : `Remove ${skill}`}
+                  title={t("removeSkill", { skill })}
                   aria-label={`Remove ${skill}`}
                 >
                   <X className="h-3.5 w-3.5" />
@@ -324,12 +322,8 @@ export function SkillSelector({
               }}
               placeholder={
                 selectedSkills.length === 0
-                  ? isAr
-                    ? "اكتب أو ابحث لإضافة المزيد..."
-                    : "Type or search to add more..."
-                  : isAr
-                  ? "أضف مهارة أخرى أو ابحث..."
-                  : "Type or search to add more..."
+                  ? t("searchPlaceholderEmpty")
+                  : t("searchPlaceholderMore")
               }
               className="w-full bg-transparent text-xs font-semibold text-slate-900 placeholder:text-slate-400 focus:outline-none"
             />
@@ -353,19 +347,13 @@ export function SkillSelector({
             <span className="h-1.5 w-1.5 rounded-full bg-[#0F5244]" />
             <span>
               {searchQuery.trim()
-                ? isAr
-                  ? "الخيارات المطابقة للبحث:"
-                  : "Matching search results:"
-                : isAr
-                ? "الخيارات المقترحة (Suggested options):"
-                : "Suggested options:"}
+                ? t("matchingResults")
+                : t("suggestedOptions")}
             </span>
           </div>
 
           <span className="text-[11px] font-semibold text-slate-400">
-            {isAr
-              ? `${visibleSuggestions.length} خيارات ظاهرة`
-              : `${visibleSuggestions.length} suggested`}
+            {t("suggestedCount", { count: visibleSuggestions.length })}
           </span>
         </div>
 
@@ -389,9 +377,7 @@ export function SkillSelector({
                   >
                     <Plus className="h-3 w-3 text-[#45D1B4]" />
                     <span>
-                      {isAr
-                        ? `إضافة "${searchQuery.trim()}"`
-                        : `Add "${searchQuery.trim()}"`}
+                      {t("addCustomSkill", { query: searchQuery.trim() })}
                     </span>
                   </motion.button>
                 )}
@@ -418,7 +404,7 @@ export function SkillSelector({
                     type="button"
                     onClick={(e) => handleAddSkill(skill, e.currentTarget)}
                     disabled={isMaxReached}
-                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-medium transition-all duration-200 ${
+                    className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl border text-xs font-medium transition-all duration-200 ${
                       isMaxReached
                         ? "bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed opacity-60"
                         : "bg-slate-100/90 hover:bg-[#E6F3EF] text-slate-700 hover:text-[#0F5244] border-slate-200/80 hover:border-[#A7E2D4] shadow-2xs hover:shadow-xs active:scale-95 cursor-pointer group"
@@ -439,17 +425,13 @@ export function SkillSelector({
               {/* Empty state when no matching results */}
               {visibleSuggestions.length === 0 && !searchQuery.trim() && (
                 <div className="p-3 text-center text-xs text-slate-400 font-medium w-full">
-                  {isAr
-                    ? "تمت إضافة جميع المهارات المقترحة للأعلى"
-                    : "All suggested skills have been selected."}
+                  {t("allSuggestedSelected")}
                 </div>
               )}
 
               {visibleSuggestions.length === 0 && searchQuery.trim() && isExactSuggestion && (
                 <div className="p-3 text-center text-xs text-slate-400 font-medium w-full">
-                  {isAr
-                    ? "هذه المهارة مضافة بالفعل في قائمة مهاراتك المختارة أعلاه."
-                    : "This skill is already in your selected list above."}
+                  {t("alreadySelected")}
                 </div>
               )}
             </motion.div>

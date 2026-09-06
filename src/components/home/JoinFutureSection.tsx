@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import Image from "next/image";
 import Link from "next/link";
+import Image from "next/image";
 import { useTranslations, useLocale } from "next-intl";
 import { useSelector } from "react-redux";
 import { RootState } from "@/lib/store";
@@ -76,8 +76,8 @@ export function JoinFutureSection() {
               src="/images/join-instructors.png"
               alt={t("joinTitle")}
               fill
-              sizes="(max-width: 1024px) 100vw, 42vw"
-              className="object-cover object-center"
+              sizes="(max-width: 1024px) 100vw, 500px"
+              className="w-full h-full object-cover object-center"
             />
           </div>
 

@@ -35,7 +35,7 @@ export default function ProfileRedirectPage() {
     if (roleLower === "instructor" || roleLower === "coach") {
       router.replace(`/${locale}/instructor/settings`);
     } else {
-      router.replace(`/${locale}/student/profile`);
+      router.replace(`/${locale}/student`);
     }
   }, [user, isAuthenticated, locale, router, pathname]);
 

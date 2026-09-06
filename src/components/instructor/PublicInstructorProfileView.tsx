@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useLocale, useTranslations } from "next-intl";
@@ -14,6 +14,7 @@ import {
   Mail,
   ShieldCheck,
   Sparkles,
+  ChevronLeft,
   ChevronRight,
   Check,
   ArrowRight,
@@ -22,16 +23,29 @@ import {
   ExternalLink,
   Star,
   Layers,
+  Clock,
+  ShoppingCart,
+  Image as ImageIcon,
 } from "lucide-react";
+import { useSelector, useDispatch } from "react-redux";
+import { RootState } from "@/lib/store";
+import { addToCart } from "@/features/cart/cartSlice";
+import { instructorCourseService } from "@/services/instructorCourseService";
+import { courseService } from "@/services/courseService";
 import { PublicInstructor } from "@/types/publicInstructor";
 import { CourseCard } from "@/components/catalog/CourseCard";
+import { VerifiedBadge } from "@/components/ui/VerifiedBadge";
 import {
   getSavedInstructorOverrides,
   getLocalizedName,
   getLocalizedHeadline,
+  getLocalizedBio,
   getLocalizedSpecialization,
   getLocalizedSkill,
-} from "@/lib/mockInstructors";
+  normalizeInstructorSlug,
+} from "@/lib/instructorProfile";
+
+
 
 interface PublicInstructorProfileViewProps {
   instructor: PublicInstructor;
@@ -41,25 +55,119 @@ export function PublicInstructorProfileView({ instructor: initialInstructor }: P
   const locale = useLocale() || "en";
   const isAr = locale === "ar";
   const t = useTranslations("publicInstructorProfile");
+  const authUser = useSelector((state: RootState) => state.auth.user);
 
   const [instructor, setInstructor] = useState<PublicInstructor>(initialInstructor || ({} as any));
   const [copied, setCopied] = useState(false);
 
-  // Sync client profile state with saved local/mock overrides on mount
+  // Single-Row Slider Controls & Drag-to-Scroll
+  const coursesScrollRef = useRef<HTMLDivElement>(null);
+  const [canScrollPrev, setCanScrollPrev] = useState(false);
+  const [canScrollNext, setCanScrollNext] = useState(true);
+
+  // Mouse Drag State
+  const isDraggingRef = useRef(false);
+  const startXRef = useRef(0);
+  const scrollLeftRef = useRef(0);
+  const hasDraggedRef = useRef(false);
+  const [isCursorGrabbing, setIsCursorGrabbing] = useState(false);
+
+  const checkScroll = useCallback(() => {
+    const el = coursesScrollRef.current;
+    if (!el) return;
+    const { scrollLeft, scrollWidth, clientWidth } = el;
+    const maxScroll = scrollWidth - clientWidth;
+    const currentScroll = Math.abs(scrollLeft);
+    setCanScrollPrev(currentScroll > 10);
+    setCanScrollNext(currentScroll < maxScroll - 10);
+  }, []);
+
+  const handleScroll = (dir: "prev" | "next") => {
+    const el = coursesScrollRef.current;
+    if (!el) return;
+    
+    // Get actual width of first card + gap
+    const firstCard = el.querySelector<HTMLElement>("[data-course-card]");
+    const cardWidth = firstCard ? firstCard.getBoundingClientRect().width : 320;
+    const scrollStep = cardWidth + 16; // card width + gap-4 (16px)
+
+    const scrollAmount = dir === "next" ? scrollStep : -scrollStep;
+
+    if (isAr) {
+      el.scrollBy({ left: -scrollAmount, behavior: "smooth" });
+    } else {
+      el.scrollBy({ left: scrollAmount, behavior: "smooth" });
+    }
+
+    setTimeout(checkScroll, 350);
+  };
+
+  // Mouse Drag Events
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (e.button !== 0) return;
+    // Don't initiate drag if clicking buttons (like cart button)
+    if ((e.target as HTMLElement).closest("button")) return;
+
+    const el = coursesScrollRef.current;
+    if (!el) return;
+    isDraggingRef.current = true;
+    hasDraggedRef.current = false;
+    setIsCursorGrabbing(true);
+    startXRef.current = e.pageX - el.offsetLeft;
+    scrollLeftRef.current = el.scrollLeft;
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDraggingRef.current) return;
+    // If user is not holding the mouse button down, cancel drag immediately
+    if (e.buttons !== 1) {
+      isDraggingRef.current = false;
+      setIsCursorGrabbing(false);
+      return;
+    }
+    const el = coursesScrollRef.current;
+    if (!el) return;
+    e.preventDefault();
+    const x = e.pageX - el.offsetLeft;
+    const walk = (x - startXRef.current) * 1.2;
+    if (Math.abs(walk) > 5) {
+      hasDraggedRef.current = true;
+    }
+    el.scrollLeft = scrollLeftRef.current - walk;
+    checkScroll();
+  };
+
+  const handleMouseUpOrLeave = () => {
+    if (isDraggingRef.current) {
+      isDraggingRef.current = false;
+      setIsCursorGrabbing(false);
+      checkScroll();
+    }
+  };
+
+  // Global mouseup / pointerup to ensure drag is released even outside container
+  useEffect(() => {
+    const handleGlobalMouseUp = () => {
+      if (isDraggingRef.current) {
+        isDraggingRef.current = false;
+        setIsCursorGrabbing(false);
+        checkScroll();
+      }
+    };
+
+    window.addEventListener("mouseup", handleGlobalMouseUp);
+    window.addEventListener("pointerup", handleGlobalMouseUp);
+    return () => {
+      window.removeEventListener("mouseup", handleGlobalMouseUp);
+      window.removeEventListener("pointerup", handleGlobalMouseUp);
+    };
+  }, [checkScroll]);
+
+  // Sync client profile state and dynamically fetch public instructor courses from Backend API
   useEffect(() => {
     if (!initialInstructor) return;
     const overrides = getSavedInstructorOverrides(initialInstructor.id || initialInstructor.slug || "");
-
-    let activeGlobal: any = {};
-    if (typeof window !== "undefined") {
-      try {
-        activeGlobal = JSON.parse(localStorage.getItem("coachspace_active_instructor_profile") || "{}");
-      } catch (e) {
-        activeGlobal = {};
-      }
-    }
-
-    const merged = { ...activeGlobal, ...overrides };
+    const merged = { ...overrides };
 
     if (Object.keys(merged).length > 0) {
       setInstructor((prev) => ({
@@ -87,7 +195,161 @@ export function PublicInstructorProfileView({ instructor: initialInstructor }: P
         },
       }));
     }
-  }, [initialInstructor]);
+
+    let isSubscribed = true;
+
+    // Helper to format course object into CourseCard format
+    const formatCourse = (c: any, instName: string, instNameAr: string, instAvatar?: string) => {
+      const catName = typeof c.category === "object" ? (c.category?.name || "General") : (typeof c.category === "string" ? c.category : (c.category_name || "General"));
+      const catNameAr = typeof c.category === "object" && c.category?.name_ar ? c.category.name_ar : (c.category_ar || catName);
+      const priceNum = Number(c.price) || 0;
+      const durationNum = Number(c.duration_hours || c.duration || 0);
+
+      return {
+        id: String(c.id),
+        title: c.title || c.title_en || "Course",
+        titleAr: c.title_ar || c.title || "دورة",
+        titleEn: c.title_en || c.title || "Course",
+        slug: String(c.id),
+        description: c.description || c.description_en || "",
+        descriptionAr: c.description_ar || c.description || "",
+        instructorName: instName,
+        instructorNameAr: instNameAr,
+        instructorAvatar: instAvatar || (typeof c.instructor === "object" ? c.instructor?.avatar : undefined) || "",
+        category: catName,
+        categoryAr: catNameAr,
+        level: c.level === "beginner" ? "Beginner" : c.level === "intermediate" ? "Intermediate" : c.level === "advanced" ? "Advanced" : (c.level || "Beginner"),
+        price: priceNum,
+        priceFormatted: priceNum === 0 ? "Free" : `$${priceNum.toFixed(2)}`,
+        isFree: Boolean(c.is_free || priceNum === 0),
+        language: c.language === "ar" ? "Arabic" : "English",
+        rating: Number(c.rating || 0),
+        reviewsCount: Number(c.reviews_count || 0),
+        reviewsCountFormatted: String(Number(c.reviews_count || 0)),
+        studentsCount: Number(c.students_count || 0),
+        durationHours: durationNum > 0 ? durationNum : 10,
+        durationFormatted: `${durationNum > 0 ? durationNum : 10} hours`,
+        coverImage: c.cover_image || c.coverImage || (typeof c.image === "string" && !c.image.includes("unsplash.com/photo-1516321318423") ? c.image : ""),
+        image: c.cover_image || c.coverImage || (typeof c.image === "string" && !c.image.includes("unsplash.com/photo-1516321318423") ? c.image : ""),
+        badge: c.is_bestseller ? "Bestseller" : undefined,
+      };
+    };
+
+    // 1. Fetch public catalog courses (available to all roles: student, guest, instructor)
+    async function loadInstructorCourses() {
+      try {
+        const data = await courseService.getCourses({ page_size: 100 }, locale);
+        const results = Array.isArray(data) ? data : data?.results || [];
+
+        if (!isSubscribed) return;
+
+        const targetSlug = normalizeInstructorSlug(initialInstructor.slug || initialInstructor.name || "");
+        const targetId = String(initialInstructor.id || "").replace(/^inst-/, "");
+        const isNumericId = /^\d+$/.test(targetId);
+
+        // Filter courses matching this instructor: STRICTLY BY ID when available!
+        const matchingPublicCourses = results.filter((c: any) => {
+          const instObj = typeof c.instructor === "object" ? c.instructor : null;
+          const instId = String(instObj?.id || c.instructor_id || "");
+
+          // 1. If we have a target instructor ID, match ONLY by ID!
+          if (targetId && instId) {
+            return targetId === instId || `inst-${instId}` === initialInstructor.id;
+          }
+
+          // 2. Fallback only if no numeric ID exists
+          if (!isNumericId && targetSlug) {
+            const instFullName = (instObj?.full_name || instObj?.name || (typeof c.instructor === "string" ? c.instructor : (c.instructorName || ""))).toLowerCase().trim();
+            const courseSlug = normalizeInstructorSlug(instFullName);
+            return courseSlug === targetSlug;
+          }
+
+          return false;
+        });
+
+        let discoveredName: string | undefined = undefined;
+        let discoveredNameAr: string | undefined = undefined;
+        let discoveredAvatar: string | undefined = undefined;
+        for (const c of matchingPublicCourses) {
+          if (typeof c.instructor === "object") {
+            if (!discoveredName && (c.instructor?.full_name || c.instructor?.name)) {
+              discoveredName = c.instructor.full_name || c.instructor.name;
+            }
+            if (!discoveredNameAr && c.instructor?.full_name_ar) {
+              discoveredNameAr = c.instructor.full_name_ar;
+            }
+            if (!discoveredAvatar && c.instructor?.avatar) {
+              discoveredAvatar = c.instructor.avatar;
+            }
+            if (discoveredName && discoveredAvatar) break;
+          }
+        }
+
+        setInstructor((prev) => {
+          const instName = discoveredName || prev.name || initialInstructor.name || "Instructor";
+          const instNameAr = discoveredNameAr || prev.nameAr || initialInstructor.nameAr || instName;
+          const instAvatar = prev.avatar || discoveredAvatar || initialInstructor.avatar;
+
+          const formattedPublicCourses = matchingPublicCourses.map((c: any) =>
+            formatCourse(c, instName, instNameAr, instAvatar)
+          );
+
+          return {
+            ...prev,
+            name: instName,
+            nameAr: instNameAr,
+            avatar: instAvatar,
+            courses: formattedPublicCourses,
+          };
+        });
+
+        // 2. If the logged in user is this instructor, STRICTLY MATCH BY USER ID!
+        const isCurrentInstructor = Boolean(
+          authUser &&
+          ((authUser.role || "").toLowerCase() === "instructor" || (authUser.role || "").toLowerCase() === "coach") &&
+          targetId &&
+          String(authUser.id) === targetId
+        );
+
+        if (isCurrentInstructor) {
+          try {
+            const studioData = await instructorCourseService.getMyCourses();
+            const studioList = Array.isArray(studioData) ? studioData : studioData?.results || [];
+            if (studioList.length > 0 && isSubscribed) {
+              setInstructor((prev) => {
+                const instName = discoveredName || prev.name || initialInstructor.name || "Instructor";
+                const instNameAr = discoveredNameAr || prev.nameAr || initialInstructor.nameAr || instName;
+                const instAvatar = prev.avatar || discoveredAvatar || initialInstructor.avatar;
+
+                const formattedStudioCourses = studioList.map((c: any) =>
+                  formatCourse(c, instName, instNameAr, instAvatar)
+                );
+
+                const existingIds = new Set(formattedStudioCourses.map((c: any) => String(c.id)));
+                const remainingPublic = (prev.courses || []).filter((c: any) => !existingIds.has(String(c.id)));
+                const combined = [...formattedStudioCourses, ...remainingPublic];
+
+                return {
+                  ...prev,
+                  courses: combined,
+                };
+              });
+            }
+          } catch (studioErr) {
+            console.warn("Could not fetch authenticated instructor courses:", studioErr);
+          }
+        }
+      } catch (err) {
+        console.warn("Could not load public instructor courses:", err);
+      }
+    }
+
+    loadInstructorCourses();
+
+    return () => {
+      isSubscribed = false;
+    };
+  }, [initialInstructor, authUser, locale]);
 
   const handleShare = async () => {
     if (typeof window !== "undefined") {
@@ -107,7 +369,8 @@ export function PublicInstructorProfileView({ instructor: initialInstructor }: P
   const displayName = getLocalizedName(instructor.name, instructor.nameAr, isAr);
   const displayHeadline = getLocalizedHeadline(
     isAr ? instructor.headlineAr || instructor.headline : instructor.headline,
-    isAr
+    isAr,
+    true
   );
   const displaySpecialization = getLocalizedSpecialization(
     isAr ? instructor.specializationAr || instructor.specialization : instructor.specialization,
@@ -120,8 +383,11 @@ export function PublicInstructorProfileView({ instructor: initialInstructor }: P
   const rawHourlyRate = isAr ? (instructor.hourlyRateAr || instructor.hourlyRate) : (instructor.hourlyRate || instructor.hourlyRateAr);
   const displayHourlyRate = rawHourlyRate?.trim() || "";
 
-  const rawBio = isAr ? (instructor.bioAr || instructor.bio) : (instructor.bio || instructor.bioAr);
-  const displayBio = rawBio?.trim() || "";
+  const displayBio = getLocalizedBio(
+    instructor.bio,
+    instructor.bioAr,
+    isAr
+  );
 
   const displaySkills = (
     (isAr ? instructor.skillsAr : instructor.skills) ||
@@ -137,9 +403,8 @@ export function PublicInstructorProfileView({ instructor: initialInstructor }: P
     socials?.github || socials?.linkedin || socials?.website || socials?.email || socials?.twitter
   );
 
-  const hasTotalStudents = Boolean(instructor.totalStudents && instructor.totalStudents > 0);
   const hasCourses = courses.length > 0;
-  const hasQuickStats = hasTotalStudents || hasCourses;
+  const hasQuickStats = hasCourses;
   const hasSidebar = Boolean(hasQuickStats || hasSocials);
 
   return (
@@ -153,7 +418,7 @@ export function PublicInstructorProfileView({ instructor: initialInstructor }: P
               {t("breadcrumbHome")}
             </Link>
             <ChevronRight className="h-3.5 w-3.5 rtl:rotate-180 text-slate-300 shrink-0" />
-            <Link href={`/${locale}/catalog`} className="hover:text-[#0F5244] transition-colors">
+            <Link href={`/${locale}/courses`} className="hover:text-[#0F5244] transition-colors">
               {t("breadcrumbCatalog")}
             </Link>
             <ChevronRight className="h-3.5 w-3.5 rtl:rotate-180 text-slate-300 shrink-0" />
@@ -188,8 +453,8 @@ export function PublicInstructorProfileView({ instructor: initialInstructor }: P
                           src={instructor.avatar}
                           alt={displayName}
                           fill
-                          priority
-                          className="object-cover"
+                          sizes="112px"
+                          className="w-full h-full object-cover"
                         />
                       </div>
                     ) : (
@@ -208,13 +473,7 @@ export function PublicInstructorProfileView({ instructor: initialInstructor }: P
                     <h1 suppressHydrationWarning className="text-xl sm:text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
                       {displayName}
                     </h1>
-                    <div
-                      className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-50 text-[#0F5244] border border-emerald-200/80 text-[11px] font-bold shadow-2xs"
-                      title={t("verifiedTooltip")}
-                    >
-                      <ShieldCheck className="h-3.5 w-3.5 text-[#0F5244]" />
-                      <span>{t("verifiedBadge")}</span>
-                    </div>
+                    <VerifiedBadge size="sm" tooltipText={t("verifiedTooltip")} />
                   </div>
 
                   {/* Headline or Specialization */}
@@ -264,7 +523,7 @@ export function PublicInstructorProfileView({ instructor: initialInstructor }: P
                 </button>
 
                 <Link
-                  href={`/${locale}/catalog`}
+                  href={`/${locale}/courses`}
                   className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-5 py-2.5 rounded-xl bg-[#0F5244] hover:bg-[#07382E] text-white text-xs font-bold transition-all shadow-xs active:scale-95"
                 >
                   <BookOpen className="h-3.5 w-3.5 text-[#45D1B4]" />
@@ -291,28 +550,13 @@ export function PublicInstructorProfileView({ instructor: initialInstructor }: P
                         <span>{t("quickHighlights")}</span>
                       </h4>
 
-                      <div className="grid grid-cols-2 gap-2.5">
-                        {hasTotalStudents && (
-                          <div className="p-3 rounded-xl bg-slate-50/80 border border-slate-100">
-                            <span className="text-slate-400 font-medium block text-[11px]">
-                              {t("totalStudents")}
-                            </span>
-                            <span className="text-base font-extrabold text-slate-900 tracking-tight mt-0.5 block">
-                              {instructor.totalStudentsFormatted || instructor.totalStudents}
-                            </span>
-                          </div>
-                        )}
-
-                        {hasCourses && (
-                          <div className="p-3 rounded-xl bg-slate-50/80 border border-slate-100">
-                            <span className="text-slate-400 font-medium block text-[11px]">
-                              {t("activeCourses")}
-                            </span>
-                            <span className="text-base font-extrabold text-slate-900 tracking-tight mt-0.5 block">
-                              {courses.length}
-                            </span>
-                          </div>
-                        )}
+                      <div className="p-3 rounded-xl bg-slate-50/80 border border-slate-100">
+                        <span className="text-slate-400 font-medium block text-[11px]">
+                          {t("activeCourses")}
+                        </span>
+                        <span className="text-base font-extrabold text-slate-900 tracking-tight mt-0.5 block">
+                          {courses.length}
+                        </span>
                       </div>
                     </div>
                   )}
@@ -406,7 +650,7 @@ export function PublicInstructorProfileView({ instructor: initialInstructor }: P
             )}
 
             {/* ================= RIGHT MAIN CONTENT COLUMN ================= */}
-            <section className={`${hasSidebar ? "lg:col-span-8" : "lg:col-span-12"} p-6 sm:p-8 space-y-8 bg-white`}>
+            <section className={`${hasSidebar ? "lg:col-span-8" : "lg:col-span-12"} min-w-0 max-w-full overflow-hidden p-6 sm:p-8 space-y-8 bg-white`}>
               
               {/* Bio / About Overview */}
               {displayBio && (
@@ -431,18 +675,39 @@ export function PublicInstructorProfileView({ instructor: initialInstructor }: P
 
               {/* ================= COURSES SECTION ================= */}
               <div className="space-y-4 pt-1">
-                <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                <div className="flex items-center justify-between border-b border-slate-100 pb-3 flex-wrap gap-2">
                   <div className="flex items-center gap-2">
                     <BookOpen className="h-4 w-4 text-[#0F5244]" />
                     <h3 className="text-base font-bold text-slate-900 tracking-tight">
                       {t("coursesTitle", { count: courses.length })}
                     </h3>
                   </div>
-                  {courses.length > 0 && (
-                    <span className="text-xs font-semibold text-[#0F5244]">
-                      {t("instantEnrollment")}
-                    </span>
-                  )}
+                  
+                  <div className="flex items-center gap-3">
+                    {/* Navigation Buttons for Single-Row Carousel */}
+                    {courses.length > 1 && (
+                      <div className="flex items-center gap-1">
+                        <button
+                          type="button"
+                          onClick={() => handleScroll("prev")}
+                          disabled={!canScrollPrev}
+                          className="w-7 h-7 sm:w-8 sm:h-8 rounded-full border border-slate-200 hover:border-[#A7E2D4] hover:bg-[#E6F3EF] disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:border-slate-200 text-slate-700 transition-all flex items-center justify-center cursor-pointer disabled:cursor-not-allowed shadow-2xs active:scale-95"
+                          aria-label="Previous Course"
+                        >
+                          <ChevronLeft className="h-4 w-4 rtl:rotate-180" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleScroll("next")}
+                          disabled={!canScrollNext}
+                          className="w-7 h-7 sm:w-8 sm:h-8 rounded-full border border-slate-200 hover:border-[#A7E2D4] hover:bg-[#E6F3EF] disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:border-slate-200 text-slate-700 transition-all flex items-center justify-center cursor-pointer disabled:cursor-not-allowed shadow-2xs active:scale-95"
+                          aria-label="Next Course"
+                        >
+                          <ChevronRight className="h-4 w-4 rtl:rotate-180" />
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 {courses.length === 0 ? (
@@ -460,7 +725,7 @@ export function PublicInstructorProfileView({ instructor: initialInstructor }: P
                       </p>
                     </div>
                     <Link
-                      href={`/${locale}/catalog`}
+                      href={`/${locale}/courses`}
                       className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#0F5244] hover:bg-[#07382E] text-white text-xs font-bold transition-all shadow-2xs active:scale-95"
                     >
                       <span>{t("browseCatalog")}</span>
@@ -468,11 +733,35 @@ export function PublicInstructorProfileView({ instructor: initialInstructor }: P
                     </Link>
                   </div>
                 ) : (
-                  /* Grid of Published Courses */
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
+                  /* Single-Row Horizontal Carousel of Published Courses */
+                  <div
+                    ref={coursesScrollRef}
+                    onScroll={checkScroll}
+                    onMouseDown={handleMouseDown}
+                    onMouseMove={handleMouseMove}
+                    onMouseUp={handleMouseUpOrLeave}
+                    onMouseLeave={handleMouseUpOrLeave}
+                    onDragStart={(e) => e.preventDefault()}
+                    onClickCapture={(e) => {
+                      if (hasDraggedRef.current) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        hasDraggedRef.current = false;
+                      }
+                    }}
+                    className={`flex gap-4 overflow-x-auto pb-4 pt-1 select-none scrollbar-none [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden ${
+                      isCursorGrabbing
+                        ? "cursor-grabbing scroll-auto snap-none"
+                        : "cursor-grab scroll-smooth snap-x snap-proximity"
+                    }`}
+                  >
                     {courses.map((course) => (
-                      <div key={course.id} className="transition-transform hover:-translate-y-0.5 duration-150">
-                        <CourseCard course={course} isAr={isAr} />
+                      <div
+                        key={course.id}
+                        data-course-card
+                        className="w-[205px] sm:w-[220px] md:w-[230px] shrink-0 snap-start transition-transform hover:-translate-y-0.5 duration-150"
+                      >
+                        <CourseCard course={course} variant="compact" isAr={isAr} />
                       </div>
                     ))}
                   </div>
@@ -513,8 +802,9 @@ export function PublicInstructorProfileView({ instructor: initialInstructor }: P
                         {t("reviewsTitle", { count: instructor.reviews.length })}
                       </h3>
                     </div>
-                    <span className="text-xs font-extrabold text-slate-800">
-                      {instructor.rating || 5.0} ★
+                    <span className="inline-flex items-center gap-1 text-xs font-extrabold text-slate-800">
+                      <span>{instructor.rating || 5.0}</span>
+                      <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
                     </span>
                   </div>
 

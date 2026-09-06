@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { Mail, X, Send, AlertCircle, CheckCircle2, Loader2 } from "lucide-react";
-import { authService, getApiErrorMessage } from "@/services/auth";
+import { userService } from "@/services/userService";
 
 export interface ChangeEmailModalProps {
   isOpen: boolean;
@@ -28,6 +28,15 @@ export function ChangeEmailModal({
   const [isSuccess, setIsSuccess] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
+  const handleClose = useCallback(() => {
+    setNewEmail("");
+    setError(null);
+    setIsSending(false);
+    setIsSuccess(false);
+    setSuccessMessage(null);
+    onClose();
+  }, [onClose]);
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
@@ -38,23 +47,13 @@ export function ChangeEmailModal({
       window.addEventListener("keydown", handleKeyDown);
     }
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isOpen]);
-
-  const handleClose = () => {
-    setNewEmail("");
-    setError(null);
-    setIsSending(false);
-    setIsSuccess(false);
-    setSuccessMessage(null);
-    onClose();
-  };
+  }, [isOpen, handleClose]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!newEmail || !emailRegex.test(newEmail)) {
+    if (!newEmail || !newEmail.includes("@")) {
       setError(t("invalidEmailError"));
       return;
     }
@@ -67,17 +66,17 @@ export function ChangeEmailModal({
     setIsSending(true);
 
     try {
-      const res = await authService.requestEmailChange(newEmail.trim());
+      const res = await userService.requestEmailChange(newEmail.trim());
       setIsSending(false);
       setIsSuccess(true);
       const detailMsg = Array.isArray(res?.detail) ? res.detail.join(' ') : res?.detail;
       setSuccessMessage(
         res?.message ||
-          detailMsg ||
-          t("success") ||
-          (isAr
-            ? "تم إرسال رابط تأكيد التفعيل إلى بريدك الإلكتروني الجديد بنجاح."
-            : "Verification link has been sent to the new email address successfully.")
+        detailMsg ||
+        t("success") ||
+        (isAr
+          ? "تم إرسال رابط تأكيد التفعيل إلى بريدك الإلكتروني الجديد بنجاح."
+          : "Verification link has been sent to the new email address successfully.")
       );
 
       if (onConfirmEmailChange) {
@@ -85,11 +84,15 @@ export function ChangeEmailModal({
       }
     } catch (err: any) {
       setIsSending(false);
-      const msg = getApiErrorMessage(
-        err,
-        isAr ? "فشل طلب تغيير البريد الإلكتروني. يرجى المحاولة مرة أخرى." : "Failed to change email. Please try again.",
-        isAr
-      );
+      const errorDetail = err?.response?.data?.detail || err?.response?.data?.message || err?.message;
+      const msg =
+        typeof errorDetail === "string"
+          ? errorDetail
+          : Array.isArray(errorDetail)
+            ? errorDetail.join(" ")
+            : isAr
+              ? "فشل طلب تغيير البريد الإلكتروني. يرجى المحاولة مرة أخرى."
+              : "Failed to change email. Please try again.";
       setError(msg);
     }
   };
@@ -151,7 +154,7 @@ export function ChangeEmailModal({
             </div>
             <div className="space-y-1.5">
               <h4 className="text-sm sm:text-base font-extrabold text-slate-900">
-                {isAr ? "تم إرسال رابط التأكيد بنجاح!" : "Verification Link Sent!"}
+                {t("successTitle")}
               </h4>
               <p className="text-xs sm:text-sm text-slate-600 font-medium max-w-xs mx-auto leading-relaxed">
                 {successMessage}
@@ -162,7 +165,7 @@ export function ChangeEmailModal({
               onClick={handleClose}
               className="w-full py-2.5 rounded-xl bg-[#0F5244] hover:bg-[#07382E] text-white text-xs sm:text-sm font-extrabold cursor-pointer shadow-xs transition-all active:scale-98"
             >
-              {isAr ? "حسناً، تم" : "Got it"}
+              {t("gotItBtn")}
             </button>
           </div>
         ) : (

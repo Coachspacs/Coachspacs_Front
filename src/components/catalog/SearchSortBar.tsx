@@ -1,9 +1,11 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useSyncExternalStore } from "react";
 import { useTranslations } from "next-intl";
 import { Search, ChevronDown, X, Check, ArrowUpDown, Filter } from "lucide-react";
 import { SortOption } from "@/types/catalog";
+
+const emptySubscribe = () => () => {};
 
 interface SearchSortBarProps {
   searchQuery: string;
@@ -14,6 +16,7 @@ interface SearchSortBarProps {
   isAr?: boolean;
   onOpenMobileFilters?: () => void;
   selectedFiltersCount?: number;
+  isLoading?: boolean;
 }
 
 export function SearchSortBar({
@@ -25,8 +28,10 @@ export function SearchSortBar({
   isAr = false,
   onOpenMobileFilters,
   selectedFiltersCount = 0,
+  isLoading = false,
 }: SearchSortBarProps) {
   const t = useTranslations("catalog.search");
+  const tFilter = useTranslations("catalog.filters");
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -41,16 +46,17 @@ export function SearchSortBar({
   const currentOption = sortOptionsList.find((opt) => opt.value === sortBy) || sortOptionsList[0];
 
   useEffect(() => {
+    if (!isOpen) return;
     function handleClickOutside(event: MouseEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setIsOpen(false);
       }
     }
-    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside, { passive: true });
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, []);
+  }, [isOpen]);
 
   return (
     <div className="flex flex-col md:flex-row items-center justify-between gap-3 sm:gap-4 p-3.5 sm:p-4 rounded-2xl bg-white border border-slate-200/80 shadow-2xs w-full">
@@ -90,7 +96,7 @@ export function SearchSortBar({
             className="lg:hidden inline-flex items-center gap-1.5 rounded-xl bg-[#0F5244] text-white px-3 py-2 text-xs font-black shadow-2xs hover:bg-[#07382E] active:scale-98 transition-all shrink-0 cursor-pointer"
           >
             <Filter className="h-3.5 w-3.5" />
-            <span>{isAr ? "الفلترة" : "Filters"}</span>
+            <span>{tFilter("toggle")}</span>
             {selectedFiltersCount > 0 && (
               <span className="rounded-full bg-white text-[#0F5244] px-1.5 py-0.2 text-[10px] font-black">
                 {selectedFiltersCount}
@@ -100,8 +106,12 @@ export function SearchSortBar({
         )}
 
         {/* Dynamic Results Pill Badge */}
-        <span className="inline-flex items-center px-3.5 py-2 rounded-full bg-[#E8F3F1] text-[#0F5244] text-xs font-black tracking-tight shrink-0 whitespace-nowrap">
-          {t("resultsFound", { count: totalResults })}
+        <span className="inline-flex items-center min-h-[32px] px-3.5 py-1.5 rounded-full bg-[#E8F3F1] text-[#0F5244] text-xs font-black tracking-tight shrink-0 whitespace-nowrap">
+          {isLoading ? (
+            <span className="inline-block w-16 h-3.5 bg-[#0F5244]/20 rounded-full animate-pulse my-0.5" />
+          ) : (
+            t("resultsFound", { count: totalResults })
+          )}
         </span>
 
         {/* Custom Modern Sort Dropdown Menu */}

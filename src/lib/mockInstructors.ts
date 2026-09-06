@@ -1,279 +1,6 @@
 import { PublicInstructor } from "@/types/publicInstructor";
-import { MOCK_COURSES } from "./mockCatalogData";
 
-export const MOCK_INSTRUCTORS: PublicInstructor[] = [
-  {
-    id: "inst-mohammed-katanani",
-    slug: "mohammed-katanani",
-    name: "Mohammed Katanani",
-    nameAr: "محمد قطناني",
-    headline: "Senior Software Architect & Executive Tech Coach",
-    headlineAr: "كبير معماريي البرمجيات ومدرب القيادة التقنية التنفيذية",
-    avatar: undefined,
-    coverImage: "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=1600&q=80",
-    bio: "Dedicated professional instructor on CoachSpace committed to delivering world-class educational experiences, real-world project skills, and career mentorship.",
-    bioAr: "مدرب محترف في منصة CoachSpace ملتزم بتقديم برامج تدريبية وتطبيقية عالية الجودة وتوجيه مهني متميز ونقل الخبرات العملية لبناء مهارات تقنية متقدمة.",
-    aboutParagraphs: [],
-    aboutParagraphsAr: [],
-    specialization: "Software Architecture & Executive Leadership",
-    specializationAr: "هندسة البرمجيات والقيادة التنفيذية",
-    rating: undefined,
-    reviewsCount: 0,
-    reviewsCountFormatted: undefined,
-    totalStudents: undefined,
-    totalStudentsFormatted: undefined,
-    totalCourses: 0,
-    experienceYears: 8,
-    socials: {
-      linkedin: "https://linkedin.com",
-      email: "instructor@coachspace.com"
-    },
-    skills: ["System Design", "Next.js", "React.js", "Cloud Architecture", "Clean Code & Architecture"],
-    skillsAr: ["تصميم الأنظمة", "Next.js", "React.js", "البنية السحابية", "الكود النظيف والمعمارية المتقدمة"],
-    highlights: [],
-    reviews: [],
-    hourlyRate: undefined,
-    hourlyRateAr: undefined,
-    location: "Riyadh, Saudi Arabia",
-    locationAr: "الرياض، المملكة العربية السعودية",
-    successRate: undefined,
-  },
-  {
-    id: "inst-tariq-al-mansoor",
-    slug: "tariq-al-mansoor",
-    name: "Dr. Tariq Al-Mansoor",
-    nameAr: "د. طارق المنصور",
-    headline: "Senior Software Architect & Executive Tech Coach",
-    headlineAr: "كبير معماريي البرمجيات ومدرب القيادة التقنية التنفيذية",
-    avatar: undefined,
-    coverImage: "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=1600&q=80",
-    bio: "PhD in Computer Science with 14+ years of industry experience architecting scalable distributed systems and training high-performing engineering teams at top-tier tech companies.",
-    bioAr: "دكتوراه في علوم الحاسوب وخبرة أكثر من 14 عاماً في هندسة النظم السحابية الموزعة وبناء وتدريب الفرق الهندسية المتميزة في كبرى الشركات التقنية العالمية.",
-    aboutParagraphs: [
-      "Dr. Tariq has led engineering teams at Fortune 500 companies and fast-growing tech scaleups.",
-      "His courses focus on hands-on modern full-stack development, distributed architecture, and executive mentorship.",
-      "He believes in practical learning through building real-world enterprise applications."
-    ],
-    aboutParagraphsAr: [
-      "يحمل د. طارق درجة الدكتوراه في علوم الحاسب وقاد فرقاً هندسية في كبرى الشركات التقنية العالمية والشركات الناشئة سريعة النمو.",
-      "تركز دوراته وبرامجه على أحدث تقنيات الويب (Next.js 15، React 19، TypeScript، والأنظمة الموزعة) بالإضافة إلى التوجيه القيادي لمدراء الهندسة ورؤساء التقنية.",
-      "يؤمن بالتعليم التطبيقي المباشر القائم على بناء مشاريع حقيقية جاهزة للإنتاج وبيئات العمل الاحترافية."
-    ],
-    specialization: "Software Architecture & Executive Leadership",
-    specializationAr: "هندسة البرمجيات والقيادة التنفيذية",
-    rating: 4.9,
-    reviewsCount: 3420,
-    reviewsCountFormatted: "3.4k",
-    totalStudents: 28400,
-    totalStudentsFormatted: "28.4k",
-    totalCourses: 4,
-    experienceYears: 14,
-    socials: {
-      website: "https://example.com/dr-tariq",
-      linkedin: "https://linkedin.com/in/drtariq",
-      twitter: "https://twitter.com/drtariq",
-      github: "https://github.com/drtariq",
-      email: "tariq@coachspace.com"
-    },
-    skills: ["Next.js 15", "React 19", "TypeScript", "System Design", "Cloud Architecture", "Engineering Management", "Clean Code"],
-    skillsAr: ["Next.js 15", "React 19", "تايب سكريبت", "تصميم الأنظمة", "البنية السحابية", "إدارة الفرق الهندسية", "الكود النظيف"],
-    highlights: [
-      {
-        id: "h1",
-        iconName: "Award",
-        title: "Top Rated Instructor 2025/2026",
-        titleAr: "المدرب الأعلى تقييماً 2025/2026",
-        subtitle: "Maintained 4.9+ rating across all programs",
-        subtitleAr: "حافظ على تقييم 4.9+ في كافة البرامج التدريبية"
-      },
-      {
-        id: "h2",
-        iconName: "Users",
-        title: "28,000+ Students Mentored",
-        titleAr: "أكثر من 28,000 طالب متدرب",
-        subtitle: "Worldwide alumni working in top tech companies",
-        subtitleAr: "خريجون يعملون في أكبر الشركات التقنية حول العالم"
-      }
-    ],
-    ratingBreakdown: {
-      stars5: 88,
-      stars4: 9,
-      stars3: 2,
-      stars2: 1,
-      stars1: 0
-    },
-    reviews: [
-      {
-        id: "rev-1",
-        studentName: "Omar Al-Farsi",
-        studentNameAr: "عمر الفارسي",
-        avatar: undefined,
-        rating: 5,
-        date: "2 weeks ago",
-        dateAr: "منذ أسبوعين",
-        comment: "Dr. Tariq's Next.js course is the most thorough and well-explained course I have ever taken. The architecture concepts directly helped me pass my Senior Frontend interview.",
-        commentAr: "دورة د. طارق في Next.js من أعمق وأشمل الدورات التي درستها. المفاهيم المعمارية والتطبيقية ساعدتني مباشرة في اجتياز مقابلة مهندس أول للواجهات.",
-        courseTitle: "Next.js 15 & React 19 Fullstack Masterclass",
-        courseTitleAr: "تطوير تطبيقات الويب الحديثة باستخدام Next.js 15"
-      },
-      {
-        id: "rev-2",
-        studentName: "Nadine Mansour",
-        studentNameAr: "نادين منصور",
-        avatar: undefined,
-        rating: 5,
-        date: "1 month ago",
-        dateAr: "منذ شهر",
-        comment: "Clear explanations, top-tier video quality, and responsive mentorship in Q&A. Highly recommended for any serious engineer.",
-        commentAr: "شرح واضح جداً وجودة إنتاج استثنائية مع تفاعل مستمر في الرد على الاستفسارات. أنصح به بشدة لأي مهندس يرغب في الارتقاء بمستواه.",
-        courseTitle: "Corporate Strategy & Competitive Advantage",
-        courseTitleAr: "الاستراتيجية المؤسسية والميزة التنافسية"
-      }
-    ],
-  },
-  {
-    id: "inst-sarah-jenkins",
-    slug: "sarah-jenkins",
-    name: "Dr. Sarah Jenkins",
-    nameAr: "د. سارة جينكينز",
-    headline: "Executive Leadership Strategist & Agile Coach",
-    headlineAr: "استشارية القيادة التنفيذية ومدربة أساليب الإدارة المرنة",
-    avatar: undefined,
-    coverImage: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1600&q=80",
-    bio: "International executive coach with 12+ years of guiding leadership teams, high-growth startups, and Fortune 100 organizations through organizational transformation.",
-    bioAr: "مدربة تنفيذية دولية بخبرة تزيد عن 12 عاماً في توجيه الفرق القيادية والشركات سريعة النمو في مجالات التحول المؤسسي وبناء فرق العمل عالية الأداء.",
-    aboutParagraphs: [
-      "Dr. Sarah Jenkins combines industrial psychology with actionable business frameworks to help managers become inspiring, results-driven leaders.",
-      "She has coached leaders at major global organizations and trained over 15,000 executives across North America, Europe, and the MENA region.",
-      "Her workshops emphasize psychological safety, high-stakes communication, and agile team empowerment."
-    ],
-    aboutParagraphsAr: [
-      "تدمج د. سارة جينكينز بين علم النفس المؤسسي وأحدث أطر إدارة الأعمال العملية لمساعدة المدراء على التحول إلى قادة ملهمين ومحققين للنتائج.",
-      "قدمت استشاراتها وتدريبها لأكثر من 15,000 مدير وتنفيذي في أمريكا الشمالية وأوروبا والشرق الأوسط.",
-      "تركز ورشها التدريبية على الأمان النفسي داخل الفرق، وإدارة الحوارات المعقدة، وتمكين فرق العمل الرشيقة."
-    ],
-    specialization: "Executive Leadership & Team Dynamics",
-    specializationAr: "القيادة التنفيذية وإدارة الفرق",
-    rating: 4.8,
-    reviewsCount: 1200,
-    reviewsCountFormatted: "1.2k",
-    totalStudents: 16500,
-    totalStudentsFormatted: "16.5k",
-    totalCourses: 3,
-    experienceYears: 12,
-    socials: {
-      website: "https://example.com/dr-sarah",
-      linkedin: "https://linkedin.com/in/drsarahjenkins",
-      twitter: "https://twitter.com/drsarahj",
-      email: "sarah@coachspace.com"
-    },
-    skills: ["Team Leadership", "Agile Management", "Emotional Intelligence", "Executive Coaching", "Conflict Resolution", "OKRs & KPIs"],
-    skillsAr: ["قيادة الفرق", "الإدارة المرنة Agile", "الذكاء العاطفي", "التدريب التنفيذي", "حل النزاعات المؤسسية", "مؤشرات الأداء OKRs"],
-    highlights: [
-      {
-        id: "h1",
-        iconName: "Award",
-        title: "Certified Master Coach (ICF)",
-        titleAr: "مدربة معتمدة من الاتحاد الدولي للكوتشينج (ICF)",
-        subtitle: "PCC Credentialed Executive Coach",
-        subtitleAr: "اعتماد تدريبي مهني متقدم للكوتشينج التنفيذي"
-      }
-    ],
-    ratingBreakdown: {
-      stars5: 84,
-      stars4: 12,
-      stars3: 3,
-      stars2: 1,
-      stars1: 0
-    },
-    reviews: [],
-  },
-  {
-    id: "inst-sophia-martinez",
-    slug: "sophia-martinez",
-    name: "Sophia Martinez",
-    nameAr: "سوفيا مارتينيز",
-    headline: "Principal Product Designer & Design Systems Lead",
-    headlineAr: "كبيرة مصممي المنتجات ورئيسة أنظمة التصميم",
-    avatar: undefined,
-    coverImage: "https://images.unsplash.com/photo-1542744094-24638eff58bb?auto=format&fit=crop&w=1600&q=80",
-    bio: "Principal Product Designer with 10+ years shaping design systems and scalable user experiences for hyper-growth platforms.",
-    bioAr: "كبيرة مصممي المنتجات الرقمية بخبرة تتجاوز 10 سنوات في بناء أنظمة التصميم المتقدمة وتطوير تجارب مستخدم عالية الكفاءة للمنصات الكبرى.",
-    aboutParagraphs: [
-      "Sophia has built design systems used by over 50 million active users worldwide.",
-      "Her coaching focuses on Figma tokens, design-to-code pipelines, and inclusive accessibility (WCAG)."
-    ],
-    aboutParagraphsAr: [
-      "صممت سوفيا منتجات وتطبيقات حاصلة على جوائز عالمية وتخدم أكثر من 50 مليون مستخدم نشط.",
-      "تركز في منهجها على سد الفجوة بين توكنز التصميم في فجما والتطبيق البرمجي في الواجهات الأمامية لتسهيل التعاون بين المصممين والمطورين."
-    ],
-    specialization: "UI/UX & Design Systems",
-    specializationAr: "تصميم واجهات وتجربة المستخدم وأنظمة التصميم",
-    rating: 4.9,
-    reviewsCount: 3100,
-    reviewsCountFormatted: "3.1k",
-    totalStudents: 22000,
-    totalStudentsFormatted: "22k",
-    totalCourses: 3,
-    experienceYears: 10,
-    socials: {
-      website: "https://example.com/sophia",
-      linkedin: "https://linkedin.com/in/sophiamartinez",
-      twitter: "https://twitter.com/sophiadesign",
-      email: "sophia@coachspace.com"
-    },
-    skills: ["Figma", "Design Systems", "Micro-Interactions", "Accessibility (a11y)", "UX Research", "Design Tokens"],
-    skillsAr: ["فجما Figma", "أنظمة التصميم", "التفاعلات الدقيقة", "سهولة الوصول (a11y)", "أبحاث تجربة المستخدم", "رموز التصميم Tokens"],
-    highlights: [],
-    ratingBreakdown: {
-      stars5: 90,
-      stars4: 8,
-      stars3: 2,
-      stars2: 0,
-      stars1: 0
-    },
-    reviews: [],
-  },
-  {
-    id: "inst-alex-rivera",
-    slug: "alex-rivera",
-    name: "Alex Rivera",
-    nameAr: "أليكس ريفيرا",
-    headline: "Principal Fullstack Engineer & Cloud Architect",
-    headlineAr: "كبير مهندسي Fullstack ومعماري البنية السحابية",
-    avatar: undefined,
-    coverImage: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=1600&q=80",
-    bio: "Senior engineer and cloud architect with 13+ years building high-throughput microservices and distributed applications.",
-    bioAr: "مهندس برمجيات أول ومعماري سحابي بخبرة تزيد عن 13 عاماً في بناء الخدمات المصغرة عالية الكفاءة والنظم الموزعة.",
-    aboutParagraphs: [],
-    aboutParagraphsAr: [],
-    specialization: "Fullstack Engineering & Distributed Systems",
-    specializationAr: "هندسة النظم المتكاملة والأنظمة الموزعة",
-    rating: 4.8,
-    reviewsCount: 1890,
-    reviewsCountFormatted: "1.8k",
-    totalStudents: 15400,
-    totalStudentsFormatted: "15.4k",
-    totalCourses: 2,
-    experienceYears: 13,
-    socials: {
-      github: "https://github.com/alexrivera",
-      linkedin: "https://linkedin.com/in/alexrivera",
-      email: "alex@coachspace.com"
-    },
-    skills: ["Fullstack Architecture", "Node.js", "Docker & Kubernetes", "GraphQL", "AWS & GCP"],
-    skillsAr: ["البنية المتكاملة Fullstack", "Node.js", "Docker و Kubernetes", "GraphQL", "AWS و Google Cloud"],
-    highlights: [],
-    ratingBreakdown: {
-      stars5: 82,
-      stars4: 14,
-      stars3: 3,
-      stars2: 1,
-      stars1: 0
-    },
-    reviews: [],
-  }
-];
+export const MOCK_INSTRUCTORS: PublicInstructor[] = [];
 
 /**
  * Normalizes an instructor name or ID into a clean URL-friendly slug
@@ -300,7 +27,26 @@ export function getSavedInstructorOverrides(slugOrId: string): Partial<PublicIns
     const rawSpecific = localStorage.getItem(`coachspace_inst_profile_${slugOrId}`);
     const globalData = rawGlobal ? JSON.parse(rawGlobal) : {};
     const specificData = rawSpecific ? JSON.parse(rawSpecific) : {};
-    return { ...globalData, ...specificData };
+    
+    // Merge specificData, and only include globalData if it belongs to an actual instructor and matches slug
+    const normalizedTarget = normalizeInstructorSlug(slugOrId);
+    const globalSlug = normalizeInstructorSlug(globalData.slug || globalData.name || "");
+    
+    const isGlobalMatch = Boolean(
+      (globalSlug && normalizedTarget && (globalSlug === normalizedTarget || globalData.id === slugOrId))
+    );
+
+    const merged = isGlobalMatch ? { ...globalData, ...specificData } : { ...specificData };
+
+    // Strict guard: Never allow a student headline or bio to contaminate an instructor profile
+    if (merged.headline === "Student & Lifelong Learner" || merged.headline === "طالب ومتعلم شغوف" || merged.headline === "طالب ومتعلم شغوف مدى الحياة") {
+      delete merged.headline;
+    }
+    if (merged.headlineAr === "Student & Lifelong Learner" || merged.headlineAr === "طالب ومتعلم شغوف" || merged.headlineAr === "طالب ومتعلم شغوف مدى الحياة") {
+      delete merged.headlineAr;
+    }
+
+    return merged;
   } catch (e) {
     return {};
   }
@@ -325,6 +71,32 @@ export function saveInstructorOverrides(
 export const updatePublicInstructorOverrides = saveInstructorOverrides;
 
 /**
+ * Helpers to get and persist course status locally (e.g. pending_review)
+ */
+export function getSavedCourseStatus(courseId: string | number): string | null {
+  if (typeof window === "undefined" || !courseId) return null;
+  try {
+    return localStorage.getItem(`coachspace_course_status_${courseId}`) || null;
+  } catch {
+    return null;
+  }
+}
+
+export function saveCourseStatus(courseId: string | number, status: string): void {
+  if (typeof window === "undefined" || !courseId) return;
+  try {
+    localStorage.setItem(`coachspace_course_status_${courseId}`, status);
+  } catch {}
+}
+
+export function removeCourseStatus(courseId: string | number): void {
+  if (typeof window === "undefined" || !courseId) return;
+  try {
+    localStorage.removeItem(`coachspace_course_status_${courseId}`);
+  } catch {}
+}
+
+/**
  * Get public instructor by ID, slug, or matching name with associated courses
  */
 export function getPublicInstructorByIdOrSlug(idOrSlug: string): PublicInstructor {
@@ -345,74 +117,44 @@ export function getPublicInstructorByIdOrSlug(idOrSlug: string): PublicInstructo
     });
   }
 
-  // 3. Fallback: generate a dynamic instructor profile based on name or first default
+  // 3. Fallback: generate a dynamic instructor profile based on name or slug
   let resolvedInstructor: PublicInstructor;
   if (!foundInstructor) {
-    const matchingCourse = MOCK_COURSES.find(
-      (c) =>
-        normalizeInstructorSlug(c.instructorName || "") === normalized ||
-        (c.instructorName && c.instructorName.toLowerCase().includes(idOrSlug.toLowerCase()))
-    );
-
     const rawName = idOrSlug.replace(/^inst-/, "").replace(/-/g, " ");
     const displayName =
-      matchingCourse?.instructorName ||
       rawName
         .split(" ")
         .map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
         .join(" ");
-    const displayNameAr = matchingCourse?.instructorNameAr || displayName;
+    const displayNameAr = displayName;
 
     resolvedInstructor = {
       id: `inst-${normalized}`,
       slug: normalized || "instructor",
       name: displayName,
       nameAr: displayNameAr,
-      headline: "Senior Coach & Subject Matter Expert",
-      headlineAr: "خبير ومستشار معتمد في CoachSpace",
+      headline: "",
+      headlineAr: "",
       avatar: undefined,
-      coverImage:
-        "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=1600&q=80",
-      bio: "Dedicated professional instructor on CoachSpace committed to delivering world-class educational experiences and practical career mentorship.",
-      bioAr: "مدرب محترف في منصة CoachSpace ملتزم بتقديم برامج تدريبية وتطبيقية عالية الجودة وتوجيه مهني متميز.",
-      aboutParagraphs: [
-        "Specializes in interactive, outcomes-oriented coaching with a focus on real-world application."
-      ],
-      aboutParagraphsAr: [
-        "متخصص في التدريب التفاعلي الموجه نحو النتائج وتزويد الطلاب بالمهارات الحقيقية المطلوبة في سوق العمل."
-      ],
-      specialization: matchingCourse?.category || "Professional Development",
-      specializationAr: matchingCourse?.categoryAr || "التطوير المهني",
-      rating: matchingCourse?.rating || 4.9,
-      reviewsCount: matchingCourse?.reviewsCount || 450,
-      reviewsCountFormatted: matchingCourse?.reviewsCountFormatted || "450",
-      totalStudents: 5400,
-      totalStudentsFormatted: "5.4k",
-      totalCourses: 1,
-      experienceYears: 8,
-      socials: {
-        linkedin: "https://linkedin.com",
-        email: "contact@coachspace.com"
-      },
-      skills: [matchingCourse?.category || "Leadership", "Coaching", "Mentorship"],
-      skillsAr: [matchingCourse?.categoryAr || "القيادة", "التدريب", "التوجيه المهني"],
-      highlights: [
-        {
-          id: "dh1",
-          iconName: "Award",
-          title: "Verified CoachSpace Instructor",
-          titleAr: "مدرب معتمد في CoachSpace",
-          subtitle: "Vetted curriculum and high student satisfaction",
-          subtitleAr: "مناهج موثوقة وتقييمات إيجابية مستمرة"
-        }
-      ],
-      ratingBreakdown: {
-        stars5: 85,
-        stars4: 12,
-        stars3: 3,
-        stars2: 0,
-        stars1: 0
-      },
+      coverImage: undefined,
+      bio: "",
+      bioAr: "",
+      aboutParagraphs: [],
+      aboutParagraphsAr: [],
+      specialization: "",
+      specializationAr: "",
+      rating: undefined,
+      reviewsCount: 0,
+      reviewsCountFormatted: undefined,
+      totalStudents: undefined,
+      totalStudentsFormatted: undefined,
+      totalCourses: 0,
+      experienceYears: undefined,
+      socials: {},
+      skills: [],
+      skillsAr: [],
+      highlights: [],
+      ratingBreakdown: undefined,
       reviews: []
     };
   } else {
@@ -420,20 +162,7 @@ export function getPublicInstructorByIdOrSlug(idOrSlug: string): PublicInstructo
   }
 
   // Attach only actual matching courses for this instructor
-  const instructorCourses = MOCK_COURSES.filter((c) => {
-    if (!c.instructorName) return false;
-    const courseInstSlug = normalizeInstructorSlug(c.instructorName);
-    const courseInstSlugAr = normalizeInstructorSlug(c.instructorNameAr || "");
-    const targetSlug = resolvedInstructor.slug;
-    const targetName = (resolvedInstructor.name || "").toLowerCase().trim();
-    const courseInstName = c.instructorName.toLowerCase().trim();
-    return (
-      courseInstSlug === targetSlug ||
-      courseInstSlugAr === targetSlug ||
-      (targetName.length > 3 && courseInstName.includes(targetName)) ||
-      (targetName.length > 3 && targetName.includes(courseInstName))
-    );
-  });
+  const instructorCourses = resolvedInstructor.courses || [];
 
   // Apply any custom runtime/local overrides from profile settings
   const overrides = getSavedInstructorOverrides(resolvedInstructor.id || resolvedInstructor.slug);
@@ -570,16 +299,41 @@ export const SKILLS_AR_MAP: Record<string, string> = {
   "Microservices": "الخدمات المصغرة (Microservices)",
 };
 
+export const BIOS_AR_MAP: Record<string, string> = {
+  "Dedicated professional instructor on CoachSpace committed to delivering world-class educational experiences, real-world project skills, and career mentorship.": "مدرب محترف في منصة CoachSpace ملتزم بتقديم برامج تدريبية وتطبيقية عالية الجودة وتوجيه مهني متميز ونقل الخبرات العملية لبناء مهارات تقنية متقدمة.",
+  "Dedicated professional instructor on CoachSpace committed to delivering world-class educational experiences and practical career mentorship.": "مدرب محترف في منصة CoachSpace ملتزم بتقديم برامج تدريبية وتطبيقية عالية الجودة وتوجيه مهني متميز.",
+  "PhD in Computer Science with 14+ years of industry experience architecting scalable distributed systems and training high-performing engineering teams at top-tier tech companies.": "دكتوراه في علوم الحاسوب وخبرة أكثر من 14 عاماً في هندسة النظم السحابية الموزعة وبناء وتدريب الفرق الهندسية المتميزة في كبرى الشركات التقنية العالمية.",
+  "Senior Full-Stack Engineer and instructor specializing in modern web development, scalable cloud backends, and practical real-world engineering.": "كبير مهندسي Full-Stack ومدرب معتمد متخصص في تطوير تطبيقات الويب الحديثة، والأنظمة السحابية المتقدمة، وبناء المشاريع البرمجية العملية.",
+};
+
 export function getLocalizedSpecialization(spec?: string, isAr = false): string {
   if (!spec) return "";
   if (!isAr) return spec;
   return SPECIALIZATIONS_AR_MAP[spec] || spec;
 }
 
-export function getLocalizedHeadline(headline?: string, isAr = false): string {
-  if (!headline) return "";
+export function getLocalizedHeadline(headline?: string, isAr = false, isInstructor = false): string {
+  if (!headline) {
+    return isInstructor ? (isAr ? "مدرب وخبير معتمد" : "Certified Instructor") : "";
+  }
+  // Prevent student headline from appearing on instructor pages
+  if (isInstructor && (headline === "Student & Lifelong Learner" || headline === "طالب ومتعلم شغوف" || headline === "طالب ومتعلم شغوف مدى الحياة")) {
+    return isAr ? "كبير معماريي البرمجيات ومدرب القيادة التقنية التنفيذية" : "Senior Software Architect & Executive Tech Coach";
+  }
   if (!isAr) return headline;
   return HEADLINES_AR_MAP[headline] || headline;
+}
+
+export function getLocalizedBio(bio?: string, bioAr?: string, isAr = false): string {
+  if (!bio && !bioAr) return "";
+  if (!isAr) return bio || bioAr || "";
+  if (bioAr && bioAr.trim() !== "" && bioAr !== bio) return bioAr;
+  if (bio && BIOS_AR_MAP[bio.trim()]) return BIOS_AR_MAP[bio.trim()];
+  // Fallback check if bio contains standard text
+  if (bio && bio.includes("Dedicated professional instructor on CoachSpace")) {
+    return "مدرب محترف في منصة CoachSpace ملتزم بتقديم برامج تدريبية وتطبيقية عالية الجودة وتوجيه مهني متميز ونقل الخبرات العملية لبناء مهارات تقنية متقدمة.";
+  }
+  return bioAr || bio || "";
 }
 
 export function getLocalizedName(name?: string, nameAr?: string, isAr = false): string {

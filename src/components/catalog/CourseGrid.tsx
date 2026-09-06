@@ -1,19 +1,66 @@
 "use client";
 
 import React from "react";
+import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { CourseCard } from "./CourseCard";
 import { Course } from "@/types/catalog";
-import { SlidersHorizontal } from "lucide-react";
+import { SlidersHorizontal, AlertCircle, RotateCcw } from "lucide-react";
+import { CourseCardSkeleton } from "@/components/ui/Skeleton";
 
 interface CourseGridProps {
   courses: Course[];
+  isLoading?: boolean;
+  error?: string | null;
+  onRetry?: () => void;
   onResetFilters?: () => void;
   isAr?: boolean;
 }
 
-export function CourseGrid({ courses, onResetFilters, isAr = false }: CourseGridProps) {
+export function CourseGrid({
+  courses,
+  isLoading = false,
+  error = null,
+  onRetry,
+  onResetFilters,
+  isAr = false,
+}: CourseGridProps) {
   const t = useTranslations("catalog.emptyState");
+  const tError = useTranslations("catalog.errorState");
+
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center py-12 px-4 w-full text-center bg-white rounded-3xl border border-rose-100 p-8 space-y-4 shadow-sm animate-in fade-in duration-300">
+        <div className="w-14 h-14 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center mx-auto shadow-xs">
+          <AlertCircle className="w-7 h-7" />
+        </div>
+        <h2 className="text-lg sm:text-xl font-extrabold text-slate-900">
+          {tError("title")}
+        </h2>
+        <p className="text-xs sm:text-sm text-slate-500 max-w-md mx-auto leading-relaxed">
+          {tError("description")}
+        </p>
+        {onRetry && (
+          <button
+            type="button"
+            onClick={onRetry}
+            className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-[#0F5244] hover:bg-[#07382E] text-white text-xs sm:text-sm font-bold transition-all shadow-sm cursor-pointer active:scale-95"
+          >
+            <RotateCcw className="w-4 h-4" />
+            <span>{tError("retry")}</span>
+          </button>
+        )}
+      </div>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <CourseCardSkeleton count={6} />
+      </div>
+    );
+  }
 
   if (courses.length === 0) {
     return (
@@ -22,9 +69,11 @@ export function CourseGrid({ courses, onResetFilters, isAr = false }: CourseGrid
         {/* Soft Card Container containing Illustration Graphic */}
         <div className="w-full max-w-xs sm:max-w-sm rounded-3xl bg-[#F4F8F7] border border-[#E1EEEA] p-6 sm:p-8 flex flex-col items-center justify-center text-center mb-6 shadow-2xs">
           <div className="w-48 sm:w-56 h-auto flex items-center justify-center mix-blend-multiply overflow-hidden rounded-xl">
-            <img
+            <Image
               src="/images/no-courses-illustration.jpg"
               alt={t("headline")}
+              width={224}
+              height={160}
               className="w-full h-auto object-contain"
             />
           </div>

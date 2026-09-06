@@ -5,17 +5,66 @@ import Link from "next/link";
 import { useTranslations, useLocale } from "next-intl";
 import { useSelector } from "react-redux";
 import { RootState } from "@/lib/store";
-import { BookOpen, CheckCircle2, Award, Play, Sparkles, ArrowRight } from "lucide-react";
+import { enrollmentService } from "@/services/enrollmentService";
+import { BookOpen, CheckCircle2, Award, Sparkles, ArrowRight } from "lucide-react";
 
 export function StudentHomeWidget() {
   const t = useTranslations("home");
   const locale = useLocale();
   const [mounted, setMounted] = useState(false);
+  const [enrolledCourses, setEnrolledCourses] = useState<any[]>([]);
   const { user, isAuthenticated } = useSelector((state: RootState) => state.auth);
 
   useEffect(() => {
     setMounted(true);
-  }, []);
+
+    async function loadEnrollments() {
+      if (isAuthenticated) {
+        try {
+          const live = await enrollmentService.getMyEnrollments();
+          if (Array.isArray(live) && live.length > 0) {
+            const mapped = live.map((enr: any) => {
+              const c = enr.course || {};
+              return {
+                id: c.id || enr.course_id || enr.id,
+                title: locale === "ar" ? c.title_ar || c.title : c.title_en || c.title,
+                instructor:
+                  typeof c.instructor === "object"
+                    ? c.instructor?.name || c.instructor?.full_name
+                    : c.instructor,
+                progress: enr.progress_percent || 0,
+                isCompleted: enr.is_completed || enr.progress_percent >= 100,
+              };
+            });
+            setEnrolledCourses(mapped);
+            if (typeof window !== "undefined") {
+              localStorage.setItem("coachspace_enrolled_courses", JSON.stringify(mapped));
+            }
+            return;
+          }
+        } catch (e) {
+          console.warn("[StudentHomeWidget] Could not fetch live enrollments:", e);
+        }
+      }
+
+      // Local storage fallback
+      if (typeof window !== "undefined") {
+        try {
+          const saved = localStorage.getItem("coachspace_enrolled_courses");
+          if (saved) {
+            const list = JSON.parse(saved);
+            if (Array.isArray(list)) {
+              setEnrolledCourses(list);
+            }
+          }
+        } catch (e) {
+          console.warn("[StudentHomeWidget] Could not load enrolled courses:", e);
+        }
+      }
+    }
+
+    loadEnrollments();
+  }, [isAuthenticated, locale]);
 
   const isStudent = mounted && isAuthenticated && (user?.role || "").toLowerCase() === "student";
 
@@ -59,7 +108,9 @@ export function StudentHomeWidget() {
                 <BookOpen className="w-4 h-4" />
               </div>
               <div>
-                <div className="text-xl sm:text-2xl font-black text-slate-900">4</div>
+                <div className="text-xl sm:text-2xl font-black text-slate-900">
+                  {enrolledCourses.length > 0 ? enrolledCourses.length : (Array.isArray((user as any)?.enrolled_courses) ? (user as any).enrolled_courses.length : 0)}
+                </div>
                 <div className="text-[11px] sm:text-xs font-semibold text-slate-500 mt-0.5 leading-tight">
                   {t("enrolledCourses")}
                 </div>
@@ -72,7 +123,9 @@ export function StudentHomeWidget() {
                 <CheckCircle2 className="w-4 h-4" />
               </div>
               <div>
-                <div className="text-xl sm:text-2xl font-black text-slate-900">2</div>
+                <div className="text-xl sm:text-2xl font-black text-slate-900">
+                  {enrolledCourses.filter((c) => c.isCompleted).length}
+                </div>
                 <div className="text-[11px] sm:text-xs font-semibold text-slate-500 mt-0.5 leading-tight">
                   {t("completedCourses")}
                 </div>
@@ -85,7 +138,9 @@ export function StudentHomeWidget() {
                 <Award className="w-4 h-4" />
               </div>
               <div>
-                <div className="text-xl sm:text-2xl font-black text-slate-900">2</div>
+                <div className="text-xl sm:text-2xl font-black text-slate-900">
+                  {enrolledCourses.filter((c) => c.isCompleted).length}
+                </div>
                 <div className="text-[11px] sm:text-xs font-semibold text-slate-500 mt-0.5 leading-tight">
                   {t("earnedCertificates")}
                 </div>
@@ -103,31 +158,26 @@ export function StudentHomeWidget() {
             <div className="space-y-3 z-10 flex-1 min-w-0">
               <div className="inline-flex items-center gap-1.5 bg-white/10 px-3 py-1 rounded-full text-[11px] font-bold text-emerald-200">
                 <span className="w-2 h-2 rounded-full bg-[#6CF8BB] animate-pulse" />
-                <span>{t("continueLearningTitle")}</span>
+                <span>{t("continueLearningBadge")}</span>
               </div>
 
               <h3 className="text-base sm:text-lg font-black text-white truncate">
-                React Enterprise Architecture & Performance
+                {enrolledCourses.length > 0 ? enrolledCourses[0].title : t("studentExploreTitle")}
               </h3>
 
-              {/* Progress bar */}
-              <div className="space-y-1.5 pt-1 max-w-md">
-                <div className="flex items-center justify-between text-xs font-bold text-emerald-200">
-                  <span>{t("lastLesson")}</span>
-                  <span className="text-[#6CF8BB]">68%</span>
-                </div>
-                <div className="w-full h-2 rounded-full bg-white/15 overflow-hidden">
-                  <div className="h-full bg-gradient-to-r from-[#6CF8BB] to-emerald-400 rounded-full w-[68%]" />
-                </div>
-              </div>
+              <p className="text-xs text-emerald-200/80 font-medium">
+                {enrolledCourses.length > 0 && enrolledCourses[0].instructor
+                  ? enrolledCourses[0].instructor
+                  : t("studentExploreDesc")}
+              </p>
             </div>
 
             <Link
-              href={`/${locale}/student/courses`}
+              href={enrolledCourses.length > 0 ? `/${locale}/student/learn/${enrolledCourses[0].id}` : `/${locale}/courses`}
               className="z-10 bg-[#6CF8BB] hover:bg-[#52e8a6] active:scale-95 text-[#08382E] font-black text-xs sm:text-sm px-6 py-3.5 rounded-xl transition-all shadow-md inline-flex items-center justify-center gap-2 shrink-0 w-full sm:w-auto cursor-pointer"
             >
-              <Play className="w-4 h-4 fill-current" />
-              <span>{t("continueWatching")}</span>
+              <BookOpen className="w-4 h-4" />
+              <span>{enrolledCourses.length > 0 ? t("myLearning") : t("exploreCourses")}</span>
             </Link>
 
           </div>

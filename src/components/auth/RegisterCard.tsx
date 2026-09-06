@@ -206,23 +206,21 @@ export function RegisterCard({ lang }: RegisterCardProps) {
             {isAccountCreatedWarning && submittedEmail && (
               <div className="pt-2 border-t border-red-200/70 text-[11px] text-slate-700 space-y-1.5">
                 <p className="font-medium text-slate-600">
-                  {isAr
-                    ? "هل تم تسجيل هذا الحساب مسبقاً؟ يمكنك الانتقال لتسجيل الدخول أو صفحة تأكيد البريد:"
-                    : "Account already exists or created on server? You can log in or verify email:"}
+                  {t("alreadyRegisteredPrompt")}
                 </p>
                 <div className="flex items-center gap-2 font-bold">
                   <Link
                     href={`/${locale}/login`}
                     className="text-[#0F5244] underline hover:text-[#083A30]"
                   >
-                    {isAr ? "تسجيل الدخول" : "Sign In"}
+                    {t("login")}
                   </Link>
                   <span className="text-slate-300">|</span>
                   <Link
                     href={`/${locale}/verify-email?email=${encodeURIComponent(submittedEmail)}`}
                     className="text-[#0F5244] underline hover:text-[#083A30]"
                   >
-                    {isAr ? "صفحة تأكيد البريد" : "Verify Email Page"}
+                    {t("verifyEmailPageLink")}
                   </Link>
                 </div>
               </div>
