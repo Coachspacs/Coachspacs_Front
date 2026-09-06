@@ -1,5 +1,5 @@
-import { Course } from "./course";
-import { CategoryItem } from "./user";
+import type { Course } from "./course";
+import type { CategoryItem } from "./user";
 
 export type { Course, CategoryItem };
 

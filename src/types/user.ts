@@ -1,5 +1,5 @@
-import React from "react";
-import { Course } from "./course";
+import type React from "react";
+import type { Course } from "./course";
 
 export type UserRole = "student" | "instructor" | "admin" | "STUDENT" | "INSTRUCTOR" | "ADMIN";
 
@@ -23,6 +23,7 @@ export interface User {
   preferred_language?: string;
   approval_status?: 'pending' | 'approved' | 'rejected' | string;
   approvalStatus?: 'pending' | 'approved' | 'rejected' | string;
+  instructorStatus?: string;
   createdAt?: string;
 }
 
@@ -149,6 +150,30 @@ export interface StudentProfile {
   twoFactorAuth: boolean;
 }
 
+export interface CertificationItem {
+  id: string;
+  title: string;
+  titleAr?: string;
+  provider: string;
+  providerAr?: string;
+  date?: string;
+  dateAr?: string;
+  url?: string;
+  credentialId?: string;
+}
+
+export interface EmploymentHistoryItem {
+  id: string;
+  role: string;
+  roleAr?: string;
+  company: string;
+  companyAr?: string;
+  period: string;
+  periodAr?: string;
+  description?: string;
+  descriptionAr?: string;
+}
+
 export interface InstructorProfile {
   id: string;
   fullName: string;
@@ -159,9 +184,15 @@ export interface InstructorProfile {
   experienceYears: number;
   hourlyRate: number;
   bio: string;
+  skills?: string[];
+  skillsAr?: string[];
+  certifications?: CertificationItem[];
+  employmentHistory?: EmploymentHistoryItem[];
   introVideoUrl: string;
   website: string;
   linkedin: string;
+  twitter?: string;
+  github?: string;
   payoutMethod: "bank" | "paypal";
   bankIban: string;
   paypalEmail: string;

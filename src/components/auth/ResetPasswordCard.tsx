@@ -113,11 +113,11 @@ export function ResetPasswordCard({ lang }: ResetPasswordCardProps) {
           </div>
 
           <h3 className="text-lg font-extrabold text-slate-900">
-            {isAr ? "تم إعادة تعيين كلمة المرور بنجاح!" : "Password Reset Successfully!"}
+            {t("passwordResetSuccessTitle")}
           </h3>
 
           <p className="mt-2 text-xs sm:text-sm text-slate-500 leading-relaxed font-normal">
-            {isAr ? "جاري تحويلك لصفحة تسجيل الدخول..." : "Redirecting you to the login page..."}
+            {t("redirectingToLogin")}
           </p>
         </div>
       ) : (

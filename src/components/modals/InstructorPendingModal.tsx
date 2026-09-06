@@ -207,3 +207,5 @@ export function InstructorPendingModal({
     </div>
   );
 }
+
+export default InstructorPendingModal;

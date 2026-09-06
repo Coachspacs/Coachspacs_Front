@@ -107,6 +107,14 @@ export const tokenManager = {
       localStorage.removeItem('user');
       localStorage.removeItem('token');
       localStorage.removeItem('refreshToken');
+      localStorage.removeItem('loginEmail');
+      localStorage.removeItem('coachspace_active_instructor_profile');
+      // Clean any coachspace_inst_profile_* items
+      Object.keys(localStorage).forEach((key) => {
+        if (key.startsWith('coachspace_inst_profile_') || key.startsWith('coachspace_')) {
+          localStorage.removeItem(key);
+        }
+      });
     }
   },
 

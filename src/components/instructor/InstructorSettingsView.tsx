@@ -1,36 +1,49 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useTranslations, useLocale } from "next-intl";
 import { useSelector, useDispatch } from "react-redux";
+import { motion, AnimatePresence } from "framer-motion";
 import { RootState } from "@/lib/store";
 import { updateUser } from "@/features/auth/slice";
 import { userService } from "@/services/userService";
 import { authService, getApiErrorMessage } from "@/services/auth";
 import {
+  updatePublicInstructorOverrides,
+  getSavedInstructorOverrides,
+  normalizeInstructorSlug,
+} from "@/lib/instructorProfile";
+import {
   User,
   Lock,
-  CreditCard,
-  Video,
   Camera,
   CheckCircle2,
   AlertCircle,
   Globe,
-  ShieldCheck,
-  Trash2,
-  Building,
-  Clock,
+  ExternalLink,
+  Linkedin,
+  Twitter,
+  Github,
+  Mail,
+  Briefcase,
+  Eye,
+  EyeOff,
+  MapPin,
+  Sparkles,
   Loader2,
+  Check,
 } from "lucide-react";
-import dynamic from "next/dynamic";
+import { SkillSelector } from "@/components/ui/SkillSelector";
+import { ChangeEmailModal } from "@/components/modals/ChangeEmailModal";
 
-const ChangeEmailModal = dynamic(() => import("@/components/modals/ChangeEmailModal").then((mod) => mod.ChangeEmailModal), { ssr: false });
+type SettingsTab = "profile" | "security";
 
-type SettingsTab = "profile" | "payout" | "media" | "security";
-
-// Instructor Settings View Component
 export function InstructorSettingsView() {
   const dispatch = useDispatch();
+  const router = useRouter();
   const t = useTranslations("account");
   const tInst = useTranslations("instructorSettings");
   const tStudent = useTranslations("studentSettings");
@@ -40,7 +53,7 @@ export function InstructorSettingsView() {
 
   const { user } = useSelector((state: RootState) => state.auth);
 
-  // Active Tab
+  // Active Tab: 2 clean tabs only
   const [activeTab, setActiveTab] = useState<SettingsTab>("profile");
 
   // Avatar & File ref
@@ -51,29 +64,58 @@ export function InstructorSettingsView() {
   // Email Change Modal State
   const [showEmailModal, setShowEmailModal] = useState(false);
 
+  // Password Visibility Toggles
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
   const [mounted, setMounted] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [passwordError, setPasswordError] = useState<string | null>(null);
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  // Guard so we only initialize from backend/localStorage ONCE and never overwrite user while editing
+  const isInitializedRef = useRef(false);
 
-  // Form State
-  const [formData, setFormData] = useState({
+  // Form State initialized with dynamic auth user data
+  const [formData, setFormData] = useState<{
+    fullName: string;
+    email: string;
+    phone: string;
+    headline: string;
+    specialization: string;
+    experienceYears: number | string;
+    bio: string;
+    skills: string[];
+    hourlyRate: string;
+    location: string;
+    website: string;
+    linkedin: string;
+    twitter: string;
+    github: string;
+    socialEmail: string;
+    currentPassword: string;
+    newPassword: string;
+    confirmPassword: string;
+  }>({
     fullName: user?.fullName || user?.name || "",
     email: user?.email || "",
     phone: user?.phone || user?.phone_number || "",
     headline: user?.headline || "",
     specialization: user?.specialization || "",
-    experienceYears: (user as any)?.experienceYears || 0,
-    hourlyRate: (user as any)?.hourlyRate || 0,
+    experienceYears: (user as any)?.experienceYears ?? 0,
     bio: user?.bio || "",
-    payoutMethod: "bank",
-    bankIban: (user as any)?.bankIban || "",
-    paypalEmail: user?.email || "",
-    autoPayout: true,
-    introVideoUrl: (user as any)?.introVideoUrl || "",
+    skills: Array.isArray((user as any)?.skills) ? (user as any).skills : [],
+    hourlyRate: (user as any)?.hourlyRate || "",
+    location: (user as any)?.location || "",
+
+    // Social Links
     website: (user as any)?.website || "",
     linkedin: (user as any)?.linkedin || "",
+    twitter: (user as any)?.twitter || "",
+    github: (user as any)?.github || "",
+    socialEmail: user?.email || "",
 
     // Security
     currentPassword: "",
@@ -83,98 +125,121 @@ export function InstructorSettingsView() {
 
   const profileFetchedRef = useRef(false);
 
+  // 1. Initial load effect - runs ONLY ONCE when user data is ready
   useEffect(() => {
-    let isMounted = true;
+    setMounted(true);
+    if (isInitializedRef.current) return;
+    if (!user && typeof window === "undefined") return;
 
-    // 1. Initial sync from Redux state on first mount
-    if (user && !profileFetchedRef.current) {
-      const userFullName = user.fullName || user.name || (user.email ? user.email.split("@")[0] : "");
-      const userEmail = user.email || "";
-      const userPhone = user.phone || user.phone_number || "";
-      setFormData((prev) => ({
-        ...prev,
-        fullName: prev.fullName || userFullName,
-        email: prev.email || userEmail,
-        phone: prev.phone || userPhone,
-        paypalEmail: prev.paypalEmail || userEmail,
-        headline: prev.headline || user.headline || "",
-        bio: prev.bio || user.bio || "",
-        specialization: prev.specialization || user.specialization || "",
-      }));
-      if (user.avatar) {
-        setAvatarPreview(user.avatar);
+    const userFullName = user?.fullName || user?.name || "";
+    const activeSlug = userFullName ? normalizeInstructorSlug(userFullName) : "";
+    const savedOverrides = activeSlug
+      ? {
+          ...(getSavedInstructorOverrides(activeSlug) || {}),
+          ...(getSavedInstructorOverrides(`inst-${activeSlug}`) || {}),
+        }
+      : {};
+
+    let globalProfile: any = {};
+    try {
+      const raw = localStorage.getItem("coachspace_active_instructor_profile");
+      if (raw) globalProfile = JSON.parse(raw);
+    } catch {}
+
+    const merged = { ...globalProfile, ...savedOverrides };
+
+    setFormData({
+      fullName:
+        user?.fullName || user?.name || merged.name || merged.fullName || "",
+      email: user?.email || merged.email || "",
+      phone: user?.phone || user?.phone_number || merged.phone || "",
+      headline: user?.headline ?? merged.headline ?? "",
+      specialization: user?.specialization ?? merged.specialization ?? "",
+      experienceYears:
+        (user as any)?.experienceYears ?? merged.experienceYears ?? 0,
+      bio: user?.bio ?? merged.bio ?? "",
+      skills:
+        Array.isArray((user as any)?.skills) && (user as any).skills.length > 0
+          ? (user as any).skills
+          : Array.isArray(merged.skills)
+          ? merged.skills
+          : [],
+      hourlyRate: (user as any)?.hourlyRate ?? merged.hourlyRate ?? "",
+      location: (user as any)?.location ?? merged.location ?? "",
+      website: merged.socials?.website ?? (user as any)?.website ?? "",
+      linkedin: merged.socials?.linkedin ?? (user as any)?.linkedin ?? "",
+      twitter: merged.socials?.twitter ?? (user as any)?.twitter ?? "",
+      github: merged.socials?.github ?? (user as any)?.github ?? "",
+      socialEmail: merged.socials?.email ?? user?.email ?? "",
+      currentPassword: "",
+      newPassword: "",
+      confirmPassword: "",
+    });
+
+    if (user?.avatar || merged.avatar) {
+      setAvatarPreview(user?.avatar || merged.avatar || null);
+    }
+
+    isInitializedRef.current = true;
+  }, [user]);
+
+  // 2. Fetch full user profile from backend API once
+  useEffect(() => {
+    if (!mounted || profileFetchedRef.current) return;
+    profileFetchedRef.current = true;
+
+    async function fetchProfile() {
+      try {
+        const profile = await userService.getMyProfile();
+        if (profile) {
+          const profData = (profile as any)?.user || profile;
+          setFormData((prev) => ({
+            ...prev,
+            fullName: prev.fullName || profData.full_name || profData.fullName || "",
+            email: prev.email || profData.email || "",
+            phone: prev.phone || profData.phone_number || profData.phone || "",
+          }));
+          const backendAvatar =
+            profData.avatar ||
+            profData.avatar_url ||
+            profData.profile_picture ||
+            null;
+          if (backendAvatar) {
+            setAvatarPreview(backendAvatar);
+          }
+        }
+      } catch (err: any) {
+        if (err?.response?.status !== 401 && err?.response?.status !== 403) {
+          console.warn("[InstructorSettingsView] getMyProfile fetch:", err?.message);
+        }
       }
     }
+    fetchProfile();
+  }, [mounted]);
 
-    // 2. Fetch authentic database profile ONCE from backend API
-    if (!profileFetchedRef.current) {
-      profileFetchedRef.current = true;
-      userService
-        .getMyProfile()
-        .then((profileRes) => {
-          if (!isMounted || !profileRes) return;
-          const profData = (profileRes as any)?.user || profileRes;
-          if (profData) {
-            const profFullName = profData.full_name || profData.fullName || profData.name || "";
-            const profEmail = profData.email || "";
-            const profPhone = profData.phone_number || profData.phone || "";
-            const profAvatar = profData.avatar || null;
-
-            setFormData((prev) => ({
-              ...prev,
-              fullName: profFullName || prev.fullName,
-              email: profEmail || prev.email,
-              phone: profPhone || prev.phone,
-              paypalEmail: profEmail || prev.paypalEmail,
-              headline: profData.headline || prev.headline,
-              bio: profData.bio || prev.bio,
-              specialization: profData.specialization || prev.specialization,
-            }));
-
-            if (profAvatar) {
-              setAvatarPreview(profAvatar);
-            }
-
-            dispatch(
-              updateUser({
-                fullName: profFullName,
-                name: profFullName,
-                email: profEmail,
-                phone: profPhone,
-                phone_number: profPhone,
-                avatar: profAvatar,
-                preferred_language: profData.preferred_language,
-                preferredLanguage: profData.preferred_language,
-              })
-            );
-          }
-        })
-        .catch((err) => {
-          console.warn("[InstructorSettingsView] getMyProfile fetch info:", err?.message);
-        });
-    }
-
-    return () => {
-      isMounted = false;
-    };
-  }, [dispatch]);
-
-  const [isSaving, setIsSaving] = useState(false);
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [passwordError, setPasswordError] = useState<string | null>(null);
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+  // Handle all inputs - allows clearing numbers without stuck 0
+  const handleChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >,
+  ) => {
     const { name, value, type } = e.target;
     if (type === "checkbox") {
       const checked = (e.target as HTMLInputElement).checked;
       setFormData((prev) => ({ ...prev, [name]: checked }));
+    } else if (type === "number") {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value === "" ? "" : Number(value),
+      }));
     } else {
       setFormData((prev) => ({ ...prev, [name]: value }));
     }
   };
 
-  const handleAvatarFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAvatarFileChange = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -183,7 +248,6 @@ export function InstructorSettingsView() {
       return;
     }
 
-    // Local instant preview
     const localUrl = URL.createObjectURL(file);
     setAvatarPreview(localUrl);
     setIsUploadingAvatar(true);
@@ -193,27 +257,15 @@ export function InstructorSettingsView() {
       if (res?.avatar) {
         setAvatarPreview(res.avatar);
         dispatch(updateUser({ avatar: res.avatar }));
-        setToastMessage(tStudent("avatarUpdated") || (isAr ? "تم تحديث الصورة الشخصية بنجاح" : "Avatar updated successfully"));
+        setToastMessage(tInst("avatarUpdatedSuccess"));
       }
     } catch (err: any) {
-      const msg = getApiErrorMessage(
-        err,
-        isAr ? "فشل رفع الصورة الشخصية. يرجى التأكد من الصيغة والحجم." : "Failed to upload avatar. Please check file format and size.",
-        isAr
-      );
+      const msg = getApiErrorMessage(err, tInst("avatarUploadFailed"), isAr);
       setErrorMessage(msg);
       setTimeout(() => setErrorMessage(null), 4000);
     } finally {
       setIsUploadingAvatar(false);
-      setTimeout(() => setToastMessage(null), 3500);
-    }
-  };
-
-  const handleRemoveAvatar = () => {
-    setAvatarPreview(null);
-    dispatch(updateUser({ avatar: null }));
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
+      setTimeout(() => setToastMessage(null), 3000);
     }
   };
 
@@ -222,8 +274,23 @@ export function InstructorSettingsView() {
     setPasswordError(null);
     setErrorMessage(null);
 
-    // Password validation if changing password
-    if (formData.newPassword || formData.confirmPassword) {
+    // Only validate password if user actually typed a password change
+    const hasPasswordInput = Boolean(
+      formData.newPassword.trim() ||
+      formData.confirmPassword.trim() ||
+      formData.currentPassword.trim()
+    );
+
+    if (hasPasswordInput) {
+      if (!formData.currentPassword.trim()) {
+        setPasswordError(
+          isAr
+            ? "يرجى إدخال كلمة المرور الحالية لتغيير كلمة المرور"
+            : "Current password is required to set a new password",
+        );
+        setActiveTab("security");
+        return;
+      }
       if (formData.newPassword !== formData.confirmPassword) {
         setPasswordError(t("passwordsDoNotMatch"));
         setActiveTab("security");
@@ -239,8 +306,7 @@ export function InstructorSettingsView() {
     setIsSaving(true);
 
     try {
-      // 1. Password change request if new password provided
-      if (formData.currentPassword && formData.newPassword) {
+      if (hasPasswordInput && formData.currentPassword && formData.newPassword) {
         await authService.changePassword({
           current_password: formData.currentPassword,
           new_password: formData.newPassword,
@@ -253,200 +319,260 @@ export function InstructorSettingsView() {
         }));
       }
 
-      // 2. Profile update request (PUT /api/users/me)
-      const updatedProfile = await userService.updateMyProfile({
-        full_name: formData.fullName.trim(),
-        phone_number: formData.phone.trim(),
-        preferred_language: locale,
-      });
+      const cleanWebsite = formData.website?.trim() || "";
+      const cleanLinkedin = formData.linkedin?.trim() || "";
+      const cleanTwitter = formData.twitter?.trim() || "";
+      const cleanGithub = formData.github?.trim() || "";
+      const cleanSocialEmail = formData.socialEmail?.trim() || "";
 
-      // Update Redux state
+      const userFullName = formData.fullName.trim();
+      const currentSlug = normalizeInstructorSlug(userFullName) || "instructor";
+
+      const profileUpdates = {
+        name: userFullName,
+        nameAr: userFullName,
+        headline: formData.headline.trim(),
+        headlineAr: formData.headline.trim(),
+        specialization: formData.specialization.trim(),
+        specializationAr: formData.specialization.trim(),
+        experienceYears:
+          formData.experienceYears === "" ? 0 : Number(formData.experienceYears),
+        bio: formData.bio.trim(),
+        bioAr: formData.bio.trim(),
+        skills: formData.skills,
+        skillsAr: formData.skills,
+        hourlyRate: formData.hourlyRate?.trim() || undefined,
+        hourlyRateAr: formData.hourlyRate?.trim() || undefined,
+        location: formData.location?.trim() || undefined,
+        locationAr: formData.location?.trim() || undefined,
+        avatar: avatarPreview || user?.avatar || undefined,
+        socials: {
+          website: cleanWebsite,
+          linkedin: cleanLinkedin,
+          twitter: cleanTwitter,
+          github: cleanGithub,
+          email: cleanSocialEmail,
+        },
+      };
+
+      if (typeof window !== "undefined") {
+        try {
+          localStorage.setItem(
+            "coachspace_active_instructor_profile",
+            JSON.stringify(profileUpdates),
+          );
+          if (currentSlug) {
+            localStorage.setItem(
+              `coachspace_inst_profile_${currentSlug}`,
+              JSON.stringify(profileUpdates),
+            );
+          }
+        } catch (e) {
+          console.warn("Could not save to localStorage", e);
+        }
+      }
+
+      updatePublicInstructorOverrides("global", profileUpdates);
+      if (currentSlug) {
+        updatePublicInstructorOverrides(currentSlug, profileUpdates);
+        updatePublicInstructorOverrides(`inst-${currentSlug}`, profileUpdates);
+      }
+      if (user?.id) {
+        updatePublicInstructorOverrides(user.id, profileUpdates);
+        updatePublicInstructorOverrides(`inst-${user.id}`, profileUpdates);
+      }
+
+      try {
+        await userService.updateMyProfile({
+          full_name: formData.fullName.trim(),
+          phone_number: formData.phone.trim(),
+          preferred_language: locale,
+        });
+      } catch (apiErr) {
+        console.warn("Backend profile update info:", apiErr);
+      }
+
       dispatch(
         updateUser({
-          fullName: updatedProfile.full_name || formData.fullName,
-          name: updatedProfile.full_name || formData.fullName,
-          phone: updatedProfile.phone_number || formData.phone,
-          phoneNumber: updatedProfile.phone_number || formData.phone,
-          preferredLanguage: updatedProfile.preferred_language || locale,
-          headline: formData.headline,
-          bio: formData.bio,
-          specialization: formData.specialization,
-          hourlyRate: formData.hourlyRate,
-        })
+          fullName: formData.fullName.trim(),
+          name: formData.fullName.trim(),
+          phone: formData.phone.trim(),
+          phoneNumber: formData.phone.trim(),
+          headline: formData.headline.trim(),
+          bio: formData.bio.trim(),
+          specialization: formData.specialization.trim(),
+          avatar: avatarPreview || user?.avatar,
+        }),
       );
 
-      setToastMessage(t("changesSaved"));
+      setToastMessage(tInst("profileSavedToast"));
       setTimeout(() => setToastMessage(null), 3500);
     } catch (err: any) {
-      const msg = getApiErrorMessage(
-        err,
-        isAr ? "فشل حفظ التعديلات. يرجى المحاولة مرة أخرى." : "Failed to save changes. Please try again.",
-        isAr
-      );
+      const msg = getApiErrorMessage(err, tInst("profileSaveFailed"), isAr);
       setErrorMessage(msg);
-      setTimeout(() => setErrorMessage(null), 5000);
+      setTimeout(() => setErrorMessage(null), 4000);
     } finally {
       setIsSaving(false);
     }
   };
 
-  const approvalStatus = (user?.approval_status || user?.approvalStatus || "pending").toLowerCase();
-  const isApproved = approvalStatus === "approved";
-  const isRejected = approvalStatus === "rejected";
-  const isPending = !isApproved && !isRejected;
-
+  const publicProfileSlug = normalizeInstructorSlug(
+    formData.fullName || user?.fullName || user?.name || "instructor",
+  );
 
   return (
-    <div className="w-full space-y-6 animate-in fade-in duration-200" dir={isAr ? "rtl" : "ltr"}>
-      
-      {/* Dynamic Toast Feedback Notification */}
-      {toastMessage && (
-        <div className="fixed top-6 right-6 rtl:right-auto rtl:left-6 z-50 bg-[#0F5244] text-white px-5 py-3 rounded-2xl shadow-xl flex items-center gap-3 text-xs sm:text-sm font-bold animate-in slide-in-from-top-4 duration-200">
-          <CheckCircle2 className="h-4 w-4 text-emerald-300" />
-          <span>{toastMessage}</span>
-        </div>
-      )}
-
-      {errorMessage && (
-        <div className="fixed top-6 right-6 rtl:right-auto rtl:left-6 z-50 bg-red-600 text-white px-5 py-3 rounded-2xl shadow-xl flex items-center gap-3 text-xs sm:text-sm font-bold animate-in slide-in-from-top-4 duration-200">
-          <AlertCircle className="h-4 w-4 text-white" />
-          <span>{errorMessage}</span>
-        </div>
-      )}
-
+    <div
+      className="w-full max-w-4xl mx-auto space-y-6 animate-in fade-in duration-200 font-sans"
+      dir={isAr ? "rtl" : "ltr"}
+    >
+      {/* Toast Notification */}
+      <AnimatePresence>
+        {toastMessage && (
+          <motion.div
+            initial={{ opacity: 0, y: -16, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -16, scale: 0.95 }}
+            className="fixed top-6 right-6 rtl:right-auto rtl:left-6 z-50 bg-[#0F5244] text-white px-5 py-3 rounded-2xl shadow-xl flex items-center gap-2.5 text-xs font-bold backdrop-blur-md"
+          >
+            <CheckCircle2 className="h-4 w-4 text-[#45D1B4] shrink-0" />
+            <span>{toastMessage}</span>
+          </motion.div>
+        )}
+        {errorMessage && (
+          <motion.div
+            initial={{ opacity: 0, y: -16, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -16, scale: 0.95 }}
+            className="fixed top-6 right-6 rtl:right-auto rtl:left-6 z-50 bg-rose-600 text-white px-5 py-3 rounded-2xl shadow-xl flex items-center gap-2.5 text-xs font-bold backdrop-blur-md"
+          >
+            <AlertCircle className="h-4 w-4 text-white shrink-0" />
+            <span>{errorMessage}</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Change Email Modal */}
-      <ChangeEmailModal
-        isOpen={showEmailModal}
-        onClose={() => setShowEmailModal(false)}
-        currentEmail={formData.email}
-        onConfirmEmailChange={(newEmail: string) => {
-          setFormData((prev) => ({ ...prev, email: newEmail }));
-          setToastMessage(tChangeEmail("success"));
-          setTimeout(() => setToastMessage(null), 4000);
-        }}
-      />
+      {showEmailModal && (
+        <ChangeEmailModal
+          isOpen={showEmailModal}
+          onClose={() => setShowEmailModal(false)}
+          currentEmail={formData.email}
+          onConfirmEmailChange={(newEmail: string) => {
+            setFormData((prev) => ({ ...prev, email: newEmail }));
+            setToastMessage(tChangeEmail("success"));
+            setTimeout(() => setToastMessage(null), 3000);
+          }}
+        />
+      )}
 
-      {/* Account Approval Status Banner */}
-      <div className="p-4 rounded-3xl bg-white border border-slate-200/80 shadow-2xs flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div className="flex items-center gap-3 text-center sm:text-start">
-          <div
-            className={`p-2.5 rounded-2xl border shrink-0 ${
-              isApproved
-                ? "bg-emerald-50 text-[#0F5244] border-emerald-200"
-                : isRejected
-                ? "bg-rose-50 text-rose-700 border-rose-200"
-                : "bg-amber-50 text-amber-700 border-amber-200/80"
+      {/* Unified Sleek Main Settings Container */}
+      <div className="bg-white rounded-3xl border border-slate-200/80 shadow-2xs overflow-hidden">
+        {/* Header Bar */}
+        <div className="p-6 sm:p-8 border-b border-slate-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-gradient-to-b from-slate-50/50 to-white">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2.5">
+              <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+                {t("accountSettings")}
+              </h1>
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-50 text-[#0F5244] border border-emerald-200/70 text-[11px] font-bold">
+                <Check className="h-3 w-3 text-emerald-600" />
+                <span>{tInst("approvedBadge")}</span>
+              </span>
+            </div>
+            <p className="text-xs sm:text-sm text-slate-500 font-medium">
+              {isAr
+                ? "إدارة بياناتك الشخصية، النبذة التعريفية، وحماية حسابك في مكان واحد وبكل سهولة."
+                : "Manage your personal profile, biography, and security settings seamlessly."}
+            </p>
+          </div>
+
+          {/* View Public Profile Link */}
+          <Link
+            href={`/${locale}/instructors/${publicProfileSlug}`}
+            target="_blank"
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs border border-slate-200 shadow-2xs transition-all cursor-pointer active:scale-95 shrink-0"
+          >
+            <Eye className="h-3.5 w-3.5 text-slate-500" />
+            <span>{tInst("viewPublicProfile")}</span>
+            <ExternalLink className="h-3 w-3 text-slate-400 rtl:rotate-180" />
+          </Link>
+        </div>
+
+        {/* 2 Clean Tab Buttons */}
+        <div className="flex items-center gap-2 px-6 sm:px-8 pt-4 border-b border-slate-100 bg-white">
+          <button
+            type="button"
+            onClick={() => setActiveTab("profile")}
+            className={`flex items-center gap-2 pb-3.5 px-2 text-xs sm:text-sm font-extrabold border-b-2 transition-all cursor-pointer ${
+              activeTab === "profile"
+                ? "border-[#0F5244] text-[#0F5244]"
+                : "border-transparent text-slate-400 hover:text-slate-700"
             }`}
           >
-            {isApproved ? (
-              <ShieldCheck className="h-5 w-5" />
-            ) : isRejected ? (
-              <AlertCircle className="h-5 w-5" />
-            ) : (
-              <Clock className="h-5 w-5" />
-            )}
-          </div>
+            <User className="h-4 w-4" />
+            <span>{isAr ? "الملف التعريفي والبيانات" : "Profile & Details"}</span>
+          </button>
 
-          <div>
-            <div className="flex items-center justify-center sm:justify-start gap-2 flex-wrap">
-              <h4 className="text-xs sm:text-sm font-extrabold text-slate-900">
-                {tInst("approvalStatusTitle")}
-              </h4>
-              {isApproved ? (
-                <span className="px-2.5 py-0.5 rounded-full bg-emerald-100 text-[#0F5244] border border-emerald-200 text-[11px] font-extrabold inline-flex items-center gap-1">
-                  <CheckCircle2 className="h-3 w-3 text-emerald-600" />
-                  <span>{tInst("approvedBadge")}</span>
-                </span>
-              ) : isRejected ? (
-                <span className="px-2.5 py-0.5 rounded-full bg-rose-100 text-rose-800 border border-rose-200 text-[11px] font-extrabold inline-flex items-center gap-1">
-                  <AlertCircle className="h-3 w-3 text-rose-600" />
-                  <span>{tInst("rejectedBadge")}</span>
-                </span>
-              ) : (
-                <span className="px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200/90 text-[11px] font-bold inline-flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
-                  <span>{isAr ? "قيد المراجعة" : "Under Review"}</span>
-                </span>
-              )}
-            </div>
-            <p className="text-xs text-slate-500 font-medium mt-0.5">
-              {isApproved
-                ? tInst("approvedDescription")
-                : isRejected
-                ? tInst("rejectedDescription")
-                : (isAr
-                    ? "طلب انضمامك كمدرب قيد التدقيق حالياً من قبل الإدارة. ستصلك رسالة تأكيد عبر البريد فور الاعتماد."
-                    : tInst("pendingDescription"))}
-            </p>
-          </div>
+          <button
+            type="button"
+            onClick={() => setActiveTab("security")}
+            className={`flex items-center gap-2 pb-3.5 px-2 text-xs sm:text-sm font-extrabold border-b-2 transition-all cursor-pointer ${
+              activeTab === "security"
+                ? "border-[#0F5244] text-[#0F5244]"
+                : "border-transparent text-slate-400 hover:text-slate-700"
+            }`}
+          >
+            <Lock className="h-4 w-4" />
+            <span>{isAr ? "الأمان وكلمة المرور" : "Security & Password"}</span>
+          </button>
         </div>
-      </div>
 
-      {/* Main Settings Card Content */}
-      <div className="w-full bg-white rounded-3xl border border-slate-200/80 p-6 sm:p-10 shadow-2xs">
-        <form onSubmit={handleSave} className="space-y-8">
-          
-          <div className="space-y-1">
-            <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-              {tInst.has("settingsTitle") ? tInst("settingsTitle") : (isAr ? "حساب وإعدادات المدرب" : "Instructor Account & Settings")}
-            </h1>
-            <p className="text-xs sm:text-sm text-slate-500 font-medium">
-              {tInst.has("settingsSubtitle") ? tInst("settingsSubtitle") : (isAr ? "إدارة الملف الشخصي العام للمدرب، وسائل استلام الأرباح، وأمان الحساب." : "Manage your public instructor profile, payment methods, and account security.")}
-            </p>
-          </div>
-
-          {/* Sub-Navigation Pills for Instructor Settings Sections */}
-          <div className="flex items-center gap-2 border-b border-slate-100 pb-4 overflow-x-auto">
-            {[
-              { id: "profile", label: isAr ? "الملف الشخصي" : "Profile", icon: User },
-              { id: "payout", label: tInst.has("payoutAndBilling") ? tInst("payoutAndBilling") : (isAr ? "استلام الأرباح والدفع" : "Payout & Billing"), icon: CreditCard },
-              { id: "media", label: tInst.has("mediaAndLinks") ? tInst("mediaAndLinks") : (isAr ? "الوسائط والروابط" : "Media & Links"), icon: Video },
-              { id: "security", label: isAr ? "الأمان" : "Security", icon: Lock },
-            ].map((tab) => {
-              const Icon = tab.icon;
-              const active = activeTab === tab.id;
-              return (
-                <button
-                  key={tab.id}
-                  type="button"
-                  onClick={() => setActiveTab(tab.id as SettingsTab)}
-                  className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
-                    active
-                      ? "bg-[#0F5244] text-white shadow-xs"
-                      : "bg-slate-100/80 text-slate-600 hover:bg-slate-200/70 hover:text-slate-900"
-                  }`}
-                >
-                  <Icon className={`h-4 w-4 ${active ? "text-emerald-300" : "text-slate-500"}`} />
-                  <span>{tab.label}</span>
-                </button>
-              );
-            })}
-          </div>
-
-            {/* TAB 1: PROFILE */}
-
-            {/* TAB 1: PROFILE */}
+        {/* Form Body */}
+        <form onSubmit={handleSave} className="p-6 sm:p-8 space-y-8">
+          <AnimatePresence mode="wait">
+            {/* ================= TAB 1: PROFILE & DETAILS ================= */}
             {activeTab === "profile" && (
-              <div className="space-y-8 animate-in fade-in duration-150">
-                
-                {/* Avatar Upload (US-05: 5MB limit, JPG/PNG/WebP) */}
-                <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
-                  <div
-                    onClick={() => fileInputRef.current?.click()}
-                    className="relative group w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-slate-100 border-2 border-slate-200/80 overflow-hidden shrink-0 shadow-2xs cursor-pointer flex items-center justify-center"
-                  >
+              <motion.div
+                key="profile"
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -6 }}
+                transition={{ duration: 0.15 }}
+                className="space-y-8"
+              >
+                {/* Clean Avatar Section */}
+                <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5 p-5 rounded-2xl bg-slate-50/60 border border-slate-200/60">
+                  <div className="relative group w-20 h-20 rounded-full bg-[#0F5244]/10 text-[#0F5244] border-2 border-slate-200 overflow-hidden shrink-0 flex items-center justify-center">
                     {avatarPreview ? (
-                      <img src={avatarPreview} alt="Avatar" className="w-full h-full object-cover" />
+                      <Image
+                        suppressHydrationWarning
+                        src={avatarPreview}
+                        alt="Avatar"
+                        width={80}
+                        height={80}
+                        unoptimized
+                        onError={() => setAvatarPreview(null)}
+                        className="w-full h-full object-cover"
+                      />
                     ) : (
-                      <span suppressHydrationWarning className="select-none font-black text-3xl sm:text-4xl text-[#0F5244]">
-                        {(mounted ? formData.fullName : "").charAt(0) || "U"}
+                      <span
+                        suppressHydrationWarning
+                        className="select-none font-bold text-2xl text-[#0F5244]"
+                      >
+                        {(mounted ? formData.fullName : "")
+                          .trim()
+                          .charAt(0)
+                          .toUpperCase() || "U"}
                       </span>
                     )}
 
-                    <div className="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white">
-                      <Camera className="h-6 w-6" />
-                    </div>
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      className="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white cursor-pointer"
+                    >
+                      <Camera className="h-5 w-5" />
+                    </button>
                   </div>
 
                   <input
@@ -457,332 +583,438 @@ export function InstructorSettingsView() {
                     className="hidden"
                   />
 
-                  <div className="space-y-1 text-center sm:text-start pt-1">
-                    <h3 className="text-lg sm:text-xl font-black text-slate-900">
+                  <div className="space-y-1 text-center sm:text-start flex-1">
+                    <h3 className="text-xs sm:text-sm font-bold text-slate-800">
                       {t("avatarTitle")}
                     </h3>
-                    <p className="text-xs sm:text-sm text-slate-500 font-medium leading-relaxed max-w-sm">
-                      {t("avatarSubtitle")}
-                    </p>
-                    <p className="text-[11px] text-slate-400 font-medium pt-1">
-                      {tStudent("avatarAllowedFormats")}
+                    <p className="text-xs text-slate-500 font-normal">
+                      {isAr
+                        ? "صورة واضحة بحجم أقصى 5 ميجابايت بصيغة JPG أو PNG أو WebP."
+                        : "Clear square photo up to 5MB (JPG, PNG, or WebP)."}
                     </p>
 
-                    {avatarPreview && (
+                    <div className="flex items-center justify-center sm:justify-start gap-2 pt-2">
                       <button
                         type="button"
-                        onClick={handleRemoveAvatar}
-                        className="inline-flex items-center gap-1 mt-2 text-xs font-bold text-red-600 hover:text-red-700 cursor-pointer"
+                        onClick={() => fileInputRef.current?.click()}
+                        disabled={isUploadingAvatar}
+                        className="px-3.5 py-1.5 rounded-xl bg-white border border-slate-200 text-xs font-bold text-slate-700 hover:bg-slate-50 transition-all cursor-pointer shadow-2xs inline-flex items-center gap-1.5"
                       >
-                        <Trash2 className="h-3.5 w-3.5" />
-                        <span>{tStudent("removePhoto")}</span>
+                        {isUploadingAvatar ? (
+                          <Loader2 className="h-3.5 w-3.5 animate-spin text-[#0F5244]" />
+                        ) : (
+                          <Camera className="h-3.5 w-3.5 text-slate-500" />
+                        )}
+                        <span>{tInst("uploadPhotoBtn")}</span>
                       </button>
-                    )}
+                    </div>
                   </div>
                 </div>
 
-                <div className="border-b border-slate-100" />
-
-                {/* Fields Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  
-                  <div className="space-y-2">
-                    <label className="block text-xs sm:text-sm font-bold text-slate-700">
-                      {t("fullName")}
+                {/* Main Information Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                  {/* Full Name */}
+                  <div className="space-y-1.5">
+                    <label
+                      htmlFor="fullName"
+                      className="block text-xs font-bold text-slate-700"
+                    >
+                      {tInst("fullNameLabel")} *
                     </label>
                     <input
                       type="text"
+                      id="fullName"
                       name="fullName"
                       value={formData.fullName}
                       onChange={handleChange}
                       required
-                      className="w-full h-11 sm:h-12 rounded-2xl border border-slate-200/90 bg-slate-50/60 px-4 text-xs sm:text-sm font-semibold text-slate-900 focus:bg-white focus:border-[#0F5244] focus:outline-none focus:ring-2 focus:ring-[#0F5244]/15 transition-all"
+                      placeholder="e.g. Mohammed Katanani"
+                      className="w-full h-11 rounded-xl border border-slate-200 bg-slate-50/50 px-3.5 text-xs font-semibold text-slate-900 focus:bg-white focus:border-[#0F5244] focus:ring-2 focus:ring-[#0F5244]/10 focus:outline-none transition-all"
                     />
                   </div>
 
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <label className="block text-xs sm:text-sm font-bold text-slate-700">
-                        {t("emailAddress")}
-                      </label>
-                      <button
-                        type="button"
-                        onClick={() => setShowEmailModal(true)}
-                        className="text-xs font-extrabold text-[#0F5244] hover:underline cursor-pointer"
-                      >
-                        {t("change")}
-                      </button>
+                  {/* Specialization */}
+                  <div className="space-y-1.5">
+                    <label
+                      htmlFor="specialization"
+                      className="block text-xs font-bold text-slate-700"
+                    >
+                      {tInst("specializationLabel")}
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="text"
+                        id="specialization"
+                        name="specialization"
+                        value={formData.specialization}
+                        onChange={handleChange}
+                        placeholder="e.g. Software Architecture"
+                        className="w-full h-11 rounded-xl border border-slate-200 bg-slate-50/50 pl-3.5 pr-10 rtl:pr-3.5 rtl:pl-10 text-xs font-semibold text-slate-900 focus:bg-white focus:border-[#0F5244] focus:ring-2 focus:ring-[#0F5244]/10 focus:outline-none transition-all"
+                      />
+                      <Briefcase className="h-4 w-4 text-slate-400 absolute right-3 rtl:right-auto rtl:left-3 top-3.5 pointer-events-none" />
                     </div>
+                  </div>
+
+                  {/* Headline */}
+                  <div className="space-y-1.5">
+                    <label
+                      htmlFor="headline"
+                      className="block text-xs font-bold text-slate-700"
+                    >
+                      {tInst("headlineLabel")}
+                    </label>
                     <input
-                      type="email"
-                      name="email"
-                      value={formData.email}
-                      readOnly
-                      className="w-full h-11 sm:h-12 rounded-2xl border border-slate-200/90 bg-slate-100/60 px-4 text-xs sm:text-sm font-semibold text-slate-700 cursor-not-allowed"
+                      type="text"
+                      id="headline"
+                      name="headline"
+                      value={formData.headline}
+                      onChange={handleChange}
+                      placeholder="e.g. Certified Master Coach & Tech Lead"
+                      className="w-full h-11 rounded-xl border border-slate-200 bg-slate-50/50 px-3.5 text-xs font-semibold text-slate-900 focus:bg-white focus:border-[#0F5244] focus:ring-2 focus:ring-[#0F5244]/10 focus:outline-none transition-all"
                     />
                   </div>
 
-                  <div className="space-y-2">
-                    <label className="block text-xs sm:text-sm font-bold text-slate-700">
+                  {/* Experience Years */}
+                  <div className="space-y-1.5">
+                    <label
+                      htmlFor="experienceYears"
+                      className="block text-xs font-bold text-slate-700"
+                    >
+                      {tInst("experienceYearsLabel")}
+                    </label>
+                    <input
+                      type="number"
+                      id="experienceYears"
+                      name="experienceYears"
+                      min={0}
+                      max={50}
+                      value={formData.experienceYears}
+                      onChange={handleChange}
+                      placeholder="0"
+                      className="w-full h-11 rounded-xl border border-slate-200 bg-slate-50/50 px-3.5 text-xs font-semibold text-slate-900 focus:bg-white focus:border-[#0F5244] focus:outline-none transition-all"
+                    />
+                  </div>
+
+                  {/* Phone */}
+                  <div className="space-y-1.5">
+                    <label
+                      htmlFor="phone"
+                      className="block text-xs font-bold text-slate-700"
+                    >
                       {t("phoneNumber")}
                     </label>
                     <input
                       type="tel"
+                      id="phone"
                       name="phone"
                       value={formData.phone}
                       onChange={handleChange}
-                      className="w-full h-11 sm:h-12 rounded-2xl border border-slate-200/90 bg-slate-50/60 px-4 text-xs sm:text-sm font-semibold text-slate-900 focus:bg-white focus:border-[#0F5244] focus:outline-none focus:ring-2 focus:ring-[#0F5244]/15 transition-all"
+                      placeholder="+962 7XXXXXXXX"
+                      className="w-full h-11 rounded-xl border border-slate-200 bg-slate-50/50 px-3.5 text-xs font-semibold text-slate-900 focus:bg-white focus:border-[#0F5244] focus:outline-none transition-all"
                     />
                   </div>
 
-                  <div className="space-y-2">
-                    <label className="block text-xs sm:text-sm font-bold text-slate-700">
-                      {t("headline")}
+                  {/* Location */}
+                  <div className="space-y-1.5">
+                    <label
+                      htmlFor="location"
+                      className="block text-xs font-bold text-slate-700"
+                    >
+                      {tInst("locationLabel")}
                     </label>
-                    <input
-                      type="text"
-                      name="headline"
-                      value={formData.headline}
-                      onChange={handleChange}
-                      className="w-full h-11 sm:h-12 rounded-2xl border border-slate-200/90 bg-slate-50/60 px-4 text-xs sm:text-sm font-semibold text-slate-900 focus:bg-white focus:border-[#0F5244] focus:outline-none focus:ring-2 focus:ring-[#0F5244]/15 transition-all"
-                    />
+                    <div className="relative">
+                      <input
+                        type="text"
+                        id="location"
+                        name="location"
+                        value={formData.location}
+                        onChange={handleChange}
+                        placeholder={tInst("locationPlaceholder")}
+                        className="w-full h-11 rounded-xl border border-slate-200 bg-slate-50/50 pl-3.5 pr-10 rtl:pr-3.5 rtl:pl-10 text-xs font-semibold text-slate-900 focus:bg-white focus:border-[#0F5244] focus:outline-none transition-all"
+                      />
+                      <MapPin className="h-4 w-4 text-slate-400 absolute right-3 rtl:right-auto rtl:left-3 top-3.5 pointer-events-none" />
+                    </div>
                   </div>
-
-                  <div className="space-y-2">
-                    <label className="block text-xs sm:text-sm font-bold text-slate-700">
-                      {tInst("specialization")}
-                    </label>
-                    <input
-                      type="text"
-                      name="specialization"
-                      value={formData.specialization}
-                      onChange={handleChange}
-                      className="w-full h-11 sm:h-12 rounded-2xl border border-slate-200/90 bg-slate-50/60 px-4 text-xs sm:text-sm font-semibold text-slate-900 focus:bg-white focus:border-[#0F5244] focus:outline-none focus:ring-2 focus:ring-[#0F5244]/15 transition-all"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <label className="block text-xs sm:text-sm font-bold text-slate-700">
-                      {tInst("experienceYears")}
-                    </label>
-                    <input
-                      type="number"
-                      name="experienceYears"
-                      value={formData.experienceYears}
-                      onChange={handleChange}
-                      className="w-full h-11 sm:h-12 rounded-2xl border border-slate-200/90 bg-slate-50/60 px-4 text-xs sm:text-sm font-semibold text-slate-900 focus:bg-white focus:border-[#0F5244] focus:outline-none focus:ring-2 focus:ring-[#0F5244]/15 transition-all"
-                    />
-                  </div>
-
                 </div>
 
-                <div className="space-y-2">
-                  <label className="block text-xs sm:text-sm font-bold text-slate-700">
-                    {tInst("bio")}
+                {/* Bio Textarea */}
+                <div className="space-y-1.5">
+                  <label
+                    htmlFor="bio"
+                    className="block text-xs font-bold text-slate-700"
+                  >
+                    {tInst("bioLabel")}
                   </label>
                   <textarea
+                    id="bio"
                     name="bio"
                     rows={4}
                     value={formData.bio}
                     onChange={handleChange}
-                    className="w-full rounded-2xl border border-slate-200/90 bg-slate-50/60 p-4 text-xs sm:text-sm font-semibold text-slate-900 focus:bg-white focus:border-[#0F5244] focus:outline-none focus:ring-2 focus:ring-[#0F5244]/15 transition-all resize-none"
+                    placeholder={tInst("bioPlaceholder")}
+                    className="w-full rounded-xl border border-slate-200 bg-slate-50/50 p-3.5 text-xs font-semibold text-slate-900 focus:bg-white focus:border-[#0F5244] focus:ring-2 focus:ring-[#0F5244]/10 focus:outline-none transition-all resize-none leading-relaxed"
                   />
                 </div>
 
-              </div>
-            )}
+                {/* Skills */}
+                <SkillSelector
+                  selectedSkills={formData.skills}
+                  onChange={(newSkills) =>
+                    setFormData((prev) => ({ ...prev, skills: newSkills }))
+                  }
+                  maxSkills={6}
+                  isAr={isAr}
+                  label={tInst("selectedSkillsLabel")}
+                />
 
-            {/* TAB 2: PAYOUT */}
-            {activeTab === "payout" && (
-              <div className="space-y-6 animate-in fade-in duration-150">
-                <div className="space-y-4">
-                  <label className="block text-xs sm:text-sm font-bold text-slate-700">
-                    {tInst("payoutMethod")}
-                  </label>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <label className={`p-4 rounded-2xl border cursor-pointer flex items-center gap-3 transition-all ${formData.payoutMethod === "bank" ? "border-[#0F5244] bg-emerald-50/40" : "border-slate-200 bg-slate-50/40"}`}>
+                {/* Streamlined Social Links */}
+                <div className="pt-2 border-t border-slate-100 space-y-4">
+                  <div className="space-y-0.5">
+                    <h3 className="text-xs sm:text-sm font-bold text-slate-800">
+                      {isAr ? "روابط الحسابات المهنية (اختياري)" : "Professional Links (Optional)"}
+                    </h3>
+                    <p className="text-xs text-slate-400 font-normal">
+                      {isAr
+                        ? "تظهر هذه الروابط في صفحتك العامة لتعزيز ثقة الطلاب والمهتمين."
+                        : "These links will appear on your public profile to build credibility."}
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* Website */}
+                    <div className="relative">
                       <input
-                        type="radio"
-                        name="payoutMethod"
-                        value="bank"
-                        checked={formData.payoutMethod === "bank"}
+                        type="url"
+                        name="website"
+                        value={formData.website}
                         onChange={handleChange}
-                        className="accent-[#0F5244]"
+                        placeholder={isAr ? "الموقع الشخصي (https://...)" : "Personal Website"}
+                        className="w-full h-10 rounded-xl border border-slate-200 bg-slate-50/50 pl-3.5 pr-9 rtl:pr-3.5 rtl:pl-9 text-xs font-semibold text-slate-900 focus:bg-white focus:border-[#0F5244] focus:outline-none transition-all"
                       />
-                      <Building className="h-5 w-5 text-[#0F5244]" />
-                      <span className="text-xs sm:text-sm font-extrabold text-slate-800">{tInst("bankTransfer")}</span>
-                    </label>
+                      <Globe className="h-4 w-4 text-slate-400 absolute right-3 rtl:right-auto rtl:left-3 top-3 pointer-events-none" />
+                    </div>
 
-                    <label className={`p-4 rounded-2xl border cursor-pointer flex items-center gap-3 transition-all ${formData.payoutMethod === "paypal" ? "border-[#0F5244] bg-emerald-50/40" : "border-slate-200 bg-slate-50/40"}`}>
+                    {/* LinkedIn */}
+                    <div className="relative">
                       <input
-                        type="radio"
-                        name="payoutMethod"
-                        value="paypal"
-                        checked={formData.payoutMethod === "paypal"}
+                        type="url"
+                        name="linkedin"
+                        value={formData.linkedin}
                         onChange={handleChange}
-                        className="accent-[#0F5244]"
+                        placeholder={isAr ? "رابط حساب لينكد إن" : "LinkedIn Profile URL"}
+                        className="w-full h-10 rounded-xl border border-slate-200 bg-slate-50/50 pl-3.5 pr-9 rtl:pr-3.5 rtl:pl-9 text-xs font-semibold text-slate-900 focus:bg-white focus:border-[#0F5244] focus:outline-none transition-all"
                       />
-                      <Globe className="h-5 w-5 text-[#0F5244]" />
-                      <span className="text-xs sm:text-sm font-extrabold text-slate-800">PayPal</span>
-                    </label>
+                      <Linkedin className="h-4 w-4 text-[#0077B5] absolute right-3 rtl:right-auto rtl:left-3 top-3 pointer-events-none" />
+                    </div>
+
+                    {/* GitHub */}
+                    <div className="relative">
+                      <input
+                        type="url"
+                        name="github"
+                        value={formData.github}
+                        onChange={handleChange}
+                        placeholder={isAr ? "رابط جيت هب (GitHub)" : "GitHub Profile URL"}
+                        className="w-full h-10 rounded-xl border border-slate-200 bg-slate-50/50 pl-3.5 pr-9 rtl:pr-3.5 rtl:pl-9 text-xs font-semibold text-slate-900 focus:bg-white focus:border-[#0F5244] focus:outline-none transition-all"
+                      />
+                      <Github className="h-4 w-4 text-slate-800 absolute right-3 rtl:right-auto rtl:left-3 top-3 pointer-events-none" />
+                    </div>
+
+                    {/* Twitter */}
+                    <div className="relative">
+                      <input
+                        type="url"
+                        name="twitter"
+                        value={formData.twitter}
+                        onChange={handleChange}
+                        placeholder={isAr ? "رابط إكس / تويتر" : "X / Twitter URL"}
+                        className="w-full h-10 rounded-xl border border-slate-200 bg-slate-50/50 pl-3.5 pr-9 rtl:pr-3.5 rtl:pl-9 text-xs font-semibold text-slate-900 focus:bg-white focus:border-[#0F5244] focus:outline-none transition-all"
+                      />
+                      <Twitter className="h-4 w-4 text-[#1DA1F2] absolute right-3 rtl:right-auto rtl:left-3 top-3 pointer-events-none" />
+                    </div>
                   </div>
                 </div>
-
-                {formData.payoutMethod === "bank" ? (
-                  <div className="space-y-2">
-                    <label className="block text-xs sm:text-sm font-bold text-slate-700">
-                      {tInst("bankIbanLabel")}
-                    </label>
-                    <input
-                      type="text"
-                      name="bankIban"
-                      value={formData.bankIban}
-                      onChange={handleChange}
-                      className="w-full h-11 sm:h-12 rounded-2xl border border-slate-200/90 bg-slate-50/60 px-4 text-xs sm:text-sm font-semibold font-mono text-slate-900 focus:bg-white focus:border-[#0F5244] focus:outline-none"
-                    />
-                  </div>
-                ) : (
-                  <div className="space-y-2">
-                    <label className="block text-xs sm:text-sm font-bold text-slate-700">
-                      {tInst("paypalEmailLabel")}
-                    </label>
-                    <input
-                      type="email"
-                      name="paypalEmail"
-                      value={formData.paypalEmail}
-                      onChange={handleChange}
-                      className="w-full h-11 sm:h-12 rounded-2xl border border-slate-200/90 bg-slate-50/60 px-4 text-xs sm:text-sm font-semibold text-slate-900 focus:bg-white focus:border-[#0F5244] focus:outline-none"
-                    />
-                  </div>
-                )}
-              </div>
+              </motion.div>
             )}
 
-            {/* TAB 3: MEDIA & LINKS */}
-            {activeTab === "media" && (
-              <div className="space-y-6 animate-in fade-in duration-150">
-                <div className="space-y-2">
-                  <label className="block text-xs sm:text-sm font-bold text-slate-700">
-                    {tInst("introVideoUrl")}
-                  </label>
-                  <input
-                    type="url"
-                    name="introVideoUrl"
-                    value={formData.introVideoUrl}
-                    onChange={handleChange}
-                    className="w-full h-11 sm:h-12 rounded-2xl border border-slate-200/90 bg-slate-50/60 px-4 text-xs sm:text-sm font-semibold text-slate-900 focus:bg-white focus:border-[#0F5244] focus:outline-none"
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <label className="block text-xs sm:text-sm font-bold text-slate-700">
-                      {tInst("website")}
-                    </label>
-                    <input
-                      type="url"
-                      name="website"
-                      value={formData.website}
-                      onChange={handleChange}
-                      className="w-full h-11 sm:h-12 rounded-2xl border border-slate-200/90 bg-slate-50/60 px-4 text-xs sm:text-sm font-semibold text-slate-900 focus:bg-white focus:border-[#0F5244] focus:outline-none"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <label className="block text-xs sm:text-sm font-bold text-slate-700">
-                      {tInst("linkedin")}
-                    </label>
-                    <input
-                      type="url"
-                      name="linkedin"
-                      value={formData.linkedin}
-                      onChange={handleChange}
-                      className="w-full h-11 sm:h-12 rounded-2xl border border-slate-200/90 bg-slate-50/60 px-4 text-xs sm:text-sm font-semibold text-slate-900 focus:bg-white focus:border-[#0F5244] focus:outline-none"
-                    />
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* TAB 4: SECURITY */}
+            {/* ================= TAB 2: SECURITY & PASSWORD ================= */}
             {activeTab === "security" && (
-              <div className="space-y-6 animate-in fade-in duration-150">
+              <motion.div
+                key="security"
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -6 }}
+                transition={{ duration: 0.15 }}
+                className="space-y-6"
+              >
                 {passwordError && (
-                  <div className="flex items-center gap-2 p-3 rounded-xl bg-red-50 border border-red-200 text-red-600 text-xs font-bold">
+                  <div className="flex items-center gap-2 p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-600 text-xs font-bold">
                     <AlertCircle className="h-4 w-4 shrink-0" />
                     <span>{passwordError}</span>
                   </div>
                 )}
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <div className="space-y-2">
-                    <label className="block text-xs sm:text-sm font-bold text-slate-700">
-                      {t("currentPassword")}
-                    </label>
-                    <input
-                      type="password"
-                      name="currentPassword"
-                      value={formData.currentPassword}
-                      onChange={handleChange}
-                      placeholder="••••••••"
-                      className="w-full h-11 sm:h-12 rounded-2xl border border-slate-200/90 bg-slate-50/60 px-4 text-xs sm:text-sm font-semibold text-slate-900 focus:bg-white focus:border-[#0F5244] focus:outline-none"
-                    />
+                {/* Login Email */}
+                <div className="p-5 rounded-2xl bg-slate-50/60 border border-slate-200/60 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h4 className="text-xs sm:text-sm font-bold text-slate-800">
+                        {t("emailAddress")} (Login)
+                      </h4>
+                      <p className="text-xs text-slate-500 font-normal">
+                        {isAr
+                          ? "البريد الإلكتروني المعتمد لتسجيل الدخول واستلام الإشعارات الرسمية."
+                          : "Primary email used for sign-in and platform notifications."}
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setShowEmailModal(true)}
+                      className="px-3 py-1.5 rounded-xl bg-white border border-slate-200 text-xs font-bold text-[#0F5244] hover:bg-slate-50 transition-all cursor-pointer shadow-2xs"
+                    >
+                      {t("change")}
+                    </button>
+                  </div>
+                  <input
+                    type="email"
+                    value={formData.email}
+                    readOnly
+                    className="w-full h-11 rounded-xl border border-slate-200 bg-slate-100/70 px-3.5 text-xs font-semibold text-slate-600 cursor-not-allowed"
+                  />
+                </div>
+
+                {/* Change Password */}
+                <div className="space-y-4 pt-2">
+                  <div className="space-y-0.5">
+                    <h4 className="text-xs sm:text-sm font-bold text-slate-800">
+                      {isAr ? "تغيير كلمة المرور" : "Change Password"}
+                    </h4>
+                    <p className="text-xs text-slate-400">
+                      {isAr
+                        ? "اترك الحقول فارغة إذا كنت لا ترغب بتغيير كلمة المرور الحالية."
+                        : "Leave fields empty if you don't wish to change your current password."}
+                    </p>
                   </div>
 
-                  <div className="space-y-2">
-                    <label className="block text-xs sm:text-sm font-bold text-slate-700">
-                      {t("newPassword")}
-                    </label>
-                    <input
-                      type="password"
-                      name="newPassword"
-                      value={formData.newPassword}
-                      onChange={handleChange}
-                      placeholder="••••••••"
-                      className="w-full h-11 sm:h-12 rounded-2xl border border-slate-200/90 bg-slate-50/60 px-4 text-xs sm:text-sm font-semibold text-slate-900 focus:bg-white focus:border-[#0F5244] focus:outline-none"
-                    />
-                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {/* Current Password */}
+                    <div className="space-y-1.5">
+                      <label className="block text-xs font-bold text-slate-700">
+                        {t("currentPassword")}
+                      </label>
+                      <div className="relative">
+                        <input
+                          type={showCurrentPassword ? "text" : "password"}
+                          name="currentPassword"
+                          value={formData.currentPassword}
+                          onChange={handleChange}
+                          autoComplete="new-password"
+                          placeholder="••••••••"
+                          className="w-full h-11 rounded-xl border border-slate-200 bg-slate-50/50 pl-3.5 pr-10 rtl:pr-3.5 rtl:pl-10 text-xs font-semibold text-slate-900 focus:bg-white focus:border-[#0F5244] focus:outline-none transition-all"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                          className="absolute right-3 rtl:right-auto rtl:left-3 top-3.5 text-slate-400 hover:text-slate-600 cursor-pointer"
+                        >
+                          {showCurrentPassword ? (
+                            <EyeOff className="h-4 w-4" />
+                          ) : (
+                            <Eye className="h-4 w-4" />
+                          )}
+                        </button>
+                      </div>
+                    </div>
 
-                  <div className="space-y-2">
-                    <label className="block text-xs sm:text-sm font-bold text-slate-700">
-                      {t("confirmPassword")}
-                    </label>
-                    <input
-                      type="password"
-                      name="confirmPassword"
-                      value={formData.confirmPassword}
-                      onChange={handleChange}
-                      placeholder="••••••••"
-                      className="w-full h-11 sm:h-12 rounded-2xl border border-slate-200/90 bg-slate-50/60 px-4 text-xs sm:text-sm font-semibold text-slate-900 focus:bg-white focus:border-[#0F5244] focus:outline-none"
-                    />
+                    {/* New Password */}
+                    <div className="space-y-1.5">
+                      <label className="block text-xs font-bold text-slate-700">
+                        {t("newPassword")}
+                      </label>
+                      <div className="relative">
+                        <input
+                          type={showNewPassword ? "text" : "password"}
+                          name="newPassword"
+                          value={formData.newPassword}
+                          onChange={handleChange}
+                          autoComplete="new-password"
+                          placeholder="••••••••"
+                          className="w-full h-11 rounded-xl border border-slate-200 bg-slate-50/50 pl-3.5 pr-10 rtl:pr-3.5 rtl:pl-10 text-xs font-semibold text-slate-900 focus:bg-white focus:border-[#0F5244] focus:outline-none transition-all"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowNewPassword(!showNewPassword)}
+                          className="absolute right-3 rtl:right-auto rtl:left-3 top-3.5 text-slate-400 hover:text-slate-600 cursor-pointer"
+                        >
+                          {showNewPassword ? (
+                            <EyeOff className="h-4 w-4" />
+                          ) : (
+                            <Eye className="h-4 w-4" />
+                          )}
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Confirm Password */}
+                    <div className="space-y-1.5">
+                      <label className="block text-xs font-bold text-slate-700">
+                        {t("confirmPassword")}
+                      </label>
+                      <div className="relative">
+                        <input
+                          type={showConfirmPassword ? "text" : "password"}
+                          name="confirmPassword"
+                          value={formData.confirmPassword}
+                          onChange={handleChange}
+                          autoComplete="new-password"
+                          placeholder="••••••••"
+                          className="w-full h-11 rounded-xl border border-slate-200 bg-slate-50/50 pl-3.5 pr-10 rtl:pr-3.5 rtl:pl-10 text-xs font-semibold text-slate-900 focus:bg-white focus:border-[#0F5244] focus:outline-none transition-all"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                          className="absolute right-3 rtl:right-auto rtl:left-3 top-3.5 text-slate-400 hover:text-slate-600 cursor-pointer"
+                        >
+                          {showConfirmPassword ? (
+                            <EyeOff className="h-4 w-4" />
+                          ) : (
+                            <Eye className="h-4 w-4" />
+                          )}
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
+              </motion.div>
             )}
+          </AnimatePresence>
 
-            <div className="border-b border-slate-100" />
+          {/* Action Footer */}
+          <div className="pt-4 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <p className="text-xs text-slate-400 font-medium order-2 sm:order-1 text-center sm:text-start">
+              {tInst("saveNotice")}
+            </p>
 
-            {/* Bottom Action */}
-            <div className="flex items-center justify-end">
-              <button
-                type="submit"
-                disabled={isSaving}
-                className="px-8 py-3 rounded-2xl bg-[#0F5244] hover:bg-[#07382E] text-white text-xs sm:text-sm font-extrabold shadow-sm hover:shadow-md active:scale-98 transition-all cursor-pointer disabled:opacity-70 flex items-center gap-2"
-              >
-                {isSaving ? (
-                  <>
-                    <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                    <span>{t("saving")}</span>
-                  </>
-                ) : (
-                  <span>{t("saveChanges")}</span>
-                )}
-              </button>
-            </div>
-
-          </form>
-        </div>
-
+            <button
+              type="submit"
+              disabled={isSaving}
+              className="w-full sm:w-auto px-8 py-3 rounded-2xl bg-[#0F5244] hover:bg-[#07382E] text-white text-xs font-bold shadow-xs transition-all cursor-pointer disabled:opacity-70 flex items-center justify-center gap-2 order-1 sm:order-2 active:scale-95"
+            >
+              {isSaving ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin text-white" />
+                  <span>{tInst("savingBtn")}</span>
+                </>
+              ) : (
+                <>
+                  <Sparkles className="h-4 w-4 text-[#45D1B4]" />
+                  <span>{tInst("saveChangesBtn")}</span>
+                </>
+              )}
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }

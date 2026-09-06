@@ -2,10 +2,15 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useTranslations, useLocale } from "next-intl";
 import { useRouter, usePathname } from "next/navigation";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@/lib/store";
+import { updateUser } from "@/features/auth/slice";
+import { userService } from "@/services/userService";
+import { authService, getApiErrorMessage } from "@/services/auth";
+import { enrollmentService } from "@/services/enrollmentService";
 import {
   LayoutDashboard,
   BookOpen,
@@ -32,21 +37,83 @@ import {
   AlertCircle,
   Eye,
   EyeOff,
-  CreditCard
+  CreditCard,
 } from "lucide-react";
-import dynamic from "next/dynamic";
 import { Sidebar } from "@/components/layout/Sidebar";
+import { normalizeInstructorSlug } from "@/lib/instructorProfile";
+import { CartView } from "@/components/cart/CartView";
+import { OrderHistoryView } from "@/components/orders/OrderHistoryView";
+import { ChangeEmailModal } from "@/components/modals/ChangeEmailModal";
+import { CourseCard } from "@/components/course/CourseCard";
+import { Toast } from "@/components/ui/Toast";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  StudentOverviewTab,
+  StudentCoursesTab,
+  StudentCertificatesTab,
+  StudentSettingsTab,
+} from "./tabs";
 
-const CartView = dynamic(() => import("@/components/cart/CartView").then((mod) => mod.CartView));
-const OrderHistoryView = dynamic(() => import("@/components/orders/OrderHistoryView").then((mod) => mod.OrderHistoryView));
-const ChangeEmailModal = dynamic(() => import("@/components/modals/ChangeEmailModal").then((mod) => mod.ChangeEmailModal), { ssr: false });
+function getSafeCourseImage(course: any): string {
+  const defaultCover = "/images/courses/course-leadership.png";
+  if (!course) return defaultCover;
+  const candidates = [
+    course.image,
+    course.cover_image,
+    course.thumbnail,
+    course.coverImage,
+  ];
+  for (const c of candidates) {
+    if (
+      typeof c === "string" &&
+      c.trim().length > 0 &&
+      !c.includes("example.com")
+    ) {
+      return c.trim();
+    }
+    if (
+      c &&
+      typeof c === "object" &&
+      typeof c.src === "string" &&
+      c.src.trim().length > 0 &&
+      !c.src.includes("example.com")
+    ) {
+      return c.src.trim();
+    }
+  }
+  return defaultCover;
+}
+
+function getSafeAvatar(avatar: any): string | null {
+  if (typeof avatar === "string" && avatar.trim().length > 0) {
+    return avatar.trim();
+  }
+  if (
+    avatar &&
+    typeof avatar === "object" &&
+    typeof avatar.src === "string" &&
+    avatar.src.trim().length > 0
+  ) {
+    return avatar.src.trim();
+  }
+  return null;
+}
 
 interface StudentWorkspaceProps {
-  initialTab?: "overview" | "courses" | "certificates" | "orders" | "cart" | "settings";
+  initialTab?:
+    | "overview"
+    | "courses"
+    | "certificates"
+    | "orders"
+    | "cart"
+    | "settings";
   hideSidebar?: boolean;
 }
 
-export function StudentWorkspace({ initialTab = "overview", hideSidebar = true }: StudentWorkspaceProps) {
+export function StudentWorkspace({
+  initialTab = "overview",
+  hideSidebar = true,
+}: StudentWorkspaceProps) {
   const locale = useLocale() || "en";
   const isAr = locale === "ar";
   const t = useTranslations("account");
@@ -57,11 +124,16 @@ export function StudentWorkspace({ initialTab = "overview", hideSidebar = true }
   const pathname = usePathname();
 
   const { user } = useSelector((state: RootState) => state.auth);
+  const dispatch = useDispatch();
 
   // Active Workspace Section
-  const [activeTab, setActiveTab] = useState<"overview" | "courses" | "certificates" | "orders" | "cart" | "settings">(initialTab);
+  const [activeTab, setActiveTab] = useState<
+    "overview" | "courses" | "certificates" | "orders" | "cart" | "settings"
+  >(initialTab);
   const [searchQuery, setSearchQuery] = useState("");
-  const [courseFilter, setCourseFilter] = useState<"all" | "in_progress" | "completed">("all");
+  const [courseFilter, setCourseFilter] = useState<
+    "all" | "in_progress" | "completed"
+  >("all");
 
   // Toast & Modals
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -81,7 +153,8 @@ export function StudentWorkspace({ initialTab = "overview", hideSidebar = true }
     learningGoal: tStudent("defaultLearningGoal"),
     preferredCategory: "Data Science",
     videoSpeed: "1x",
-    certificateName: user?.fullName || user?.name || tStudent("defaultCertificateName"),
+    certificateName:
+      user?.fullName || user?.name || tStudent("defaultCertificateName"),
     publicProfile: true,
 
     // Password Change (US-03)
@@ -96,7 +169,8 @@ export function StudentWorkspace({ initialTab = "overview", hideSidebar = true }
 
   useEffect(() => {
     if (user) {
-      const userFullName = user.fullName || user.name || user.email?.split("@")[0] || "";
+      const userFullName =
+        user.fullName || user.name || user.email?.split("@")[0] || "";
       const userEmail = user.email || "";
       setFormData((prev) => ({
         ...prev,
@@ -104,9 +178,7 @@ export function StudentWorkspace({ initialTab = "overview", hideSidebar = true }
         email: userEmail || prev.email,
         certificateName: userFullName || prev.certificateName,
       }));
-      if (user.avatar) {
-        setAvatarPreview(user.avatar);
-      }
+      setAvatarPreview(getSafeAvatar(user.avatar));
     }
   }, [user]);
 
@@ -118,68 +190,105 @@ export function StudentWorkspace({ initialTab = "overview", hideSidebar = true }
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   // Enrolled Courses Data
-  const [courses] = useState([
-    {
-      id: "course-1",
-      slug: "react-nextjs-masterclass",
-      title: isAr ? "دورة احتراف React 19 و Next.js App Router" : "React 19 & Next.js App Router Masterclass",
-      instructor: isAr ? "محمد الكتاناني" : "Mohamed Katanani",
-      image: "https://images.unsplash.com/photo-1633356122544-f134324a6cee?q=80&w=600&auto=format&fit=crop",
-      progress: 75,
-      lastLessonTitle: isAr ? "الدرس 12: إدارة الحالة بالحاوية المتقدمة" : "Lesson 12: Advanced State Management",
-      isCompleted: false,
-    },
-    {
-      id: "course-2",
-      slug: "ui-ux-design-system",
-      title: isAr ? "بناء أنظمة التصميم الاحترافية UI/UX باستخدام Figma" : "Building Professional UI/UX Design Systems with Figma",
-      instructor: isAr ? "د. طارق المنصور" : "Dr. Tarek Al-Mansoor",
-      image: "https://images.unsplash.com/photo-1581291518633-83b4ebd1d83e?q=80&w=600&auto=format&fit=crop",
-      progress: 100,
-      lastLessonTitle: isAr ? "مشروع التخرج: نظام تصميم متكامل" : "Capstone Project: Design System",
-      isCompleted: true,
-      certificateId: "CERT-892401",
-    },
-    {
-      id: "course-3",
-      slug: "python-machine-learning",
-      title: isAr ? "أساسيات الذكاء الاصطناعي وتعلم الآلة بلغة Python" : "Python Machine Learning & AI Fundamentals",
-      instructor: isAr ? "د. طارق المنصور" : "Dr. Tarek Al-Mansoor",
-      image: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?q=80&w=600&auto=format&fit=crop",
-      progress: 30,
-      lastLessonTitle: isAr ? "الدرس 4: تنظيف ومعالجة البيانات" : "Lesson 4: Data Cleaning",
-      isCompleted: false,
-    },
-  ]);
+  const [courses, setCourses] = useState<any[]>([]);
+  const [isLoadingCourses, setIsLoadingCourses] = useState(true);
+
+  // Load enrolled courses from API with localStorage fallback
+  useEffect(() => {
+    async function fetchLiveEnrollments() {
+      setIsLoadingCourses(true);
+      const defaultCover = "/images/courses/course-leadership.png";
+
+      try {
+        const enrollments = await enrollmentService.getMyEnrollments();
+        if (Array.isArray(enrollments)) {
+          const mapped = enrollments.map((enr: any) => {
+            const c = enr.course || {};
+            const total = c.total_lessons || enr.total_lessons || 10;
+            const progress = enr.progress_percent ?? 0;
+            const validImg = getSafeCourseImage(c);
+
+            return {
+              id: c.id || enr.course_id || enr.id,
+              enrollmentId: enr.id,
+              title: isAr ? c.title_ar || c.title : c.title_en || c.title,
+              instructor:
+                typeof c.instructor === "object"
+                  ? c.instructor?.name || c.instructor?.full_name
+                  : c.instructor || "CoachSpace Instructor",
+              instructorId:
+                typeof c.instructor === "object" ? c.instructor?.id : undefined,
+              image: validImg,
+              cover_image: validImg,
+              coverImage: validImg,
+              thumbnail: validImg,
+              progress,
+              totalLessons: total,
+              completedLessons:
+                enr.completed_lessons?.length ||
+                Math.round((progress / 100) * total),
+              isCompleted: Boolean(enr.is_completed || progress >= 100),
+              certificateId:
+                enr.certificate?.id ||
+                enr.certificate?.certificate_code ||
+                (progress >= 100 ? `CERT-${enr.id}` : null),
+            };
+          });
+          setCourses(mapped);
+          if (typeof window !== "undefined") {
+            localStorage.setItem(
+              "coachspace_enrolled_courses",
+              JSON.stringify(mapped),
+            );
+          }
+          setIsLoadingCourses(false);
+          return;
+        }
+      } catch (err) {
+        console.warn(
+          "[StudentWorkspace] Live enrollments fetch skipped / fallback to local:",
+          err,
+        );
+      }
+
+      // Fallback to localStorage
+      if (typeof window !== "undefined") {
+        try {
+          const saved = localStorage.getItem("coachspace_enrolled_courses");
+          if (saved) {
+            const list = JSON.parse(saved);
+            if (Array.isArray(list) && list.length > 0) {
+              const sanitized = list.map((item: any) => {
+                const img = getSafeCourseImage(item);
+                return {
+                  ...item,
+                  image: img,
+                  thumbnail: img,
+                  cover_image: img,
+                  coverImage: img,
+                };
+              });
+              setCourses(sanitized);
+            }
+          }
+        } catch (err) {
+          console.warn(
+            "[StudentWorkspace] Could not load enrolled courses:",
+            err,
+          );
+        }
+      }
+      setIsLoadingCourses(false);
+    }
+
+    fetchLiveEnrollments();
+  }, [isAr]);
 
   // Order History Data
-  const [orders] = useState([
-    {
-      id: "ORD-98214",
-      date: "2026-02-10",
-      courses: [isAr ? "دورة احتراف React 19 و Next.js" : "React 19 & Next.js Masterclass"],
-      totalAmount: 49.99,
-      status: "completed",
-    },
-    {
-      id: "ORD-74102",
-      date: "2026-01-15",
-      courses: [isAr ? "بناء أنظمة التصميم Figma" : "UI/UX Design Systems"],
-      totalAmount: 39.99,
-      status: "completed",
-    },
-  ]);
+  const [orders] = useState<any[]>([]);
 
   // Cart Data
-  const [cartItems, setCartItems] = useState([
-    {
-      id: "course-4",
-      title: isAr ? "احتراف الأمن السيبراني واختبار الاختراق" : "Cybersecurity & Penetration Testing",
-      instructor: isAr ? "سارة الأحمد" : "Sarah Al-Ahmad",
-      price: 59.99,
-      image: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=400&auto=format&fit=crop",
-    },
-  ]);
+  const [cartItems, setCartItems] = useState<any[]>([]);
 
   const handleRemoveFromCart = (id: string) => {
     setCartItems((prev) => prev.filter((item) => item.id !== id));
@@ -187,7 +296,11 @@ export function StudentWorkspace({ initialTab = "overview", hideSidebar = true }
     setTimeout(() => setToastMessage(null), 3000);
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+  const handleInputChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >,
+  ) => {
     const { name, value, type } = e.target;
     if (type === "checkbox") {
       const checked = (e.target as HTMLInputElement).checked;
@@ -197,23 +310,31 @@ export function StudentWorkspace({ initialTab = "overview", hideSidebar = true }
     }
   };
 
-  const handleAvatarFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAvatarFileChange = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     const file = e.target.files?.[0];
-    if (file) {
-      if (file.size > 5 * 1024 * 1024) {
-        alert(tStudent("avatarSizeExceeded"));
-        return;
-      }
-      setAvatarPreview(URL.createObjectURL(file));
-      setToastMessage(tStudent("avatarUpdated"));
-      setTimeout(() => setToastMessage(null), 3000);
-    }
-  };
+    if (!file) return;
 
-  const handleRemoveAvatar = () => {
-    setAvatarPreview(null);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
+    if (file.size > 5 * 1024 * 1024) {
+      alert(tStudent("avatarSizeExceeded"));
+      return;
+    }
+
+    const localUrl = URL.createObjectURL(file);
+    setAvatarPreview(localUrl);
+
+    try {
+      const res = await userService.uploadAvatar(file);
+      if (res?.avatar) {
+        setAvatarPreview(res.avatar);
+        dispatch(updateUser({ avatar: res.avatar }));
+        setToastMessage(tStudent("avatarUpdated"));
+      }
+    } catch (err: any) {
+      console.warn("[StudentWorkspace] uploadAvatar error:", err?.message);
+    } finally {
+      setTimeout(() => setToastMessage(null), 3000);
     }
   };
 
@@ -233,33 +354,71 @@ export function StudentWorkspace({ initialTab = "overview", hideSidebar = true }
     }
 
     setIsSaving(true);
-    await new Promise((resolve) => setTimeout(resolve, 600));
-    setIsSaving(false);
-    setToastMessage(t("changesSaved"));
-    setTimeout(() => setToastMessage(null), 3500);
+    try {
+      if (formData.currentPassword && formData.newPassword) {
+        await authService.changePassword({
+          current_password: formData.currentPassword,
+          new_password: formData.newPassword,
+        });
+        setFormData((prev) => ({
+          ...prev,
+          currentPassword: "",
+          newPassword: "",
+          confirmPassword: "",
+        }));
+      }
+
+      const updated = await userService.updateMyProfile({
+        full_name: formData.fullName.trim(),
+        phone_number: formData.phone?.trim() || undefined,
+        preferred_language: locale,
+      });
+
+      dispatch(
+        updateUser({
+          fullName: updated.full_name || formData.fullName.trim(),
+          name: updated.full_name || formData.fullName.trim(),
+          phone: updated.phone_number || undefined,
+          phone_number: updated.phone_number || undefined,
+          preferred_language: updated.preferred_language || locale,
+          preferredLanguage: updated.preferred_language || locale,
+        }),
+      );
+
+      setToastMessage(t("changesSaved"));
+    } catch (err: any) {
+      console.warn("[StudentWorkspace] Error saving settings:", err);
+      const msg = getApiErrorMessage(
+        err,
+        t("saveChangesFailed") ||
+          (isAr ? "فشل حفظ التغييرات" : "Failed to save changes"),
+        isAr,
+      );
+      setToastMessage(msg);
+    } finally {
+      setIsSaving(false);
+      setTimeout(() => setToastMessage(null), 3500);
+    }
   };
 
   return (
     <div className="w-full space-y-4 sm:space-y-6">
       {/* Toast */}
-      {toastMessage && (
-        <div className="fixed bottom-6 right-6 rtl:right-auto rtl:left-6 z-50 flex items-center gap-2.5 bg-[#0F5244] text-white px-5 py-3.5 rounded-2xl shadow-2xl animate-in slide-in-from-bottom-4 duration-200">
-          <CheckCircle2 className="h-4 w-4 text-emerald-300 shrink-0" />
-          <span className="text-xs sm:text-sm font-bold">{toastMessage}</span>
-        </div>
-      )}
+      <Toast message={toastMessage} onClose={() => setToastMessage(null)} />
 
       {/* Email Change Modal */}
-      <ChangeEmailModal
-        isOpen={showEmailModal}
-        currentEmail={formData.email}
-        onClose={() => setShowEmailModal(false)}
-        onConfirmEmailChange={(newEmail: string) => {
-          setFormData((prev) => ({ ...prev, email: newEmail }));
-          setToastMessage(tChangeEmail("success"));
-          setTimeout(() => setToastMessage(null), 4000);
-        }}
-      />
+      {showEmailModal && (
+        <ChangeEmailModal
+          isOpen={showEmailModal}
+          currentEmail={formData.email}
+          onClose={() => setShowEmailModal(false)}
+          onConfirmEmailChange={(newEmail: string) => {
+            setFormData((prev) => ({ ...prev, email: newEmail }));
+            setToastMessage(tChangeEmail("success"));
+            setTimeout(() => setToastMessage(null), 4000);
+          }}
+        />
+      )}
 
       {/* Top Student Header Card (Only rendered if standalone / not wrapped in StudentLayoutClient) */}
       {!hideSidebar && (
@@ -267,10 +426,19 @@ export function StudentWorkspace({ initialTab = "overview", hideSidebar = true }
           <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-5 text-center sm:text-start">
             <div className="relative group shrink-0">
               <div className="w-16 h-16 sm:w-24 sm:h-24 rounded-full bg-[#E8F3F1] border-2 border-emerald-200/80 overflow-hidden shadow-2xs flex items-center justify-center">
-                {avatarPreview ? (
-                  <img src={avatarPreview} alt="Student" className="w-full h-full object-cover" />
+                {getSafeAvatar(avatarPreview) ? (
+                  <Image
+                    src={getSafeAvatar(avatarPreview)!}
+                    alt="Student"
+                    width={96}
+                    height={96}
+                    unoptimized
+                    className="w-full h-full object-cover"
+                  />
                 ) : (
-                  <span className="font-black text-2xl sm:text-3xl text-[#0F5244]">{formData.fullName.charAt(0)}</span>
+                  <span className="font-black text-2xl sm:text-3xl text-[#0F5244]">
+                    {formData.fullName.charAt(0)}
+                  </span>
                 )}
               </div>
               <span className="absolute bottom-0 right-0 rtl:right-auto rtl:left-0 w-3.5 h-3.5 bg-emerald-500 border-2 border-white rounded-full" />
@@ -278,22 +446,35 @@ export function StudentWorkspace({ initialTab = "overview", hideSidebar = true }
 
             <div className="space-y-1">
               <div className="flex items-center justify-center sm:justify-start gap-2 flex-wrap">
-                <h1 className="text-lg sm:text-2xl font-black text-slate-900">{formData.fullName}</h1>
+                <h1 className="text-lg sm:text-2xl font-black text-slate-900">
+                  {formData.fullName}
+                </h1>
                 <span className="px-2.5 py-0.5 rounded-full bg-emerald-100 text-[#0F5244] text-[11px] font-extrabold">
-                  {(user?.role || "").toLowerCase() === "instructor" || (user?.role || "").toLowerCase() === "coach"
-                    ? (isAr ? "حساب مدرب" : "Instructor Account")
+                  {(user?.role || "").toLowerCase() === "instructor" ||
+                  (user?.role || "").toLowerCase() === "coach"
+                    ? tWs("instructorAccount")
                     : tWs("studentAccount")}
                 </span>
               </div>
-              <p className="text-xs text-slate-500 font-medium">{formData.headline}</p>
-              <p className="text-[11px] text-slate-400 font-medium pt-0.5">{formData.email}</p>
+              <p className="text-xs text-slate-500 font-medium">
+                {formData.headline}
+              </p>
+              <p className="text-[11px] text-slate-400 font-medium pt-0.5">
+                {formData.email}
+              </p>
             </div>
           </div>
         </div>
       )}
 
       {/* Master Workspace Layout */}
-      <div className={hideSidebar ? "w-full bg-white rounded-2xl sm:rounded-3xl border border-slate-200/80 p-4 sm:p-10 shadow-2xs" : "flex flex-col md:flex-row gap-6 sm:gap-8 lg:gap-10 items-start"}>
+      <div
+        className={
+          hideSidebar
+            ? "w-full bg-white rounded-2xl sm:rounded-3xl border border-slate-200/80 p-4 sm:p-6 lg:p-8 shadow-2xs"
+            : "flex flex-col md:flex-row gap-6 sm:gap-8 lg:gap-10 items-start"
+        }
+      >
         {!hideSidebar && (
           <Sidebar
             activeTab={activeTab}
@@ -307,461 +488,97 @@ export function StudentWorkspace({ initialTab = "overview", hideSidebar = true }
         )}
 
         {/* Main Display Area */}
-        <div className={hideSidebar ? "w-full" : "flex-1 w-full bg-white rounded-2xl sm:rounded-3xl border border-slate-200/80 p-4 sm:p-10 shadow-2xs"}>
-          
-          {/* OVERVIEW TAB */}
-          {activeTab === "overview" && (
-            <div className="space-y-8 animate-in fade-in duration-150">
-              <h2 className="text-xl sm:text-2xl font-black text-slate-900">
-                {tWs("overviewSubtitle")}
-              </h2>
+        <div
+          className={
+            hideSidebar
+              ? "w-full"
+              : "flex-1 w-full bg-white rounded-2xl sm:rounded-3xl border border-slate-200/80 p-4 sm:p-6 lg:p-8 shadow-2xs"
+          }
+        >
+          <AnimatePresence mode="wait">
+            {activeTab === "overview" && (
+              <motion.div
+                key="overview"
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -6 }}
+                transition={{ duration: 0.15 }}
+              >
+                <StudentOverviewTab courses={courses} isLoading={isLoadingCourses} />
+              </motion.div>
+            )}
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
-                <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200/60 space-y-1">
-                  <span className="text-xs font-bold text-slate-400 uppercase">{tWs("enrolled")}</span>
-                  <div className="text-2xl font-black text-slate-900">{courses.length} {tWs("courses")}</div>
-                </div>
-                <div className="p-5 rounded-2xl bg-emerald-50 border border-emerald-200/60 space-y-1">
-                  <span className="text-xs font-bold text-[#0F5244] uppercase">{tWs("certificatesCount")}</span>
-                  <div className="text-2xl font-black text-[#0F5244]">{courses.filter(c => c.isCompleted).length} {tWs("earned")}</div>
-                </div>
-                <div className="p-5 rounded-2xl bg-teal-50 border border-teal-200/60 space-y-1">
-                  <span className="text-xs font-bold text-teal-800 uppercase">{tWs("hoursStudied")}</span>
-                  <div className="text-2xl font-black text-teal-900">38.5 {tWs("hrs")}</div>
-                </div>
-              </div>
+            {activeTab === "courses" && (
+              <motion.div
+                key="courses"
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -6 }}
+                transition={{ duration: 0.15 }}
+              >
+                <StudentCoursesTab courses={courses} isLoading={isLoadingCourses} />
+              </motion.div>
+            )}
 
-              <div className="p-6 rounded-3xl bg-[#0F5244] text-white space-y-4 shadow-md">
-                <div className="flex items-center gap-2">
-                  <Sparkles className="h-5 w-5 text-emerald-300" />
-                  <h3 className="text-sm font-extrabold text-emerald-200 uppercase tracking-wider">
-                    {tWs("continueLearning")}
-                  </h3>
-                </div>
+            {activeTab === "certificates" && (
+              <motion.div
+                key="certificates"
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -6 }}
+                transition={{ duration: 0.15 }}
+              >
+                <StudentCertificatesTab courses={courses} />
+              </motion.div>
+            )}
 
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                  <div>
-                    <h4 className="text-lg sm:text-xl font-black">{courses[0].title}</h4>
-                    <p className="text-xs text-emerald-100 mt-1 font-medium">{courses[0].lastLessonTitle}</p>
-                  </div>
+            {activeTab === "orders" && (
+              <motion.div
+                key="orders"
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -6 }}
+                transition={{ duration: 0.15 }}
+              >
+                <OrderHistoryView />
+              </motion.div>
+            )}
 
-                  <button
-                    type="button"
-                    onClick={() => setActiveTab("courses")}
-                    className="px-6 py-3 rounded-2xl bg-white text-[#0F5244] hover:bg-emerald-50 text-xs font-black flex items-center justify-center gap-2 shrink-0 transition-all cursor-pointer shadow-2xs"
-                  >
-                    <Play className="h-4 w-4 fill-current" />
-                    <span>{tWs("myCoursesBtn")}</span>
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
+            {activeTab === "cart" && (
+              <motion.div
+                key="cart"
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -6 }}
+                transition={{ duration: 0.15 }}
+              >
+                <CartView items={cartItems} onRemoveItem={handleRemoveFromCart} />
+              </motion.div>
+            )}
 
-          {/* MY COURSES TAB */}
-          {activeTab === "courses" && (
-            <div className="space-y-6 animate-in fade-in duration-150">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <h2 className="text-xl sm:text-2xl font-black text-slate-900">
-                  {tWs("enrolledCourses")}
-                </h2>
-
-                {/* Course Filter Sub-Tabs */}
-                <div className="inline-flex items-center gap-1 p-1.5 rounded-2xl bg-slate-100/90 border border-slate-200/60 shrink-0">
-                  <button
-                    type="button"
-                    onClick={() => setCourseFilter("all")}
-                    className={`px-3.5 py-1.5 rounded-xl text-xs font-extrabold transition-all cursor-pointer ${
-                      courseFilter === "all"
-                        ? "bg-white text-[#0F5244] shadow-2xs"
-                        : "text-slate-600 hover:text-slate-900"
-                    }`}
-                  >
-                    {tWs("all")} ({courses.length})
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setCourseFilter("in_progress")}
-                    className={`px-3.5 py-1.5 rounded-xl text-xs font-extrabold transition-all cursor-pointer ${
-                      courseFilter === "in_progress"
-                        ? "bg-white text-[#0F5244] shadow-2xs"
-                        : "text-slate-600 hover:text-slate-900"
-                    }`}
-                  >
-                    {tWs("inProgress")} ({courses.filter(c => !c.isCompleted).length})
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setCourseFilter("completed")}
-                    className={`px-3.5 py-1.5 rounded-xl text-xs font-extrabold transition-all cursor-pointer ${
-                      courseFilter === "completed"
-                        ? "bg-white text-[#0F5244] shadow-2xs"
-                        : "text-slate-600 hover:text-slate-900"
-                    }`}
-                  >
-                    {tWs("completed")} ({courses.filter(c => c.isCompleted).length})
-                  </button>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
-                {courses
-                  .filter((course) => {
-                    if (courseFilter === "in_progress") return !course.isCompleted;
-                    if (courseFilter === "completed") return course.isCompleted;
-                    return true;
-                  })
-                  .map((course) => (
-                    <div
-                      key={course.id}
-                      className="h-full flex flex-col justify-between rounded-3xl border border-slate-200/80 p-5 hover:shadow-md transition-all bg-white"
-                    >
-                      <div className="space-y-4">
-                        <div className="relative h-44 rounded-2xl overflow-hidden bg-slate-100 shrink-0">
-                          <img src={course.image} alt={course.title} className="w-full h-full object-cover" />
-                          <span
-                            className={`absolute top-3 right-3 rtl:right-auto rtl:left-3 px-3 py-1 rounded-full text-white text-[11px] font-bold shadow-xs ${
-                              course.isCompleted ? "bg-emerald-600" : "bg-slate-900/80"
-                            }`}
-                          >
-                            {course.isCompleted ? tWs("completedPercent") : `${course.progress}%`}
-                          </span>
-                        </div>
-
-                        <div className="space-y-1 min-h-[3.25rem] flex flex-col justify-start">
-                          <h3 className="text-base font-extrabold text-slate-900 line-clamp-2 leading-snug">{course.title}</h3>
-                          <p className="text-xs text-slate-500 font-medium">{course.instructor}</p>
-                        </div>
-                      </div>
-
-                      {/* Bottom Footer Section (Progress Bar + Actions aligned at exact same bottom level) */}
-                      <div className="mt-auto pt-4 space-y-4">
-                        {/* Progress Bar */}
-                        <div className="space-y-1.5">
-                          <div className="flex justify-between text-[11px] font-extrabold text-slate-500">
-                            <span>{tWs("progressLabel")}</span>
-                            <span className={course.isCompleted ? "text-emerald-700 font-black" : "text-[#0F5244] font-black"}>
-                              {course.progress}%
-                            </span>
-                          </div>
-                          <div className="w-full h-2 rounded-full bg-slate-100 overflow-hidden">
-                            <div
-                              className={`h-full rounded-full transition-all duration-500 ${
-                                course.isCompleted ? "bg-emerald-500" : "bg-[#0F5244]"
-                              }`}
-                              style={{ width: `${course.progress}%` }}
-                            />
-                          </div>
-                        </div>
-
-                        <div className="flex items-center gap-2">
-                          <button
-                            type="button"
-                            onClick={() => setActiveTab("courses")}
-                            className="flex-1 py-2.5 rounded-2xl bg-[#0F5244] hover:bg-[#07382E] text-white text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer shadow-2xs"
-                          >
-                            <Play className="h-3.5 w-3.5 fill-current" />
-                            <span>{course.isCompleted ? tWs("completedStatus") : tWs("enrolledStatus")}</span>
-                          </button>
-
-                          {course.isCompleted && (
-                            <Link
-                              href={`/${locale}/student/certificates/${course.certificateId || "CERT-892401"}`}
-                              className="px-4 py-2.5 rounded-2xl bg-emerald-100 hover:bg-emerald-200 text-[#0F5244] text-xs font-extrabold flex items-center gap-1.5 transition-all"
-                            >
-                              <Award className="h-4 w-4" />
-                              <span>{tWs("certificateBtn")}</span>
-                            </Link>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-              </div>
-            </div>
-          )}
-
-          {/* CERTIFICATES TAB */}
-          {activeTab === "certificates" && (
-            <div className="space-y-6 animate-in fade-in duration-150">
-              <h2 className="text-xl sm:text-2xl font-black text-slate-900">
-                {tWs("earnedCertificatesTitle")}
-              </h2>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {courses.filter((c) => c.isCompleted).map((cert) => (
-                  <div key={cert.id} className="p-6 rounded-3xl border border-slate-200/80 space-y-4">
-                    <div className="flex items-center gap-3">
-                      <Award className="h-8 w-8 text-[#0F5244]" />
-                      <div>
-                        <h4 className="text-sm font-extrabold text-slate-900">{cert.title}</h4>
-                        <span className="text-xs text-slate-400 font-mono">{cert.certificateId}</span>
-                      </div>
-                    </div>
-
-                    <Link
-                      href={`/${locale}/student/certificates/${cert.certificateId || "CERT-123"}`}
-                      className="w-full py-2.5 rounded-2xl bg-[#0F5244] text-white text-xs font-bold flex items-center justify-center gap-2"
-                    >
-                      <Download className="h-4 w-4" />
-                      <span>{tWs("downloadPdf")}</span>
-                    </Link>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* ORDERS TAB */}
-          {activeTab === "orders" && <OrderHistoryView />}
-
-          {/* CART TAB */}
-          {activeTab === "cart" && (
-            <CartView
-              items={cartItems}
-              onRemoveItem={handleRemoveFromCart}
-            />
-          )}
-
-          {/* FULL ACCOUNT PROFILE & SETTINGS TAB */}
-          {activeTab === "settings" && (
-            <form onSubmit={handleSaveSettings} className="space-y-8 animate-in fade-in duration-150">
-              
-              <div className="space-y-1">
-                <h2 className="text-xl sm:text-2xl font-black text-slate-900">
-                  {tStudent("title")}
-                </h2>
-                <p className="text-xs sm:text-sm text-slate-500 font-medium">
-                  {tStudent("subtitle")}
-                </p>
-              </div>
-
-              {/* Avatar Change Section (5MB Limit) */}
-              <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
-                <div
-                  onClick={() => fileInputRef.current?.click()}
-                  className="relative group w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-[#E8F3F1] border-2 border-emerald-200/80 overflow-hidden shrink-0 shadow-2xs cursor-pointer flex items-center justify-center"
-                >
-                  {avatarPreview ? (
-                    <img src={avatarPreview} alt="Avatar" className="w-full h-full object-cover" />
-                  ) : (
-                    <span className="font-black text-3xl sm:text-4xl text-[#0F5244]">
-                      {formData.fullName.charAt(0)}
-                    </span>
-                  )}
-
-                  <div className="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white">
-                    <Camera className="h-6 w-6" />
-                  </div>
-                </div>
-
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/jpeg,image/png,image/webp"
-                  onChange={handleAvatarFileChange}
-                  className="hidden"
+            {activeTab === "settings" && (
+              <motion.div
+                key="settings"
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -6 }}
+                transition={{ duration: 0.15 }}
+              >
+                <StudentSettingsTab
+                  formData={formData}
+                  avatarPreview={avatarPreview}
+                  onAvatarChange={handleAvatarFileChange}
+                  onInputChange={handleInputChange}
+                  onSaveSettings={handleSaveSettings}
+                  isSaving={isSaving}
+                  onOpenEmailModal={() => setShowEmailModal(true)}
+                  passwordError={passwordError}
                 />
-
-                <div className="space-y-1 text-center sm:text-start pt-1">
-                  <h3 className="text-lg sm:text-xl font-black text-slate-900">
-                    {t("avatarTitle")}
-                  </h3>
-                  <p className="text-xs sm:text-sm text-slate-500 font-medium leading-relaxed max-w-sm">
-                    {t("avatarSubtitle")}
-                  </p>
-                  <p className="text-[11px] text-slate-400 font-medium pt-1">
-                    {tWs("avatarLimitNotice")}
-                  </p>
-
-                  {avatarPreview && (
-                    <button
-                      type="button"
-                      onClick={handleRemoveAvatar}
-                      className="inline-flex items-center gap-1 mt-2 text-xs font-bold text-red-600 hover:text-red-700 cursor-pointer"
-                    >
-                      <Trash2 className="h-3.5 w-3.5" />
-                      <span>{tWs("removePhoto")}</span>
-                    </button>
-                  )}
-                </div>
-              </div>
-
-              <div className="border-b border-slate-100" />
-
-              {/* Personal Information Fields */}
-              <div className="space-y-4">
-                <h3 className="text-xs font-extrabold text-slate-400 uppercase tracking-wider">
-                  {t("personalDetails")}
-                </h3>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                  
-                  <div className="space-y-1.5">
-                    <label className="block text-xs font-bold text-slate-700">{t("fullName")}</label>
-                    <input
-                      type="text"
-                      name="fullName"
-                      value={formData.fullName}
-                      onChange={handleInputChange}
-                      required
-                      className="w-full h-11 rounded-2xl border border-slate-200 bg-slate-50/60 px-4 text-xs font-semibold text-slate-900 focus:bg-white focus:border-[#0F5244] focus:outline-none"
-                    />
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <div className="flex items-center justify-between">
-                      <label className="block text-xs font-bold text-slate-700">{t("emailAddress")}</label>
-                      <button
-                        type="button"
-                        onClick={() => setShowEmailModal(true)}
-                        className="text-xs font-extrabold text-[#0F5244] hover:underline cursor-pointer"
-                      >
-                        {t("change")}
-                      </button>
-                    </div>
-                    <input
-                      type="email"
-                      name="email"
-                      value={formData.email}
-                      readOnly
-                      className="w-full h-11 rounded-2xl border border-slate-200 bg-slate-100 px-4 text-xs font-semibold text-slate-600 cursor-not-allowed"
-                    />
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <label className="block text-xs font-bold text-slate-700">{t("phoneNumber")}</label>
-                    <input
-                      type="tel"
-                      name="phone"
-                      value={formData.phone}
-                      onChange={handleInputChange}
-                      className="w-full h-11 rounded-2xl border border-slate-200 bg-slate-50/60 px-4 text-xs font-semibold text-slate-900 focus:bg-white focus:border-[#0F5244] focus:outline-none"
-                    />
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <label className="block text-xs font-bold text-slate-700">{t("headline")}</label>
-                    <input
-                      type="text"
-                      name="headline"
-                      value={formData.headline}
-                      onChange={handleInputChange}
-                      className="w-full h-11 rounded-2xl border border-slate-200 bg-slate-50/60 px-4 text-xs font-semibold text-slate-900 focus:bg-white focus:border-[#0F5244] focus:outline-none"
-                    />
-                  </div>
-
-                </div>
-              </div>
-
-              <div className="border-b border-slate-100" />
-
-              {/* Password Change Section (US-03) */}
-              <div className="space-y-4">
-                <h3 className="text-xs font-extrabold text-slate-400 uppercase tracking-wider">
-                  {t("securityAndPassword")}
-                </h3>
-
-                {passwordError && (
-                  <div className="flex items-center gap-2 p-3 rounded-xl bg-red-50 text-red-600 text-xs font-bold">
-                    <AlertCircle className="h-4 w-4 shrink-0" />
-                    <span>{passwordError}</span>
-                  </div>
-                )}
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-                  <div className="space-y-1.5">
-                    <label className="block text-xs font-bold text-slate-700">{t("currentPassword")}</label>
-                    <div className="relative">
-                      <input
-                        type={showCurrentPassword ? "text" : "password"}
-                        name="currentPassword"
-                        value={formData.currentPassword}
-                        onChange={handleInputChange}
-                        placeholder="••••••••"
-                        className="w-full h-11 rounded-2xl border border-slate-200 bg-slate-50/60 px-4 text-xs font-semibold text-slate-900 focus:bg-white focus:border-[#0F5244] focus:outline-none rtl:pl-10 ltr:pr-10"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                        className="absolute top-1/2 -translate-y-1/2 rtl:left-3 ltr:right-3 text-slate-400 hover:text-slate-600 cursor-pointer"
-                      >
-                        {showCurrentPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                      </button>
-                    </div>
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <label className="block text-xs font-bold text-slate-700">{t("newPassword")}</label>
-                    <div className="relative">
-                      <input
-                        type={showNewPassword ? "text" : "password"}
-                        name="newPassword"
-                        value={formData.newPassword}
-                        onChange={handleInputChange}
-                        placeholder="••••••••"
-                        className="w-full h-11 rounded-2xl border border-slate-200 bg-slate-50/60 px-4 text-xs font-semibold text-slate-900 focus:bg-white focus:border-[#0F5244] focus:outline-none rtl:pl-10 ltr:pr-10"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowNewPassword(!showNewPassword)}
-                        className="absolute top-1/2 -translate-y-1/2 rtl:left-3 ltr:right-3 text-slate-400 hover:text-slate-600 cursor-pointer"
-                      >
-                        {showNewPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                      </button>
-                    </div>
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <label className="block text-xs font-bold text-slate-700">{t("confirmPassword")}</label>
-                    <div className="relative">
-                      <input
-                        type={showConfirmPassword ? "text" : "password"}
-                        name="confirmPassword"
-                        value={formData.confirmPassword}
-                        onChange={handleInputChange}
-                        placeholder="••••••••"
-                        className="w-full h-11 rounded-2xl border border-slate-200 bg-slate-50/60 px-4 text-xs font-semibold text-slate-900 focus:bg-white focus:border-[#0F5244] focus:outline-none rtl:pl-10 ltr:pr-10"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                        className="absolute top-1/2 -translate-y-1/2 rtl:left-3 ltr:right-3 text-slate-400 hover:text-slate-600 cursor-pointer"
-                      >
-                        {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="border-b border-slate-100" />
-
-              {/* Save Button */}
-              <div className="flex justify-end">
-                <button
-                  type="submit"
-                  disabled={isSaving}
-                  className="px-8 py-3 rounded-2xl bg-[#0F5244] hover:bg-[#07382E] text-[#FFFFFF] text-xs sm:text-sm font-extrabold shadow-sm active:scale-98 transition-all cursor-pointer disabled:opacity-70 flex items-center gap-2"
-                >
-                  {isSaving ? (
-                    <>
-                      <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                      <span>{t("saving")}</span>
-                    </>
-                  ) : (
-                    <span>{t("saveChanges")}</span>
-                  )}
-                </button>
-              </div>
-
-            </form>
-          )}
-
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
-
       </div>
-
     </div>
   );
 }

@@ -76,7 +76,7 @@ export default function LocaleError({ error, reset }: ErrorProps) {
               onClick={() => setShowDetails(!showDetails)}
               className="inline-flex items-center gap-1.5 text-[11px] font-bold text-slate-400 hover:text-slate-600 cursor-pointer"
             >
-              <span>{isAr ? "تفاصيل تقنية (للمطورين)" : "Technical Details"}</span>
+              <span>{tError("technicalDetails")}</span>
               <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-150 ${showDetails ? "rotate-180" : ""}`} />
             </button>
 

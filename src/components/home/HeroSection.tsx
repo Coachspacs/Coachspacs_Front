@@ -199,7 +199,7 @@ export function HeroSection() {
                   width={480}
                   height={480}
                   priority
-                  quality={80}
+                  quality={75}
                   sizes="(max-width: 768px) 100vw, 480px"
                   className="w-full h-full object-cover object-center"
                 />

@@ -93,7 +93,9 @@ export default function middleware(request: NextRequest) {
   }
 
   // 6. Protected Routes Guard: Protect instructor, student, cart, checkout, account, and profile pages
-  const isInstructorRoute = pathWithoutLocale.startsWith('/instructor');
+  const isInstructorRoute =
+    (pathWithoutLocale === '/instructor' || pathWithoutLocale.startsWith('/instructor/')) &&
+    !pathWithoutLocale.startsWith('/instructors');
   const isStudentRoute = pathWithoutLocale.startsWith('/student');
   const isCartOrCheckoutRoute =
     pathWithoutLocale === '/cart' ||

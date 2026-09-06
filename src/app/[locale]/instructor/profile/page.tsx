@@ -1,11 +1,10 @@
-import React from "react";
-import { InstructorWorkspace } from "@/components/instructor/InstructorWorkspace";
+import { redirect } from "next/navigation";
 
-export const metadata = {
-  title: "Instructor Profile | CoachSpace",
-  description: "Manage your instructor profile, courses, students, payout settings, and workspace.",
-};
-
-export default function InstructorProfilePage() {
-  return <InstructorWorkspace />;
+export default async function InstructorProfilePage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  redirect(`/${locale}/instructor/settings`);
 }

@@ -8,6 +8,7 @@ interface LogoProps {
   compact?: boolean;
   showText?: boolean;
   isAr?: boolean;
+  href?: string;
   className?: string;
   imageClassName?: string;
 }
@@ -16,17 +17,18 @@ export function Logo({
   compact = false,
   showText = true,
   isAr,
+  href,
   className = "",
   imageClassName = "",
 }: LogoProps) {
   const t = useTranslations("header");
   const locale = useLocale() || "en";
-  const isArabic = isAr ?? (locale === "ar");
+  const targetHref = href || `/${locale}`;
   const logoHeight = compact ? 36 : 50;
 
   return (
     <Link
-      href="/"
+      href={targetHref}
       className={`inline-flex items-center gap-3 shrink-0 focus:outline-none ${className}`}
     >
       <Image

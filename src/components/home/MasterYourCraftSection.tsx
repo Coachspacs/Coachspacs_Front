@@ -1,160 +1,135 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import Image from "next/image";
-import { useTranslations } from "next-intl";
-import { useSelector } from "react-redux";
-import { RootState } from "@/lib/store";
-import { Star } from "lucide-react";
+import Link from "next/link";
+import { useTranslations, useLocale } from "next-intl";
+import { courseService } from "@/services/courseService";
+import { CourseCard } from "@/components/catalog/CourseCard";
+import { Course } from "@/types/catalog";
 
 export function MasterYourCraftSection() {
   const t = useTranslations("home");
-  const [mounted, setMounted] = useState(false);
-  const { user, isAuthenticated } = useSelector((state: RootState) => state.auth);
+  const locale = useLocale() || "en";
+  const isAr = locale === "ar";
+
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    setMounted(true);
-  }, []);
+    let isSubscribed = true;
 
-  const isStudent = mounted && isAuthenticated && (user?.role || "").toLowerCase() === "student";
+    async function load() {
+      try {
+        const data = await courseService.getCourses({ page_size: 50 }, locale);
+        if (!isSubscribed) return;
+        const results = Array.isArray(data) ? data : data?.results || [];
+        if (results.length > 0) {
+          const mapped: Course[] = results.slice(0, 3).map((c: any) => {
+            const instId = typeof c.instructor === "object" ? c.instructor?.id : c.instructor_id;
+            const instName = typeof c.instructor === "object" ? (c.instructor?.full_name || c.instructor?.name || "") : (typeof c.instructor === "string" ? c.instructor : "");
+            const instNameAr = typeof c.instructor === "object" && c.instructor?.full_name_ar ? c.instructor.full_name_ar : instName;
+            const catName = typeof c.category === "object" ? (c.category?.name || "") : (typeof c.category === "string" ? c.category : "");
+            const catNameAr = typeof c.category === "object" && c.category?.name_ar ? c.category.name_ar : (c.category_ar || catName);
+            const priceNum = Number(c.price) || 0;
+            return {
+              id: String(c.id),
+              title: c.title || c.title_en || "Course",
+              titleAr: c.title_ar || c.title || "دورة تدريبية",
+              instructorId: instId ? String(instId) : undefined,
+              instructorName: instName,
+              instructorNameAr: instNameAr,
+              category: catName || (locale === "ar" ? "تطوير الذات" : "Personal Development"),
+              categoryAr: catNameAr || "تطوير الذات",
+              level: c.level || "All Levels",
+              description: c.description || "",
+              price: priceNum,
+              priceFormatted: priceNum === 0 ? "Free" : `$${priceNum.toFixed(2)}`,
+              isFree: Boolean(c.is_free || priceNum === 0),
+              rating: Number(c.rating || 0),
+              reviewsCount: Number(c.reviews_count || c.reviewsCount || 0),
+              reviewsCountFormatted: String(Number(c.reviews_count || c.reviewsCount || 0)),
+              coverImage: c.cover_image || c.coverImage || c.image || "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&auto=format&fit=crop&q=80",
+              badge: c.is_bestseller ? "Bestseller" : undefined,
+            };
+          });
+          setCourses(mapped);
+        } else {
+          setCourses([]);
+        }
+      } catch (err) {
+        console.warn("Failed to load featured courses for home:", err);
+        if (isSubscribed) setCourses([]);
+      } finally {
+        if (isSubscribed) setIsLoading(false);
+      }
+    }
 
-  const courses = [
-    {
-      id: "react-archi",
-      image: "/images/courses/course-react.png",
-      badges: [
-        { text: t("bestseller"), type: "white" },
-        { text: t("bilingual"), type: "teal" },
-      ],
-      rating: "4.9",
-      title: t("course1Title"),
-      instructorName: t("course1Instructor"),
-      instructorAvatar: "/images/instructors/sarah.png",
-      price: "$89.00",
-    },
-    {
-      id: "strategic-leadership",
-      image: "/images/courses/course-leadership.png",
-      badges: [{ text: t("newBadge"), type: "white" }],
-      rating: "4.8",
-      title: t("course2Title"),
-      instructorName: t("course2Instructor"),
-      instructorAvatar: "/images/instructors/ahmed.png",
-      price: "$120.00",
-    },
-    {
-      id: "advanced-uiux",
-      image: "/images/courses/course-uiux.png",
-      badges: [{ text: t("popular"), type: "white" }],
-      rating: "5.0",
-      title: t("course3Title"),
-      instructorName: t("course3Instructor"),
-      instructorAvatar: "/images/instructors/lila.png",
-      price: "$75.00",
-    },
-  ];
+    load();
+
+    return () => {
+      isSubscribed = false;
+    };
+  }, [locale, isAr]);
 
   return (
-    <section className="w-full bg-[#F0F3FF] py-12 sm:py-16 font-sans">
+    <section suppressHydrationWarning className="w-full bg-[#F0F3FF] py-12 sm:py-16 font-sans">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-14">
           <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight">
-            {isStudent ? t("recommendedForYouTitle") : t("masterYourCraftTitle")}
+            {t("masterYourCraftTitle")}
           </h2>
           <p className="mt-3 text-slate-500 text-sm sm:text-base font-medium">
-            {isStudent ? t("recommendedForYouSubtitle") : t("masterYourCraftSubtitle")}
+            {t("masterYourCraftSubtitle")}
           </p>
         </div>
 
         {/* Course Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 w-full">
-          {courses.map((course) => (
-            <div
-              key={course.id}
-              className="bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-slate-100 flex flex-col group w-full"
+        {isLoading ? (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 w-full">
+            {[...Array(3)].map((_, i) => (
+              <div
+                key={`skel-${i}`}
+                className="bg-white rounded-2xl overflow-hidden shadow-2xs border border-slate-200/80 flex flex-col w-full animate-pulse"
+              >
+                <div className="w-full aspect-[16/10] bg-slate-200" />
+                <div className="p-5 flex flex-col flex-1 justify-between gap-4">
+                  <div className="space-y-3">
+                    <div className="h-4 w-24 bg-slate-200 rounded-md" />
+                    <div className="h-5 w-full bg-slate-200 rounded-md" />
+                    <div className="h-4 w-32 bg-slate-200 rounded-md" />
+                  </div>
+                  <div className="flex items-center justify-between pt-4 border-t border-slate-100 mt-2">
+                    <div className="h-6 w-16 bg-slate-200 rounded-md" />
+                    <div className="h-8 w-24 bg-slate-200 rounded-full" />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : courses.length === 0 ? (
+          <div className="text-center py-12 bg-white rounded-2xl border border-slate-200/80 p-8 space-y-4 max-w-md mx-auto shadow-2xs">
+            <h3 className="text-base font-extrabold text-slate-900">
+              {t("exploreAvailableCourses")}
+            </h3>
+            <p className="text-xs text-slate-500">
+              {t("exploreAvailableCoursesSubtitle")}
+            </p>
+            <Link
+              href={`/${locale}/courses`}
+              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-[#0F5244] hover:bg-[#07382E] text-white text-xs font-bold transition-all shadow-2xs"
             >
-              {/* Image Container */}
-              <div className="relative w-full aspect-[16/10] overflow-hidden bg-slate-100">
-                <Image
-                  src={course.image}
-                  alt={course.title}
-                  fill
-                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 33vw, 380px"
-                  className="object-cover group-hover:scale-105 transition-transform duration-500"
-                />
-                
-                {/* Badges Overlay */}
-                <div className="absolute top-3.5 rtl:right-3.5 ltr:left-3.5 flex items-center gap-2 z-10">
-                  {course.badges.map((badge, idx) => (
-                    <span
-                      key={idx}
-                      className={`text-xs font-semibold px-3 py-1 rounded-full shadow-xs ${
-                        badge.type === "teal"
-                          ? "bg-[#0d7a66] text-white"
-                          : "bg-white text-[#0d7a66]"
-                      }`}
-                    >
-                      {badge.text}
-                    </span>
-                  ))}
-                </div>
-              </div>
-
-              {/* Card Content */}
-              <div className="p-5 sm:p-6 flex flex-col flex-1 justify-between gap-4">
-                <div className="space-y-3">
-                  {/* Rating */}
-                  <div className="flex items-center gap-1.5">
-                    <div className="flex items-center text-amber-400 gap-0.5">
-                      {[...Array(5)].map((_, i) => (
-                        <Star key={i} className="w-4 h-4 fill-amber-400 text-amber-400" />
-                      ))}
-                    </div>
-                    <span className="text-xs font-bold text-slate-700">
-                      ({course.rating})
-                    </span>
-                  </div>
-
-                  {/* Title */}
-                  <h3 className="text-base sm:text-lg font-bold text-slate-900 leading-snug line-clamp-2 min-h-[2.75rem] group-hover:text-[#004442] transition-colors">
-                    {course.title}
-                  </h3>
-
-                  {/* Instructor Info */}
-                  <div className="flex items-center gap-2.5 pt-1">
-                    <div className="relative w-7 h-7 rounded-full overflow-hidden shrink-0 border border-slate-200">
-                      <Image
-                        src={course.instructorAvatar}
-                        alt={course.instructorName}
-                        fill
-                        sizes="28px"
-                        className="object-cover"
-                      />
-                    </div>
-                    <span className="text-xs font-medium text-slate-600">
-                      {course.instructorName}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Price & Add to Cart Button */}
-                <div className="flex items-center justify-between pt-4 border-t border-slate-100 mt-2">
-                  <span className="text-xl font-black text-slate-900">
-                    {course.price}
-                  </span>
-                  
-                  <button
-                    className="bg-[#004442] hover:bg-[#003331] active:scale-95 text-white font-medium text-xs sm:text-sm px-4 py-2.5 rounded-lg transition-all duration-200 shadow-xs cursor-pointer"
-                  >
-                    {t("addToCart")}
-                  </button>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
+              <span>{t("browseAllCourses")}</span>
+            </Link>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 w-full">
+            {courses.map((course) => (
+              <CourseCard key={course.id} course={course} isAr={isAr} />
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );

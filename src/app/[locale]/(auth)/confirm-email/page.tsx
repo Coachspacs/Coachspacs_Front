@@ -2,25 +2,22 @@
 
 import { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useTranslations, useLocale } from "next-intl";
 import {
   CheckCircle2,
   XCircle,
-  Mail,
   Loader2,
   ArrowRight,
-  ShieldCheck,
 } from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
 import { userService } from "@/services/userService";
 import { getApiErrorMessage } from "@/services/auth";
 
 function ConfirmEmailContent() {
-  const t = useTranslations("auth");
+  const t = useTranslations("confirmEmail");
   const locale = useLocale() || "en";
   const isAr = locale === "ar";
-  const router = useRouter();
   const searchParams = useSearchParams();
 
   const uid =
@@ -44,11 +41,7 @@ function ConfirmEmailContent() {
   useEffect(() => {
     if (!uid || !token) {
       if (!hasParams) {
-        setErrorMessage(
-          isAr
-            ? "معلومات التأكيد غير مكتملة. يرجى استخدام الرابط المرسل إلى بريدك الإلكتروني."
-            : "Confirmation parameters missing. Please use the link sent to your email."
-        );
+        setErrorMessage(t("defaultFailedMsg"));
       }
       return;
     }
@@ -68,9 +61,7 @@ function ConfirmEmailContent() {
         if (!isMounted) return;
         const msg = getApiErrorMessage(
           err,
-          isAr
-            ? "فشل تأكيد تغيير البريد الإلكتروني أو انتهت صلاحية الرابط."
-            : "Email confirmation failed or link is expired.",
+          t("defaultFailedMsg"),
           isAr
         );
         setErrorMessage(msg);
@@ -81,7 +72,7 @@ function ConfirmEmailContent() {
     return () => {
       isMounted = false;
     };
-  }, [uid, token, isAr, hasParams]);
+  }, [uid, token, isAr, hasParams, t]);
 
   return (
     <div
@@ -109,12 +100,10 @@ function ConfirmEmailContent() {
               </div>
               <div className="space-y-2">
                 <h2 className="text-2xl font-black text-slate-900 tracking-tight">
-                  {isAr ? "جارٍ تأكيد بريدك الإلكتروني..." : "Confirming your new email..."}
+                  {t("confirmingTitle")}
                 </h2>
                 <p className="text-sm font-medium text-slate-500 max-w-sm mx-auto">
-                  {isAr
-                    ? "يرجى الانتظار لحظات بينما نقوم بالتحقق من صحة الرابط وتحديث بيانات الحساب."
-                    : "Please wait while we verify your confirmation token and update your account."}
+                  {t("confirmingSubtitle")}
                 </p>
               </div>
             </div>
@@ -128,12 +117,10 @@ function ConfirmEmailContent() {
               </div>
               <div className="space-y-2">
                 <h2 className="text-2xl font-black text-slate-900 tracking-tight">
-                  {isAr ? "تم تأكيد البريد الإلكتروني بنجاح!" : "Email Confirmed Successfully!"}
+                  {t("successTitle")}
                 </h2>
                 <p className="text-sm font-medium text-slate-600 max-w-sm mx-auto leading-relaxed">
-                  {isAr
-                    ? "تم تحديث بريدك الإلكتروني الجديد بنجاح. يمكنك الآن تسجيل الدخول أو متابعة استخدام المنصة."
-                    : "Your email address has been updated. You can now use your new email across the platform."}
+                  {t("successSubtitle")}
                 </p>
               </div>
 
@@ -142,14 +129,14 @@ function ConfirmEmailContent() {
                   href={`/${locale}/login`}
                   className="w-full py-3.5 px-6 rounded-2xl bg-[#0F5244] hover:bg-[#07382E] text-white text-sm font-extrabold shadow-md hover:shadow-lg transition-all active:scale-98 inline-flex items-center justify-center gap-2"
                 >
-                  <span>{isAr ? "تسجيل الدخول" : "Log In"}</span>
+                  <span>{t("login")}</span>
                   <ArrowRight className="w-4 h-4 rtl:rotate-180" />
                 </Link>
                 <Link
                   href={`/${locale}/profile`}
                   className="w-full py-3.5 px-6 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-extrabold transition-all active:scale-98 inline-flex items-center justify-center gap-2"
                 >
-                  <span>{isAr ? "الملف الشخصي" : "Go to Profile"}</span>
+                  <span>{t("goToProfile")}</span>
                 </Link>
               </div>
             </div>
@@ -163,10 +150,10 @@ function ConfirmEmailContent() {
               </div>
               <div className="space-y-2">
                 <h2 className="text-2xl font-black text-slate-900 tracking-tight">
-                  {isAr ? "تعذر تأكيد البريد الإلكتروني" : "Confirmation Failed"}
+                  {t("failedTitle")}
                 </h2>
                 <p className="text-sm font-medium text-red-700 bg-red-50 border border-red-200 p-3.5 rounded-2xl max-w-sm mx-auto leading-relaxed">
-                  {errorMessage || (isAr ? "الرابط غير صالح أو انتهت صلاحيته." : "The confirmation link is invalid or expired.")}
+                  {errorMessage || t("defaultFailedMsg")}
                 </p>
               </div>
 
@@ -175,7 +162,7 @@ function ConfirmEmailContent() {
                   href={`/${locale}/account`}
                   className="w-full py-3.5 px-6 rounded-2xl bg-[#0F5244] hover:bg-[#07382E] text-white text-sm font-extrabold shadow-md hover:shadow-lg transition-all active:scale-98 inline-flex items-center justify-center gap-2"
                 >
-                  <span>{isAr ? "العودة إلى الإعدادات" : "Back to Settings"}</span>
+                  <span>{t("backToSettings")}</span>
                   <ArrowRight className="w-4 h-4 rtl:rotate-180" />
                 </Link>
               </div>
