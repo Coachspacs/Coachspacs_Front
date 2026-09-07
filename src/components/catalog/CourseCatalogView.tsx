@@ -104,9 +104,11 @@ export function CourseCatalogView() {
 
         // 5. Price range
         if (activeFilters.selectedPrice === "Free") {
+          apiParams.is_free = true;
           apiParams.price_min = 0;
           apiParams.price_max = 0;
         } else if (activeFilters.selectedPrice === "Paid") {
+          apiParams.is_free = false;
           apiParams.price_min = 1;
         } else if (activeFilters.selectedPrice === "Under $50") {
           apiParams.price_min = 0;
@@ -118,12 +120,15 @@ export function CourseCatalogView() {
           apiParams.price_min = 100;
         }
 
-        // 6. Sort (newest | price | popular)
+        // 6. Sort & Ordering (-created_at | price | -price | -rating)
         if (activeFilters.sortBy === "newest") {
+          apiParams.ordering = "-created_at";
           apiParams.sort = "newest";
         } else if (activeFilters.sortBy === "price_low_to_high") {
+          apiParams.ordering = "price";
           apiParams.sort = "price";
         } else if (activeFilters.sortBy === "most_popular" || activeFilters.sortBy === "highest_rated") {
+          apiParams.ordering = "-rating";
           apiParams.sort = "popular";
         }
 

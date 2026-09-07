@@ -3,40 +3,27 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
 import { useTranslations, useLocale } from "next-intl";
 import { useSelector } from "react-redux";
 import { RootState } from "@/lib/store";
 import {
-  Search,
   ArrowRight,
-  BadgeCheck,
   Users,
   GraduationCap,
   Award,
   Sparkles,
 } from "lucide-react";
+import { VerifiedBadge } from "@/components/ui/VerifiedBadge";
 
 export function HeroSection() {
   const t = useTranslations("home");
   const locale = useLocale();
-  const router = useRouter();
-  const [searchQuery, setSearchQuery] = useState("");
   const [mounted, setMounted] = useState(false);
   const { user, isAuthenticated } = useSelector((state: RootState) => state.auth);
 
   React.useEffect(() => {
     setMounted(true);
   }, []);
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      router.push(`/${locale}/courses?search=${encodeURIComponent(searchQuery.trim())}`);
-    } else {
-      router.push(`/${locale}/courses`);
-    }
-  };
 
   const displayName = user?.name || user?.fullName || user?.email?.split("@")[0] || "";
   const isInstructor = (user?.role || "").toLowerCase() === "instructor" || (user?.role || "").toLowerCase() === "coach";
@@ -76,7 +63,7 @@ export function HeroSection() {
               </div>
             ) : (
               <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#6CF8BB]/20 text-[#0F5244] border border-[#6CF8BB]/40 shadow-xs mb-6 text-xs font-bold tracking-wider uppercase">
-                <BadgeCheck className="w-4 h-4 text-[#0F5244] shrink-0" />
+                <VerifiedBadge size="xs" />
                 <span>{t("heroBadge")}</span>
               </div>
             )}
@@ -93,27 +80,6 @@ export function HeroSection() {
             <p className="text-slate-600 text-base sm:text-lg leading-relaxed max-w-xl mb-8 font-medium">
               {t("heroSubtitle")}
             </p>
-
-            {/* Search */}
-            <form
-              onSubmit={handleSearch}
-              className="relative flex items-center w-full bg-white rounded-full p-1.5 pl-5 rtl:pl-1.5 rtl:pr-5 border border-slate-200 shadow-md hover:border-slate-300 focus-within:border-[#0F5244] focus-within:ring-2 focus-within:ring-[#0F5244]/20 transition-all max-w-lg mb-8"
-            >
-              <Search className="w-5 h-5 text-slate-400 shrink-0 mr-3 rtl:mr-0 rtl:ml-3" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder={t("searchPlaceholder")}
-                className="w-full bg-transparent text-slate-900 placeholder:text-slate-400 text-sm font-medium focus:outline-none"
-              />
-              <button
-                type="submit"
-                className="bg-[#0F5244] hover:bg-[#0c4337] text-white font-semibold text-sm px-6 py-2.5 rounded-full transition-all shadow-md shrink-0 active:scale-95"
-              >
-                {t("searchBtn")}
-              </button>
-            </form>
 
             {/* Dynamic CTAs Row */}
             <div className="flex flex-wrap items-center gap-3.5 sm:gap-4">

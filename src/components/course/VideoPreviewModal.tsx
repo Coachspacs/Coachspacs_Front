@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { X, PlayCircle, AlertCircle, RotateCcw, Film } from "lucide-react";
 import { useTranslations, useLocale } from "next-intl";
 
@@ -23,6 +23,42 @@ export function VideoPreviewModal({
 
   const [hasError, setHasError] = useState(false);
   const [isRetrying, setIsRetrying] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  // Clean URL string and validate it
+  const cleanUrl = typeof videoUrl === "string" ? videoUrl.trim() : "";
+  const hasValidUrl = Boolean(
+    cleanUrl &&
+    cleanUrl.length > 0 &&
+    cleanUrl !== "null" &&
+    cleanUrl !== "undefined" &&
+    cleanUrl !== "NaN" &&
+    !cleanUrl.includes("example.com")
+  );
+
+  // Reset errors whenever video or modal open state changes
+  useEffect(() => {
+    setHasError(false);
+    setIsRetrying(false);
+  }, [cleanUrl, isOpen]);
+
+  const isYouTube = Boolean(
+    hasValidUrl && (cleanUrl.includes("youtube.com") || cleanUrl.includes("youtu.be"))
+  );
+  const isVimeo = Boolean(hasValidUrl && cleanUrl.includes("vimeo.com"));
+
+  // Safe playback trigger to prevent unhandled NotSupportedError rejections
+  useEffect(() => {
+    if (isOpen && hasValidUrl && !isYouTube && !isVimeo && videoRef.current) {
+      const playPromise = videoRef.current.play();
+      if (playPromise !== undefined) {
+        playPromise.catch((err) => {
+          // Autoplay policy or unsupported format prevented play - do not let it crash Next.js
+          console.warn("[VideoPreviewModal] Safe autoplay catch:", err?.message || err);
+        });
+      }
+    }
+  }, [isOpen, hasValidUrl, isYouTube, isVimeo, cleanUrl]);
 
   if (!isOpen) return null;
 
@@ -31,24 +67,39 @@ export function VideoPreviewModal({
     setHasError(false);
     setTimeout(() => {
       setIsRetrying(false);
-    }, 600);
+      if (videoRef.current) {
+        videoRef.current.load();
+        const p = videoRef.current.play();
+        if (p !== undefined) {
+          p.catch((err) => console.warn("[VideoPreviewModal] Retry play caught:", err));
+        }
+      }
+    }, 500);
   };
 
-  const isYouTube = videoUrl && (videoUrl.includes("youtube.com") || videoUrl.includes("youtu.be"));
-  const isVimeo = videoUrl && videoUrl.includes("vimeo.com");
-
   const getEmbedUrl = (url: string) => {
-    if (url.includes("youtube.com/watch?v=")) {
-      const id = url.split("watch?v=")[1]?.split("&")[0];
-      return `https://www.youtube.com/embed/${id}?autoplay=1`;
-    }
-    if (url.includes("youtu.be/")) {
-      const id = url.split("youtu.be/")[1]?.split("?")[0];
-      return `https://www.youtube.com/embed/${id}?autoplay=1`;
-    }
-    if (url.includes("vimeo.com/")) {
-      const id = url.split("vimeo.com/")[1]?.split("?")[0];
-      return `https://player.vimeo.com/video/${id}?autoplay=1`;
+    try {
+      if (url.includes("youtube.com/watch?v=")) {
+        const id = url.split("watch?v=")[1]?.split("&")[0];
+        return `https://www.youtube.com/embed/${id}?autoplay=1`;
+      }
+      if (url.includes("youtube.com/embed/")) {
+        return url.includes("?") ? `${url}&autoplay=1` : `${url}?autoplay=1`;
+      }
+      if (url.includes("youtube.com/shorts/")) {
+        const id = url.split("shorts/")[1]?.split("?")[0]?.split("/")[0];
+        return `https://www.youtube.com/embed/${id}?autoplay=1`;
+      }
+      if (url.includes("youtu.be/")) {
+        const id = url.split("youtu.be/")[1]?.split("?")[0]?.split("/")[0];
+        return `https://www.youtube.com/embed/${id}?autoplay=1`;
+      }
+      if (url.includes("vimeo.com/")) {
+        const id = url.split("vimeo.com/")[1]?.split("?")[0]?.split("/")[0];
+        return `https://player.vimeo.com/video/${id}?autoplay=1`;
+      }
+    } catch {
+      return url;
     }
     return url;
   };
@@ -105,7 +156,7 @@ export function VideoPreviewModal({
                 <span>{t("retry")}</span>
               </button>
             </div>
-          ) : !videoUrl ? (
+          ) : !hasValidUrl ? (
             /* No Video Uploaded Screen */
             <div className="flex flex-col items-center justify-center p-6 text-center text-white space-y-3">
               <div className="w-14 h-14 rounded-full bg-slate-800 border border-slate-700 text-[#45D1B4] flex items-center justify-center shadow-md">
@@ -121,7 +172,7 @@ export function VideoPreviewModal({
           ) : isYouTube || isVimeo ? (
             /* Embed IFrame (YouTube / Vimeo) */
             <iframe
-              src={getEmbedUrl(videoUrl)}
+              src={getEmbedUrl(cleanUrl)}
               className="w-full h-full border-0"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen
@@ -129,17 +180,21 @@ export function VideoPreviewModal({
           ) : (
             /* HTML5 Video Player (Cloudinary / MP4) */
             <video
-              key={videoUrl}
-              src={videoUrl}
+              ref={videoRef}
+              key={cleanUrl}
+              src={cleanUrl}
               controls
               controlsList="nodownload"
+              disablePictureInPicture
               onContextMenu={(e) => e.preventDefault()}
-              autoPlay
+              onDragStart={(e) => e.preventDefault()}
               playsInline
+              preload="auto"
               className="w-full h-full object-contain select-none"
-              onError={() => setHasError(true)}
+              onError={() => {
+                setHasError(true);
+              }}
             >
-              <source src={videoUrl} type="video/mp4" />
               {t("videoTagNotSupported")}
             </video>
           )}

@@ -28,7 +28,8 @@ import {
 } from "lucide-react";
 import { Course } from "@/types/catalog";
 import { RootState } from "@/lib/store";
-import { addToCart } from "@/features/cart/cartSlice";
+import { addToCart, syncCartFromStorage } from "@/features/cart/cartSlice";
+import { Toast } from "@/components/ui/Toast";
 import { VideoPreviewModal } from "./VideoPreviewModal";
 import { LockedLessonModal } from "./LockedLessonModal";
 import { normalizeInstructorSlug, getPublicInstructorByIdOrSlug } from "@/lib/instructorProfile";
@@ -65,8 +66,19 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
       String(instructorId) === String(user.id)
   );
   const isFree = course.price === 0 || course.priceFormatted === "Free" || course.priceFormatted === "مجاني";
-  const isInCart = cartItems.some((item: any) => (item.course?.id || item.courseId || item.id) === course.id);
-  
+  const isInCart = cartItems.some(
+    (item: any) =>
+      String(item.course?.id || item.courseId || item.id) === String(course.id) ||
+      (course.slug && String(item.course?.slug || item.slug) === String(course.slug))
+  );
+
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  // Sync cart state from storage on mount
+  useEffect(() => {
+    dispatch(syncCartFromStorage());
+  }, [dispatch]);
+
   // Enrolled check from API response (GET /api/catalog/courses/:id returns is_enrolled) or localStorage
   const [isEnrolled, setIsEnrolled] = useState(Boolean(course.is_enrolled || (course as any).isEnrolled));
 
@@ -110,6 +122,8 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
 
   const handleAddToCart = () => {
     dispatch(addToCart(course as any));
+    setToastMessage(isAr ? "تمت إضافة الدورة إلى سلة التسوق" : "Course added to cart successfully");
+    setTimeout(() => setToastMessage(null), 3500);
   };
 
   const handleBuyNow = () => {
@@ -178,6 +192,7 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
 
   return (
     <div dir={isAr ? "rtl" : "ltr"} className="w-full bg-[#FAFBFB] min-h-screen py-6 sm:py-10">
+      <Toast message={toastMessage} onClose={() => setToastMessage(null)} />
       
       {/* Modals */}
       <VideoPreviewModal
@@ -306,9 +321,12 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
                     )}
                   </div>
                   <div>
-                    <span className="font-extrabold text-slate-900 block leading-none group-hover/inst:text-[#0F5244] group-hover/inst:underline transition-colors">
-                      {isAr ? (instructorObj?.nameAr || course.instructorNameAr || course.instructorName) : (instructorObj?.name || course.instructorName)}
-                    </span>
+                    <div className="flex items-center gap-1.5">
+                      <span className="font-extrabold text-slate-900 block leading-none group-hover/inst:text-[#0F5244] group-hover/inst:underline transition-colors">
+                        {isAr ? (instructorObj?.nameAr || course.instructorNameAr || course.instructorName) : (instructorObj?.name || course.instructorName)}
+                      </span>
+                      <VerifiedBadge size="xs" />
+                    </div>
                     <span className="text-[11px] text-slate-400 font-medium group-hover/inst:text-slate-600 transition-colors">
                       {isAr ? (course.instructorRoleAr || instructorObj?.headlineAr || t("leadRole")) : (course.instructorRole || instructorObj?.headline || t("leadRole"))}
                     </span>
@@ -670,24 +688,27 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
                     <span>{t("enrollFree")}</span>
                   </button>
                 ) : (
-                  /* Paid course -> Always show "Add to Cart" + "Buy Now" */
+                  /* Paid course -> Dynamic Add to Cart / In Cart + Buy Now */
                   <>
-                    <button
-                      type="button"
-                      onClick={handleAddToCart}
-                      className="w-full py-3.5 px-6 rounded-xl bg-[#0F5244] hover:bg-[#07382E] text-white text-base font-extrabold shadow-md hover:shadow-lg transition-all active:scale-98 flex items-center justify-center gap-2 cursor-pointer"
-                    >
-                      <ShoppingCart className="h-5 w-5" />
-                      <span>{t("addToCart")}</span>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={handleBuyNow}
-                      className="w-full py-3 px-6 rounded-xl bg-white border-2 border-[#0F5244] text-[#0F5244] hover:bg-[#0F5244]/5 text-sm font-extrabold transition-all active:scale-98 flex items-center justify-center cursor-pointer"
-                    >
-                      <span>{t("buyNow")}</span>
-                    </button>
+                    {isInCart ? (
+                      <button
+                        type="button"
+                        onClick={() => router.push(`/${locale}/student/cart`)}
+                        className="w-full py-3.5 px-6 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-base font-extrabold shadow-md hover:shadow-lg transition-all active:scale-98 flex items-center justify-center gap-2.5 cursor-pointer ring-2 ring-emerald-500/30"
+                      >
+                        <Check className="h-5 w-5" />
+                        <span>{isAr ? "في السلة (الانتقال إلى السلة)" : "In Cart (Go to Cart)"}</span>
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={handleAddToCart}
+                        className="w-full py-3.5 px-6 rounded-xl bg-[#0F5244] hover:bg-[#07382E] text-white text-base font-extrabold shadow-md hover:shadow-lg transition-all active:scale-98 flex items-center justify-center gap-2 cursor-pointer"
+                      >
+                        <ShoppingCart className="h-5 w-5" />
+                        <span>{t("addToCart")}</span>
+                      </button>
+                    )}
                   </>
                 )}
 

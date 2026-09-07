@@ -178,11 +178,12 @@ export function CartView({ items, onRemoveItem, onCheckout }: CartViewProps) {
               <div className="space-y-3 pt-1">
                 <button
                   type="button"
-                  onClick={handleCheckoutClick}
-                  className="w-full py-3.5 px-6 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-extrabold shadow-sm hover:shadow-md active:scale-98 transition-all cursor-pointer flex items-center justify-center gap-2"
+                  disabled
+                  className="w-full py-3.5 px-6 rounded-2xl bg-slate-100 border border-slate-200 text-slate-400 text-xs sm:text-sm font-extrabold cursor-not-allowed flex items-center justify-center gap-2 select-none shadow-none"
+                  title={isAr ? "إتمام الشراء غير متاح حالياً" : "Checkout is currently unavailable"}
                 >
                   <span>{t("checkout")}</span>
-                  <ArrowRight className="h-4 w-4 rtl:rotate-180" />
+                  <ArrowRight className="h-4 w-4 rtl:rotate-180 opacity-40" />
                 </button>
 
                 <p className="text-center text-[11px] font-bold text-slate-400 pt-1 tracking-tight">

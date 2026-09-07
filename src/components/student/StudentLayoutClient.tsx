@@ -4,13 +4,15 @@ import React from "react";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@/lib/store";
+import { updateUser } from "@/features/auth/slice";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { Sidebar } from "@/components/layout/Sidebar";
 
 export function StudentLayoutClient({ children }: { children: React.ReactNode }) {
+  const dispatch = useDispatch();
   const pathname = usePathname() || "";
   const locale = useLocale() || "en";
   const router = useRouter();
@@ -47,8 +49,31 @@ export function StudentLayoutClient({ children }: { children: React.ReactNode })
       return;
     }
 
+    if (
+      activeUser.headline &&
+      (activeUser.headline.toLowerCase().includes("certified instructor") ||
+        activeUser.headline.toLowerCase().includes("instructor") ||
+        activeUser.headline.includes("مدرب") ||
+        activeUser.headline.includes("مدرب معتمد") ||
+        activeUser.headline.includes("مدرب موثوق") ||
+        activeUser.headline.includes("مدرب وخبير معتمد") ||
+        activeUser.headline.includes("شغوف") ||
+        activeUser.headline.toLowerCase().includes("lifelong"))
+    ) {
+      const studentLabel = isAr ? "طالب" : "Student";
+      dispatch(updateUser({ headline: studentLabel }));
+      try {
+        const uStr = localStorage.getItem("user");
+        if (uStr) {
+          const uObj = JSON.parse(uStr);
+          uObj.headline = studentLabel;
+          localStorage.setItem("user", JSON.stringify(uObj));
+        }
+      } catch {}
+    }
+
     setCheckingAuth(false);
-  }, [isAuthenticated, user, locale, pathname, router]);
+  }, [isAuthenticated, user, locale, pathname, router, dispatch, isAr]);
 
   if (checkingAuth) {
     return (
@@ -76,13 +101,23 @@ export function StudentLayoutClient({ children }: { children: React.ReactNode })
   const rawAvatar = mounted ? user?.avatar : null;
   const avatarPreview =
     typeof rawAvatar === "string" && rawAvatar.trim().length > 0 ? rawAvatar.trim() : null;
-  const rawHeadline = mounted ? user?.headline : "";
-  const displayHeadline =
+  const rawHeadline = (mounted ? user?.headline : "") || "";
+  const isGenericOrInstructorHeadline =
     !rawHeadline ||
+    rawHeadline.toLowerCase().includes("certified instructor") ||
+    rawHeadline.toLowerCase().includes("instructor") ||
+    rawHeadline.includes("مدرب") ||
+    rawHeadline.includes("مدرب معتمد") ||
+    rawHeadline.includes("مدرب موثوق") ||
+    rawHeadline.includes("مدرب وخبير معتمد") ||
     rawHeadline === "Student & Lifelong Learner" ||
-    rawHeadline === "Data Science & AI Enthusiast"
-      ? tStudent("defaultHeadline")
-      : rawHeadline;
+    rawHeadline === "Data Science & AI Enthusiast" ||
+    rawHeadline.toLowerCase().includes("student") ||
+    rawHeadline.includes("طالب");
+
+  const displayHeadline = isGenericOrInstructorHeadline
+    ? (isAr ? "طالب" : "Student")
+    : rawHeadline;
 
   const isInstructor = (user?.role || "").toLowerCase() === "instructor" || (user?.role || "").toLowerCase() === "coach";
 

@@ -37,7 +37,8 @@ export interface ResetPasswordRequest {
 }
 
 export interface ChangePasswordRequest {
-  current_password: string;
+  current_password?: string;
+  old_password?: string;
   new_password: string;
 }
 
@@ -168,18 +169,24 @@ export async function resendVerificationEmail(
 
 /**
  * Send forgot password email
- * POST /api/auth/password/forgot
+ * POST /api/auth/password-reset (Postman spec) with fallback to /api/auth/password/forgot
  */
 export async function forgotPassword(data: ForgotPasswordRequest): Promise<AuthApiResponse> {
-  const endpoint = '/auth/password/forgot';
-  console.log(`[authService.forgotPassword] POST -> ${endpoint}`, { email: data.email });
+  const payload = { email: data.email };
+  console.log('[authService.forgotPassword] Requesting reset for:', { email: data.email });
 
   try {
-    const response = await axiosInstance.post<AuthApiResponse>(endpoint, {
-      email: data.email,
-    });
+    const response = await axiosInstance.post<AuthApiResponse>('/auth/password-reset', payload);
     return response.data;
   } catch (err: any) {
+    if (err?.response?.status === 404 || err?.response?.status === 405) {
+      try {
+        const fallbackRes = await axiosInstance.post<AuthApiResponse>('/auth/password/forgot', payload);
+        return fallbackRes.data;
+      } catch (fallbackErr) {
+        throw fallbackErr;
+      }
+    }
     console.warn('[authService.forgotPassword] Forgot password error:', {
       status: err?.response?.status,
       data: err?.response?.data,
@@ -190,28 +197,36 @@ export async function forgotPassword(data: ForgotPasswordRequest): Promise<AuthA
 
 /**
  * Reset password with token and uid
- * POST /api/auth/password/reset
+ * POST /api/auth/password-reset/confirm (Postman spec) with fallback to /api/auth/password/reset
  */
 export async function resetPassword(data: ResetPasswordRequest): Promise<AuthApiResponse> {
-  const endpoint = '/auth/password/reset';
-  console.log(`[authService.resetPassword] POST -> ${endpoint}`, {
-    uid: data.uid,
-    token: data.token ? '***' : undefined,
-  });
-
+  const newPass = data.new_password || data.password;
   const payload: any = {
     token: data.token,
-    new_password: data.password || data.new_password,
-    password: data.password || data.new_password,
+    new_password: newPass,
+    password: newPass,
   };
   if (data.uid) {
     payload.uid = data.uid;
   }
 
+  console.log('[authService.resetPassword] Resetting password for:', {
+    uid: data.uid,
+    hasToken: Boolean(data.token),
+  });
+
   try {
-    const response = await axiosInstance.post<AuthApiResponse>(endpoint, payload);
+    const response = await axiosInstance.post<AuthApiResponse>('/auth/password-reset/confirm', payload);
     return response.data;
   } catch (err: any) {
+    if (err?.response?.status === 404 || err?.response?.status === 405) {
+      try {
+        const fallbackRes = await axiosInstance.post<AuthApiResponse>('/auth/password/reset', payload);
+        return fallbackRes.data;
+      } catch (fallbackErr) {
+        throw fallbackErr;
+      }
+    }
     console.warn('[authService.resetPassword] Reset password error:', {
       status: err?.response?.status,
       data: err?.response?.data,
@@ -251,7 +266,8 @@ export async function logout(refresh?: string): Promise<AuthApiResponse> {
       });
     }
   } catch (err: any) {
-    // Silent catch so client-side logout completes cleanly
+    // Silent catch so client-side logout completes cleanly even if token expired
+    console.warn('[authService.logout] Server-side logout notice:', err?.response?.status);
   } finally {
     tokenManager.clearTokens();
   }
@@ -260,14 +276,26 @@ export async function logout(refresh?: string): Promise<AuthApiResponse> {
 
 /**
  * Change password for authenticated user
- * PUT /api/auth/password/change
+ * POST /api/auth/password-change (Postman spec) with fallback to PUT /api/auth/password/change
  */
 export async function changePassword(data: ChangePasswordRequest): Promise<AuthApiResponse> {
-  const response = await axiosInstance.put<AuthApiResponse>('/auth/password/change', {
-    current_password: data.current_password,
+  const oldPass = data.old_password || data.current_password;
+  const payload: any = {
+    old_password: oldPass,
+    current_password: oldPass,
     new_password: data.new_password,
-  });
-  return response.data;
+  };
+
+  try {
+    const response = await axiosInstance.post<AuthApiResponse>('/auth/password-change', payload);
+    return response.data;
+  } catch (err: any) {
+    if (err?.response?.status === 404 || err?.response?.status === 405) {
+      const fallbackRes = await axiosInstance.put<AuthApiResponse>('/auth/password/change', payload);
+      return fallbackRes.data;
+    }
+    throw err;
+  }
 }
 
 /**
@@ -557,11 +585,12 @@ export async function syncCurrentUserProfile(
     avatar: rawUser.avatar || rawUser.profile_picture || rawUser.image || null,
     headline:
       rawUser.headline &&
+      !['certified instructor', 'مدرب معتمد', 'مدرب موثوق', 'مدرب وخبير معتمد', 'student & lifelong learner', 'طالب ومتعلم شغوف', 'طالب ومتعلم شغوف مدى الحياة'].includes(rawUser.headline.trim().toLowerCase()) &&
       (role === 'instructor'
         ? !rawUser.headline.toLowerCase().includes('student') && !rawUser.headline.includes('طالب')
-        : true)
+        : !rawUser.headline.toLowerCase().includes('instructor') && !rawUser.headline.includes('مدرب'))
         ? rawUser.headline
-        : rawUser.title || (role === 'instructor' ? 'Certified Instructor' : 'Student & Lifelong Learner'),
+        : (role === 'instructor' ? '' : 'Student'),
     bio: rawUser.bio || rawUser.description || '',
     phone: rawUser.phone || rawUser.phone_number || '',
     phoneNumber: rawUser.phone_number || rawUser.phone || '',

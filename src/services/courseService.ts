@@ -7,6 +7,8 @@ export interface CourseListParams {
   language?: "ar" | "en" | string;
   price_min?: number | string;
   price_max?: number | string;
+  is_free?: boolean | string;
+  ordering?: "-created_at" | "price" | "-price" | "-rating" | string;
   search?: string;
   sort?: "newest" | "price" | "popular" | string;
   page?: number;
@@ -30,8 +32,24 @@ export const courseService = {
     if (locale) {
       headers["Accept-Language"] = locale;
     }
+
+    const queryParams: any = { ...(params || {}) };
+
+    // Automatically map sort to ordering if ordering is not already specified
+    if (!queryParams.ordering && queryParams.sort) {
+      if (queryParams.sort === "newest") {
+        queryParams.ordering = "-created_at";
+      } else if (queryParams.sort === "price" || queryParams.sort === "price_low_to_high") {
+        queryParams.ordering = "price";
+      } else if (queryParams.sort === "price_high_to_low") {
+        queryParams.ordering = "-price";
+      } else if (queryParams.sort === "popular" || queryParams.sort === "highest_rated") {
+        queryParams.ordering = "-rating";
+      }
+    }
+
     const response = await axiosInstance.get<PaginatedCourseResponse>("/catalog/courses", {
-      params,
+      params: queryParams,
       headers,
     });
     return response.data;

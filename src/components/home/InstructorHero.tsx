@@ -19,6 +19,7 @@ import {
   Clock,
   ArrowRight,
 } from "lucide-react";
+import { VerifiedBadge } from "@/components/ui/VerifiedBadge";
 
 export function InstructorHero() {
   const t = useTranslations("home");
@@ -47,9 +48,10 @@ export function InstructorHero() {
           <div className="lg:col-span-7 flex flex-col items-start text-left rtl:text-right z-10">
             
             {/* Status Pill Badge */}
-            <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-white border border-slate-200/80 shadow-xs mb-5 text-xs font-bold text-slate-800">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white border border-slate-200/80 shadow-xs mb-5 text-xs font-bold text-slate-800">
               <span className="w-2 h-2 rounded-full bg-[#0F5244] animate-pulse" />
               <span>{t("welcomeInstructor", { name: displayName })}</span>
+              {isApproved && <VerifiedBadge size="xs" />}
               <span
                 className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider ${
                   isApproved

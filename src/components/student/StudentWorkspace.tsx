@@ -135,6 +135,36 @@ export function StudentWorkspace({
     "all" | "in_progress" | "completed"
   >("all");
 
+  // Keep activeTab in sync if initialTab prop changes
+  useEffect(() => {
+    if (initialTab) {
+      setActiveTab(initialTab);
+    }
+  }, [initialTab]);
+
+  // Read URL query parameter for course filter (e.g. ?filter=in_progress)
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const f = params.get("filter");
+      if (f === "in_progress" || f === "completed" || f === "all") {
+        setCourseFilter(f as any);
+      }
+    }
+  }, [pathname]);
+
+  const handleNavigateTab = (
+    tab: "overview" | "courses" | "certificates" | "orders" | "cart" | "settings",
+    filter?: "all" | "in_progress" | "completed"
+  ) => {
+    if (filter) {
+      setCourseFilter(filter);
+    }
+    setActiveTab(tab);
+    const targetUrl = `/${locale}/student/${tab === "overview" ? "" : tab}${filter ? `?filter=${filter}` : ""}`;
+    router.push(targetUrl);
+  };
+
   // Toast & Modals
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [showEmailModal, setShowEmailModal] = useState(false);
@@ -504,7 +534,11 @@ export function StudentWorkspace({
                 exit={{ opacity: 0, y: -6 }}
                 transition={{ duration: 0.15 }}
               >
-                <StudentOverviewTab courses={courses} isLoading={isLoadingCourses} />
+                <StudentOverviewTab
+                  courses={courses}
+                  isLoading={isLoadingCourses}
+                  onNavigateTab={handleNavigateTab}
+                />
               </motion.div>
             )}
 
@@ -516,7 +550,11 @@ export function StudentWorkspace({
                 exit={{ opacity: 0, y: -6 }}
                 transition={{ duration: 0.15 }}
               >
-                <StudentCoursesTab courses={courses} isLoading={isLoadingCourses} />
+                <StudentCoursesTab
+                  courses={courses}
+                  isLoading={isLoadingCourses}
+                  initialFilter={courseFilter}
+                />
               </motion.div>
             )}
 
