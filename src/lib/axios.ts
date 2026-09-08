@@ -196,6 +196,40 @@ axiosInstance.interceptors.response.use(
       }
     }
 
+    const method = error.config?.method?.toUpperCase() || "REQUEST";
+    const url = error.config?.url || "";
+    const status = error.response?.status;
+    const responseData = error.response?.data;
+    const detailMsg =
+      responseData?.detail ||
+      responseData?.message ||
+      (typeof responseData === "object" ? JSON.stringify(responseData) : responseData) ||
+      "";
+    const detailText = String(detailMsg || error.message || "").toLowerCase();
+    const isBenign =
+      detailText.includes("already in your cart") ||
+      detailText.includes("already in cart") ||
+      detailText.includes("already enrolled") ||
+      detailText.includes("already_enrolled") ||
+      detailText.includes("nothing in your cart") ||
+      detailText.includes("cannot be checked out") ||
+      detailText.includes("checkout_in_progress") ||
+      detailText.includes("cart is empty") ||
+      detailText.includes("not free") ||
+      detailText.includes("isn't free");
+
+    if (!isBenign) {
+      console.warn(
+        `[Axios ${status || "Error"}] ${method} ${url}:`,
+        detailMsg || error.message
+      );
+    } else {
+      console.debug(
+        `[Axios Handled ${status || "400"}] ${method} ${url}:`,
+        detailMsg || error.message
+      );
+    }
+
     return Promise.reject(error);
   }
 );

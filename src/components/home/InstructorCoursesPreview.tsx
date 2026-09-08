@@ -53,7 +53,7 @@ export function InstructorCoursesPreview() {
 
       setCourses(formatted);
     } catch (err) {
-      console.error("Failed to load real instructor courses:", err);
+      console.warn("Instructor courses preview fetch info:", err);
       setCourses([]);
     } finally {
       setIsLoading(false);

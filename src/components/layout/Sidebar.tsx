@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useTranslations, useLocale } from "next-intl";
@@ -55,6 +55,11 @@ export function Sidebar({ activeTab, onTabChange, items, user }: SidebarProps) {
 
   // Mobile menu expand state
   const [isOpen, setIsOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Default Navigation Items
   const defaultNavItems: SidebarNavItem[] = [
@@ -193,7 +198,7 @@ export function Sidebar({ activeTab, onTabChange, items, user }: SidebarProps) {
                 <>
                   <Icon className={`h-4 w-4 shrink-0 ${active ? "text-emerald-700" : "text-slate-500"}`} />
                   <span className="text-xs font-bold">{item.label}</span>
-                  {item.id === "cart" && cartItems.length > 0 && (
+                  {mounted && item.id === "cart" && cartItems.length > 0 && (
                     <span className="ml-auto rtl:ml-0 rtl:mr-auto px-1.5 py-0.5 rounded-full bg-emerald-500 text-white text-[10px] font-black">
                       {cartItems.length}
                     </span>
@@ -258,7 +263,7 @@ export function Sidebar({ activeTab, onTabChange, items, user }: SidebarProps) {
                   <span className={`text-xs sm:text-sm ${active ? "font-bold" : "font-medium"}`}>
                     {item.label}
                   </span>
-                  {item.id === "cart" && cartItems.length > 0 && (
+                  {mounted && item.id === "cart" && cartItems.length > 0 && (
                     <span
                       className={`ml-auto rtl:ml-0 rtl:mr-auto px-2 py-0.5 rounded-full text-[10px] font-bold ${
                         active

@@ -34,6 +34,8 @@ import { VideoPreviewModal } from "./VideoPreviewModal";
 import { LockedLessonModal } from "./LockedLessonModal";
 import { normalizeInstructorSlug, getPublicInstructorByIdOrSlug } from "@/lib/instructorProfile";
 import { VerifiedBadge } from "@/components/ui/VerifiedBadge";
+import { enrollmentService } from "@/services/enrollmentService";
+import { cartService } from "@/services/cartService";
 
 interface CourseDetailsViewProps {
   course: Course;
@@ -65,7 +67,13 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
       instructorId &&
       String(instructorId) === String(user.id)
   );
-  const isFree = course.price === 0 || course.priceFormatted === "Free" || course.priceFormatted === "مجاني";
+  const isFree =
+    course.price === 0 ||
+    Number(course.price) === 0 ||
+    course.is_free === true ||
+    (course as any).isFree === true ||
+    course.priceFormatted === "Free" ||
+    course.priceFormatted === "مجاني";
   const isInCart = cartItems.some(
     (item: any) =>
       String(item.course?.id || item.courseId || item.id) === String(course.id) ||
@@ -120,23 +128,78 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
     setOpenSections((prev) => ({ ...prev, [secId]: !prev[secId] }));
   };
 
-  const handleAddToCart = () => {
+  const handleAddToCart = async () => {
+    if (isEnrolled) {
+      setToastMessage(isAr ? "أنت مسجل بالفعل في هذه الدورة!" : "You are already enrolled in this course!");
+      setTimeout(() => setToastMessage(null), 3500);
+      return;
+    }
     dispatch(addToCart(course as any));
+    if (isAuthenticated) {
+      try {
+        const res = await cartService.addToCart(course.id);
+        if (res?.already_enrolled) {
+          setIsEnrolled(true);
+          setToastMessage(isAr ? "أنت مسجل بالفعل في هذه الدورة!" : "You are already enrolled in this course!");
+          setTimeout(() => setToastMessage(null), 3500);
+          return;
+        }
+      } catch (err: any) {
+        console.warn("[CourseDetailsView] Cart API add:", err);
+      }
+    }
     setToastMessage(isAr ? "تمت إضافة الدورة إلى سلة التسوق" : "Course added to cart successfully");
     setTimeout(() => setToastMessage(null), 3500);
   };
 
-  const handleBuyNow = () => {
+  const handleBuyNow = async () => {
+    if (!isAuthenticated) {
+      router.push(`/${locale}/login?redirect=/${locale}/courses/${course.id}`);
+      return;
+    }
+    if (isEnrolled) {
+      router.push(`/${locale}/student/learn/${course.id}`);
+      return;
+    }
     if (!isInCart) {
       dispatch(addToCart(course as any));
+      try {
+        const res = await cartService.addToCart(course.id);
+        if (res?.already_enrolled) {
+          setIsEnrolled(true);
+          router.push(`/${locale}/student/learn/${course.id}`);
+          return;
+        }
+      } catch (err: any) {
+        console.warn("[CourseDetailsView] Cart add error:", err);
+      }
     }
     router.push(`/${locale}/student/checkout`);
   };
 
-  const handleFreeEnroll = () => {
+  const handleFreeEnroll = async () => {
     if (!isAuthenticated) {
       router.push(`/${locale}/login?redirect=/${locale}/courses/${course.id}`);
       return;
+    }
+    if (isEnrolled) {
+      router.push(`/${locale}/student/learn/${course.id}`);
+      return;
+    }
+
+    try {
+      const res = await enrollmentService.enrollFree(course.id);
+      if (res?.already_enrolled) {
+        setIsEnrolled(true);
+        router.push(`/${locale}/student/learn/${course.id}`);
+        return;
+      }
+      if (res?.not_free) {
+        router.push(`/${locale}/student/checkout`);
+        return;
+      }
+    } catch (err: any) {
+      console.warn("[CourseDetailsView] Free enrollment API info:", err);
     }
 
     // Persist enrolled course to localStorage so student dashboard & course details stay synchronized

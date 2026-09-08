@@ -283,7 +283,7 @@ export function Header({ lang, onLanguageToggle, variant = "main", className = "
             >
               <span className="relative inline-flex items-center justify-center">
                 <ShoppingCart className="h-5 w-5" />
-                {cartItems.length > 0 && (
+                {mounted && cartItems.length > 0 && (
                   <span className="absolute -top-2 -end-2 flex h-4.5 min-w-[18px] items-center justify-center rounded-full bg-[#0F5244] px-1 text-[10px] font-black leading-none text-white border-2 border-white shadow-xs pointer-events-none">
                     {cartItems.length}
                   </span>
@@ -445,7 +445,7 @@ export function Header({ lang, onLanguageToggle, variant = "main", className = "
             >
               <span className="relative inline-flex items-center justify-center">
                 <ShoppingCart className="h-5 w-5" />
-                {cartItems.length > 0 && (
+                {mounted && cartItems.length > 0 && (
                   <span className="absolute -top-2 -end-2 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-[#0F5244] px-1 text-[9px] font-black leading-none text-white border-2 border-white shadow-xs pointer-events-none">
                     {cartItems.length}
                   </span>
@@ -666,7 +666,7 @@ export function Header({ lang, onLanguageToggle, variant = "main", className = "
                     <ShoppingCart className={`h-4 w-4 ${isActive("/student/cart") || isActive("/cart") ? "text-white" : "text-emerald-700"}`} />
                     <span>{tHeader("cartAria")}</span>
                   </div>
-                  {cartItems.length > 0 && (
+                  {mounted && cartItems.length > 0 && (
                     <span className="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-emerald-500 px-1.5 text-[11px] font-black text-white">
                       {cartItems.length}
                     </span>

@@ -31,6 +31,7 @@ import { Course } from "@/types/catalog";
 import { normalizeInstructorSlug } from "@/lib/instructorProfile";
 import { RootState } from "@/lib/store";
 import { addToCart } from "@/features/cart/cartSlice";
+import { cartService } from "@/services/cartService";
 import { VerifiedBadge } from "@/components/ui/VerifiedBadge";
 
 export type CourseCardVariant =
@@ -117,6 +118,7 @@ export function CourseCard({
   const router = useRouter();
   const dispatch = useDispatch();
 
+  const { isAuthenticated } = useSelector((state: RootState) => state.auth);
   const cartItems = useSelector((state: RootState) => state.cart?.items || []);
   const isInCart = cartItems.some(
     (item: any) =>
@@ -138,6 +140,9 @@ export function CourseCard({
       router.push(`/${currentLocale}/student/cart`);
     } else {
       dispatch(addToCart(course));
+      if (isAuthenticated && course?.id) {
+        cartService.addToCart(course.id).catch(() => {});
+      }
     }
   };
 

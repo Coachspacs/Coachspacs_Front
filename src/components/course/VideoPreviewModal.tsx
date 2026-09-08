@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { X, PlayCircle, AlertCircle, RotateCcw, Film } from "lucide-react";
 import { useTranslations, useLocale } from "next-intl";
+import { resolveMediaUrl } from "@/lib/utils";
 
 interface VideoPreviewModalProps {
   isOpen: boolean;
@@ -25,8 +26,9 @@ export function VideoPreviewModal({
   const [isRetrying, setIsRetrying] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
-  // Clean URL string and validate it
-  const cleanUrl = typeof videoUrl === "string" ? videoUrl.trim() : "";
+  // Clean and resolve URL string (handles relative /api/media/stream?token=... and full URLs)
+  const rawUrl = typeof videoUrl === "string" ? videoUrl.trim() : "";
+  const cleanUrl = resolveMediaUrl(rawUrl);
   const hasValidUrl = Boolean(
     cleanUrl &&
     cleanUrl.length > 0 &&

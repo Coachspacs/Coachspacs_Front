@@ -169,19 +169,19 @@ export async function resendVerificationEmail(
 
 /**
  * Send forgot password email
- * POST /api/auth/password-reset (Postman spec) with fallback to /api/auth/password/forgot
+ * POST /api/auth/password/forgot (CoachSpace API Postman spec)
  */
 export async function forgotPassword(data: ForgotPasswordRequest): Promise<AuthApiResponse> {
   const payload = { email: data.email };
   console.log('[authService.forgotPassword] Requesting reset for:', { email: data.email });
 
   try {
-    const response = await axiosInstance.post<AuthApiResponse>('/auth/password-reset', payload);
+    const response = await axiosInstance.post<AuthApiResponse>('/auth/password/forgot', payload);
     return response.data;
   } catch (err: any) {
     if (err?.response?.status === 404 || err?.response?.status === 405) {
       try {
-        const fallbackRes = await axiosInstance.post<AuthApiResponse>('/auth/password/forgot', payload);
+        const fallbackRes = await axiosInstance.post<AuthApiResponse>('/auth/password-reset', payload);
         return fallbackRes.data;
       } catch (fallbackErr) {
         throw fallbackErr;
@@ -197,7 +197,7 @@ export async function forgotPassword(data: ForgotPasswordRequest): Promise<AuthA
 
 /**
  * Reset password with token and uid
- * POST /api/auth/password-reset/confirm (Postman spec) with fallback to /api/auth/password/reset
+ * POST /api/auth/password/reset (CoachSpace API Postman spec)
  */
 export async function resetPassword(data: ResetPasswordRequest): Promise<AuthApiResponse> {
   const newPass = data.new_password || data.password;
@@ -216,12 +216,12 @@ export async function resetPassword(data: ResetPasswordRequest): Promise<AuthApi
   });
 
   try {
-    const response = await axiosInstance.post<AuthApiResponse>('/auth/password-reset/confirm', payload);
+    const response = await axiosInstance.post<AuthApiResponse>('/auth/password/reset', payload);
     return response.data;
   } catch (err: any) {
     if (err?.response?.status === 404 || err?.response?.status === 405) {
       try {
-        const fallbackRes = await axiosInstance.post<AuthApiResponse>('/auth/password/reset', payload);
+        const fallbackRes = await axiosInstance.post<AuthApiResponse>('/auth/password-reset/confirm', payload);
         return fallbackRes.data;
       } catch (fallbackErr) {
         throw fallbackErr;
@@ -276,7 +276,7 @@ export async function logout(refresh?: string): Promise<AuthApiResponse> {
 
 /**
  * Change password for authenticated user
- * POST /api/auth/password-change (Postman spec) with fallback to PUT /api/auth/password/change
+ * PUT /api/auth/password/change (CoachSpace API Postman spec)
  */
 export async function changePassword(data: ChangePasswordRequest): Promise<AuthApiResponse> {
   const oldPass = data.old_password || data.current_password;
@@ -287,11 +287,11 @@ export async function changePassword(data: ChangePasswordRequest): Promise<AuthA
   };
 
   try {
-    const response = await axiosInstance.post<AuthApiResponse>('/auth/password-change', payload);
+    const response = await axiosInstance.put<AuthApiResponse>('/auth/password/change', payload);
     return response.data;
   } catch (err: any) {
     if (err?.response?.status === 404 || err?.response?.status === 405) {
-      const fallbackRes = await axiosInstance.put<AuthApiResponse>('/auth/password/change', payload);
+      const fallbackRes = await axiosInstance.post<AuthApiResponse>('/auth/password-change', payload);
       return fallbackRes.data;
     }
     throw err;

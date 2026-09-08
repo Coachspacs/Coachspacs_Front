@@ -29,6 +29,7 @@ export default function CoursePlayerPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [activeLessonIndex, setActiveLessonIndex] = useState(0);
   const [completedLessonIds, setCompletedLessonIds] = useState<string[]>([]);
+  const [liveLessonOverrides, setLiveLessonOverrides] = useState<Record<string, any>>({});
 
   // Load Course and Live Enrollment Data
   useEffect(() => {
@@ -136,12 +137,43 @@ export default function CoursePlayerPage() {
           : l.title_en || l.title || t("lessonDefault", { index: lIdx + 1 }),
         durationFormatted: l.duration || `${l.duration_minutes || 5}:00`,
         videoUrl:
-          (l.video_url && !l.video_url.includes("example.com"))
-            ? l.video_url
-            : l.videoUrl || l.video || "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+          liveLessonOverrides[String(l.id)]?.video_url ||
+          (l.video_url && !l.video_url.includes("example.com") ? l.video_url : null) ||
+          l.videoUrl ||
+          l.video ||
+          "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
       }));
     });
-  }, [sectionsList, isAr, t]);
+  }, [sectionsList, isAr, t, liveLessonOverrides]);
+
+  // Fetch live single lesson player data (US-12) including authenticated streaming URL
+  useEffect(() => {
+    const currentLesson = allLessons[activeLessonIndex];
+    const numEnrollmentId = Number(enrollmentId);
+    const numLessonId = Number(currentLesson?.id);
+    if (!numEnrollmentId || isNaN(numEnrollmentId) || !numLessonId || isNaN(numLessonId)) return;
+
+    let isMounted = true;
+    async function fetchLiveLessonData() {
+      try {
+        const liveData = await enrollmentService.getLesson(numEnrollmentId, numLessonId);
+        if (isMounted && liveData && liveData.video_url) {
+          setLiveLessonOverrides((prev) => ({
+            ...prev,
+            [String(numLessonId)]: liveData,
+          }));
+        }
+      } catch (e) {
+        console.warn("[CoursePlayer] live lesson player fetch skipped:", e);
+      }
+    }
+
+    fetchLiveLessonData();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [enrollmentId, activeLessonIndex, allLessons.length]);
 
   // Toggle Lesson Completion (Sprint 8 Delta US-13)
   const toggleLessonCompletion = async (lessonId: string | number) => {

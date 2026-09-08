@@ -85,13 +85,26 @@ export function StudentLayoutClient({ children }: { children: React.ReactNode })
     );
   }
 
-  // Check if current route is the learning player page (dedicated classroom layout with its own unified header & light bar)
+  // Check if current route is the learning player page or checkout page
   const isLearnPage = pathname.includes("/student/learn");
+  const isCheckoutPage = pathname.includes("/student/checkout");
 
   if (isLearnPage) {
     return (
       <div className="min-h-screen bg-[#F8FAFC] flex flex-col font-sans">
         {children}
+      </div>
+    );
+  }
+
+  if (isCheckoutPage) {
+    return (
+      <div className="min-h-screen bg-[#F8FAFC] flex flex-col font-sans">
+        <Header />
+        <main className="flex-grow">
+          {children}
+        </main>
+        <Footer />
       </div>
     );
   }

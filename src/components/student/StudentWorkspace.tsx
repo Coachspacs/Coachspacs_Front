@@ -8,9 +8,11 @@ import { useRouter, usePathname } from "next/navigation";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@/lib/store";
 import { updateUser } from "@/features/auth/slice";
+import { removeFromCart, setCartItems } from "@/features/cart/cartSlice";
 import { userService } from "@/services/userService";
 import { authService, getApiErrorMessage } from "@/services/auth";
 import { enrollmentService } from "@/services/enrollmentService";
+import { cartService } from "@/services/cartService";
 import {
   LayoutDashboard,
   BookOpen,
@@ -317,11 +319,57 @@ export function StudentWorkspace({
   // Order History Data
   const [orders] = useState<any[]>([]);
 
-  // Cart Data
-  const [cartItems, setCartItems] = useState<any[]>([]);
+  // Cart Data (synced with Redux and backend cartService)
+  const reduxCartItems = useSelector((state: RootState) => state.cart?.items || []);
 
-  const handleRemoveFromCart = (id: string) => {
-    setCartItems((prev) => prev.filter((item) => item.id !== id));
+  useEffect(() => {
+    async function fetchLiveCart() {
+      try {
+        const cart = await cartService.getCart();
+        if (cart?.items && Array.isArray(cart.items)) {
+          const mapped = cart.items.map((item: any) => {
+            const courseObj = item.course || {};
+            return {
+              id: String(item.id),
+              courseId: String(courseObj.id || item.id),
+              course: courseObj,
+              title: isAr ? courseObj.title_ar || courseObj.title : courseObj.title_en || courseObj.title,
+              price: typeof courseObj.price === "number" ? courseObj.price : parseFloat(courseObj.price || "0"),
+              image: getSafeCourseImage(courseObj),
+              addedAt: item.added_at || new Date().toISOString(),
+            };
+          });
+          dispatch(setCartItems(mapped));
+        }
+      } catch (err) {
+        console.warn("[StudentWorkspace] Cart API sync skipped / using local cart:", err);
+      }
+    }
+
+    fetchLiveCart();
+  }, [dispatch, isAr]);
+
+  const formattedCartItems = reduxCartItems.map((item: any) => {
+    const c = item.course || item;
+    return {
+      id: String(item.id || c.id),
+      courseId: String(c.id || item.courseId || item.id),
+      title: isAr ? c.titleAr || c.title_ar || c.title : c.titleEn || c.title_en || c.title,
+      instructor: isAr
+        ? c.instructorNameAr || c.instructor?.name || "مدرب المساحة"
+        : c.instructorName || c.instructor?.name || "CoachSpace Instructor",
+      price: typeof c.price === "number" ? c.price : parseFloat(c.price || "0"),
+      image: getSafeCourseImage(c),
+    };
+  });
+
+  const handleRemoveFromCart = async (id: string) => {
+    dispatch(removeFromCart(id));
+    try {
+      await cartService.removeFromCart(id);
+    } catch {
+      // Non-blocking
+    }
     setToastMessage(tWs("cartItemRemoved"));
     setTimeout(() => setToastMessage(null), 3000);
   };
@@ -590,7 +638,7 @@ export function StudentWorkspace({
                 exit={{ opacity: 0, y: -6 }}
                 transition={{ duration: 0.15 }}
               >
-                <CartView items={cartItems} onRemoveItem={handleRemoveFromCart} />
+                <CartView items={formattedCartItems} onRemoveItem={handleRemoveFromCart} />
               </motion.div>
             )}
 

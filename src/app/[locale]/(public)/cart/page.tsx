@@ -1,11 +1,12 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '@/lib/store';
-import { removeFromCart, clearCart } from '@/features/cart/cartSlice';
+import { removeFromCart, clearCart, setCartItems, syncCartFromStorage } from '@/features/cart/cartSlice';
 import { CartView, CartItem } from '@/components/cart/CartView';
+import { cartService } from '@/services/cartService';
 
 export default function PublicCartPage() {
   const params = useParams();
@@ -14,7 +15,36 @@ export default function PublicCartPage() {
   const router = useRouter();
   const dispatch = useDispatch();
 
+  const { isAuthenticated } = useSelector((state: RootState) => state.auth);
   const reduxCartItems = useSelector((state: RootState) => state.cart?.items || []);
+
+  useEffect(() => {
+    dispatch(syncCartFromStorage());
+    if (!isAuthenticated) return;
+    async function fetchLiveCart() {
+      try {
+        const cart = await cartService.getCart();
+        if (cart?.items && Array.isArray(cart.items)) {
+          const mapped = cart.items.map((item: any) => {
+            const courseObj = item.course || {};
+            return {
+              id: String(item.id),
+              courseId: String(courseObj.id || item.id),
+              course: courseObj,
+              title: isAr ? courseObj.title_ar || courseObj.title : courseObj.title_en || courseObj.title,
+              price: typeof courseObj.price === "number" ? courseObj.price : parseFloat(courseObj.price || "0"),
+              image: courseObj.cover_image || "/images/courses/course-leadership.png",
+              addedAt: item.added_at || new Date().toISOString(),
+            };
+          });
+          dispatch(setCartItems(mapped));
+        }
+      } catch (err) {
+        // Fallback to local Redux cart
+      }
+    }
+    fetchLiveCart();
+  }, [isAuthenticated, dispatch, isAr]);
 
   const formattedItems: CartItem[] = reduxCartItems.map((item: any) => {
     const c = item.course || item;
@@ -29,8 +59,18 @@ export default function PublicCartPage() {
     };
   });
 
-  const handleRemove = (id: string) => {
+  const handleRemove = async (id: string) => {
     dispatch(removeFromCart(id));
+    if (reduxCartItems.length <= 1) {
+      dispatch(clearCart());
+    }
+    if (isAuthenticated) {
+      try {
+        await cartService.removeFromCart(id);
+      } catch {
+        // Ignored
+      }
+    }
   };
 
   const handleClear = () => {
@@ -45,7 +85,7 @@ export default function PublicCartPage() {
     <div className="min-h-screen bg-[#F8FAFC] py-8 sm:py-12">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <CartView
-          items={reduxCartItems.length > 0 ? formattedItems : []}
+          items={formattedItems}
           onRemoveItem={handleRemove}
           onClearCart={handleClear}
           onCheckout={handleCheckout}

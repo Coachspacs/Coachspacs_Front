@@ -238,7 +238,9 @@ export function InstructorWorkspace({
             ? c.enrolled_students
             : Array.isArray(c.students)
               ? c.students
-              : [],
+              : Array.isArray(c.enrollments)
+                ? c.enrollments
+                : [],
           isReal: true,
         };
       });
@@ -567,7 +569,7 @@ export function InstructorWorkspace({
         setToastMessage(tInst("courseSubmittedToast"));
         await fetchMyCourses();
       } catch (err: any) {
-        console.error("Could not submit course for review via API:", err);
+        console.warn("Could not submit course for review via API:", err);
         removeCourseStatus(courseId);
         // Revert on actual API failure
         setCourses((prev) =>
@@ -693,7 +695,7 @@ export function InstructorWorkspace({
       // Re-fetch courses from backend
       await fetchMyCourses();
     } catch (err: any) {
-      console.error("Delete course error:", err);
+      console.warn("Delete course error:", err);
       const status = err?.response?.status;
       if (status === 401) {
         setToastMessage(tInst("deleteCourseUnauthorized"));

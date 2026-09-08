@@ -24,25 +24,26 @@ export function Logo({
   const t = useTranslations("header");
   const locale = useLocale() || "en";
   const targetHref = href || `/${locale}`;
-  const logoHeight = compact ? 36 : 50;
+  const logoHeight = compact ? 36 : 46;
+  const logoWidth = compact ? 34 : 44;
 
   return (
     <Link
       href={targetHref}
-      className={`inline-flex items-center gap-3 shrink-0 focus:outline-none ${className}`}
+      className={`inline-flex items-center gap-2.5 sm:gap-3 shrink-0 focus:outline-none ${className}`}
     >
       <Image
-        src="/images/logo.png"
+        src="/images/brand-logo.png"
         alt="Coach Space Logo"
-        width={180}
+        width={logoWidth}
         height={logoHeight}
         priority
         className={`w-auto shrink-0 object-contain ${
           imageClassName
             ? imageClassName
             : compact
-            ? "h-9 sm:h-10"
-            : "h-12 sm:h-14"
+            ? "h-8 sm:h-9"
+            : "h-10 sm:h-11"
         }`}
         style={{ height: `${logoHeight}px`, width: "auto" }}
       />

@@ -13,6 +13,7 @@ import { authService } from "@/services/auth";
 import { Logo } from "@/components/ui/Logo";
 import { VerifiedBadge } from "@/components/ui/VerifiedBadge";
 import { Footer } from "@/components/layout/Footer";
+import { resolveMediaUrl } from "@/lib/utils";
 import {
   Play,
   Pause,
@@ -160,8 +161,12 @@ export function LessonViewerLayout({
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({});
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showShortcutsModal, setShowShortcutsModal] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Video Player state
   const playerContainerRef = useRef<HTMLDivElement>(null);
@@ -688,7 +693,7 @@ export function LessonViewerLayout({
             >
               <span className="relative inline-flex items-center justify-center">
                 <ShoppingCart className="h-5 w-5" />
-                {cartItems.length > 0 && (
+                {mounted && cartItems.length > 0 && (
                   <span className="absolute -top-2 -end-2 flex h-4.5 min-w-[18px] items-center justify-center rounded-full bg-[#0F5244] px-1 text-[10px] font-black leading-none text-white border-2 border-white shadow-xs pointer-events-none">
                     {cartItems.length}
                   </span>
@@ -890,7 +895,7 @@ export function LessonViewerLayout({
                         handleToggleFullscreen();
                       }
                     }}
-                    src={activeLesson?.videoUrl || activeLesson?.video_url}
+                    src={resolveMediaUrl(activeLesson?.videoUrl || activeLesson?.video_url)}
                     poster={courseCover || undefined}
                     onError={() => {
                       console.warn("Video playback error in LessonViewerLayout");

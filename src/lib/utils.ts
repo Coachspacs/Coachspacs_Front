@@ -19,3 +19,14 @@ export function formatDate(dateString: string, locale = 'en-US') {
     day: 'numeric',
   });
 }
+
+export function resolveMediaUrl(rawUrl?: string): string {
+  if (!rawUrl) return '';
+  const trimmed = rawUrl.trim();
+  if (trimmed.startsWith('http://') || trimmed.startsWith('https://') || trimmed.startsWith('blob:')) {
+    return trimmed;
+  }
+  const apiBase = process.env.NEXT_PUBLIC_API_URL || 'https://coachspace-back.onrender.com/api';
+  const baseWithoutApi = apiBase.replace(/\/api\/?$/, '');
+  return `${baseWithoutApi}${trimmed.startsWith('/') ? '' : '/'}${trimmed}`;
+}

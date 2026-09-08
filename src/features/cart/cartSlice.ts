@@ -27,7 +27,7 @@ const saveCart = (items: CartItem[]) => {
 };
 
 const initialState: CartState = {
-  items: loadInitialCart(),
+  items: [],
 };
 
 export const cartSlice = createSlice({
@@ -57,17 +57,31 @@ export const cartSlice = createSlice({
       }
     },
     removeFromCart: (state, action: PayloadAction<string | number>) => {
-      state.items = state.items.filter(
-        (item: any) => String(item.course?.id || item.courseId || item.id) !== String(action.payload)
-      );
+      const targetId = String(action.payload);
+      state.items = state.items.filter((item: any) => {
+        const cId = item.course?.id !== undefined ? String(item.course.id) : "";
+        const itemId = item.id !== undefined ? String(item.id) : "";
+        const courseId = item.courseId !== undefined ? String(item.courseId) : "";
+        const cartItemId = (item as any).cartItemId !== undefined ? String((item as any).cartItemId) : "";
+        return (
+          cId !== targetId &&
+          itemId !== targetId &&
+          courseId !== targetId &&
+          cartItemId !== targetId
+        );
+      });
       saveCart(state.items);
     },
     clearCart: (state) => {
       state.items = [];
       saveCart([]);
     },
+    setCartItems: (state, action: PayloadAction<CartItem[]>) => {
+      state.items = action.payload;
+      saveCart(state.items);
+    },
   },
 });
 
-export const { addToCart, removeFromCart, clearCart, syncCartFromStorage } = cartSlice.actions;
+export const { addToCart, removeFromCart, clearCart, syncCartFromStorage, setCartItems } = cartSlice.actions;
 export default cartSlice.reducer;
