@@ -46,10 +46,11 @@ export default function CheckoutPage() {
   const router = useRouter();
   const dispatch = useDispatch();
 
-  const queryOrderId = searchParams?.get("orderId");
+  const queryOrderId = searchParams?.get("orderId") || searchParams?.get("order_id");
   const isSuccessQuery =
     searchParams?.get("success") === "true" ||
-    searchParams?.get("status") === "success";
+    searchParams?.get("status") === "success" ||
+    Boolean(searchParams?.get("order_id"));
 
   const { isAuthenticated, isLoading: authLoading } = useSelector(
     (state: RootState) => state.auth

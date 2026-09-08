@@ -98,10 +98,12 @@ export default function middleware(request: NextRequest) {
     !pathWithoutLocale.startsWith('/instructors');
   const isStudentRoute = pathWithoutLocale.startsWith('/student');
   const isCartOrCheckoutRoute =
-    pathWithoutLocale === '/cart' ||
-    pathWithoutLocale.startsWith('/cart/') ||
-    pathWithoutLocale === '/checkout' ||
-    pathWithoutLocale.startsWith('/checkout/');
+    (pathWithoutLocale === '/cart' ||
+      pathWithoutLocale.startsWith('/cart/') ||
+      pathWithoutLocale === '/checkout' ||
+      pathWithoutLocale.startsWith('/checkout/')) &&
+    !pathWithoutLocale.startsWith('/checkout/success') &&
+    !pathWithoutLocale.startsWith('/checkout/cancel');
   const isAccountRoute =
     (pathWithoutLocale === '/account' || pathWithoutLocale.startsWith('/account/')) &&
     !pathWithoutLocale.includes('/confirm-email');
