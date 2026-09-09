@@ -135,6 +135,9 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
       return;
     }
     dispatch(addToCart(course as any));
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent("coachspace:cart-bounce"));
+    }
     if (isAuthenticated) {
       try {
         const res = await cartService.addToCart(course.id);

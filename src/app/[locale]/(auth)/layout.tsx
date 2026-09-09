@@ -47,8 +47,11 @@ export default function AuthLayout({
       const role = activeUser.role || "student";
       const status = activeUser.approval_status || activeUser.approvalStatus || "";
 
-      let redirectPath = `/${locale}/student`;
-      if (role === "instructor") {
+      const searchParams = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
+      const redirectParam = searchParams?.get("redirect");
+
+      let redirectPath = redirectParam || `/${locale}/student`;
+      if (!redirectParam && role === "instructor") {
         redirectPath =
           status === "approved"
             ? `/${locale}/instructor/dashboard`

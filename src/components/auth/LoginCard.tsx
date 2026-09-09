@@ -268,6 +268,18 @@ export function LoginCard({ lang }: LoginCardProps) {
           {t("createAccount")}
         </Link>
       </div>
+
+      {/* Terms and Privacy Policy notice */}
+      <p className="mt-3 text-center text-[10.5px] text-slate-400 font-medium leading-relaxed">
+        {t("agreeTo")}{" "}
+        <Link href={`/${locale}/terms`} className="text-[#0F5244] hover:underline font-bold">
+          {t("termsOfService")}
+        </Link>{" "}
+        {t("and")}{" "}
+        <Link href={`/${locale}/privacy`} className="text-[#0F5244] hover:underline font-bold">
+          {t("privacyPolicy")}
+        </Link>
+      </p>
     </section>
   );
 }

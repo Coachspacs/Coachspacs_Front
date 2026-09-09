@@ -144,13 +144,20 @@ export function StudentWorkspace({
     }
   }, [initialTab]);
 
-  // Read URL query parameter for course filter (e.g. ?filter=in_progress)
+  // Read URL query parameter for course filter (e.g. ?filter=in_progress) and tab
   useEffect(() => {
     if (typeof window !== "undefined") {
       const params = new URLSearchParams(window.location.search);
       const f = params.get("filter");
       if (f === "in_progress" || f === "completed" || f === "all") {
         setCourseFilter(f as any);
+      }
+      const tabParam = params.get("tab");
+      if (
+        tabParam &&
+        ["overview", "courses", "certificates", "orders", "cart", "settings"].includes(tabParam)
+      ) {
+        setActiveTab(tabParam as any);
       }
     }
   }, [pathname]);
@@ -556,7 +563,7 @@ export function StudentWorkspace({
         {!hideSidebar && (
           <Sidebar
             activeTab={activeTab}
-            onTabChange={(tabId: string) => setActiveTab(tabId as any)}
+            onTabChange={(tabId: string) => handleNavigateTab(tabId as any)}
             user={{
               name: formData.fullName,
               role: tStudent("roleStudent"),

@@ -50,6 +50,31 @@ export function Header({ lang, onLanguageToggle, variant = "main", className = "
 
   const { user, isAuthenticated } = useSelector((state: RootState) => state.auth);
   const cartItems = useSelector((state: RootState) => state.cart?.items || []);
+  const [isBadgePulsing, setIsBadgePulsing] = useState(false);
+  const prevCartCountRef = React.useRef<number | null>(null);
+
+  useEffect(() => {
+    if (mounted) {
+      if (prevCartCountRef.current !== null && cartItems.length > prevCartCountRef.current) {
+        setIsBadgePulsing(true);
+        const timer = setTimeout(() => setIsBadgePulsing(false), 400);
+        return () => clearTimeout(timer);
+      }
+      prevCartCountRef.current = cartItems.length;
+    }
+  }, [cartItems.length, mounted]);
+
+  useEffect(() => {
+    const handlePulse = () => {
+      setIsBadgePulsing(true);
+      const timer = setTimeout(() => setIsBadgePulsing(false), 400);
+      return () => clearTimeout(timer);
+    };
+    window.addEventListener("coachspace:cart-bounce", handlePulse);
+    return () => {
+      window.removeEventListener("coachspace:cart-bounce", handlePulse);
+    };
+  }, []);
 
   const userRole = (user?.role || "").toLowerCase();
   const isInstructor = userRole === "instructor" || userRole === "coach";
@@ -284,7 +309,11 @@ export function Header({ lang, onLanguageToggle, variant = "main", className = "
               <span className="relative inline-flex items-center justify-center">
                 <ShoppingCart className="h-5 w-5" />
                 {mounted && cartItems.length > 0 && (
-                  <span className="absolute -top-2 -end-2 flex h-4.5 min-w-[18px] items-center justify-center rounded-full bg-[#0F5244] px-1 text-[10px] font-black leading-none text-white border-2 border-white shadow-xs pointer-events-none">
+                  <span
+                    className={`absolute -top-1 -end-1.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-[#0F5244] px-1 text-[10px] font-bold leading-none text-white border border-white shadow-xs tabular-nums pointer-events-none transition-transform ${
+                      isBadgePulsing ? "animate-badge-pulse" : ""
+                    }`}
+                  >
                     {cartItems.length}
                   </span>
                 )}
@@ -446,7 +475,11 @@ export function Header({ lang, onLanguageToggle, variant = "main", className = "
               <span className="relative inline-flex items-center justify-center">
                 <ShoppingCart className="h-5 w-5" />
                 {mounted && cartItems.length > 0 && (
-                  <span className="absolute -top-2 -end-2 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-[#0F5244] px-1 text-[9px] font-black leading-none text-white border-2 border-white shadow-xs pointer-events-none">
+                  <span
+                    className={`absolute -top-1 -end-1.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-[#0F5244] px-1 text-[10px] font-bold leading-none text-white border border-white shadow-xs tabular-nums pointer-events-none transition-transform ${
+                      isBadgePulsing ? "animate-badge-pulse" : ""
+                    }`}
+                  >
                     {cartItems.length}
                   </span>
                 )}

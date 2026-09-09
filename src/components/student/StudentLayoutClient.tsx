@@ -10,6 +10,7 @@ import { updateUser } from "@/features/auth/slice";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { Sidebar } from "@/components/layout/Sidebar";
+import { tokenManager } from "@/lib/tokenManager";
 
 export function StudentLayoutClient({ children }: { children: React.ReactNode }) {
   const dispatch = useDispatch();
@@ -27,30 +28,23 @@ export function StudentLayoutClient({ children }: { children: React.ReactNode })
 
   React.useEffect(() => {
     setMounted(true);
-    const localToken = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+    const hasToken = tokenManager.hasSession();
     const localUserStr = typeof window !== "undefined" ? localStorage.getItem("user") : null;
     let localUser = null;
     try {
       if (localUserStr) localUser = JSON.parse(localUserStr);
     } catch {}
 
-    const isUserLoggedIn = isAuthenticated || Boolean(localToken && (user || localUser));
+    const isUserLoggedIn = isAuthenticated || hasToken || Boolean(user || localUser);
     const activeUser = user || localUser;
 
-    if (!isUserLoggedIn || !activeUser) {
+    if (!isUserLoggedIn && !hasToken) {
       router.replace(`/${locale}/login?redirect=${encodeURIComponent(pathname)}`);
       return;
     }
 
-    const userRole = (activeUser.role || "").toLowerCase();
-    if (userRole === "instructor" || userRole === "coach") {
-      const status = (activeUser.approval_status || activeUser.approvalStatus || "").toLowerCase();
-      router.replace(status === "approved" ? `/${locale}/instructor/dashboard` : `/${locale}/instructor`);
-      return;
-    }
-
     if (
-      activeUser.headline &&
+      activeUser?.headline &&
       (activeUser.headline.toLowerCase().includes("certified instructor") ||
         activeUser.headline.toLowerCase().includes("instructor") ||
         activeUser.headline.includes("مدرب") ||
@@ -128,11 +122,13 @@ export function StudentLayoutClient({ children }: { children: React.ReactNode })
     rawHeadline.toLowerCase().includes("student") ||
     rawHeadline.includes("طالب");
 
-  const displayHeadline = isGenericOrInstructorHeadline
+  const isInstructor = (user?.role || "").toLowerCase() === "instructor" || (user?.role || "").toLowerCase() === "coach";
+
+  const displayHeadline = isInstructor
+    ? (isAr ? "مدرب معتمد" : "Certified Instructor")
+    : isGenericOrInstructorHeadline
     ? (isAr ? "طالب" : "Student")
     : rawHeadline;
-
-  const isInstructor = (user?.role || "").toLowerCase() === "instructor" || (user?.role || "").toLowerCase() === "coach";
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] flex flex-col font-sans">
@@ -182,7 +178,7 @@ export function StudentLayoutClient({ children }: { children: React.ReactNode })
             <Sidebar
               user={{
                 name: fullName,
-                role: tStudent("roleStudent"),
+                role: isInstructor ? (isAr ? "مدرب" : "Instructor") : tStudent("roleStudent"),
                 avatarUrl: avatarPreview,
               }}
             />

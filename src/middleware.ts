@@ -78,6 +78,16 @@ export default function middleware(request: NextRequest) {
     const isAuthPage = authPages.some(page => pathWithoutLocale === page || pathWithoutLocale.startsWith(`${page}/`));
 
     if (isAuthPage) {
+      const redirectQuery = request.nextUrl.searchParams.get('redirect');
+      if (redirectQuery) {
+        try {
+          const targetUrl = redirectQuery.startsWith('http')
+            ? new URL(redirectQuery)
+            : new URL(redirectQuery, request.url);
+          return NextResponse.redirect(targetUrl);
+        } catch {}
+      }
+
       let redirectPath = `/${currentLocale}/student`;
       if (isInstructor) {
         redirectPath = userStatus === 'approved'
@@ -125,21 +135,10 @@ export default function middleware(request: NextRequest) {
       return NextResponse.redirect(url);
     }
 
-    // 6.2 Strict Role Separation (MVP):
-    // Students cannot access instructor routes
+    // 6.2 Role-Based Access: Students cannot access instructor routes
     if (isInstructorRoute && !isInstructor) {
       const url = request.nextUrl.clone();
       url.pathname = `/${currentLocale}/student`;
-      url.search = '';
-      return NextResponse.redirect(url);
-    }
-
-    // Instructors cannot access student routes, cart, or checkout
-    if ((isStudentRoute || isCartOrCheckoutRoute) && isInstructor) {
-      const url = request.nextUrl.clone();
-      url.pathname = userStatus === 'approved'
-        ? `/${currentLocale}/instructor/dashboard`
-        : `/${currentLocale}/instructor`;
       url.search = '';
       return NextResponse.redirect(url);
     }

@@ -130,36 +130,37 @@ export function StudentOverviewTab({
 
       {/* Hero Continue Learning Card */}
       {courses.length > 0 && continueCourse ? (
-        <div className="p-5 sm:p-7 rounded-3xl bg-gradient-to-br from-[#0F5244] to-[#07382E] text-white space-y-4 shadow-lg relative overflow-hidden">
-          <div className="absolute top-0 end-0 -mt-8 -me-8 w-48 h-48 bg-white/5 rounded-full blur-2xl pointer-events-none" />
+        <div className="p-5 sm:p-7 rounded-3xl bg-gradient-to-br from-[#EBF5F3] via-[#F4F9F8] to-[#E2F1EE] border border-[#0F5244]/15 space-y-4 shadow-sm relative overflow-hidden">
+          <div className="absolute top-0 end-0 -mt-8 -me-8 w-48 h-48 bg-[#45D1B4]/15 rounded-full blur-2xl pointer-events-none" />
+          <div className="absolute bottom-0 start-0 w-40 h-40 bg-[#0F5244]/5 rounded-full blur-xl pointer-events-none" />
           
           <div className="flex items-center gap-2">
-            <span className="p-1 rounded-lg bg-white/10 backdrop-blur-xs">
-              <Sparkles className="h-4 w-4 text-emerald-300" />
+            <span className="p-1 rounded-lg bg-[#0F5244]/10 border border-[#0F5244]/15">
+              <Sparkles className="h-4 w-4 text-[#0F5244]" />
             </span>
-            <h3 className="text-xs font-black text-emerald-200 uppercase tracking-wider">
+            <h3 className="text-xs font-extrabold text-[#0F5244] uppercase tracking-wider">
               {tWs("continueLearning")}
             </h3>
           </div>
 
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-5 pt-1">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-5 pt-1 z-10 relative">
             <div className="space-y-2 max-w-xl min-w-0 flex-1">
-              <h4 className="text-lg sm:text-2xl font-black leading-tight line-clamp-2">
+              <h4 className="text-lg sm:text-2xl font-black text-slate-900 leading-tight line-clamp-2">
                 {continueCourse.title}
               </h4>
-              <p className="text-xs sm:text-sm text-emerald-100/90 font-medium line-clamp-1">
+              <p className="text-xs sm:text-sm text-slate-600 font-medium line-clamp-1">
                 {continueCourse.lastLessonTitle ||
                   (isAr ? "تابع من حيث توقفت في الدرس الأخير" : "Pick up right where you left off")}
               </p>
 
               <div className="flex items-center gap-3 pt-1">
-                <div className="w-36 sm:w-48 h-2 bg-white/20 rounded-full overflow-hidden shrink-0">
+                <div className="w-36 sm:w-48 h-2 bg-[#0F5244]/10 rounded-full overflow-hidden shrink-0">
                   <div
-                    className="h-full bg-emerald-400 rounded-full transition-all"
+                    className="h-full bg-gradient-to-r from-[#0F5244] to-[#45D1B4] rounded-full transition-all"
                     style={{ width: `${continueCourse.progress}%` }}
                   />
                 </div>
-                <span className="text-xs font-bold text-emerald-200">
+                <span className="text-xs font-bold text-[#0F5244]">
                   {continueCourse.progress}%
                 </span>
               </div>
@@ -174,16 +175,16 @@ export function StudentOverviewTab({
                     onNavigateTab("courses", "all");
                   }
                 }}
-                className="px-4 py-2.5 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/20 text-white text-xs font-bold flex items-center justify-center gap-1.5 shrink-0 transition-all cursor-pointer active:scale-98 shadow-xs"
+                className="px-4 py-2.5 rounded-2xl bg-white/80 hover:bg-white border border-[#0F5244]/20 text-[#0F5244] text-xs font-bold flex items-center justify-center gap-1.5 shrink-0 transition-all cursor-pointer active:scale-98 shadow-xs"
               >
                 <span>{tWs("myCoursesBtn")}</span>
               </Link>
 
               <Link
                 href={`/${locale}/student/learn/${continueCourse.id}`}
-                className="px-5 py-2.5 rounded-2xl bg-white text-[#0F5244] hover:bg-emerald-50 text-xs font-black flex items-center justify-center gap-2 shrink-0 transition-all cursor-pointer shadow-md active:scale-98"
+                className="px-5 py-2.5 rounded-2xl bg-[#0F5244] hover:bg-[#08382E] text-white text-xs font-black flex items-center justify-center gap-2 shrink-0 transition-all cursor-pointer shadow-md hover:shadow-lg active:scale-98"
               >
-                <Play className="h-4 w-4 fill-current" />
+                <Play className="h-4 w-4 fill-current text-white" />
                 <span>{tWs("resumeLesson")}</span>
               </Link>
             </div>

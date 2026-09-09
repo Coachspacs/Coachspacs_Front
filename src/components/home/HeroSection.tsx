@@ -47,19 +47,19 @@ export function HeroSection() {
                     ? t("welcomeInstructor", { name: displayName })
                     : t("welcomeStudent", { name: displayName })}
                 </span>
-                <span
-                  className={`hidden sm:inline-block px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                    isInstructor && !isApproved
-                      ? "bg-amber-400/25 text-amber-200"
-                      : "bg-white/15 text-emerald-200"
-                  }`}
-                >
-                  {isInstructor
-                    ? isApproved
+                {isInstructor && (
+                  <span
+                    className={`hidden sm:inline-block px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                      !isApproved
+                        ? "bg-amber-400/25 text-amber-200"
+                        : "bg-white/15 text-emerald-200"
+                    }`}
+                  >
+                    {isApproved
                       ? t("instructorBadge")
-                      : t("instructorPendingBadge")
-                    : t("studentBadge")}
-                </span>
+                      : t("instructorPendingBadge")}
+                  </span>
+                )}
               </div>
             ) : (
               <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#6CF8BB]/20 text-[#0F5244] border border-[#6CF8BB]/40 shadow-xs mb-6 text-xs font-bold tracking-wider uppercase">

@@ -140,6 +140,9 @@ export function CourseCard({
       router.push(`/${currentLocale}/student/cart`);
     } else {
       dispatch(addToCart(course));
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new CustomEvent("coachspace:cart-bounce"));
+      }
       if (isAuthenticated && course?.id) {
         cartService.addToCart(course.id).catch(() => {});
       }
