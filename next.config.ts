@@ -5,6 +5,22 @@ import path from 'path';
 
 const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
 
+const backendUrl =
+  process.env.BACKEND_API_URL ||
+  process.env.API_BASE_URL ||
+  (process.env.NEXT_PUBLIC_API_URL && process.env.NEXT_PUBLIC_API_URL !== '/api'
+    ? process.env.NEXT_PUBLIC_API_URL
+    : '');
+
+let backendHost: string | null = null;
+if (backendUrl && backendUrl.startsWith('http')) {
+  try {
+    backendHost = new URL(backendUrl).hostname;
+  } catch {
+    backendHost = null;
+  }
+}
+
 const nextConfig: NextConfig = {
   outputFileTracingRoot: path.join(__dirname),
   reactStrictMode: true,
@@ -63,16 +79,20 @@ const nextConfig: NextConfig = {
         hostname: 'avatars.githubusercontent.com',
         pathname: '/**',
       },
-      {
-        protocol: 'https',
-        hostname: 'coachspace-back.onrender.com',
-        pathname: '/**',
-      },
-      {
-        protocol: 'http',
-        hostname: 'coachspace-back.onrender.com',
-        pathname: '/**',
-      },
+      ...(backendHost
+        ? [
+            {
+              protocol: 'https' as const,
+              hostname: backendHost,
+              pathname: '/**',
+            },
+            {
+              protocol: 'http' as const,
+              hostname: backendHost,
+              pathname: '/**',
+            },
+          ]
+        : []),
     ],
   },
   async headers() {
@@ -98,16 +118,14 @@ const nextConfig: NextConfig = {
     ];
   },
   async rewrites() {
-    const targetUrl =
-      process.env.BACKEND_API_URL ||
-      process.env.API_BASE_URL ||
-      (process.env.NEXT_PUBLIC_API_URL && process.env.NEXT_PUBLIC_API_URL !== '/api' ? process.env.NEXT_PUBLIC_API_URL : null) ||
-      'https://coachspace-back.onrender.com/api';
+    if (!backendUrl) {
+      return [];
+    }
 
     return [
       {
         source: '/api/:path*',
-        destination: `${targetUrl.replace(/\/+$/, '')}/:path*`,
+        destination: `${backendUrl.replace(/\/+$/, '')}/:path*`,
       },
     ];
   },

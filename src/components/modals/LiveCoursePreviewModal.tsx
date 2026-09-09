@@ -507,14 +507,49 @@ export function LiveCoursePreviewModal({
               className="aspect-video w-full rounded-2xl overflow-hidden bg-black flex items-center justify-center select-none"
               onContextMenu={(e) => e.preventDefault()}
             >
-              <video
-                src={activeVideoModal.url}
-                controls
-                controlsList="nodownload"
-                onContextMenu={(e) => e.preventDefault()}
-                autoPlay
-                className="w-full h-full object-contain"
-              />
+              {(() => {
+                const url = activeVideoModal.url || "";
+                const isYt = url.includes("youtube.com") || url.includes("youtu.be");
+                const isVm = url.includes("vimeo.com");
+
+                if (isYt || isVm) {
+                  let embed = url;
+                  if (url.includes("watch?v=")) {
+                    const id = url.split("watch?v=")[1]?.split("&")[0];
+                    embed = `https://www.youtube.com/embed/${id}?autoplay=1`;
+                  } else if (url.includes("youtu.be/")) {
+                    const id = url.split("youtu.be/")[1]?.split("?")[0];
+                    embed = `https://www.youtube.com/embed/${id}?autoplay=1`;
+                  } else if (url.includes("vimeo.com/")) {
+                    const id = url.split("vimeo.com/")[1]?.split("?")[0];
+                    embed = `https://player.vimeo.com/video/${id}?autoplay=1`;
+                  }
+                  return (
+                    <iframe
+                      src={embed}
+                      className="w-full h-full border-0"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    />
+                  );
+                }
+
+                return (
+                  <video
+                    src={url}
+                    controls
+                    controlsList="nodownload"
+                    disablePictureInPicture
+                    onContextMenu={(e) => e.preventDefault()}
+                    onDragStart={(e) => e.preventDefault()}
+                    playsInline
+                    className="w-full h-full object-contain"
+                    onError={(e) => {
+                      console.warn("[LiveCoursePreviewModal] Video source error:", e);
+                    }}
+                  />
+                );
+              })()}
             </div>
           </div>
         </div>

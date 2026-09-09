@@ -150,22 +150,22 @@ export function StudentHomeWidget() {
           </div>
 
           {/* Right: Continue Learning Highlight Card (Col 7) */}
-          <div className="lg:col-span-7 bg-gradient-to-br from-[#0F5244] to-[#08382E] rounded-2xl sm:rounded-3xl p-5 sm:p-6 text-white shadow-md flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5 relative overflow-hidden">
+          <div className="lg:col-span-7 bg-gradient-to-br from-[#EBF5F3] via-[#F4F9F8] to-[#E2F1EE] border border-[#0F5244]/15 rounded-2xl sm:rounded-3xl p-5 sm:p-6 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5 relative overflow-hidden">
             
             {/* Ambient Background Glow */}
-            <div className="absolute top-0 right-0 w-64 h-64 bg-[#6CF8BB]/10 rounded-full blur-3xl pointer-events-none" />
+            <div className="absolute top-0 right-0 w-64 h-64 bg-[#45D1B4]/15 rounded-full blur-3xl pointer-events-none" />
 
             <div className="space-y-3 z-10 flex-1 min-w-0">
-              <div className="inline-flex items-center gap-1.5 bg-white/10 px-3 py-1 rounded-full text-[11px] font-bold text-emerald-200">
-                <span className="w-2 h-2 rounded-full bg-[#6CF8BB] animate-pulse" />
+              <div className="inline-flex items-center gap-1.5 bg-[#0F5244]/10 border border-[#0F5244]/15 px-3 py-1 rounded-full text-[11px] font-bold text-[#0F5244]">
+                <span className="w-2 h-2 rounded-full bg-[#0F5244] animate-pulse" />
                 <span>{t("continueLearningBadge")}</span>
               </div>
 
-              <h3 className="text-base sm:text-lg font-black text-white truncate">
+              <h3 className="text-base sm:text-lg font-black text-slate-900 truncate">
                 {enrolledCourses.length > 0 ? enrolledCourses[0].title : t("studentExploreTitle")}
               </h3>
 
-              <p className="text-xs text-emerald-200/80 font-medium">
+              <p className="text-xs text-slate-600 font-medium">
                 {enrolledCourses.length > 0 && enrolledCourses[0].instructor
                   ? enrolledCourses[0].instructor
                   : t("studentExploreDesc")}
@@ -174,9 +174,9 @@ export function StudentHomeWidget() {
 
             <Link
               href={enrolledCourses.length > 0 ? `/${locale}/student/learn/${enrolledCourses[0].id}` : `/${locale}/courses`}
-              className="z-10 bg-[#6CF8BB] hover:bg-[#52e8a6] active:scale-95 text-[#08382E] font-black text-xs sm:text-sm px-6 py-3.5 rounded-xl transition-all shadow-md inline-flex items-center justify-center gap-2 shrink-0 w-full sm:w-auto cursor-pointer"
+              className="z-10 bg-[#0F5244] hover:bg-[#08382E] active:scale-95 text-white font-black text-xs sm:text-sm px-6 py-3.5 rounded-xl transition-all shadow-md hover:shadow-lg inline-flex items-center justify-center gap-2 shrink-0 w-full sm:w-auto cursor-pointer"
             >
-              <BookOpen className="w-4 h-4" />
+              <BookOpen className="w-4 h-4 text-emerald-300" />
               <span>{enrolledCourses.length > 0 ? t("myLearning") : t("exploreCourses")}</span>
             </Link>
 

@@ -96,14 +96,14 @@ export function InstructorPayoutTab({
             onClick={() => setPayoutMethod("bank")}
             className={`p-4 rounded-2xl border-2 transition-all cursor-pointer flex items-center gap-3.5 ${
               payoutMethod === "bank"
-                ? "border-[#0F5244] bg-[#0F5244]/5 text-slate-900"
+                ? "border-[#0B4F3A] bg-[#0B4F3A]/5 text-slate-900"
                 : "border-slate-200 hover:border-slate-300 bg-slate-50/50 text-slate-600"
             }`}
           >
             <div
               className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
                 payoutMethod === "bank"
-                  ? "bg-[#0F5244] text-white"
+                  ? "bg-[#0B4F3A] text-white"
                   : "bg-slate-200 text-slate-500"
               }`}
             >
@@ -118,7 +118,7 @@ export function InstructorPayoutTab({
               </p>
             </div>
             {payoutMethod === "bank" && (
-              <CheckCircle2 className="w-5 h-5 text-[#0F5244] shrink-0" />
+              <CheckCircle2 className="w-5 h-5 text-[#0B4F3A] shrink-0" />
             )}
           </div>
 
@@ -126,14 +126,14 @@ export function InstructorPayoutTab({
             onClick={() => setPayoutMethod("paypal")}
             className={`p-4 rounded-2xl border-2 transition-all cursor-pointer flex items-center gap-3.5 ${
               payoutMethod === "paypal"
-                ? "border-[#0F5244] bg-[#0F5244]/5 text-slate-900"
+                ? "border-[#0B4F3A] bg-[#0B4F3A]/5 text-slate-900"
                 : "border-slate-200 hover:border-slate-300 bg-slate-50/50 text-slate-600"
             }`}
           >
             <div
               className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
                 payoutMethod === "paypal"
-                  ? "bg-[#0F5244] text-white"
+                  ? "bg-[#0B4F3A] text-white"
                   : "bg-slate-200 text-slate-500"
               }`}
             >
@@ -146,7 +146,7 @@ export function InstructorPayoutTab({
               </p>
             </div>
             {payoutMethod === "paypal" && (
-              <CheckCircle2 className="w-5 h-5 text-[#0F5244] shrink-0" />
+              <CheckCircle2 className="w-5 h-5 text-[#0B4F3A] shrink-0" />
             )}
           </div>
         </div>
@@ -163,7 +163,7 @@ export function InstructorPayoutTab({
               onChange={(e) => setBankIban(e.target.value)}
               placeholder="SA00 0000 0000 0000 0000 0000"
               dir="ltr"
-              className="w-full h-11 rounded-2xl border border-slate-200 bg-slate-50/60 px-4 text-xs font-mono font-semibold text-slate-900 focus:bg-white focus:border-[#0F5244] focus:ring-2 focus:ring-[#0F5244]/10 focus:outline-none transition-all"
+              className="w-full h-11 rounded-2xl border border-slate-200 bg-slate-50/60 px-4 text-xs font-mono font-semibold text-slate-900 focus:bg-white focus:border-[#0B4F3A] focus:ring-2 focus:ring-[#0B4F3A]/10 focus:outline-none transition-all shadow-2xs"
             />
             <p className="text-[11px] text-slate-400 font-medium">
               {isAr
@@ -182,7 +182,7 @@ export function InstructorPayoutTab({
               onChange={(e) => setPaypalEmail(e.target.value)}
               placeholder="youremail@example.com"
               dir="ltr"
-              className="w-full h-11 rounded-2xl border border-slate-200 bg-slate-50/60 px-4 text-xs font-semibold text-slate-900 focus:bg-white focus:border-[#0F5244] focus:ring-2 focus:ring-[#0F5244]/10 focus:outline-none transition-all"
+              className="w-full h-11 rounded-2xl border border-slate-200 bg-slate-50/60 px-4 text-xs font-semibold text-slate-900 focus:bg-white focus:border-[#0B4F3A] focus:ring-2 focus:ring-[#0B4F3A]/10 focus:outline-none transition-all shadow-2xs"
             />
           </div>
         )}
@@ -201,7 +201,7 @@ export function InstructorPayoutTab({
             type="button"
             onClick={() => setAutoPayout(!autoPayout)}
             className={`w-12 h-6.5 rounded-full transition-colors relative cursor-pointer ${
-              autoPayout ? "bg-[#0F5244]" : "bg-slate-200"
+              autoPayout ? "bg-[#0B4F3A]" : "bg-slate-200"
             }`}
           >
             <span
@@ -228,7 +228,7 @@ export function InstructorPayoutTab({
             <button
               type="submit"
               disabled={isSaving}
-              className="px-6 py-2.5 rounded-xl bg-[#0F5244] hover:bg-[#08382E] text-white text-xs font-bold shadow-xs active:scale-98 transition-all cursor-pointer disabled:opacity-50"
+              className="px-6 py-2.5 rounded-xl bg-[#0B4F3A] hover:bg-[#08382E] text-white text-xs font-bold shadow-xs active:scale-98 transition-all cursor-pointer disabled:opacity-50"
             >
               {isSaving
                 ? isAr

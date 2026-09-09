@@ -4,13 +4,16 @@ import React from "react";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@/lib/store";
+import { updateUser } from "@/features/auth/slice";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { Sidebar } from "@/components/layout/Sidebar";
+import { tokenManager } from "@/lib/tokenManager";
 
 export function StudentLayoutClient({ children }: { children: React.ReactNode }) {
+  const dispatch = useDispatch();
   const pathname = usePathname() || "";
   const locale = useLocale() || "en";
   const router = useRouter();
@@ -25,30 +28,46 @@ export function StudentLayoutClient({ children }: { children: React.ReactNode })
 
   React.useEffect(() => {
     setMounted(true);
-    const localToken = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+    const hasToken = tokenManager.hasSession();
     const localUserStr = typeof window !== "undefined" ? localStorage.getItem("user") : null;
     let localUser = null;
     try {
       if (localUserStr) localUser = JSON.parse(localUserStr);
     } catch {}
 
-    const isUserLoggedIn = isAuthenticated || Boolean(localToken && (user || localUser));
+    const isUserLoggedIn = isAuthenticated || hasToken || Boolean(user || localUser);
     const activeUser = user || localUser;
 
-    if (!isUserLoggedIn || !activeUser) {
+    if (!isUserLoggedIn && !hasToken) {
       router.replace(`/${locale}/login?redirect=${encodeURIComponent(pathname)}`);
       return;
     }
 
-    const userRole = (activeUser.role || "").toLowerCase();
-    if (userRole === "instructor" || userRole === "coach") {
-      const status = (activeUser.approval_status || activeUser.approvalStatus || "").toLowerCase();
-      router.replace(status === "approved" ? `/${locale}/instructor/dashboard` : `/${locale}/instructor`);
-      return;
+    if (
+      activeUser?.headline &&
+      (activeUser.headline.toLowerCase().includes("certified instructor") ||
+        activeUser.headline.toLowerCase().includes("instructor") ||
+        activeUser.headline.includes("مدرب") ||
+        activeUser.headline.includes("مدرب معتمد") ||
+        activeUser.headline.includes("مدرب موثوق") ||
+        activeUser.headline.includes("مدرب وخبير معتمد") ||
+        activeUser.headline.includes("شغوف") ||
+        activeUser.headline.toLowerCase().includes("lifelong"))
+    ) {
+      const studentLabel = isAr ? "طالب" : "Student";
+      dispatch(updateUser({ headline: studentLabel }));
+      try {
+        const uStr = localStorage.getItem("user");
+        if (uStr) {
+          const uObj = JSON.parse(uStr);
+          uObj.headline = studentLabel;
+          localStorage.setItem("user", JSON.stringify(uObj));
+        }
+      } catch {}
     }
 
     setCheckingAuth(false);
-  }, [isAuthenticated, user, locale, pathname, router]);
+  }, [isAuthenticated, user, locale, pathname, router, dispatch, isAr]);
 
   if (checkingAuth) {
     return (
@@ -60,8 +79,9 @@ export function StudentLayoutClient({ children }: { children: React.ReactNode })
     );
   }
 
-  // Check if current route is the learning player page (dedicated classroom layout with its own unified header & light bar)
+  // Check if current route is the learning player page or checkout page
   const isLearnPage = pathname.includes("/student/learn");
+  const isCheckoutPage = pathname.includes("/student/checkout");
 
   if (isLearnPage) {
     return (
@@ -71,20 +91,44 @@ export function StudentLayoutClient({ children }: { children: React.ReactNode })
     );
   }
 
+  if (isCheckoutPage) {
+    return (
+      <div className="min-h-screen bg-[#F8FAFC] flex flex-col font-sans">
+        <Header />
+        <main className="flex-grow">
+          {children}
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
   const fullName = (mounted ? user?.fullName || user?.name : "") || tWs("studentUserFallback");
   const email = (mounted ? user?.email : "") || "student@coachspace.com";
   const rawAvatar = mounted ? user?.avatar : null;
   const avatarPreview =
     typeof rawAvatar === "string" && rawAvatar.trim().length > 0 ? rawAvatar.trim() : null;
-  const rawHeadline = mounted ? user?.headline : "";
-  const displayHeadline =
+  const rawHeadline = (mounted ? user?.headline : "") || "";
+  const isGenericOrInstructorHeadline =
     !rawHeadline ||
+    rawHeadline.toLowerCase().includes("certified instructor") ||
+    rawHeadline.toLowerCase().includes("instructor") ||
+    rawHeadline.includes("مدرب") ||
+    rawHeadline.includes("مدرب معتمد") ||
+    rawHeadline.includes("مدرب موثوق") ||
+    rawHeadline.includes("مدرب وخبير معتمد") ||
     rawHeadline === "Student & Lifelong Learner" ||
-    rawHeadline === "Data Science & AI Enthusiast"
-      ? tStudent("defaultHeadline")
-      : rawHeadline;
+    rawHeadline === "Data Science & AI Enthusiast" ||
+    rawHeadline.toLowerCase().includes("student") ||
+    rawHeadline.includes("طالب");
 
   const isInstructor = (user?.role || "").toLowerCase() === "instructor" || (user?.role || "").toLowerCase() === "coach";
+
+  const displayHeadline = isInstructor
+    ? (isAr ? "مدرب معتمد" : "Certified Instructor")
+    : isGenericOrInstructorHeadline
+    ? (isAr ? "طالب" : "Student")
+    : rawHeadline;
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] flex flex-col font-sans">
@@ -134,7 +178,7 @@ export function StudentLayoutClient({ children }: { children: React.ReactNode })
             <Sidebar
               user={{
                 name: fullName,
-                role: tStudent("roleStudent"),
+                role: isInstructor ? (isAr ? "مدرب" : "Instructor") : tStudent("roleStudent"),
                 avatarUrl: avatarPreview,
               }}
             />

@@ -35,9 +35,11 @@ import {
   Sparkles,
   Loader2,
   Check,
+  Clock,
 } from "lucide-react";
 import { SkillSelector } from "@/components/ui/SkillSelector";
 import { ChangeEmailModal } from "@/components/modals/ChangeEmailModal";
+import { VerifiedBadge } from "@/components/ui/VerifiedBadge";
 
 type SettingsTab = "profile" | "security";
 
@@ -52,6 +54,13 @@ export function InstructorSettingsView() {
   const isAr = locale === "ar";
 
   const { user } = useSelector((state: RootState) => state.auth);
+  const approvalStatus = (
+    user?.approval_status ||
+    (user as any)?.approvalStatus ||
+    (user as any)?.instructorStatus ||
+    "approved"
+  ).toLowerCase();
+  const isApproved = approvalStatus === "approved";
 
   // Active Tab: 2 clean tabs only
   const [activeTab, setActiveTab] = useState<SettingsTab>("profile");
@@ -147,13 +156,22 @@ export function InstructorSettingsView() {
     } catch {}
 
     const merged = { ...globalProfile, ...savedOverrides };
+    const rawHeadline = user?.headline ?? merged.headline ?? "";
+    const isGenericHeadline =
+      !rawHeadline ||
+      rawHeadline.toLowerCase().includes("student") ||
+      rawHeadline.includes("طالب") ||
+      rawHeadline.toLowerCase().includes("certified instructor") ||
+      rawHeadline.includes("مدرب معتمد") ||
+      rawHeadline.includes("مدرب موثوق") ||
+      rawHeadline.includes("مدرب وخبير معتمد");
 
     setFormData({
       fullName:
         user?.fullName || user?.name || merged.name || merged.fullName || "",
       email: user?.email || merged.email || "",
       phone: user?.phone || user?.phone_number || merged.phone || "",
-      headline: user?.headline ?? merged.headline ?? "",
+      headline: isGenericHeadline ? "" : rawHeadline,
       specialization: user?.specialization ?? merged.specialization ?? "",
       experienceYears:
         (user as any)?.experienceYears ?? merged.experienceYears ?? 0,
@@ -474,10 +492,14 @@ export function InstructorSettingsView() {
               <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
                 {t("accountSettings")}
               </h1>
-              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-50 text-[#0F5244] border border-emerald-200/70 text-[11px] font-bold">
-                <Check className="h-3 w-3 text-emerald-600" />
-                <span>{tInst("approvedBadge")}</span>
-              </span>
+              {isApproved ? (
+                <VerifiedBadge size="md" />
+              ) : (
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200/70 text-[11px] font-bold">
+                  <Clock className="h-3 w-3 text-amber-600" />
+                  <span>{tInst("underReviewBadge")}</span>
+                </span>
+              )}
             </div>
             <p className="text-xs sm:text-sm text-slate-500 font-medium">
               {isAr

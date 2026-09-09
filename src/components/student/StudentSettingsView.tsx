@@ -12,25 +12,18 @@ import { authService, getApiErrorMessage } from "@/services/auth";
 import {
   User,
   Lock,
-  GraduationCap,
   Camera,
   CheckCircle2,
   AlertCircle,
-  Award,
   Sparkles,
-  ShieldCheck,
   Eye,
   EyeOff,
-  BookOpen,
-  Target,
-  Clock,
   Check,
-  Zap,
 } from "lucide-react";
 
 import { ChangeEmailModal } from "@/components/modals/ChangeEmailModal";
 
-type SettingsTab = "profile" | "certificates" | "security";
+type SettingsTab = "profile" | "security";
 
 export function StudentSettingsView() {
   const dispatch = useDispatch();
@@ -303,12 +296,6 @@ export function StudentSettingsView() {
       badge: tStudent("basicInfoBadge"),
     },
     {
-      id: "certificates" as SettingsTab,
-      label: tStudent("learningPreferences"),
-      icon: Award,
-      badge: tStudent("livePreviewBadge"),
-    },
-    {
       id: "security" as SettingsTab,
       label: t("security"),
       icon: Lock,
@@ -369,12 +356,6 @@ export function StudentSettingsView() {
               <p className="text-xs sm:text-sm text-slate-500 font-medium max-w-xl">
                 {tStudent("subtitle")}
               </p>
-            </div>
-
-            {/* Quick Status Pill */}
-            <div className="hidden sm:flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-slate-50 border border-slate-200/70 text-slate-600 text-xs font-semibold shrink-0">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
-              <span>{tStudent("verifiedAccountPill")}</span>
             </div>
           </div>
 
@@ -553,141 +534,7 @@ export function StudentSettingsView() {
             </div>
           )}
 
-          {/* ================= TAB 2: CERTIFICATES & LEARNING ================= */}
-          {activeTab === "certificates" && (
-            <div key="certificates" className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
-              
-              {/* Premium Live Certificate Preview Showcase Card */}
-              <div className="relative overflow-hidden rounded-3xl border-2 border-emerald-200/90 bg-gradient-to-br from-emerald-50/50 via-white to-amber-50/40 p-6 sm:p-8 shadow-sm transition-all duration-300 hover:border-emerald-300 hover:shadow-md">
-                {/* Glow & Watermark */}
-                <div className="absolute top-0 right-0 rtl:right-auto rtl:left-0 w-48 h-48 bg-emerald-200/40 rounded-full blur-3xl pointer-events-none" />
-                <div className="absolute bottom-0 left-0 rtl:left-auto rtl:right-0 w-48 h-48 bg-amber-200/30 rounded-full blur-3xl pointer-events-none" />
-                
-                <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-                  <div className="space-y-3">
-                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-100/90 text-emerald-800 text-xs font-extrabold shadow-2xs">
-                      <Sparkles className="h-3.5 w-3.5 text-emerald-600 animate-spin" style={{ animationDuration: '6s' }} />
-                      <span>{tStudent("liveCertificatePreview")}</span>
-                    </div>
-
-                    <div className="space-y-1">
-                      <span className="text-xs font-bold text-slate-400 uppercase tracking-widest block">
-                        {tStudent("recipientName")}
-                      </span>
-                      <h3 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight transition-all">
-                        {formData.certificateName || formData.fullName || tStudent("defaultCertificateRecipient")}
-                      </h3>
-                    </div>
-
-                    <p className="text-xs sm:text-sm text-slate-500 font-medium max-w-lg leading-relaxed">
-                      {isAr
-                        ? "هذا الاسم سيظهر بدقة وبشكل رسمي على جميع شهادات إتمام الدورات الصادرة لك من CoachSpace."
-                        : "This official name will be permanently stamped on all completion credentials and certificates."}
-                    </p>
-                  </div>
-
-                  {/* Certificate Seal Badge */}
-                  <div className="flex flex-col items-center justify-center p-5 rounded-2xl bg-white/90 backdrop-blur-xs border border-emerald-200 shadow-xs shrink-0 self-center md:self-auto group hover:scale-105 transition-transform">
-                    <div className="w-16 h-16 rounded-full bg-gradient-to-br from-emerald-100 to-amber-100 border-2 border-emerald-400 flex items-center justify-center text-emerald-700 shadow-sm">
-                      <Award className="h-8 w-8 group-hover:rotate-12 transition-transform duration-300" />
-                    </div>
-                    <span className="text-[11px] font-black text-emerald-800 mt-2 uppercase tracking-wider">
-                      {tStudent("officialSeal")}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Certificate & Preferences Input Fields */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                
-                {/* Certificate Recipient Name */}
-                <div className="space-y-2 md:col-span-2">
-                  <label className="block text-xs sm:text-sm font-extrabold text-slate-800">
-                    <span className="flex items-center gap-2">
-                      <Award className="h-4 w-4 text-emerald-600" />
-                      <span>{tStudent("certificateName")}</span>
-                    </span>
-                  </label>
-                  <input
-                    type="text"
-                    name="certificateName"
-                    value={formData.certificateName}
-                    onChange={handleChange}
-                    placeholder={tStudent("certificateNamePlaceholder")}
-                    className="w-full h-11 sm:h-12 rounded-xl border border-slate-200/90 bg-slate-50/50 hover:bg-white hover:border-emerald-300 px-4 text-xs sm:text-sm font-semibold text-slate-900 focus:bg-white focus:border-emerald-600 focus:outline-none focus:ring-4 focus:ring-emerald-500/15 transition-all shadow-2xs"
-                  />
-                  <p className="text-[11px] text-slate-400 font-medium">
-                    {tStudent("certificateNameGuidance")}
-                  </p>
-                </div>
-
-                {/* Learning Goal */}
-                <div className="space-y-2">
-                  <label className="block text-xs sm:text-sm font-extrabold text-slate-700">
-                    <span className="flex items-center gap-2">
-                      <Target className="h-4 w-4 text-emerald-600" />
-                      <span>{tStudent("learningGoal")}</span>
-                    </span>
-                  </label>
-                  <input
-                    type="text"
-                    name="learningGoal"
-                    value={formData.learningGoal}
-                    onChange={handleChange}
-                    placeholder={tStudent("learningGoalPlaceholder")}
-                    className="w-full h-11 sm:h-12 rounded-xl border border-slate-200/90 bg-slate-50/50 hover:bg-white hover:border-emerald-300 px-4 text-xs sm:text-sm font-semibold text-slate-900 focus:bg-white focus:border-emerald-600 focus:outline-none focus:ring-4 focus:ring-emerald-500/15 transition-all shadow-2xs"
-                  />
-                </div>
-
-                {/* Preferred Category */}
-                <div className="space-y-2">
-                  <label className="block text-xs sm:text-sm font-extrabold text-slate-700">
-                    <span className="flex items-center gap-2">
-                      <BookOpen className="h-4 w-4 text-emerald-600" />
-                      <span>{tStudent("preferredCategory")}</span>
-                    </span>
-                  </label>
-                  <select
-                    name="preferredCategory"
-                    value={formData.preferredCategory}
-                    onChange={handleChange}
-                    className="w-full h-11 sm:h-12 rounded-xl border border-slate-200/90 bg-slate-50/50 hover:bg-white hover:border-emerald-300 px-4 text-xs sm:text-sm font-semibold text-slate-900 focus:bg-white focus:border-emerald-600 focus:outline-none focus:ring-4 focus:ring-emerald-500/15 cursor-pointer transition-all shadow-2xs"
-                  >
-                    <option value="Data Science">{tStudent("categories.dataScience")}</option>
-                    <option value="Development">{tStudent("categories.webDev")}</option>
-                    <option value="Design">{tStudent("categories.design")}</option>
-                    <option value="Management">{tStudent("categories.business")}</option>
-                  </select>
-                </div>
-
-                {/* Video Playback Speed */}
-                <div className="space-y-2">
-                  <label className="block text-xs sm:text-sm font-extrabold text-slate-700">
-                    <span className="flex items-center gap-2">
-                      <Clock className="h-4 w-4 text-emerald-600" />
-                      <span>{tStudent("videoSpeed")}</span>
-                    </span>
-                  </label>
-                  <select
-                    name="videoSpeed"
-                    value={formData.videoSpeed}
-                    onChange={handleChange}
-                    className="w-full h-11 sm:h-12 rounded-xl border border-slate-200/90 bg-slate-50/50 hover:bg-white hover:border-emerald-300 px-4 text-xs sm:text-sm font-semibold text-slate-900 focus:bg-white focus:border-emerald-600 focus:outline-none focus:ring-4 focus:ring-emerald-500/15 cursor-pointer transition-all shadow-2xs"
-                  >
-                    <option value="1x">{tStudent("videoSpeeds.normal")}</option>
-                    <option value="1.25x">{tStudent("videoSpeeds.speed125")}</option>
-                    <option value="1.5x">{tStudent("videoSpeeds.speed150")}</option>
-                    <option value="2x">{tStudent("videoSpeeds.speed200")}</option>
-                  </select>
-                </div>
-
-              </div>
-
-            </div>
-          )}
-
-          {/* ================= TAB 3: SECURITY ================= */}
+          {/* ================= TAB 2: SECURITY ================= */}
           {activeTab === "security" && (
             <div key="security" className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
               

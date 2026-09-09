@@ -203,7 +203,7 @@ export const instructorCourseService = {
    */
   async submitForReview(courseId: string | number): Promise<any> {
     try {
-      const res = await apiClient.post(`/instructor/courses/${courseId}/submit/`, {
+      const res = await apiClient.post(`/instructor/courses/${courseId}/submit`, {
         status: "pending_review",
       });
       return res.data;

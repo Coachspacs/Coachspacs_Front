@@ -108,7 +108,7 @@ export function InstructorWorkspace({
   const [courseSearch, setCourseSearch] = useState("");
   const [courseFilter, setCourseFilter] = useState<
     "all" | "active" | "published" | "pending_review" | "draft" | "archived"
-  >("active");
+  >("all");
 
   // Toast & Modals
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -167,26 +167,33 @@ export function InstructorWorkspace({
           | "rejected"
           | "archived" = "draft";
         if (
+          rawStatus === "archived" ||
+          Boolean(c.is_archived) ||
+          savedStatus === "archived"
+        ) {
+          normalizedStatus = "archived";
+        } else if (
           rawStatus === "pending_review" ||
           rawStatus === "pending" ||
           rawStatus === "under_review" ||
-          rawStatus === "in_review"
+          rawStatus === "in_review" ||
+          savedStatus === "pending_review"
         ) {
           normalizedStatus = "pending_review";
-        } else if (
-          rawStatus === "published" ||
-          rawStatus === "approved" ||
-          (c.is_published && rawStatus !== "draft" && rawStatus !== "rejected")
-        ) {
-          removeCourseStatus(c.id);
-          normalizedStatus = "published";
         } else if (rawStatus === "rejected" || rawStatus === "declined") {
           removeCourseStatus(c.id);
           normalizedStatus = "rejected";
-        } else if (rawStatus === "archived") {
-          normalizedStatus = "archived";
-        } else if (savedStatus === "pending_review") {
-          normalizedStatus = "pending_review";
+        } else if (
+          rawStatus === "published" ||
+          rawStatus === "approved" ||
+          savedStatus === "published" ||
+          (c.is_published &&
+            rawStatus !== "draft" &&
+            rawStatus !== "rejected" &&
+            rawStatus !== "archived")
+        ) {
+          removeCourseStatus(c.id);
+          normalizedStatus = "published";
         } else {
           normalizedStatus = "draft";
         }
@@ -231,7 +238,9 @@ export function InstructorWorkspace({
             ? c.enrolled_students
             : Array.isArray(c.students)
               ? c.students
-              : [],
+              : Array.isArray(c.enrollments)
+                ? c.enrollments
+                : [],
           isReal: true,
         };
       });
@@ -339,12 +348,16 @@ export function InstructorWorkspace({
       : {};
 
     const rawHeadline = authUser?.headline || overrides.headline || "";
-    const isStudentHeadline =
+    const isGenericOrStudentHeadline =
       !rawHeadline ||
       rawHeadline.toLowerCase().includes("student") ||
-      rawHeadline.includes("طالب");
-    const safeHeadline = isStudentHeadline
-      ? tInst("defaultHeadline")
+      rawHeadline.includes("طالب") ||
+      rawHeadline.toLowerCase().includes("certified instructor") ||
+      rawHeadline.includes("مدرب معتمد") ||
+      rawHeadline.includes("مدرب موثوق") ||
+      rawHeadline.includes("مدرب وخبير معتمد");
+    const safeHeadline = isGenericOrStudentHeadline
+      ? ""
       : rawHeadline;
 
     setFormData((prev) => ({
@@ -556,7 +569,7 @@ export function InstructorWorkspace({
         setToastMessage(tInst("courseSubmittedToast"));
         await fetchMyCourses();
       } catch (err: any) {
-        console.error("Could not submit course for review via API:", err);
+        console.warn("Could not submit course for review via API:", err);
         removeCourseStatus(courseId);
         // Revert on actual API failure
         setCourses((prev) =>
@@ -579,42 +592,67 @@ export function InstructorWorkspace({
     setTimeout(() => setToastMessage(null), 4000);
   };
 
-  const handleArchiveCourse = (courseId: string) => {
-    const course = courses.find((c) => c.id === courseId);
+  const handleArchiveCourse = (courseOrId: any) => {
+    const rawId =
+      typeof courseOrId === "object" && courseOrId !== null
+        ? courseOrId.id
+        : courseOrId;
+    const idStr = String(rawId);
+    const course = courses.find((c) => String(c.id) === idStr);
     if (!course || course.status === "pending_review") return;
     if (course.status !== "archived") {
-      setArchiveModalCourseId(courseId);
+      setArchiveModalCourseId(idStr);
     } else {
-      confirmArchiveCourse(courseId);
+      confirmArchiveCourse(idStr);
     }
   };
 
-  const confirmArchiveCourse = async (courseId: string) => {
-    const targetCourse = courses.find((c) => c.id === courseId);
-    if (!targetCourse || targetCourse.status === "pending_review") return;
+  const confirmArchiveCourse = async (courseId: string | number) => {
+    const idStr = String(courseId);
+    const targetCourse = courses.find((c) => String(c.id) === idStr);
+    if (!targetCourse || targetCourse.status === "pending_review") {
+      setArchiveModalCourseId(null);
+      return;
+    }
     const isCurrentlyArchived = targetCourse?.status === "archived";
-    const nextStatus = isCurrentlyArchived ? "published" : "archived";
+    const nextStatus: "published" | "archived" = isCurrentlyArchived
+      ? "published"
+      : "archived";
 
+    // 1. Close modal immediately so it never hangs
+    setArchiveModalCourseId(null);
+
+    // 2. Optimistic local update
+    setCourses((prev) =>
+      prev.map((c) =>
+        String(c.id) === idStr ? { ...c, status: nextStatus } : c,
+      ),
+    );
+
+    // 3. Persist status override in localStorage
+    if (nextStatus === "archived") {
+      saveCourseStatus(idStr, "archived");
+    } else {
+      removeCourseStatus(idStr);
+      saveCourseStatus(idStr, "published");
+    }
+
+    // 4. Toast notification
+    if (isCurrentlyArchived) {
+      setToastMessage(tInst("courseUnarchivedToast"));
+    } else {
+      setToastMessage(tInst("courseArchivedToast"));
+    }
+
+    // 5. Backend sync
     try {
-      await instructorCourseService.updateCourse(courseId, {
+      await instructorCourseService.updateCourse(idStr, {
         status: nextStatus,
+        is_archived: nextStatus === "archived",
       });
-      if (isCurrentlyArchived) {
-        setToastMessage(tInst("courseUnarchivedToast"));
-      } else {
-        setToastMessage(tInst("courseArchivedToast"));
-      }
-      fetchMyCourses();
+      await fetchMyCourses();
     } catch (err: any) {
       console.warn("Could not archive/unarchive course via API:", err);
-      setCourses((prev) =>
-        prev.map((c) => (c.id === courseId ? { ...c, status: nextStatus } : c)),
-      );
-      if (isCurrentlyArchived) {
-        setToastMessage(tInst("courseUnarchivedToast"));
-      } else {
-        setToastMessage(tInst("courseArchivedToast"));
-      }
     }
     setTimeout(() => setToastMessage(null), 3500);
   };
@@ -657,7 +695,7 @@ export function InstructorWorkspace({
       // Re-fetch courses from backend
       await fetchMyCourses();
     } catch (err: any) {
-      console.error("Delete course error:", err);
+      console.warn("Delete course error:", err);
       const status = err?.response?.status;
       if (status === 401) {
         setToastMessage(tInst("deleteCourseUnauthorized"));
@@ -751,9 +789,11 @@ export function InstructorWorkspace({
                 </h1>
                 <VerifiedBadge size="sm" />
               </div>
-              <p className="text-xs text-slate-500 font-medium">
-                {formData.headline}
-              </p>
+              {formData.headline ? (
+                <p className="text-xs text-slate-500 font-medium">
+                  {formData.headline}
+                </p>
+              ) : null}
               <p className="text-[11px] text-slate-400 font-medium pt-0.5">
                 {formData.email}
               </p>
@@ -994,13 +1034,15 @@ export function InstructorWorkspace({
         onClose={() => setArchiveModalCourseId(null)}
         onConfirm={() => {
           if (archiveModalCourseId) {
-            confirmArchiveCourse(archiveModalCourseId);
+            const idToArchive = archiveModalCourseId;
+            setArchiveModalCourseId(null);
+            confirmArchiveCourse(idToArchive);
           }
         }}
         courseTitle={
-          courses.find((c) => c.id === archiveModalCourseId)?.[
-            isAr ? "titleAr" : "titleEn"
-          ]
+          courses.find(
+            (c) => String(c.id) === String(archiveModalCourseId)
+          )?.[isAr ? "titleAr" : "titleEn"]
         }
       />
 

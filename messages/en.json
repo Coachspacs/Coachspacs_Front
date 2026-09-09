@@ -1,7 +1,7 @@
 {
   "site": {
     "name": "Coach Space",
-    "tagline": "Premium mentorship and education platform for the modern professional."
+    "tagline": "Premium education & mentorship for modern professional"
   },
   "apiErrors": {
     "networkError": "Network Error: Unable to connect to the server. Please check your internet connection or server status.",
@@ -929,13 +929,73 @@
   "checkout": {
     "title": "Checkout",
     "orderSummary": "Order Summary",
+    "orderSummaryTitle": "Order Summary",
     "paymentMethod": "Payment Method",
+    "paymentMethodTitle": "Payment Method",
     "creditCard": "Credit / Debit Card",
     "payPal": "PayPal",
     "completeOrder": "Complete Enrollment",
     "payNow": "Pay Now",
     "processing": "Processing...",
-    "success": "Enrollment Successful! Redirecting to your learning portal..."
+    "success": "Enrollment Successful! Redirecting to your learning portal...",
+    "breadcrumbCourses": "Courses",
+    "breadcrumbCheckout": "Secure Checkout",
+    "pageTitle": "Complete Your Purchase",
+    "pageSubtitle": "You're one step away from starting your course. Fast, 100% secure encrypted payment.",
+    "sslBadge": "256-Bit Bank-Grade SSL",
+    "paymentMethodSubtitle": "Select your preferred payment method",
+    "poweredByStripe": "Powered by Stripe",
+    "cardOptionTitle": "Card & Digital Wallets",
+    "officialBadge": "Official",
+    "cardOptionDesc": "Official Global Encrypted Portal hosted by Stripe (PCI-DSS Level 1 compliant).",
+    "instantAccess": "Instant access to all lessons and materials",
+    "verifiedCertificate": "Official verified certificate of completion",
+    "moneyBackGuarantee": "30-day full money-back guarantee",
+    "proceedButton": "Proceed to Secure Stripe Payment",
+    "paySecurely": "Pay {amount} Securely",
+    "redirecting": "Validating & Redirecting to Stripe...",
+    "redirectNote": "You’ll be securely redirected to Stripe to complete your payment.",
+    "sslEncryption": "256-Bit SSL Encryption",
+    "verifiedCert": "Verified Certificate",
+    "lifetimeAccess": "Lifetime Access",
+    "courseCount": "{count} course(s)",
+    "defaultCoach": "CoachSpace Certified Coach",
+    "trainingCourseFallback": "Training Course",
+    "subtotal": "Subtotal",
+    "taxes": "Taxes & Processing",
+    "free": "Free ($0.00)",
+    "totalDue": "Total Due",
+    "removeItem": "Remove",
+    "guaranteeIncluded": "Included",
+    "instantAccessNote": "Instant access & verified certificate included at checkout.",
+    "itemsHeader": "{count} items",
+    "guaranteeBox": "100% Satisfaction Guarantee: Get a full refund within 30 days if you're not satisfied.",
+    "secureBadge": "100% Secure & Encrypted",
+    "paymentMethodsSupported": "Visa, Mastercard, Apple Pay",
+    "modifyCart": "Modify Cart",
+    "backToCart": "Back to Cart",
+    "emptyCartTitle": "Your Cart is Empty",
+    "emptyCartDesc": "You have no courses in your checkout list right now. Choose a course to start learning.",
+    "browseCourses": "Browse Courses",
+    "successBadge": "Payment Confirmed via Stripe",
+    "successTitle": "Congratulations! Purchase Complete",
+    "successDesc": "Your payment was confirmed and your enrollment is now active. You have full access to all course materials.",
+    "orderNumber": "Order Number",
+    "goToCourse": "Start Learning Course",
+    "goToLessons": "Go to Course Lessons",
+    "viewOrders": "Review Orders",
+    "reviewOrders": "Review Orders",
+    "alreadyEnrolled": "You are already enrolled in this course! You can start learning directly.",
+    "pendingExists": "Nothing in your cart can be checked out right now because a pending order already exists. Please reset your cart below and choose another course.",
+    "fallbackError": "Failed to initiate Stripe checkout. Please verify your connection and try again.",
+    "emptyCartError": "Your cart is currently empty. Please add a course before proceeding to checkout.",
+    "resetCart": "Reset Cart & Choose Another",
+    "linkByStripe": "by Stripe",
+    "amountPaid": "Amount Paid",
+    "paymentGateway": "Payment Gateway",
+    "gatewayValue": "Stripe Official Gateway",
+    "statusLabel": "Status",
+    "completedStatus": "Completed & Verified"
   },
   "player": {
     "courseContent": "Course Content",
@@ -996,7 +1056,7 @@
     "rights": "Coach Space. All rights reserved.",
     "privacyPolicy": "Privacy Policy",
     "termsOfService": "Terms of Service",
-    "brandSubtitle": "Premium mentorship and education platform for the modern professional.",
+    "brandSubtitle": "Premium education & mentorship for modern professional",
     "company": "COMPANY",
     "aboutUs": "About Us",
     "careers": "Careers",
@@ -1010,7 +1070,7 @@
 
   "studentSettings": {
     "title": "Student Settings",
-    "subtitle": "Manage your personal details, learning preferences and certificates.",
+    "subtitle": "Manage your personal details and security settings.",
     "learningPreferences": "Learning & Certificates",
     "learningGoal": "Primary Learning Goal",
     "preferredCategory": "Preferred Field",
@@ -1019,8 +1079,8 @@
     "publicProfile": "Public Student Profile",
     "publicProfileSub": "Allow fellow students and mentors to view your completed achievements.",
     "defaultFullName": "Layla Hassan",
-    "defaultHeadline": "Student & Lifelong Learner",
-    "studentHeadline": "Student & Lifelong Learner",
+    "defaultHeadline": "Student",
+    "studentHeadline": "Student",
     "verifiedStudentBadge": "Certified Student Account",
     "verifiedInstructorBadge": "Certified Instructor Account",
     "defaultLocation": "Riyadh, Saudi Arabia",
@@ -1498,7 +1558,7 @@
     "courseProgress": "Course Progress",
     "progress": "Progress",
     "completed": "Completed",
-    "completedCheck": "Completed ✓",
+    "completedCheck": "Completed",
     "markCompleted": "Mark as Complete",
     "markIncomplete": "Mark as Incomplete",
     "lessonsCompleted": "{count} of {total} completed",
@@ -1553,6 +1613,146 @@
     "sectionDefault": "Section {index}",
     "lessonDefault": "Lesson {index}",
     "playing": "Playing",
-    "noDescription": "No course description available."
+    "noDescription": "No course description available.",
+    "play": "Play",
+    "pause": "Pause",
+    "muted": "Muted",
+    "unmute": "Unmute",
+    "mute": "Mute",
+    "volume": "Volume",
+    "settings": "Settings",
+    "playbackSpeed": "Playback Speed",
+    "normalSpeed": "Normal (1x)",
+    "normalSpeedFull": "Normal (1.0x)",
+    "quality": "Quality",
+    "rewind10": "Rewind 10s",
+    "forward10": "Forward 10s",
+    "prev": "Previous",
+    "next": "Next",
+    "lessonOf": "Lesson {current} of {total}",
+    "currentModule": "Current Module",
+    "viewProfile": "View Profile",
+    "aboutThisCourseHeading": "ABOUT THIS COURSE",
+    "keySkills": "Key Skills",
+    "completeBadge": "Complete",
+    "clear": "Clear",
+    "nextLessonStarting": "Next lesson starts in a moment...",
+    "lessonCompletedUndoTooltip": "Lesson completed (Click to undo)",
+    "markLessonCompletedTooltip": "Mark this lesson as complete",
+    "defaultCourseTitle": "Executive Coaching & Leadership Masterclass",
+    "defaultLessonTitle": "Foundations & Core Methodologies",
+    "defaultCourseDescription": "A comprehensive masterclass designed to equip you with rigorous methodologies, practical frameworks, and high-impact strategies to elevate your coaching and leadership capability.",
+    "defaultInstructorName": "Dr. Marcus Vance",
+    "defaultInstructorHeadline": "Lead Executive Coach & Academy Fellow",
+    "registeredStudent": "Registered Student",
+    "keyboardShortcuts": "Player Keyboard Shortcuts",
+    "close": "Close",
+    "shortcutPlayPause": "Play / Pause",
+    "shortcutSeek5": "Seek 5s Forward / Back",
+    "shortcutSeek10": "Seek 10s Forward / Back",
+    "shortcutVolume": "Volume Up / Down 10%",
+    "shortcutMute": "Mute / Unmute",
+    "shortcutJump": "Jump to 0% - 90%",
+    "shortcutFullscreen": "Toggle Fullscreen",
+    "shortcutDoubleClick": "Double click video for fullscreen",
+    "demoSectionTitle": "Getting Started & Core Concepts",
+    "demoLesson1Title": "Welcome & Course Overview",
+    "demoLesson2Title": "Environment Setup & Practical Steps"
+  },
+  "legal": {
+    "backToHome": "Back to Home",
+    "lastUpdated": "Last Updated: {date}",
+    "supportEmail": "coachspace4@gmail.com",
+    "terms": {
+      "badge": "Official Agreement",
+      "title": "Terms of Service",
+      "subtitle": "Terms and conditions governing the use of the Coach Space platform for students and certified mentors.",
+      "lastUpdatedDate": "September 9, 2026",
+      "acceptance": {
+        "title": "1. Acceptance of Terms",
+        "content": "By creating an account, purchasing an online course, or accessing Coach Space, you acknowledge that you have read, understood, and agreed to be legally bound by these Terms of Service. If you disagree with any portion, please discontinue platform use."
+      },
+      "accounts": {
+        "title": "2. Account Registration & Security",
+        "intro": "When registering an account, you must provide true, current, and complete information:",
+        "point1": "You are solely responsible for maintaining the confidentiality of your login credentials.",
+        "point2": "Account sharing, reselling, or credential pooling is strictly prohibited.",
+        "point3": "You must immediately notify Coach Space of any suspected security breach or unauthorized access."
+      },
+      "license": {
+        "title": "3. Course Access & Learning License",
+        "intro": "Upon purchasing a course, Coach Space grants you a personal license to view and complete the course materials solely for individual educational purposes.",
+        "point1": "Redistribution, commercial broadcasting, video ripping, or copying is strictly illegal.",
+        "point2": "All video lectures, downloadable guides, and exercises remain protected by international copyright laws."
+      },
+      "certificates": {
+        "title": "4. Verified Certificates of Completion",
+        "content": "Official digital certificates are issued only after verified 100% completion of course lessons and passing any required assessments. Each certificate contains a unique validation identifier verifiable on our platform."
+      },
+      "conduct": {
+        "title": "5. Platform Code of Conduct",
+        "intro": "All community members (students and instructors) must maintain professional, respectful interactions:",
+        "point1": "Harassment, abusive behavior, and discriminatory content are strictly prohibited.",
+        "point2": "Automated scrapers, bot attacks, and reverse engineering attempts will result in immediate termination.",
+        "point3": "Coach Space reserves the right to suspend any account violating these rules without refund."
+      },
+      "contact": {
+        "title": "Legal Questions or Inquiries?",
+        "description": "Contact our legal compliance team for any clarifications regarding our platform terms."
+      }
+    },
+    "privacy": {
+      "badge": "Trust & Transparency",
+      "title": "Privacy Policy",
+      "subtitle": "At Coach Space, we are committed to protecting your personal data and ensuring a secure, trusted learning experience.",
+      "lastUpdatedDate": "September 9, 2026",
+      "intro": {
+        "title": "1. Introduction & Our Privacy Commitment",
+        "p1": "Welcome to Coach Space. We are committed to protecting your privacy and ensuring transparency regarding how your personal information is handled across our education platform, websites, and applications.",
+        "p2": "By accessing or using Coach Space, you agree to the collection and use of information in accordance with this Privacy Policy."
+      },
+      "collection": {
+        "title": "2. Information We Collect",
+        "intro": "We collect only the data necessary to provide you with a world-class, seamless learning experience:",
+        "accountLabel": "Account Information:",
+        "accountValue": "Your full name, email address, securely hashed passwords, and optional contact details.",
+        "learningLabel": "Learning Records:",
+        "learningValue": "Enrolled courses, video progress, quiz results, and verified completion certificates.",
+        "instructorLabel": "Instructor Profiles:",
+        "instructorValue": "Certifications, biography, expertise, and professional links for verified coaches.",
+        "techLabel": "Technical Data:",
+        "techValue": "IP address, device type, browser specifications, and essential session authentication cookies."
+      },
+      "usage": {
+        "title": "3. How We Use Your Information",
+        "intro": "Your information is used strictly for legitimate educational and operational purposes:",
+        "point1": "Granting immediate access to training materials, lessons, and course updates upon enrollment.",
+        "point2": "Issuing verifiable digital certificates of completion with unique validation IDs.",
+        "point3": "Sending critical account-related communications such as password resets and enrollment confirmations.",
+        "point4": "Maintaining high platform availability, speed, security, and content quality.",
+        "point5": "Preventing unauthorized access and fraudulent transactions."
+      },
+      "payments": {
+        "title": "4. Payment Security & Financial Data",
+        "badgeStrong": "100% Secure Processing:",
+        "badgeText": "We do not store credit card numbers, CVV codes, or full payment credentials on Coach Space servers.",
+        "description": "All financial transactions are processed through Stripe, certified to PCI-DSS Level 1 (the highest standard in payment security), utilizing end-to-end 256-bit bank-grade SSL encryption."
+      },
+      "cookies": {
+        "title": "5. Cookies & Session Technologies",
+        "content": "We employ essential cookies to keep you safely logged in, remember your preferred language (English or Arabic), and preserve courses in your shopping cart. You can configure your browser to decline non-essential cookies at any time."
+      },
+      "rights": {
+        "title": "6. Your Rights & Data Choices",
+        "intro": "Depending on your location, you hold full rights over your data, including:",
+        "point1": "Requesting a full copy of your personal data stored on our platform.",
+        "point2": "Updating and correcting your profile via Account Settings.",
+        "point3": "Requesting account closure and permanent deletion of personal details by contacting support."
+      },
+      "contact": {
+        "title": "Have Questions About Privacy?",
+        "description": "Our dedicated Data Protection team is here to assist you with any privacy questions or requests."
+      }
+    }
   }
 }

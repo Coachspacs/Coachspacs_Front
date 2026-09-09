@@ -7,6 +7,8 @@ export interface CourseListParams {
   language?: "ar" | "en" | string;
   price_min?: number | string;
   price_max?: number | string;
+  is_free?: boolean | string;
+  ordering?: "-created_at" | "price" | "-price" | "-rating" | string;
   search?: string;
   sort?: "newest" | "price" | "popular" | string;
   page?: number;
@@ -30,8 +32,36 @@ export const courseService = {
     if (locale) {
       headers["Accept-Language"] = locale;
     }
+
+    const queryParams: any = { ...(params || {}) };
+
+    // Standardize sort to CoachSpace Postman spec: 'newest' | 'price' | 'popular'
+    if (queryParams.sort) {
+      if (queryParams.sort === "newest") {
+        queryParams.sort = "newest";
+        queryParams.ordering = "-created_at";
+      } else if (queryParams.sort === "price" || queryParams.sort === "price_low_to_high") {
+        queryParams.sort = "price";
+        queryParams.ordering = "price";
+      } else if (queryParams.sort === "price_high_to_low") {
+        queryParams.sort = "-price";
+        queryParams.ordering = "-price";
+      } else if (
+        queryParams.sort === "popular" ||
+        queryParams.sort === "highest_rated" ||
+        queryParams.sort === "most_popular"
+      ) {
+        queryParams.sort = "popular";
+        queryParams.ordering = "-rating";
+      }
+    } else if (queryParams.ordering) {
+      if (queryParams.ordering === "-created_at") queryParams.sort = "newest";
+      else if (queryParams.ordering === "price") queryParams.sort = "price";
+      else if (queryParams.ordering === "-rating") queryParams.sort = "popular";
+    }
+
     const response = await axiosInstance.get<PaginatedCourseResponse>("/catalog/courses", {
-      params,
+      params: queryParams,
       headers,
     });
     return response.data;

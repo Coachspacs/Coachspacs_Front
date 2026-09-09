@@ -20,7 +20,9 @@ import {
 } from "lucide-react";
 import { RootState } from "@/lib/store";
 import { logout } from "@/features/auth/slice";
+import { syncCartFromStorage } from "@/features/cart/cartSlice";
 import { tokenManager } from "@/lib/tokenManager";
+import { authService } from "@/services/auth";
 import { Logo } from "@/components/ui/Logo";
 
 interface HeaderProps {
@@ -48,6 +50,31 @@ export function Header({ lang, onLanguageToggle, variant = "main", className = "
 
   const { user, isAuthenticated } = useSelector((state: RootState) => state.auth);
   const cartItems = useSelector((state: RootState) => state.cart?.items || []);
+  const [isBadgePulsing, setIsBadgePulsing] = useState(false);
+  const prevCartCountRef = React.useRef<number | null>(null);
+
+  useEffect(() => {
+    if (mounted) {
+      if (prevCartCountRef.current !== null && cartItems.length > prevCartCountRef.current) {
+        setIsBadgePulsing(true);
+        const timer = setTimeout(() => setIsBadgePulsing(false), 400);
+        return () => clearTimeout(timer);
+      }
+      prevCartCountRef.current = cartItems.length;
+    }
+  }, [cartItems.length, mounted]);
+
+  useEffect(() => {
+    const handlePulse = () => {
+      setIsBadgePulsing(true);
+      const timer = setTimeout(() => setIsBadgePulsing(false), 400);
+      return () => clearTimeout(timer);
+    };
+    window.addEventListener("coachspace:cart-bounce", handlePulse);
+    return () => {
+      window.removeEventListener("coachspace:cart-bounce", handlePulse);
+    };
+  }, []);
 
   const userRole = (user?.role || "").toLowerCase();
   const isInstructor = userRole === "instructor" || userRole === "coach";
@@ -60,7 +87,8 @@ export function Header({ lang, onLanguageToggle, variant = "main", className = "
 
   useEffect(() => {
     setMounted(true);
-  }, []);
+    dispatch(syncCartFromStorage());
+  }, [dispatch]);
 
   useEffect(() => {
     setAvatarError(false);
@@ -125,7 +153,7 @@ export function Header({ lang, onLanguageToggle, variant = "main", className = "
   };
 
   const handleLogout = () => {
-    tokenManager.clearTokens();
+    authService.logout().catch(() => {});
     dispatch(logout());
     setUserDropdownOpen(false);
     setMobileMenuOpen(false);
@@ -270,20 +298,26 @@ export function Header({ lang, onLanguageToggle, variant = "main", className = "
           {(!mounted || !isAuthenticated || !isInstructor) && (
             <Link
               href={`/${locale}/student/cart`}
-              className={`relative p-2 rounded-xl transition-all cursor-pointer ${
+              className={`p-2 transition-colors cursor-pointer inline-flex items-center justify-center ${
                 isActive("/student/cart")
-                  ? "bg-emerald-50 text-[#0F5244] border border-emerald-200/60"
-                  : "text-slate-600 hover:text-[#0F5244] hover:bg-slate-50 border border-transparent"
+                  ? "text-[#0F5244]"
+                  : "text-slate-600 hover:text-[#0F5244]"
               }`}
               aria-label={tHeader("cartAria")}
               title={tHeader("cartAria")}
             >
-              <ShoppingCart className="h-5 w-5" />
-              {cartItems.length > 0 && (
-                <span className="absolute -top-1 -right-1 rtl:-right-auto rtl:-left-1 flex h-4.5 min-w-[18px] items-center justify-center rounded-full bg-[#0F5244] px-1 text-[10px] font-black text-white shadow-xs">
-                  {cartItems.length}
-                </span>
-              )}
+              <span className="relative inline-flex items-center justify-center">
+                <ShoppingCart className="h-5 w-5" />
+                {mounted && cartItems.length > 0 && (
+                  <span
+                    className={`absolute -top-1 -end-1.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-[#0F5244] px-1 text-[10px] font-bold leading-none text-white border border-white shadow-xs tabular-nums pointer-events-none transition-transform ${
+                      isBadgePulsing ? "animate-badge-pulse" : ""
+                    }`}
+                  >
+                    {cartItems.length}
+                  </span>
+                )}
+              </span>
             </Link>
           )}
 
@@ -430,15 +464,26 @@ export function Header({ lang, onLanguageToggle, variant = "main", className = "
           {(!mounted || !isAuthenticated || !isInstructor) && (
             <Link
               href={`/${locale}/student/cart`}
-              className="relative p-2 text-slate-700 hover:text-[#0F5244] rounded-xl hover:bg-slate-50"
+              className={`p-1.5 transition-colors cursor-pointer inline-flex items-center justify-center ${
+                isActive("/student/cart")
+                  ? "text-[#0F5244]"
+                  : "text-slate-700 hover:text-[#0F5244]"
+              }`}
               aria-label={tHeader("cartAria")}
+              title={tHeader("cartAria")}
             >
-              <ShoppingCart className="h-5 w-5" />
-              {cartItems.length > 0 && (
-                <span className="absolute top-1 right-1 rtl:right-auto rtl:left-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-[#0F5244] px-1 text-[9px] font-black text-white">
-                  {cartItems.length}
-                </span>
-              )}
+              <span className="relative inline-flex items-center justify-center">
+                <ShoppingCart className="h-5 w-5" />
+                {mounted && cartItems.length > 0 && (
+                  <span
+                    className={`absolute -top-1 -end-1.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-[#0F5244] px-1 text-[10px] font-bold leading-none text-white border border-white shadow-xs tabular-nums pointer-events-none transition-transform ${
+                      isBadgePulsing ? "animate-badge-pulse" : ""
+                    }`}
+                  >
+                    {cartItems.length}
+                  </span>
+                )}
+              </span>
             </Link>
           )}
 
@@ -654,7 +699,7 @@ export function Header({ lang, onLanguageToggle, variant = "main", className = "
                     <ShoppingCart className={`h-4 w-4 ${isActive("/student/cart") || isActive("/cart") ? "text-white" : "text-emerald-700"}`} />
                     <span>{tHeader("cartAria")}</span>
                   </div>
-                  {cartItems.length > 0 && (
+                  {mounted && cartItems.length > 0 && (
                     <span className="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-emerald-500 px-1.5 text-[11px] font-black text-white">
                       {cartItems.length}
                     </span>

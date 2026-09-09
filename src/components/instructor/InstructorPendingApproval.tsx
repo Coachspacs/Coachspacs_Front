@@ -98,7 +98,7 @@ export function InstructorPendingApproval() {
   };
 
   const handleLogout = () => {
-    tokenManager.clearTokens();
+    authService.logout().catch(() => {});
     dispatch(logout());
     router.push(`/${locale}/login`);
   };
@@ -140,7 +140,7 @@ export function InstructorPendingApproval() {
                     </span>
                   )}
                 </div>
-                <div className="absolute -bottom-1 -right-1 rtl:-right-auto rtl:-left-1 bg-amber-500 text-white p-1 rounded-full border-2 border-white shadow-2xs">
+                <div className="absolute -bottom-1 -end-1 bg-amber-500 text-white p-1 rounded-full border-2 border-white shadow-2xs">
                   <Clock className="w-3 h-3" />
                 </div>
               </div>

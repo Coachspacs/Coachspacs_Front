@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useTranslations, useLocale } from "next-intl";
 import { BookOpen, Search, Filter } from "lucide-react";
@@ -10,11 +10,13 @@ import { StudentCourseCardSkeleton } from "@/components/ui/Skeleton";
 interface StudentCoursesTabProps {
   courses: any[];
   isLoading?: boolean;
+  initialFilter?: "all" | "in_progress" | "completed";
 }
 
 export function StudentCoursesTab({
   courses,
   isLoading = false,
+  initialFilter = "all",
 }: StudentCoursesTabProps) {
   const tWs = useTranslations("studentWorkspace");
   const locale = useLocale() || "en";
@@ -22,8 +24,24 @@ export function StudentCoursesTab({
 
   const [courseFilter, setCourseFilter] = useState<
     "all" | "in_progress" | "completed"
-  >("all");
+  >(initialFilter);
   const [searchQuery, setSearchQuery] = useState("");
+
+  useEffect(() => {
+    if (initialFilter) {
+      setCourseFilter(initialFilter);
+    }
+  }, [initialFilter]);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const f = params.get("filter");
+      if (f === "in_progress" || f === "completed" || f === "all") {
+        setCourseFilter(f);
+      }
+    }
+  }, []);
 
   const filteredCourses = courses.filter((course) => {
     // Status filter
