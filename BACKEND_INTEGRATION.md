@@ -6,7 +6,7 @@ This guide documents the complete, verified, and active endpoints in accordance 
 
 ## 🌐 Base URL & Environments
 - **Local Proxy Base URL**: `/api` (rewritten to backend in `next.config.ts`)
-- **Backend Base URL**: `https://coachspace-back.onrender.com/api` (or environment variable `NEXT_PUBLIC_API_URL` / `BACKEND_API_URL`)
+- **Backend Base URL**: Configured via `.env` (`NEXT_PUBLIC_API_URL` or `BACKEND_API_URL`)
 
 ---
 

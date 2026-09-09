@@ -26,7 +26,7 @@ export function resolveMediaUrl(rawUrl?: string): string {
   if (trimmed.startsWith('http://') || trimmed.startsWith('https://') || trimmed.startsWith('blob:')) {
     return trimmed;
   }
-  const apiBase = process.env.NEXT_PUBLIC_API_URL || 'https://coachspace-back.onrender.com/api';
+  const apiBase = process.env.NEXT_PUBLIC_API_URL || '';
   const baseWithoutApi = apiBase.replace(/\/api\/?$/, '');
-  return `${baseWithoutApi}${trimmed.startsWith('/') ? '' : '/'}${trimmed}`;
+  return baseWithoutApi ? `${baseWithoutApi}${trimmed.startsWith('/') ? '' : '/'}${trimmed}` : trimmed;
 }
