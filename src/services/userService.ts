@@ -83,25 +83,48 @@ export const userService = {
 
   /**
    * Request email address change (sends confirmation link to new email)
-   * POST /api/users/me/email/change
+   * POST /api/users/me/email/change (CoachSpace API Postman spec)
    */
   async requestEmailChange(newEmail: string): Promise<{ message?: string; detail?: string | string[] }> {
-    const response = await axiosInstance.post('/users/me/email/change', {
-      new_email: newEmail,
-    });
-    return response.data;
+    try {
+      const response = await axiosInstance.post('/users/me/email/change', {
+        new_email: newEmail,
+      });
+      return response.data;
+    } catch (err: any) {
+      if (err?.response?.status === 404 || err?.response?.status === 405) {
+        const fallbackRes = await axiosInstance.post('/users/me/email-change', {
+          new_email: newEmail,
+        });
+        return fallbackRes.data;
+      }
+      throw err;
+    }
   },
 
   /**
    * Confirm email address change via uid and token (public link)
-   * POST /api/users/me/email/confirm
+   * POST /api/users/me/email/confirm (CoachSpace API Postman spec)
    */
   async confirmEmailChange(data: EmailConfirmRequest): Promise<{ message?: string; detail?: string | string[] }> {
-    const response = await axiosInstance.post('/users/me/email/confirm', {
-      uid: data.uid,
-      token: data.token,
-    });
-    return response.data;
+    try {
+      const response = await axiosInstance.post('/users/me/email/confirm', {
+        uid: data.uid,
+        token: data.token,
+      });
+      return response.data;
+    } catch (err: any) {
+      if (err?.response?.status === 404 || err?.response?.status === 405) {
+        const fallbackRes = await axiosInstance.get('/users/confirm-email-change', {
+          params: {
+            uid: data.uid,
+            token: data.token,
+          },
+        });
+        return fallbackRes.data;
+      }
+      throw err;
+    }
   },
 };
 

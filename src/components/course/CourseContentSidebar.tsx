@@ -198,6 +198,7 @@ export function CourseContentSidebar({
                       const globalIndex = allLessons.findIndex((l) => l.id === lesson.id);
                       const isActive = globalIndex === activeLessonIndex;
                       const isDone = completedLessonIds.includes(String(lesson.id));
+                      const isLocked = !!lesson.is_locked;
                       const lesTitle = isAr
                         ? lesson.title_ar || lesson.title || t("lessonDefault", { index: lIdx + 1 })
                         : lesson.title_en || lesson.title || t("lessonDefault", { index: lIdx + 1 });
@@ -205,30 +206,60 @@ export function CourseContentSidebar({
                       return (
                         <div
                           key={lesson.id}
-                          onClick={() => onSelectLesson(globalIndex)}
-                          className={`px-4 sm:px-5 py-3 flex items-center justify-between gap-3 text-xs transition-all cursor-pointer group ${
+                          onClick={() => {
+                            if (!isLocked) {
+                              onSelectLesson(globalIndex);
+                            }
+                          }}
+                          className={`px-4 sm:px-5 py-3 flex items-center justify-between gap-3 text-xs transition-all ${
+                            isLocked
+                              ? "opacity-60 cursor-not-allowed bg-slate-50/40"
+                              : "cursor-pointer group hover:bg-slate-50/90"
+                          } ${
                             isActive
                               ? "bg-gradient-to-r from-emerald-50 via-emerald-50/40 to-white text-[#0F5244] font-bold border-s-4 border-[#0F5244] shadow-xs"
-                              : "text-slate-700 hover:bg-slate-50/90 border-s-4 border-transparent"
+                              : "border-s-4 border-transparent"
                           }`}
                         >
                           <div className="flex items-center gap-3 min-w-0 flex-1">
-                            {/* Checkbox / Completion Icon */}
-                            <button
-                              type="button"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                onToggleLessonCompletion(lesson.id);
-                              }}
-                              className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 transition-all cursor-pointer ${
-                                isDone
-                                  ? "bg-[#0F5244] text-white shadow-2xs scale-100 hover:bg-emerald-700"
-                                  : "border-2 border-slate-300 hover:border-emerald-600 bg-white"
-                              }`}
-                              title={isDone ? t("completed") : t("markCompleted")}
-                            >
-                              {isDone && <Check size={11} strokeWidth={3} />}
-                            </button>
+                            {/* Status Icon: Completed, Current/In-Progress, Locked, or Neutral */}
+                            {isDone ? (
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  onToggleLessonCompletion(lesson.id);
+                                }}
+                                className="w-5 h-5 rounded-full flex items-center justify-center shrink-0 transition-all cursor-pointer bg-[#0F5244] text-white shadow-2xs scale-100 hover:bg-emerald-700"
+                                title={t("completed")}
+                              >
+                                <Check size={11} strokeWidth={3} />
+                              </button>
+                            ) : isActive ? (
+                              <div
+                                className="w-5 h-5 rounded-full bg-[#0F5244] text-white flex items-center justify-center shrink-0 shadow-xs ring-4 ring-emerald-500/20"
+                                title={t("playing")}
+                              >
+                                <Play size={9} className="fill-white ms-0.5" />
+                              </div>
+                            ) : isLocked ? (
+                              <div
+                                className="w-5 h-5 rounded-full bg-slate-100 border border-slate-200/80 text-slate-400 flex items-center justify-center shrink-0"
+                                title="Locked"
+                              >
+                                <Lock size={10} />
+                              </div>
+                            ) : (
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  onToggleLessonCompletion(lesson.id);
+                                }}
+                                className="w-5 h-5 rounded-full border-2 border-slate-300 hover:border-emerald-600 bg-white flex items-center justify-center shrink-0 transition-all cursor-pointer"
+                                title={t("markCompleted")}
+                              />
+                            )}
 
                             {/* Lesson Title & Live Playing Wave */}
                             <div className="min-w-0 flex-1">

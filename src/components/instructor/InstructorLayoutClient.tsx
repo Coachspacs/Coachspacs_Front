@@ -84,15 +84,39 @@ export function InstructorLayoutClient({
       return;
     }
 
+    if (
+      activeUser.headline &&
+      (activeUser.headline.toLowerCase().includes("certified instructor") ||
+        activeUser.headline.includes("مدرب معتمد") ||
+        activeUser.headline.includes("مدرب موثوق") ||
+        activeUser.headline.includes("مدرب وخبير معتمد") ||
+        activeUser.headline.toLowerCase().includes("student") ||
+        activeUser.headline.includes("طالب"))
+    ) {
+      dispatch(updateUser({ headline: "" }));
+      try {
+        const uStr = localStorage.getItem("user");
+        if (uStr) {
+          const uObj = JSON.parse(uStr);
+          uObj.headline = "";
+          localStorage.setItem("user", JSON.stringify(uObj));
+        }
+      } catch {}
+    }
+
     // Live sync approval status with backend GET /api/auth/instructor/dashboard
     getInstructorDashboard()
       .then(() => {
         const headlineToSet =
           user?.headline &&
           !user.headline.toLowerCase().includes("student") &&
-          !user.headline.includes("طالب")
+          !user.headline.includes("طالب") &&
+          !user.headline.toLowerCase().includes("certified instructor") &&
+          !user.headline.includes("مدرب معتمد") &&
+          !user.headline.includes("مدرب موثوق") &&
+          !user.headline.includes("مدرب وخبير معتمد")
             ? user.headline
-            : tInst("defaultHeadline");
+            : "";
 
         dispatch(
           updateUser({
@@ -183,13 +207,17 @@ export function InstructorLayoutClient({
     (mounted ? user?.avatar : null) || localOverrides.avatar || null;
   const rawHeadline =
     (mounted ? user?.headline : "") || localOverrides.headline || "";
-  const isStudentHeadline =
+  const isGenericOrStudentHeadline =
     !rawHeadline ||
     rawHeadline.toLowerCase().includes("student") ||
-    rawHeadline.includes("طالب");
+    rawHeadline.includes("طالب") ||
+    rawHeadline.toLowerCase().includes("certified instructor") ||
+    rawHeadline.includes("مدرب معتمد") ||
+    rawHeadline.includes("مدرب موثوق") ||
+    rawHeadline.includes("مدرب وخبير معتمد");
 
-  const headline = isStudentHeadline
-    ? tInst("defaultHeadline")
+  const headline = isGenericOrStudentHeadline
+    ? ""
     : getLocalizedHeadline(rawHeadline, isAr, true);
 
   const handleRestrictedClick =
@@ -269,39 +297,39 @@ export function InstructorLayoutClient({
   return (
     <div className="min-h-screen bg-[#FAFCFB] flex flex-col font-sans">
       <Header />
-      <main className="flex-grow py-6 sm:py-10 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
+      <main className="flex-grow py-5 sm:py-7 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
         <div className="w-full space-y-4 sm:space-y-6">
-          {/* Top Instructor Workspace Banner / Header Card */}
-          <div className="bg-white rounded-2xl border border-slate-200/80 p-4 sm:p-5 shadow-2xs flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div className="flex flex-col sm:flex-row items-center gap-4 text-center sm:text-start">
+          {/* Compact Top Instructor Header Strip */}
+          <div className="bg-white rounded-2xl border border-slate-200/80 px-4 py-3 sm:px-5 sm:py-3.5 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-3">
+            <div className="flex items-center gap-3.5 text-start w-full sm:w-auto">
               <div className="relative group shrink-0">
-                <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-slate-50 border border-slate-200/90 overflow-hidden shadow-2xs flex items-center justify-center">
+                <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-slate-50 border border-slate-200/90 overflow-hidden shadow-2xs flex items-center justify-center">
                   {avatarPreview ? (
                     <Image
                       src={avatarPreview}
                       alt={fullName || "Instructor"}
-                      width={56}
-                      height={56}
+                      width={48}
+                      height={48}
                       className="w-full h-full object-cover"
                     />
                   ) : (
-                    <span className="font-bold text-lg text-[#0F5244]">
+                    <span className="font-bold text-base text-[#0B4F3A]">
                       {fullName.trim().charAt(0).toUpperCase() || "I"}
                     </span>
                   )}
                 </div>
                 <span
-                  className={`absolute bottom-0 right-0 rtl:right-auto rtl:left-0 w-3 h-3 border-2 border-white rounded-full ${
+                  className={`absolute bottom-0 right-0 rtl:right-auto rtl:left-0 w-2.5 h-2.5 border-2 border-white rounded-full ${
                     isApproved ? "bg-emerald-500" : "bg-amber-400"
                   }`}
                 />
               </div>
 
-              <div className="space-y-0.5">
-                <div className="flex items-center justify-center sm:justify-start gap-2 flex-wrap">
-                  <h1 className="text-sm sm:text-base font-bold text-slate-900">
+              <div className="space-y-0.5 min-w-0">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h2 className="text-sm sm:text-base font-bold text-slate-900 truncate">
                     {fullName}
-                  </h1>
+                  </h2>
                   {isApproved ? (
                     <VerifiedBadge size="sm" />
                   ) : (
@@ -311,17 +339,22 @@ export function InstructorLayoutClient({
                     </span>
                   )}
                 </div>
-                <p className="text-xs text-slate-500 font-normal">{headline}</p>
-                <p className="text-[11px] text-slate-400 font-normal">
-                  {email}
-                </p>
+                <div className="flex items-center gap-2 text-slate-500 text-xs flex-wrap">
+                  {headline ? (
+                    <>
+                      <span className="truncate max-w-xs">{headline}</span>
+                      <span className="text-slate-300">•</span>
+                    </>
+                  ) : null}
+                  <span className="text-[11px] text-slate-400 truncate">{email}</span>
+                </div>
               </div>
             </div>
 
             {isApproved && (
               <Link
                 href={`/${locale}/instructors/${user?.id || normalizeInstructorSlug(fullName)}`}
-                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl border border-slate-200/80 bg-slate-50/80 hover:bg-slate-100/80 text-slate-600 hover:text-slate-900 text-xs font-semibold transition-all shadow-2xs shrink-0"
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl border border-slate-200/80 bg-slate-50/80 hover:bg-slate-100/90 text-slate-700 hover:text-slate-900 text-xs font-bold transition-all shadow-2xs shrink-0 self-end sm:self-auto"
               >
                 <span>{isAr ? "عرض الملف العام" : "Public Profile"}</span>
                 <ExternalLink className="w-3.5 h-3.5 text-slate-400 rtl:rotate-180" />
@@ -329,9 +362,9 @@ export function InstructorLayoutClient({
             )}
           </div>
 
-          {/* Persistent Dashboard Layout: Left Sidebar + Main Dynamic Area */}
-          <div className="flex flex-col md:flex-row gap-6 sm:gap-8 lg:gap-10 items-start">
-            <aside className="w-full md:w-64 shrink-0">
+          {/* Persistent Dashboard Layout: Right Sidebar (RTL) + Main Dynamic Area */}
+          <div className="flex flex-col md:flex-row gap-5 sm:gap-6 items-start">
+            <aside className="w-full md:w-64 lg:w-72 shrink-0">
               <Sidebar
                 items={navItems}
                 user={{

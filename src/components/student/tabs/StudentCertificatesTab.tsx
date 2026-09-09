@@ -37,31 +37,36 @@ export function StudentCertificatesTab({
 
       {/* Certificate Cards Grid */}
       {completedCourses.length > 0 ? (
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 items-stretch">
           {completedCourses.map((cert) => (
             <div
               key={cert.id}
-              className="p-5 sm:p-6 rounded-3xl border border-emerald-100/90 bg-gradient-to-br from-emerald-50/40 via-white to-white space-y-4 sm:space-y-5 shadow-2xs hover:border-[#0F5244]/40 hover:shadow-sm transition-all relative overflow-hidden"
+              className="p-5 sm:p-6 rounded-3xl border border-emerald-100/90 bg-gradient-to-br from-emerald-50/40 via-white to-white shadow-2xs hover:border-[#0F5244]/40 hover:shadow-sm transition-all relative overflow-hidden flex flex-col justify-between h-full"
             >
-              <div className="flex items-start gap-3.5 sm:gap-4">
+              <div className="flex items-start gap-3.5 sm:gap-4 flex-1">
                 <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-emerald-100/80 text-[#0F5244] flex items-center justify-center shrink-0 border border-emerald-200/60 shadow-2xs">
                   <Award className="h-6 w-6 sm:h-7 sm:w-7" />
                 </div>
-                <div className="min-w-0 flex-1 space-y-1">
+                <div className="min-w-0 flex-1 space-y-1.5">
                   <div className="flex items-center gap-1.5 text-[11px] font-bold text-emerald-800">
                     <ShieldCheck className="w-3.5 h-3.5 shrink-0" />
                     <span className="truncate">{isAr ? "شهادة إتمام معتمدة" : "Verified Certificate"}</span>
                   </div>
-                  <h4 className="text-sm sm:text-base font-black text-slate-900 leading-snug line-clamp-2">
-                    {cert.title}
-                  </h4>
+                  <div className="min-h-[2.75rem] sm:min-h-[3rem] flex items-start">
+                    <h4
+                      className="text-sm sm:text-base font-black text-slate-900 leading-snug line-clamp-2"
+                      title={cert.title}
+                    >
+                      {cert.title}
+                    </h4>
+                  </div>
                   <div className="flex items-center gap-2 text-slate-400 text-xs font-mono">
                     <span className="truncate">ID: {cert.certificateId || `CS-${cert.id}`}</span>
                   </div>
                 </div>
               </div>
 
-              <div className="pt-3 border-t border-slate-100 flex items-center justify-between gap-3 flex-wrap sm:flex-nowrap">
+              <div className="mt-5 pt-4 border-t border-slate-100 flex items-center justify-between gap-3 flex-nowrap">
                 <div className="text-[11px] sm:text-xs text-slate-500 font-bold flex items-center gap-1.5 shrink-0 whitespace-nowrap">
                   <CheckCircle2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-600 shrink-0" />
                   <span>{isAr ? "مكتمل 100%" : "Completed 100%"}</span>

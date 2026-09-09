@@ -985,7 +985,7 @@ export function CreateCourseStudio({
       setCourseStatus("pending_review");
       setShowSuccessModal(true);
     } catch (err: any) {
-      console.error("Publish course error:", err);
+      console.warn("Publish course info:", err);
       if (courseId) saveCourseStatus(courseId, "pending_review");
       setCourseStatus("pending_review");
       setShowSuccessModal(true);

@@ -291,11 +291,11 @@ export function RegisterCard({ lang }: RegisterCardProps) {
             />
             <span className="group-hover:text-slate-900 transition-colors">
               {t("agreeTo")}{" "}
-              <Link href="#terms" className="text-[#0F5244] hover:underline font-bold">
+              <Link href={`/${locale}/terms`} className="text-[#0F5244] hover:underline font-bold">
                 {t("termsOfService")}
               </Link>{" "}
               {t("and")}{" "}
-              <Link href="#privacy" className="text-[#0F5244] hover:underline font-bold">
+              <Link href={`/${locale}/privacy`} className="text-[#0F5244] hover:underline font-bold">
                 {t("privacyPolicy")}
               </Link>
             </span>

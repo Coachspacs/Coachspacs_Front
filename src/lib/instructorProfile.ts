@@ -275,7 +275,17 @@ export function getLocalizedSpecialization(spec?: string, isAr = false): string 
 
 export function getLocalizedHeadline(headline?: string, isAr = false, isInstructor = false): string {
   if (!headline) {
-    return isInstructor ? (isAr ? "مدرب وخبير معتمد" : "Certified Instructor") : "";
+    return "";
+  }
+  const trimmed = headline.trim().toLowerCase();
+  if (
+    trimmed === "certified instructor" ||
+    trimmed === "مدرب معتمد" ||
+    trimmed === "مدرب وخبير معتمد" ||
+    trimmed === "مدرب موثوق" ||
+    trimmed === "حساب مدرب معتمد"
+  ) {
+    return "";
   }
   if (isInstructor && (headline === "Student & Lifelong Learner" || headline === "طالب ومتعلم شغوف" || headline === "طالب ومتعلم شغوف مدى الحياة")) {
     return isAr ? "كبير معماريي البرمجيات ومدرب القيادة التقنية التنفيذية" : "Senior Software Architect & Executive Tech Coach";

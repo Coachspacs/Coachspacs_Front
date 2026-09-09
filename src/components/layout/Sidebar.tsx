@@ -1,14 +1,14 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useTranslations, useLocale } from "next-intl";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/lib/store";
 import { logout } from "@/features/auth/slice";
 import { tokenManager } from "@/lib/tokenManager";
+import { authService } from "@/services/auth";
 import {
   LayoutDashboard,
   Search,
@@ -55,7 +55,11 @@ export function Sidebar({ activeTab, onTabChange, items, user }: SidebarProps) {
 
   // Mobile menu expand state
   const [isOpen, setIsOpen] = useState(false);
-  const [avatarError, setAvatarError] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Default Navigation Items
   const defaultNavItems: SidebarNavItem[] = [
@@ -133,20 +137,9 @@ export function Sidebar({ activeTab, onTabChange, items, user }: SidebarProps) {
   };
 
   const handleSignOut = () => {
-    tokenManager.clearTokens();
+    authService.logout().catch(() => {});
     dispatch(logout());
     router.push(`/${locale}/login`);
-  };
-
-  const cleanAvatarUrl =
-    typeof user?.avatarUrl === "string" && user.avatarUrl.trim().length > 0
-      ? user.avatarUrl.trim()
-      : null;
-
-  const defaultUser = {
-    name: user?.name || t("defaultUser"),
-    role: user?.role || t("studentRole"),
-    avatarUrl: cleanAvatarUrl,
   };
 
   const activeItem =
@@ -205,7 +198,7 @@ export function Sidebar({ activeTab, onTabChange, items, user }: SidebarProps) {
                 <>
                   <Icon className={`h-4 w-4 shrink-0 ${active ? "text-emerald-700" : "text-slate-500"}`} />
                   <span className="text-xs font-bold">{item.label}</span>
-                  {item.id === "cart" && cartItems.length > 0 && (
+                  {mounted && item.id === "cart" && cartItems.length > 0 && (
                     <span className="ml-auto rtl:ml-0 rtl:mr-auto px-1.5 py-0.5 rounded-full bg-emerald-500 text-white text-[10px] font-black">
                       {cartItems.length}
                     </span>
@@ -250,40 +243,8 @@ export function Sidebar({ activeTab, onTabChange, items, user }: SidebarProps) {
       </div>
 
       {/* ================= DESKTOP VERTICAL SIDEBAR (>= md) ================= */}
-      <aside className="hidden md:flex w-64 lg:w-72 shrink-0 bg-white border border-slate-200/80 rounded-2xl sm:rounded-3xl p-4 sm:p-5 flex-col justify-between shadow-2xs min-h-[560px]">
-        <div className="space-y-5">
-          {/* Top Section: Integrated User Card */}
-          <div className="p-3 rounded-2xl bg-slate-50/80 border border-slate-100 flex items-center gap-3">
-            <div className="relative shrink-0">
-              <div className="w-10 h-10 rounded-full bg-white border border-slate-200 overflow-hidden shadow-2xs flex items-center justify-center">
-                {defaultUser.avatarUrl && !avatarError ? (
-                  <Image
-                    src={defaultUser.avatarUrl}
-                    alt={defaultUser.name}
-                    width={40}
-                    height={40}
-                    onError={() => setAvatarError(true)}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <span className="font-bold text-sm text-emerald-700">
-                    {(defaultUser.name || "U").trim().charAt(0).toUpperCase()}
-                  </span>
-                )}
-              </div>
-              <span className="absolute bottom-0 right-0 rtl:right-auto rtl:left-0 w-2.5 h-2.5 bg-emerald-500 border-2 border-white rounded-full" />
-            </div>
-
-            <div className="min-w-0 flex-1">
-              <h3 className="text-xs sm:text-sm font-bold text-slate-900 truncate">
-                {defaultUser.name}
-              </h3>
-              <span className="inline-block px-2 py-0.5 mt-0.5 rounded-md bg-emerald-50 text-emerald-700 text-[10px] font-semibold border border-emerald-100/70">
-                {defaultUser.role}
-              </span>
-            </div>
-          </div>
-
+      <aside className="hidden md:flex w-64 lg:w-72 shrink-0 bg-white border border-slate-200/80 rounded-2xl p-4 flex-col justify-between shadow-xs min-h-[520px]">
+        <div className="space-y-4">
           {/* Navigation Links */}
           <nav className="space-y-1" aria-label="Sidebar Navigation">
             {navItems.map((item) => {
@@ -292,12 +253,24 @@ export function Sidebar({ activeTab, onTabChange, items, user }: SidebarProps) {
 
               const content = (
                 <>
-                  <Icon className={`h-4.5 w-4.5 shrink-0 transition-colors ${active ? "text-emerald-700" : "text-slate-400 group-hover:text-slate-700"}`} />
-                  <span className="text-xs sm:text-sm font-semibold">{item.label}</span>
-                  {item.id === "cart" && cartItems.length > 0 && (
-                    <span className={`ml-auto rtl:ml-0 rtl:mr-auto px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                      active ? "bg-emerald-600 text-white" : "bg-emerald-100 text-emerald-800"
-                    }`}>
+                  <Icon
+                    className={`h-4.5 w-4.5 shrink-0 transition-colors ${
+                      active
+                        ? "text-[#0B4F3A]"
+                        : "text-slate-400 group-hover:text-slate-700"
+                    }`}
+                  />
+                  <span className={`text-xs sm:text-sm ${active ? "font-bold" : "font-medium"}`}>
+                    {item.label}
+                  </span>
+                  {mounted && item.id === "cart" && cartItems.length > 0 && (
+                    <span
+                      className={`ml-auto rtl:ml-0 rtl:mr-auto px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                        active
+                          ? "bg-[#0B4F3A] text-white"
+                          : "bg-emerald-100 text-[#0B4F3A]"
+                      }`}
+                    >
                       {cartItems.length}
                     </span>
                   )}
@@ -319,7 +292,7 @@ export function Sidebar({ activeTab, onTabChange, items, user }: SidebarProps) {
                     }}
                     className={`group w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm transition-all cursor-pointer ${
                       active
-                        ? "bg-emerald-50/80 text-emerald-900 border border-emerald-100 font-bold shadow-2xs"
+                        ? "bg-[#0B4F3A]/8 text-[#0B4F3A] border-e-3 border-[#0B4F3A] font-bold shadow-2xs"
                         : "text-slate-600 hover:text-slate-900 hover:bg-slate-50 font-medium"
                     }`}
                   >
@@ -335,7 +308,7 @@ export function Sidebar({ activeTab, onTabChange, items, user }: SidebarProps) {
                   aria-current={active ? "page" : undefined}
                   className={`group flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm transition-all cursor-pointer ${
                     active
-                      ? "bg-emerald-50/80 text-emerald-900 border border-emerald-100 font-bold shadow-2xs"
+                      ? "bg-[#0B4F3A]/8 text-[#0B4F3A] border-e-3 border-[#0B4F3A] font-bold shadow-2xs"
                       : "text-slate-600 hover:text-slate-900 hover:bg-slate-50 font-medium"
                   }`}
                 >

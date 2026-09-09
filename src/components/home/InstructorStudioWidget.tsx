@@ -5,17 +5,39 @@ import Link from "next/link";
 import { useTranslations, useLocale } from "next-intl";
 import { useSelector } from "react-redux";
 import { RootState } from "@/lib/store";
-import { Users, BookOpen, Star, DollarSign, PlusCircle, LayoutDashboard, Sparkles, TrendingUp, ArrowUpRight } from "lucide-react";
+import { instructorCourseService } from "@/services/instructorCourseService";
+import { Users, BookOpen, Star, DollarSign, PlusCircle, LayoutDashboard, Sparkles, TrendingUp, ArrowUpRight, Loader2 } from "lucide-react";
 
 export function InstructorStudioWidget() {
   const t = useTranslations("home");
   const locale = useLocale();
+  const isAr = locale === "ar";
   const [mounted, setMounted] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [courses, setCourses] = useState<any[]>([]);
   const { user, isAuthenticated } = useSelector((state: RootState) => state.auth);
 
   useEffect(() => {
     setMounted(true);
-  }, []);
+
+    async function loadInstructorStats() {
+      if (isAuthenticated && (user?.role || "").toLowerCase() === "instructor") {
+        try {
+          setIsLoading(true);
+          const liveCourses = await instructorCourseService.getMyCourses();
+          if (Array.isArray(liveCourses)) {
+            setCourses(liveCourses);
+          }
+        } catch (err) {
+          console.warn("[InstructorStudioWidget] Could not load live courses:", err);
+        } finally {
+          setIsLoading(false);
+        }
+      }
+    }
+
+    loadInstructorStats();
+  }, [isAuthenticated, user?.role]);
 
   const isInstructor = mounted && isAuthenticated && ((user?.role || "").toLowerCase() === "instructor" || (user?.role || "").toLowerCase() === "coach");
   const isApproved = (user?.approval_status || (user as any)?.approvalStatus || "").toLowerCase() === "approved";
@@ -23,6 +45,32 @@ export function InstructorStudioWidget() {
   if (!isInstructor || !isApproved) {
     return null;
   }
+
+  // Calculate live statistics
+  const totalStudents = courses.reduce(
+    (acc, curr) => acc + Number(curr.students_count || curr.studentsCount || curr.total_students || 0),
+    0
+  );
+
+  const publishedCourses = courses.filter(
+    (c) => c.status === "published" || c.is_published === true
+  );
+  const publishedCount = publishedCourses.length > 0 ? publishedCourses.length : (courses.length > 0 ? courses.length : 0);
+  const draftCount = courses.filter((c) => c.status === "draft" || c.status === "review").length;
+
+  const ratedCourses = courses.filter((c) => Number(c.rating || 0) > 0);
+  const avgRating =
+    ratedCourses.length > 0
+      ? (
+          ratedCourses.reduce((acc, curr) => acc + Number(curr.rating || 0), 0) /
+          ratedCourses.length
+        ).toFixed(1)
+      : courses.length > 0 ? "5.0" : "—";
+
+  const totalRevenue = courses.reduce(
+    (acc, curr) => acc + Number(curr.revenue || curr.earnings || 0),
+    0
+  );
 
   return (
     <section className="w-full py-6 sm:py-8 font-sans">
@@ -38,15 +86,9 @@ export function InstructorStudioWidget() {
                 <Sparkles className="w-5 h-5 text-emerald-200" />
               </div>
               <div>
-                <div className="flex items-center gap-2.5 flex-wrap">
-                  <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
-                    {t("studioLiveOverview")}
-                  </h2>
-                  <span className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full text-xs font-bold bg-emerald-50 border border-emerald-200 text-[#0F5244]">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                    <span>{t("instructorBadge")}</span>
-                  </span>
-                </div>
+                <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+                  {t("studioLiveOverview")}
+                </h2>
                 <p className="text-xs sm:text-sm text-slate-500 font-medium mt-0.5">
                   {t("instructorHubSubtitle")}
                 </p>
@@ -83,10 +125,12 @@ export function InstructorStudioWidget() {
                   <Users className="w-4 h-4" />
                 </div>
                 <span className="inline-flex items-center gap-0.5 text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200/50">
-                  <TrendingUp className="w-3 h-3" /> +14%
+                  <TrendingUp className="w-3 h-3" /> {isAr ? "نشط" : "Active"}
                 </span>
               </div>
-              <div className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">1,420</div>
+              <div className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+                {isLoading ? <Loader2 className="w-5 h-5 animate-spin text-slate-400" /> : totalStudents.toLocaleString()}
+              </div>
               <div className="text-xs text-slate-500 font-medium mt-0.5">
                 {t("totalStudentsCount")}
               </div>
@@ -99,10 +143,12 @@ export function InstructorStudioWidget() {
                   <BookOpen className="w-4 h-4" />
                 </div>
                 <span className="text-[11px] font-bold text-slate-600 bg-white px-2 py-0.5 rounded-md border border-slate-200">
-                  2 Drafts
+                  {draftCount} {isAr ? "مسودة" : "Drafts"}
                 </span>
               </div>
-              <div className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">6</div>
+              <div className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+                {isLoading ? <Loader2 className="w-5 h-5 animate-spin text-slate-400" /> : publishedCount}
+              </div>
               <div className="text-xs text-slate-500 font-medium mt-0.5">
                 {t("activeCoursesCount")}
               </div>
@@ -115,26 +161,30 @@ export function InstructorStudioWidget() {
                   <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
                 </div>
                 <span className="text-[11px] font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-md border border-amber-200/60">
-                  184 Reviews
+                  {ratedCourses.length} {isAr ? "تقييمات" : "Reviews"}
                 </span>
               </div>
-              <div className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">4.9 / 5.0</div>
+              <div className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+                {isLoading ? <Loader2 className="w-5 h-5 animate-spin text-slate-400" /> : avgRating}
+              </div>
               <div className="text-xs text-slate-500 font-medium mt-0.5">
                 {t("instructorRatingValue")}
               </div>
             </div>
 
-            {/* Stat 4: Monthly Earnings */}
+            {/* Stat 4: Total Earnings */}
             <div className="bg-[#F8FAFC] hover:bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/70 hover:border-teal-200 shadow-2xs hover:shadow-md transition-all duration-200">
               <div className="flex items-center justify-between mb-2.5">
                 <div className="w-9 h-9 rounded-xl bg-teal-50 text-teal-700 flex items-center justify-center border border-teal-100">
                   <DollarSign className="w-4 h-4" />
                 </div>
                 <span className="inline-flex items-center gap-0.5 text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200/50">
-                  <ArrowUpRight className="w-3 h-3" /> +22%
+                  <ArrowUpRight className="w-3 h-3" /> {isAr ? "مكتمل" : "Earned"}
                 </span>
               </div>
-              <div className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">$3,850</div>
+              <div className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+                {isLoading ? <Loader2 className="w-5 h-5 animate-spin text-slate-400" /> : `$${totalRevenue.toLocaleString()}`}
+              </div>
               <div className="text-xs text-slate-500 font-medium mt-0.5">
                 {t("monthlyEarningsValue")}
               </div>
