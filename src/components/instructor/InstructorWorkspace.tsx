@@ -42,6 +42,8 @@ import { tokenManager } from "@/lib/tokenManager";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { VerifiedBadge } from "@/components/ui/VerifiedBadge";
 import { instructorCourseService } from "@/services/instructorCourseService";
+import { instructorService } from "@/services/instructorService";
+import { InstructorDashboardResponse } from "@/types/certificate";
 import { courseService } from "@/services/courseService";
 import {
   getSavedInstructorOverrides,
@@ -140,6 +142,7 @@ export function InstructorWorkspace({
   // Instructor Courses State
   const [courses, setCourses] = useState<any[]>([]);
   const [isLoadingCourses, setIsLoadingCourses] = useState(true);
+  const [dashboardData, setDashboardData] = useState<InstructorDashboardResponse | null>(null);
   const [submittingCourseId, setSubmittingCourseId] = useState<string | null>(
     null,
   );
@@ -282,6 +285,14 @@ export function InstructorWorkspace({
         }
       });
       setStudents(allDynamicStudents);
+
+      // Fetch live instructor dashboard summary metrics (US-17)
+      try {
+        const dash = await instructorService.getDashboard();
+        setDashboardData(dash);
+      } catch (dashErr) {
+        console.warn("Could not fetch instructor dashboard data:", dashErr);
+      }
     } catch (err) {
       console.warn("Could not fetch instructor courses from backend API:", err);
       setCourses([]);
@@ -935,7 +946,7 @@ export function InstructorWorkspace({
                 exit={{ opacity: 0, y: -6 }}
                 transition={{ duration: 0.15 }}
               >
-                <InstructorOverviewTab courses={courses} />
+                <InstructorOverviewTab courses={courses} dashboardData={dashboardData} />
               </motion.div>
             )}
 
@@ -975,6 +986,7 @@ export function InstructorWorkspace({
               >
                 <InstructorStudentsTab
                   students={students}
+                  courses={courses}
                   studentSearch={studentSearch}
                   setStudentSearch={setStudentSearch}
                   isLoading={isLoadingCourses}

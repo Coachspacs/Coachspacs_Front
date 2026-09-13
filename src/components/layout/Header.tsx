@@ -20,7 +20,7 @@ import {
 } from "lucide-react";
 import { RootState } from "@/lib/store";
 import { logout } from "@/features/auth/slice";
-import { syncCartFromStorage } from "@/features/cart/cartSlice";
+import { syncCartFromStorage, openCartDrawer } from "@/features/cart/cartSlice";
 import { tokenManager } from "@/lib/tokenManager";
 import { authService } from "@/services/auth";
 import { Logo } from "@/components/ui/Logo";
@@ -57,7 +57,7 @@ export function Header({ lang, onLanguageToggle, variant = "main", className = "
     if (mounted) {
       if (prevCartCountRef.current !== null && cartItems.length > prevCartCountRef.current) {
         setIsBadgePulsing(true);
-        const timer = setTimeout(() => setIsBadgePulsing(false), 400);
+        const timer = setTimeout(() => setIsBadgePulsing(false), 700);
         return () => clearTimeout(timer);
       }
       prevCartCountRef.current = cartItems.length;
@@ -67,7 +67,7 @@ export function Header({ lang, onLanguageToggle, variant = "main", className = "
   useEffect(() => {
     const handlePulse = () => {
       setIsBadgePulsing(true);
-      const timer = setTimeout(() => setIsBadgePulsing(false), 400);
+      const timer = setTimeout(() => setIsBadgePulsing(false), 700);
       return () => clearTimeout(timer);
     };
     window.addEventListener("coachspace:cart-bounce", handlePulse);
@@ -296,29 +296,53 @@ export function Header({ lang, onLanguageToggle, variant = "main", className = "
           
           {/* Shopping Cart Button (For Guests and Students only) */}
           {(!mounted || !isAuthenticated || !isInstructor) && (
-            <Link
-              href={`/${locale}/student/cart`}
-              className={`p-2 transition-colors cursor-pointer inline-flex items-center justify-center ${
-                isActive("/student/cart")
-                  ? "text-[#0F5244]"
-                  : "text-slate-600 hover:text-[#0F5244]"
+            <button
+              type="button"
+              onClick={() => dispatch(openCartDrawer())}
+              className={`relative flex items-center justify-center w-9 h-9 rounded-full border transition-all duration-300 ease-out active:scale-90 group cursor-pointer ${
+                isBadgePulsing
+                  ? "animate-cart-bounce animate-cart-glow bg-emerald-50 border-emerald-400 text-emerald-800 shadow-[0_0_16px_rgba(16,185,129,0.35)]"
+                  : isActive("/student/cart") || isActive("/cart")
+                  ? "bg-emerald-50/90 border-emerald-300 text-[#0F5244] shadow-2xs"
+                  : "bg-white hover:bg-emerald-50/50 border-slate-200/80 hover:border-emerald-300 hover:shadow-xs text-slate-700 hover:text-emerald-800"
               }`}
               aria-label={tHeader("cartAria")}
-              title={tHeader("cartAria")}
+              title={
+                mounted && cartItems.length > 0
+                  ? `${tHeader("cartAria")} (${cartItems.length})`
+                  : tHeader("cartAria")
+              }
             >
-              <span className="relative inline-flex items-center justify-center">
-                <ShoppingCart className="h-5 w-5" />
-                {mounted && cartItems.length > 0 && (
+              {/* أيقونة السلة الناعمة مع تأثير تفاعلي خفيف */}
+              <ShoppingCart
+                className={`w-[18px] h-[18px] stroke-[1.8] transition-all duration-200 group-hover:scale-110 ${
+                  isBadgePulsing
+                    ? "text-emerald-800"
+                    : isActive("/student/cart") || isActive("/cart")
+                    ? "text-[#0F5244]"
+                    : "text-slate-600 group-hover:text-[#0F5244]"
+                }`}
+              />
+
+              {/* الشارة مع انيميشن الإضافة الرائع */}
+              {mounted && cartItems.length > 0 && (
+                <>
+                  {/* موجة الرادار المضيئة عند إضافة دورة */}
+                  {isBadgePulsing && (
+                    <span className="absolute -top-1 -right-1 rtl:-left-1 rtl:right-auto flex h-[18px] w-[18px] rounded-full bg-emerald-400/80 animate-ping pointer-events-none" />
+                  )}
+
+                  {/* الشارة المطورة الأنيقة */}
                   <span
-                    className={`absolute -top-1 -end-1.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-[#0F5244] px-1 text-[10px] font-bold leading-none text-white border border-white shadow-xs tabular-nums pointer-events-none transition-transform ${
-                      isBadgePulsing ? "animate-badge-pulse" : ""
+                    className={`absolute -top-1 -right-1 rtl:-left-1 rtl:right-auto flex h-[17px] min-w-[17px] items-center justify-center rounded-full bg-gradient-to-tr from-[#0B4F3A] to-[#148767] text-[9px] font-black text-white ring-2 ring-white shadow-[0_2px_6px_rgba(15,82,68,0.3)] px-1 tabular-nums pointer-events-none transition-transform duration-200 group-hover:scale-110 ${
+                      isBadgePulsing ? "animate-badge-pop" : ""
                     }`}
                   >
                     {cartItems.length}
                   </span>
-                )}
-              </span>
-            </Link>
+                </>
+              )}
+            </button>
           )}
 
           {/* Language Switcher Pill */}
@@ -462,29 +486,48 @@ export function Header({ lang, onLanguageToggle, variant = "main", className = "
           
           {/* Cart Icon on Mobile */}
           {(!mounted || !isAuthenticated || !isInstructor) && (
-            <Link
-              href={`/${locale}/student/cart`}
-              className={`p-1.5 transition-colors cursor-pointer inline-flex items-center justify-center ${
-                isActive("/student/cart")
-                  ? "text-[#0F5244]"
-                  : "text-slate-700 hover:text-[#0F5244]"
+            <button
+              type="button"
+              onClick={() => dispatch(openCartDrawer())}
+              className={`relative flex items-center justify-center w-8.5 h-8.5 rounded-full border transition-all duration-300 ease-out active:scale-90 group cursor-pointer ${
+                isBadgePulsing
+                  ? "animate-cart-bounce animate-cart-glow bg-emerald-50 border-emerald-400 text-emerald-800 shadow-[0_0_14px_rgba(16,185,129,0.35)]"
+                  : isActive("/student/cart") || isActive("/cart")
+                  ? "bg-emerald-50/90 border-emerald-300 text-[#0F5244] shadow-2xs"
+                  : "bg-white hover:bg-emerald-50/50 border-slate-200/80 hover:border-emerald-300 text-slate-700 hover:text-emerald-800"
               }`}
               aria-label={tHeader("cartAria")}
-              title={tHeader("cartAria")}
+              title={
+                mounted && cartItems.length > 0
+                  ? `${tHeader("cartAria")} (${cartItems.length})`
+                  : tHeader("cartAria")
+              }
             >
-              <span className="relative inline-flex items-center justify-center">
-                <ShoppingCart className="h-5 w-5" />
-                {mounted && cartItems.length > 0 && (
+              <ShoppingCart
+                className={`w-4 h-4 stroke-[1.8] transition-all duration-200 group-hover:scale-105 ${
+                  isBadgePulsing
+                    ? "text-emerald-800"
+                    : isActive("/student/cart") || isActive("/cart")
+                    ? "text-[#0F5244]"
+                    : "text-slate-600 group-hover:text-[#0F5244]"
+                }`}
+              />
+
+              {mounted && cartItems.length > 0 && (
+                <>
+                  {isBadgePulsing && (
+                    <span className="absolute -top-1 -right-1 rtl:-left-1 rtl:right-auto flex h-[16px] w-[16px] rounded-full bg-emerald-400/80 animate-ping pointer-events-none" />
+                  )}
                   <span
-                    className={`absolute -top-1 -end-1.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-[#0F5244] px-1 text-[10px] font-bold leading-none text-white border border-white shadow-xs tabular-nums pointer-events-none transition-transform ${
-                      isBadgePulsing ? "animate-badge-pulse" : ""
+                    className={`absolute -top-1 -right-1 rtl:-left-1 rtl:right-auto flex h-[16px] min-w-[16px] items-center justify-center rounded-full bg-gradient-to-tr from-[#0B4F3A] to-[#148767] text-[8.5px] font-black text-white ring-2 ring-white shadow-[0_2px_6px_rgba(15,82,68,0.28)] px-1 tabular-nums pointer-events-none transition-transform duration-200 ${
+                      isBadgePulsing ? "animate-badge-pop" : ""
                     }`}
                   >
                     {cartItems.length}
                   </span>
-                )}
-              </span>
-            </Link>
+                </>
+              )}
+            </button>
           )}
 
           {/* Language Switcher on Mobile */}
@@ -686,10 +729,13 @@ export function Header({ lang, onLanguageToggle, variant = "main", className = "
 
               {/* Shopping Cart Link (For guests and students) */}
               {(!mounted || !isAuthenticated || !isInstructor) && (
-                <Link
-                  href={`/${locale}/student/cart`}
-                  onClick={() => setMobileMenuOpen(false)}
-                  className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all ${
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    dispatch(openCartDrawer());
+                  }}
+                  className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                     isActive("/student/cart") || isActive("/cart")
                       ? "bg-[#0F5244] text-white shadow-xs"
                       : "text-slate-700 hover:bg-slate-50"
@@ -704,7 +750,7 @@ export function Header({ lang, onLanguageToggle, variant = "main", className = "
                       {cartItems.length}
                     </span>
                   )}
-                </Link>
+                </button>
               )}
 
             </nav>

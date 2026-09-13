@@ -1,7 +1,7 @@
-import type { Course } from "./course";
+import type { Course, EnrolledCourse } from "./course";
 import type { CategoryItem } from "./user";
 
-export type { Course, CategoryItem };
+export type { Course, EnrolledCourse, CategoryItem };
 
 export type Category = 
   | "Leadership"

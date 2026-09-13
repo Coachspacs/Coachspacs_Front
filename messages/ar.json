@@ -1,6 +1,6 @@
 {
   "site": {
-    "name": "كوتش سبيس",
+    "name": "Coach Space",
     "tagline": "منصة التعليم والتدريب الأولى للمحترفين في الشرق الأوسط."
   },
   "apiErrors": {
@@ -270,7 +270,15 @@
     "employmentDeletedToast": "تم حذف الخبرة المهنية بنجاح",
     "verifyCredential": "التحقق من الشهادة",
     "untitledCourse": "دورة بدون عنوان",
-    "submitReviewFailed": "فشل إرسال الكورس للمراجعة. يرجى التحقق من الاتصال والمحاولة مرة أخرى."
+    "submitReviewFailed": "فشل إرسال الكورس للمراجعة. يرجى التحقق من الاتصال والمحاولة مرة أخرى.",
+    "allCourses": "جميع الدورات",
+    "selectCourseToViewStudents": "اختر الدورة التدريبية",
+    "filterByCourse": "تصفية حسب الدورة",
+    "noStudentsInCourse": "لا يوجد طلاب مسجلون في هذه الدورة حتى الآن.",
+    "accessDeniedCourse": "ليس لديك صلاحية لعرض الطلاب المسجلين في هذه الدورة.",
+    "totalStudentsDistinct": "إجمالي الطلاب الفعلي",
+    "totalCoursesMetric": "إجمالي الدورات",
+    "enrolledDate": "تاريخ التسجيل"
   },
   "header": {
     "brandName": "Coach Space",
@@ -749,13 +757,25 @@
       "addToCart": "أضف للسلة",
       "inCart": "في السلة",
       "addedToCart": "تمت الإضافة",
+      "enrollNow": "سجل مجاناً",
+      "enrolled": "مسجل",
+      "continueLearning": "تابع التعلم",
+      "startLearning": "ابدأ التعلم",
+      "purchased": "تم الشراء",
+      "enrolling": "جاري التسجيل...",
       "viewInstructorProfile": "عرض الملف الشخصي للمدرب"
     },
     "courseCard": {
       "free": "مجاني",
       "addToCart": "أضف للسلة",
       "inCart": "في السلة",
-      "addedToCart": "تمت الإضافة"
+      "addedToCart": "تمت الإضافة",
+      "enrollNow": "سجل مجاناً",
+      "enrolled": "مسجل",
+      "continueLearning": "تابع التعلم",
+      "startLearning": "ابدأ التعلم",
+      "purchased": "تم الشراء",
+      "enrolling": "جاري التسجيل..."
     },
     "pagination": {
       "previous": "الصفحة السابقة",
@@ -807,7 +827,7 @@
     "videoErrorTitle": "فشل في تحميل الفيديو",
     "videoErrorDesc": "نواجه مشكلة في جلب هذا المحتوى. يرجى التحقق من اتصالك بالشبكة أو المحاولة مرة أخرى لاحقاً.",
     "videoTagNotSupported": "متصفحك لا يدعم تشغيل هذا الفيديو.",
-    "videoStreamerTitle": "مشغل فيديو كوتش سبيس",
+    "videoStreamerTitle": "مشغل فيديو Coach Space",
     "retry": "إعادة المحاولة",
     "whatYouWillLearn": "ماذا ستتعلم في هذه الدورة",
     "defaultDescription": "تم تصميم هذا المنهج الدراسي الشامل لتحويل تفكيرك التصميمي إلى أنظمة تصميم بمستوى احترافي منافس. ستتعلم الأطر والأساليب الأساسية التي تستخدمها كبرى الشركات التقنية لتقديم واجهات مستخدم سلسة ومتميزة.",
@@ -847,6 +867,7 @@
   },
   "cart": {
     "title": "سلة التسوق الخاصة بي",
+    "drawerTitle": "سلة التسوق",
     "emptyTitle": "سلة التسوق فارغة",
     "emptySubtitle": "يبدو أنك لم تقم بإضافة أي دورات بعد. استكشف الكتالوج لاكتشاف مغامرتك التعليمية القادمة.",
     "empty": "سلتك فارغة حالياً",
@@ -859,9 +880,14 @@
     "taxesNote": "الضرائب (تحسب عند الدفع)",
     "total": "الإجمالي",
     "checkout": "إتمام الشراء",
+    "processing": "جاري المعالجة...",
+    "viewFullCart": "عرض السلة كاملة",
+    "continueShopping": "متابعة التصفح",
+    "closeCart": "إغلاق السلة",
     "guarantee": "ضمان استرداد الأموال خلال 30 يوماً",
     "remove": "حذف",
-    "itemsCount": "{count} دورات"
+    "itemsCount": "{count} دورات",
+    "defaultInstructor": "مدرب المساحة"
   },
   "skillSelector": {
     "defaultLabel": "المهارات والتخصصات المختارة",
@@ -964,7 +990,7 @@
     "verifiedCert": "شهادة إتمام معتمدة",
     "lifetimeAccess": "وصول فوري مدى الحياة",
     "courseCount": "{count} دورة",
-    "defaultCoach": "مدرب معتمد في منصة كوتش سبيس",
+    "defaultCoach": "مدرب معتمد في منصة Coach Space",
     "trainingCourseFallback": "دورة تدريبية",
     "subtotal": "المجموع الفرعي",
     "taxes": "الضريبة والرسوم",
@@ -1174,8 +1200,17 @@
     "completedStatus": "دورة مكتملة",
     "enrolledStatus": "مسجل في الكورس",
     "certificateBtn": "الشهادة",
-    "earnedCertificatesTitle": "الشهادات المعتمدة المكتسبة",
-    "earnedCertificatesDesc": "جميع الشهادات المعتمدة التي حصلت عليها عند إتمام الدورات بنجاح.",
+    "earnedCertificatesTitle": "الشهادات المكتسبة",
+    "earnedCertificatesDesc": "جميع الشهادات والاعتمادات الموثقة التي حصلت عليها عند إتمام دوراتك ومساراتك التدريبية.",
+    "searchCredentialPlaceholder": "ابحث عن شهادة أو اعتماد...",
+    "noSearchResultTitle": "لم يتم العثور على شهادات تطابق بحثك",
+    "noSearchResultDesc": "جرب كتابة اسم دورة مختلف أو رمز اعتماد آخر.",
+    "showcaseTitle": "أبرز إنجازاتك واعتزازك بنجاحك",
+    "showcaseDesc": "أضف شهادات واعتمادات Coach Space المعتمدة مباشرة إلى ملفك في LinkedIn أو معرض أعمالك.",
+    "shareProfile": "مشاركة الملف الشخصي",
+    "profileLinkCopied": "تم نسخ رابط الملف الشخصي بنجاح!",
+    "viewCertificate": "عرض",
+    "completed100": "مكتمل 100%",
     "noCertificatesTitle": "لا توجد شهادات مكتسبة بعد",
     "noCertificatesDesc": "أكمل دوراتك المسجلة بنسبة 100% لتحصل على شهاداتك الرسمية المعتمدة فوراً.",
     "downloadPdf": "تحميل الشهادة PDF",
@@ -1185,9 +1220,10 @@
     "startJourneySubtitle": "استكشف الكورسات المتاحة من أفضل المدربين وسجل في دورتك الأولى.",
     "exploreCourses": "تصفح الدورات",
     "noEnrolledCourses": "لم تسجل في أي دورات بعد",
+    "noCoursesEnrolled": "لم تسجل في أي دورات بعد",
     "noEnrolledCoursesDesc": "استكشف الكتالوج وابدأ رحلتك التعليمية الآن.",
     "instructorAccount": "حساب مدرب",
-    "studentUserFallback": "طالب كوتش سبيس"
+    "studentUserFallback": "طالب Coach Space"
   },
   "sidebar": {
     "brandTitle": "Coach Space",
@@ -1202,7 +1238,11 @@
     "signOut": "تسجيل الخروج",
     "studentRole": "طالب",
     "instructorRole": "مدرب",
-    "defaultUser": "مستخدم"
+    "defaultUser": "مستخدم",
+    "learningMilestone": "إنجازاتي التعليمية",
+    "courseCompletion": "معدل إكمال الدورات",
+    "viewAllCertificates": "استعراض الشهادات ←",
+    "earnedBadge": "مكتسبة"
   },
   "courseStudio": {
     "courseInfoTab": "معلومات الدورة",
@@ -1519,7 +1559,7 @@
   },
   "liveCoursePreview": {
     "modalTitle": "معاينة حية للدورة التدريبية",
-    "modalSubtitle": "هكذا ستظهر الدورة للطلاب والزوار على منصة كوتش سبيس",
+    "modalSubtitle": "هكذا ستظهر الدورة للطلاب والزوار على منصة Coach Space",
     "previewModeNotice": "وضع المعاينة الحية - محاكاة تجربة الطالب",
     "closeBtn": "إغلاق المعاينة",
     "switchLangAr": "العربية",
@@ -1607,7 +1647,7 @@
     "speed": "السرعة",
     "countdownNext": "الدرس التالي سيبدأ خلال {seconds} ثوانٍ",
     "watchNow": "مشاهدة الآن",
-    "platformTitle": "منصة كوتش سبيس",
+    "platformTitle": "منصة Coach Space",
     "allLessons": "جميع الدروس",
     "fullscreen": "ملء الشاشة",
     "exitFullscreen": "الخروج من ملء الشاشة",
@@ -1634,6 +1674,12 @@
     "forward10": "تقديم 10 ثوانٍ",
     "prev": "السابق",
     "next": "التالي",
+    "finishCourseAndCertificate": "إتمام الدورة والشهادة",
+    "viewCertificate": "عرض الشهادة",
+    "courseCompletedTitle": "تهانينا! لقد أتممت الدورة بنجاح",
+    "courseCompletedSubtitle": "تم إصدار شهادة الإتمام الرسمية والمعتمدة الخاصة بك. يمكنك الآن معاينتها وتحميلها كملف PDF عالي الجودة.",
+    "viewAndDownloadCertificate": "عرض وتحميل الشهادة (PDF)",
+    "continueReview": "البقاء ومراجعة الدروس",
     "lessonOf": "الدرس {current} من {total}",
     "currentModule": "الوحدة الحالية",
     "viewProfile": "عرض الملف التعريفي",
@@ -1759,5 +1805,44 @@
         "description": "فريق حماية البيانات في Coach Space مستعد للإجابة على جميع تساؤلاتك ومساعدتك في أي وقت."
       }
     }
+  },
+  "certificate": {
+    "title": "شهادة إتمام معتمدة",
+    "download": "تحميل الشهادة (PDF)",
+    "certifyThat": "يشهد مركز Coach Space بأن",
+    "hasCompleted": "قد أتم بنجاح متطلبات الدورة التدريبية",
+    "issueDate": "تاريخ الإصدار",
+    "issued": "صدرت في",
+    "verifiedCertificate": "شهادة معتمدة",
+    "instructorSignature": "توقيع المدرب",
+    "preparingCertificate": "جاري تجهيز الشهادة...",
+    "retryingDownload": "جاري إنشاء ملف PDF للشهادة، يرجى الانتظار...",
+    "downloadReady": "الشهادة جاهزة للتحميل الآن.",
+    "verifyCredential": "التحقق من الشهادة",
+    "verified": "معتمدة وموثقة",
+    "backToCertificates": "العودة إلى شهاداتي",
+    "notFound": "لم يتم العثور على الشهادة",
+    "notFoundDesc": "لم يتم العثور على شهادة معتمدة تطابق هذا الرمز، أو أن الدورة التدريبية لم تكتمل بعد بنسبة 100%."
+  },
+  "certificateVerify": {
+    "verifyTitle": "التحقق من صحة الشهادة",
+    "verifySubtitle": "تأكد من صحة ومصداقية أي شهادة صادرة من أكاديمية Coach Space.",
+    "enterCodePlaceholder": "أدخل رمز الشهادة (مثال: CS-12345678)",
+    "verifyButton": "التحقق من الشهادة",
+    "searching": "جاري التحقق من الاعتماد...",
+    "verifiedCredential": "شهادة معتمدة وموثقة رسمياً",
+    "studentName": "اسم الطالب الحاصل على الشهادة",
+    "courseCompleted": "الدورة المكتملة",
+    "issuedOn": "تاريخ الإصدار",
+    "credentialId": "رمز الاعتماد",
+    "authenticityNotice": "هذه الشهادة معتمدة ومسجلة بشكل رسمي ومشفر في سجلات أكاديمية Coach Space.",
+    "invalidFormatTitle": "صيغة رمز الشهادة غير صحيحة",
+    "invalidFormatDesc": "يجب أن يبدأ رمز الشهادة المعتمد بـ CS- متبوعاً بـ 8 خانات من الحروف أو الأرقام (مثال: CS-12345678).",
+    "notFoundTitle": "لم يتم العثور على الشهادة",
+    "notFoundDesc": "لم يتم العثور على شهادة بهذا الرمز. يرجى التأكد من كتابة الرمز بشكل صحيح والمحاولة مجدداً.",
+    "rateLimitedTitle": "تجاوز الحد المسموح للطلبات",
+    "rateLimitedDesc": "تم تجاوز الحد المسموح به لعمليات التحقق (بحد أقصى 20 محاولة في الساعة). يرجى المحاولة لاحقاً.",
+    "backToHome": "العودة للرئيسية",
+    "exploreCourses": "استكشف الدورات المعتمدة"
   }
 }

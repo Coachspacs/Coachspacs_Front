@@ -224,7 +224,7 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
             progress: 0,
             isCompleted: false,
             enrolledAt: new Date().toISOString(),
-            certificateId: `CERT-${Math.floor(100000 + Math.random() * 900000)}`,
+            certificateId: null,
           });
           localStorage.setItem("coachspace_enrolled_courses", JSON.stringify(list));
         }
@@ -779,11 +779,6 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
                 )}
 
               </div>
-
-              {/* Subtitle Guarantee */}
-              <p className="text-center text-xs font-semibold text-slate-400">
-                {t("moneyBack")}
-              </p>
 
               {/* Course Includes Checklist */}
               <div className="pt-4 border-t border-slate-100 space-y-3.5">

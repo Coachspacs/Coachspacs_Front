@@ -131,12 +131,14 @@ export function StudentLayoutClient({ children }: { children: React.ReactNode })
     : rawHeadline;
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] flex flex-col font-sans">
-      <Header />
-      <main className="flex-grow py-6 sm:py-10 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
+    <div dir={isAr ? "rtl" : "ltr"} className="min-h-screen bg-[#F8FAFC] flex flex-col font-sans print:bg-white print:min-h-0">
+      <div className="print:hidden">
+        <Header />
+      </div>
+      <main className="flex-grow py-6 sm:py-10 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full print:p-0 print:m-0 print:max-w-none print:w-full">
         
         {/* Top Profile Banner Card */}
-        <div className="w-full bg-white rounded-3xl border border-slate-200/80 p-5 sm:p-6 mb-6 lg:mb-8 shadow-xs">
+        <div className="w-full bg-white rounded-3xl border border-slate-200/80 p-5 sm:p-6 mb-6 lg:mb-8 shadow-xs print:hidden">
           <div className="flex flex-col sm:flex-row items-center sm:items-start justify-between gap-4">
             
             {/* User Details (Avatar + Name + Localized Bio + Email) */}
@@ -173,8 +175,8 @@ export function StudentLayoutClient({ children }: { children: React.ReactNode })
         </div>
 
         {/* Modern Portal Grid Layout */}
-        <div className="flex flex-col md:flex-row gap-6 lg:gap-8 items-start">
-          <aside className="w-full md:w-64 lg:w-72 shrink-0 md:sticky md:top-24">
+        <div className="flex flex-col md:flex-row gap-6 lg:gap-8 items-start print:block print:p-0 print:m-0 print:w-full">
+          <aside className="w-full md:w-64 lg:w-72 shrink-0 md:sticky md:top-24 print:hidden">
             <Sidebar
               user={{
                 name: fullName,
@@ -184,12 +186,14 @@ export function StudentLayoutClient({ children }: { children: React.ReactNode })
             />
           </aside>
 
-          <div className="flex-1 w-full min-w-0">
+          <div className="flex-1 w-full min-w-0 print:p-0 print:m-0 print:w-full">
             {children}
           </div>
         </div>
       </main>
-      <Footer />
+      <div className="print:hidden">
+        <Footer />
+      </div>
     </div>
   );
 }

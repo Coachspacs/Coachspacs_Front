@@ -22,7 +22,7 @@ export function StudentHomeWidget() {
       if (isAuthenticated) {
         try {
           const live = await enrollmentService.getMyEnrollments();
-          if (Array.isArray(live) && live.length > 0) {
+          if (Array.isArray(live)) {
             const mapped = live.map((enr: any) => {
               const c = enr.course || {};
               return {
@@ -45,22 +45,13 @@ export function StudentHomeWidget() {
         } catch (e) {
           console.warn("[StudentHomeWidget] Could not fetch live enrollments:", e);
         }
+
+        // For authenticated students, do not fallback to mock courses
+        setEnrolledCourses([]);
+        return;
       }
 
-      // Local storage fallback
-      if (typeof window !== "undefined") {
-        try {
-          const saved = localStorage.getItem("coachspace_enrolled_courses");
-          if (saved) {
-            const list = JSON.parse(saved);
-            if (Array.isArray(list)) {
-              setEnrolledCourses(list);
-            }
-          }
-        } catch (e) {
-          console.warn("[StudentHomeWidget] Could not load enrolled courses:", e);
-        }
-      }
+      setEnrolledCourses([]);
     }
 
     loadEnrollments();

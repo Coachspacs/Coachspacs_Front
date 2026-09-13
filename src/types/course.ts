@@ -142,3 +142,17 @@ export interface Course {
   isRealBackend?: boolean;
   updatedAt?: string;
 }
+
+export interface EnrolledCourse extends Partial<Course> {
+  id: string;
+  progress?: number;
+  isCompleted?: boolean;
+  hasCertificate?: boolean;
+  certificateId?: string;
+  certificate_code?: string;
+  enrollmentDate?: string;
+  lastAccessed?: string;
+  instructor_id?: string | number;
+  user_has_active_subscription?: boolean;
+  [key: string]: any;
+}
