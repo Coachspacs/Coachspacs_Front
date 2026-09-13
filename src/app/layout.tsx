@@ -34,7 +34,7 @@ export const metadata = {
     template: '%s | CoachSpace',
   },
   description: 'Empower your career with top-tier coaching, interactive courses, certified workshops, and verified credentials on CoachSpace.',
-  keywords: ['Coaching', 'Online Courses', 'LMS', 'Learning Platform', 'Certificates', 'CoachSpace', 'كوتش سبيس', 'دورات تعليمية'],
+  keywords: ['Coaching', 'Online Courses', 'LMS', 'Learning Platform', 'Certificates', 'Coach Space', 'CoachSpace', 'دورات تعليمية'],
   authors: [{ name: 'CoachSpace Team' }],
   creator: 'CoachSpace',
   publisher: 'CoachSpace',

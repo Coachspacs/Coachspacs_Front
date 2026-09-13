@@ -301,6 +301,123 @@ All requests require `Authorization: Bearer <access_token>` of an enrolled stude
 
 ---
 
+## 📜 10. Certificates & Instructor Analytics (Sprint 10 Delta: US-16, US-17, US-18)
+
+### `GET /api/certificates`
+- **Headers**: `Authorization: Bearer <access_token>`
+- **Description**: Returns all earned certificates for the authenticated student.
+- **Response (200 OK)**:
+```json
+{
+  "count": 2,
+  "next": null,
+  "previous": null,
+  "results": [
+    {
+      "id": 101,
+      "certificate_code": "CS-10001",
+      "course": {
+        "id": 5,
+        "title": "Full-Stack Web Development",
+        "cover_image": "https://..."
+      },
+      "issued_at": "2026-09-10T14:30:00Z",
+      "pdf_url": "https://res.cloudinary.com/.../certificate-101.pdf"
+    }
+  ]
+}
+```
+
+### `GET /api/certificates/:id/download`
+- **Headers**: `Authorization: Bearer <access_token>`
+- **Description**: Downloads the certificate PDF. If generation is in queue or retrying, returns `202 Accepted`. Returns `302 Found` (redirecting to stored PDF) or `200 OK` when ready.
+- **Response (202 Accepted)**:
+```json
+{
+  "status": "pending",
+  "detail": "Certificate PDF generation is in progress. Retrying..."
+}
+```
+- **Response (200 OK / 302 Found)**: Direct file stream or redirect to Cloudinary/S3 PDF URL.
+
+### `GET /api/certificates/verify/:code`
+- **Public Endpoint** (No `Authorization` header required).
+- **Description**: Verifies the authenticity of a credential code. Enforces rate-limiting (maximum 20 requests/hour per IP).
+- **Response (200 OK)**:
+```json
+{
+  "student_full_name": "Ali Student",
+  "course_title": "Full-Stack Web Development",
+  "issued_at": "2026-09-10T14:30:00Z",
+  "certificate_code": "CS-10001"
+}
+```
+- **Response (404 Not Found)**:
+```json
+{
+  "detail": "Certificate not found. Please verify the certificate code and try again."
+}
+```
+- **Response (429 Too Many Requests)**:
+```json
+{
+  "detail": "Rate limit exceeded (maximum 20 verification requests per hour). Please try again later."
+}
+```
+
+### `GET /api/instructor/dashboard`
+- **Headers**: `Authorization: Bearer <access_token>` of approved instructor.
+- **Description**: Returns instructor metrics with true distinct students and per-course enrollment distribution.
+- **Response (200 OK)**:
+```json
+{
+  "total_courses": 6,
+  "total_students": 42,
+  "courses": [
+    {
+      "id": 5,
+      "title": "Full-Stack Web Development",
+      "status": "published",
+      "enrollment_count": 28
+    },
+    {
+      "id": 8,
+      "title": "React Architecture",
+      "status": "draft",
+      "enrollment_count": 0
+    }
+  ]
+}
+```
+
+### `GET /api/instructor/courses/:id/students`
+- **Headers**: `Authorization: Bearer <access_token>` of course instructor.
+- **Query Params**: `page` (default 1), `page_size` (default 10).
+- **Description**: Lists students enrolled in the instructor's course with progress percentages. Returns 403 Forbidden if the caller does not own the course.
+- **Response (200 OK)**:
+```json
+{
+  "count": 28,
+  "next": "/api/instructor/courses/5/students?page=2",
+  "previous": null,
+  "results": [
+    {
+      "id": 1,
+      "full_name": "Ali Student",
+      "email": "ali.student@example.com",
+      "avatar": "https://...",
+      "enrolled_at": "2026-09-01T10:00:00Z",
+      "progress_percent": 100,
+      "is_completed": true,
+      "completed_at": "2026-09-10T14:30:00Z",
+      "certificate_id": 101
+    }
+  ]
+}
+```
+
+---
+
 ## 💻 Frontend Connected Components Map
 
 | Feature Area | Connected UI Component | Service Called | Live Parameters |
@@ -316,6 +433,11 @@ All requests require `Authorization: Bearer <access_token>` of an enrolled stude
 | **Course Details** | `src/app/[locale]/(public)/courses/[slug]/page.tsx`, `CourseDetailsView.tsx` | `courseService.getCourseById` | `id`, `Accept-Language`, Bearer token for `is_enrolled` |
 | **Course Builder** | `src/components/instructor/CreateCourseStudio.tsx` | `instructorCourseService.*` | Course CRUD, Cloudinary video signature, sections, lessons, preview toggle, reorder |
 | **Instructor Courses** | `src/components/instructor/InstructorWorkspace.tsx`, `InstructorDashboardView.tsx`, `InstructorCoursesPreview.tsx` | `instructorCourseService.getMyCourses`, `deleteCourse`, `updateCourse` | Courses listing, status filter, review submission, delete/archive |
+| **Instructor Analytics & Dashboard** | `src/components/instructor/tabs/InstructorOverviewTab.tsx`, `InstructorWorkspace.tsx` | `instructorService.getDashboard` | `total_courses`, `total_students` (distinct), courses enrollment breakdown |
+| **Instructor Course Students** | `src/components/instructor/tabs/InstructorStudentsTab.tsx` | `instructorService.getCourseStudents` | `course_id`, `page`, `page_size`, 403 access control |
+| **Student Certificates & Download** | `src/components/student/tabs/StudentCertificatesTab.tsx`, `[id]/page.tsx` | `certificateService.getMyCertificates`, `downloadCertificate` | `id`, asynchronous retry polling on 202 Accepted |
+| **Public Credential Verification** | `src/components/certificate/CertificateVerifyView.tsx`, `certificates/verify/[code]/page.tsx` | `certificateService.verifyCertificate` | `code`, public endpoint without auth, 404 security handling, 429 rate limit |
 | **Lesson Progress & Complete** | `src/app/[locale]/student/learn/[courseId]/page.tsx`, `CourseContentSidebar.tsx` | `enrollmentService.markLessonComplete`, `markLessonIncomplete`, `getMyEnrollments` | `enrollment_id`, `lesson_id` |
 | **Enrolled Courses** | `src/components/student/StudentWorkspace.tsx`, `StudentHomeWidget.tsx` | `enrollmentService.getMyEnrollments` | `progress_percent`, `completed_lessons`, `is_completed` |
+
 

@@ -30,6 +30,13 @@ export interface SidebarNavItem {
   disabled?: boolean;
 }
 
+export interface SidebarSummaryData {
+  certificatesCount?: number;
+  overallProgress?: number;
+  completedCoursesCount?: number;
+  totalCoursesCount?: number;
+}
+
 export interface SidebarProps {
   activeTab?: string;
   onTabChange?: (tabId: string) => void;
@@ -40,9 +47,10 @@ export interface SidebarProps {
     avatarUrl?: string | null;
     isApproved?: boolean;
   };
+  summary?: SidebarSummaryData;
 }
 
-export function Sidebar({ activeTab, onTabChange, items, user }: SidebarProps) {
+export function Sidebar({ activeTab, onTabChange, items, user, summary }: SidebarProps) {
   const t = useTranslations("sidebar");
   const locale = useLocale() || "en";
   const isAr = locale === "ar";
@@ -56,6 +64,69 @@ export function Sidebar({ activeTab, onTabChange, items, user }: SidebarProps) {
   // Mobile menu expand state
   const [isOpen, setIsOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
+
+  // Summary state with real-time derivation and sync
+  const [stats, setStats] = useState<SidebarSummaryData>({
+    certificatesCount: summary?.certificatesCount ?? 0,
+    overallProgress: summary?.overallProgress ?? 0,
+    completedCoursesCount: summary?.completedCoursesCount ?? 0,
+    totalCoursesCount: summary?.totalCoursesCount ?? 0,
+  });
+
+  useEffect(() => {
+    if (summary) {
+      setStats({
+        certificatesCount: summary.certificatesCount ?? 0,
+        overallProgress: summary.overallProgress ?? 0,
+        completedCoursesCount: summary.completedCoursesCount ?? 0,
+        totalCoursesCount: summary.totalCoursesCount ?? 0,
+      });
+      return;
+    }
+
+    if (typeof window === "undefined") return;
+
+    // Standalone fallback: Only check real API endpoints
+    import("@/services/certificateService")
+      .then(({ certificateService }) => {
+        certificateService
+          .getMyCertificates()
+          .then((certs) => {
+            if (Array.isArray(certs)) {
+              setStats((prev) => ({
+                ...prev,
+                certificatesCount: certs.length,
+              }));
+            }
+          })
+          .catch(() => {});
+      })
+      .catch(() => {});
+
+    import("@/services/enrollmentService")
+      .then(({ enrollmentService }) => {
+        enrollmentService
+          .getMyEnrollments()
+          .then((enrollments) => {
+            if (Array.isArray(enrollments)) {
+              const completed = enrollments.filter(
+                (e: any) => e.is_completed || (e.progress_percent && e.progress_percent >= 100)
+              );
+              const avgProgress = enrollments.length > 0
+                ? Math.round(enrollments.reduce((acc: number, e: any) => acc + (e.progress_percent || 0), 0) / enrollments.length)
+                : 0;
+              setStats((prev) => ({
+                ...prev,
+                completedCoursesCount: completed.length,
+                totalCoursesCount: enrollments.length,
+                overallProgress: avgProgress,
+              }));
+            }
+          })
+          .catch(() => {});
+      })
+      .catch(() => {});
+  }, [summary]);
 
   useEffect(() => {
     setMounted(true);
@@ -243,7 +314,7 @@ export function Sidebar({ activeTab, onTabChange, items, user }: SidebarProps) {
       </div>
 
       {/* ================= DESKTOP VERTICAL SIDEBAR (>= md) ================= */}
-      <aside className="hidden md:flex w-64 lg:w-72 shrink-0 bg-white border border-slate-200/80 rounded-2xl p-4 flex-col justify-between shadow-xs min-h-[520px]">
+      <aside className="hidden md:flex w-64 lg:w-72 shrink-0 bg-white border border-slate-200/80 rounded-2xl p-4 flex-col justify-between shadow-xs min-h-fit self-start">
         <div className="space-y-4">
           {/* Navigation Links */}
           <nav className="space-y-1" aria-label="Sidebar Navigation">
@@ -292,8 +363,8 @@ export function Sidebar({ activeTab, onTabChange, items, user }: SidebarProps) {
                     }}
                     className={`group w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm transition-all cursor-pointer ${
                       active
-                        ? "bg-[#0B4F3A]/8 text-[#0B4F3A] border-e-3 border-[#0B4F3A] font-bold shadow-2xs"
-                        : "text-slate-600 hover:text-slate-900 hover:bg-slate-50 font-medium"
+                        ? "bg-emerald-50/90 text-[#0F5244] font-black border border-emerald-200/80 shadow-2xs"
+                        : "text-slate-600 hover:text-slate-900 hover:bg-slate-50/80 font-medium"
                     }`}
                   >
                     {content}
@@ -308,8 +379,8 @@ export function Sidebar({ activeTab, onTabChange, items, user }: SidebarProps) {
                   aria-current={active ? "page" : undefined}
                   className={`group flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm transition-all cursor-pointer ${
                     active
-                      ? "bg-[#0B4F3A]/8 text-[#0B4F3A] border-e-3 border-[#0B4F3A] font-bold shadow-2xs"
-                      : "text-slate-600 hover:text-slate-900 hover:bg-slate-50 font-medium"
+                      ? "bg-emerald-50/90 text-[#0F5244] font-black border border-emerald-200/80 shadow-2xs"
+                      : "text-slate-600 hover:text-slate-900 hover:bg-slate-50/80 font-medium"
                   }`}
                 >
                   {content}
@@ -320,7 +391,7 @@ export function Sidebar({ activeTab, onTabChange, items, user }: SidebarProps) {
         </div>
 
         {/* Bottom Section: Sign Out */}
-        <div className="pt-3 border-t border-slate-100">
+        <div className="pt-4 mt-6 border-t border-slate-100">
           <button
             type="button"
             onClick={handleSignOut}

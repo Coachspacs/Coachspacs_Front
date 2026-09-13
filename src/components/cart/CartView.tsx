@@ -326,10 +326,6 @@ export function CartView({ items, onRemoveItem, onCheckout }: CartViewProps) {
                     </>
                   )}
                 </button>
-
-                <p className="text-center text-[11px] font-bold text-slate-400 pt-1 tracking-tight">
-                  {t("guarantee")}
-                </p>
               </div>
 
             </div>

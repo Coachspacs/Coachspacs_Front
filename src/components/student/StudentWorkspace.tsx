@@ -13,6 +13,7 @@ import { userService } from "@/services/userService";
 import { authService, getApiErrorMessage } from "@/services/auth";
 import { enrollmentService } from "@/services/enrollmentService";
 import { cartService } from "@/services/cartService";
+import { certificateService } from "@/services/certificateService";
 import {
   LayoutDashboard,
   BookOpen,
@@ -49,6 +50,7 @@ import { ChangeEmailModal } from "@/components/modals/ChangeEmailModal";
 import { CourseCard } from "@/components/course/CourseCard";
 import { Toast } from "@/components/ui/Toast";
 import { motion, AnimatePresence } from "framer-motion";
+import { EnrolledCourse } from "@/types/course";
 import {
   StudentOverviewTab,
   StudentCoursesTab,
@@ -228,24 +230,68 @@ export function StudentWorkspace({
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  // Enrolled Courses Data
-  const [courses, setCourses] = useState<any[]>([]);
+  // Enrolled Courses & Certificates Data
+  const [courses, setCourses] = useState<EnrolledCourse[]>([]);
   const [isLoadingCourses, setIsLoadingCourses] = useState(true);
+  const [certificatesCount, setCertificatesCount] = useState<number | null>(null);
 
-  // Load enrolled courses from API with localStorage fallback
+  // Load enrolled courses from API with strictly verified courses (only courses with certificates)
   useEffect(() => {
     async function fetchLiveEnrollments() {
       setIsLoadingCourses(true);
       const defaultCover = "/images/courses/course-leadership.png";
 
       try {
-        const enrollments = await enrollmentService.getMyEnrollments();
+        const [enrollments, certs] = await Promise.all([
+          enrollmentService.getMyEnrollments().catch(() => []),
+          certificateService.getMyCertificates().catch(() => []),
+        ]);
+
+        if (Array.isArray(certs)) {
+          setCertificatesCount(certs.length);
+        } else {
+          setCertificatesCount(0);
+        }
+
+        const certCourseIds = new Set<string>();
+        const certCodeMap = new Map<string, string>();
+        const certTitleMap = new Map<string, string>();
+
+        if (Array.isArray(certs)) {
+          certs.forEach((item) => {
+            const cid = item.course?.id || item.course_id;
+            const code = item.certificate_code || (item.id ? `CS-${item.id}` : "");
+            if (cid) {
+              certCourseIds.add(String(cid));
+              if (code) certCodeMap.set(String(cid), code);
+            }
+            const cTitle = (item.course?.title || item.course_title || "").trim().toLowerCase();
+            if (cTitle) {
+              certTitleMap.set(cTitle, code);
+            }
+          });
+        }
+
         if (Array.isArray(enrollments)) {
           const mapped = enrollments.map((enr: any) => {
             const c = enr.course || {};
             const total = c.total_lessons || enr.total_lessons || 10;
             const progress = enr.progress_percent ?? 0;
             const validImg = getSafeCourseImage(c);
+
+            const courseId = String(c.id || enr.course_id || enr.id);
+            const courseTitle = String(c.title || c.title_en || c.title_ar || "").trim().toLowerCase();
+            const matchedCode =
+              certCodeMap.get(courseId) ||
+              certTitleMap.get(courseTitle) ||
+              enr.certificate?.certificate_code ||
+              (enr.certificate?.id ? String(enr.certificate.id) : null);
+
+            const hasCertificate = Boolean(
+              matchedCode ||
+              certCourseIds.has(courseId) ||
+              enr.certificate
+            );
 
             return {
               id: c.id || enr.course_id || enr.id,
@@ -267,61 +313,89 @@ export function StudentWorkspace({
                 enr.completed_lessons?.length ||
                 Math.round((progress / 100) * total),
               isCompleted: Boolean(enr.is_completed || progress >= 100),
-              certificateId:
-                enr.certificate?.id ||
-                enr.certificate?.certificate_code ||
-                (progress >= 100 ? `CERT-${enr.id}` : null),
+              certificateId: matchedCode || null,
+              hasCertificate,
             };
           });
-          setCourses(mapped);
+
+          // Filter out courses that have NO certificate currently (as requested by user)
+          const validCourses = mapped.filter(
+            (item) => item.hasCertificate || item.certificateId
+          );
+
+          setCourses(validCourses);
           if (typeof window !== "undefined") {
             localStorage.setItem(
               "coachspace_enrolled_courses",
-              JSON.stringify(mapped),
+              JSON.stringify(validCourses),
             );
           }
           setIsLoadingCourses(false);
           return;
         }
       } catch (err) {
+        setCertificatesCount((prev) => (prev !== null ? prev : 0));
         console.warn(
           "[StudentWorkspace] Live enrollments fetch skipped / fallback to local:",
           err,
         );
       }
 
-      // Fallback to localStorage
+      // If user is authenticated, do not show unverified mock courses
       if (typeof window !== "undefined") {
         try {
           const saved = localStorage.getItem("coachspace_enrolled_courses");
           if (saved) {
             const list = JSON.parse(saved);
-            if (Array.isArray(list) && list.length > 0) {
-              const sanitized = list.map((item: any) => {
-                const img = getSafeCourseImage(item);
-                return {
-                  ...item,
-                  image: img,
-                  thumbnail: img,
-                  cover_image: img,
-                  coverImage: img,
-                };
-              });
-              setCourses(sanitized);
+            if (Array.isArray(list)) {
+              // Only keep genuine items with real backend enrollmentId and valid certificate
+              const validOnly = list.filter(
+                (item: any) =>
+                  item &&
+                  item.enrollmentId &&
+                  (item.hasCertificate || item.certificateId) &&
+                  !String(item.certificateId || "").startsWith("CERT-")
+              );
+              setCourses(validOnly);
+              setIsLoadingCourses(false);
+              return;
             }
           }
         } catch (err) {
-          console.warn(
-            "[StudentWorkspace] Could not load enrolled courses:",
-            err,
-          );
+          console.warn("[StudentWorkspace] Could not load enrolled courses:", err);
         }
       }
+      setCourses([]);
       setIsLoadingCourses(false);
     }
 
     fetchLiveEnrollments();
   }, [isAr]);
+
+
+  // Clean up any stale mock courses or synthesized fake certificates from localStorage
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const saved = localStorage.getItem("coachspace_enrolled_courses");
+        if (saved) {
+          const list = JSON.parse(saved);
+          if (Array.isArray(list)) {
+            const cleaned = list.filter(
+              (item: any) =>
+                item &&
+                item.enrollmentId &&
+                (item.hasCertificate || item.certificateId) &&
+                !String(item.certificateId || "").startsWith("CERT-")
+            );
+            if (cleaned.length !== list.length) {
+              localStorage.setItem("coachspace_enrolled_courses", JSON.stringify(cleaned));
+            }
+          }
+        }
+      } catch {}
+    }
+  }, []);
 
   // Order History Data
   const [orders] = useState<any[]>([]);
@@ -486,8 +560,28 @@ export function StudentWorkspace({
     }
   };
 
+  const completedCoursesCount = courses.filter(
+    (c) => c.isCompleted || (c.progress && c.progress >= 100)
+  ).length;
+  const totalCoursesCount = courses.length;
+  const overallProgress =
+    totalCoursesCount > 0
+      ? Math.round(
+          courses.reduce((sum, c) => sum + (c.progress || 0), 0) /
+            totalCoursesCount
+        )
+      : 0;
+  const totalCertificates = certificatesCount ?? 0;
+
+  const sidebarSummary = {
+    certificatesCount: totalCertificates,
+    overallProgress,
+    completedCoursesCount,
+    totalCoursesCount,
+  };
+
   return (
-    <div className="w-full space-y-4 sm:space-y-6">
+    <div dir={isAr ? "rtl" : "ltr"} className="w-full space-y-4 sm:space-y-6">
       {/* Toast */}
       <Toast message={toastMessage} onClose={() => setToastMessage(null)} />
 
@@ -569,6 +663,7 @@ export function StudentWorkspace({
               role: tStudent("roleStudent"),
               avatarUrl: avatarPreview,
             }}
+            summary={sidebarSummary}
           />
         )}
 
@@ -592,6 +687,7 @@ export function StudentWorkspace({
                 <StudentOverviewTab
                   courses={courses}
                   isLoading={isLoadingCourses}
+                  certificatesCount={certificatesCount ?? undefined}
                   onNavigateTab={handleNavigateTab}
                 />
               </motion.div>

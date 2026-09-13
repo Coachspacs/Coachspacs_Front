@@ -3,6 +3,7 @@ import { NextIntlClientProvider } from 'next-intl';
 import { getMessages, setRequestLocale } from 'next-intl/server';
 import StoreProvider from '@/components/StoreProvider';
 import { AuthInitializer } from '@/components/auth/AuthInitializer';
+import { CartDrawer } from '@/components/cart/CartDrawer';
 
 export default async function LocaleLayout({
   children,
@@ -24,6 +25,7 @@ export default async function LocaleLayout({
       <StoreProvider>
         <NextIntlClientProvider messages={messages} locale={locale}>
           <AuthInitializer />
+          <CartDrawer />
           <main className="flex-grow w-full">{children}</main>
         </NextIntlClientProvider>
       </StoreProvider>

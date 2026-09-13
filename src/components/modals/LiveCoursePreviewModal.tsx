@@ -303,9 +303,6 @@ export function LiveCoursePreviewModal({
               <div>
                 <span className="text-3xl font-black text-slate-900">{formattedPrice}</span>
               </div>
-              <span className="text-xs font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200">
-                {tp("moneyBackGuarantee")}
-              </span>
             </div>
 
             {/* CTA Buttons */}

@@ -8,6 +8,7 @@ import { useTranslations } from "next-intl";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@/lib/store";
 import { logout } from "@/features/auth/slice";
+import { openCartDrawer } from "@/features/cart/cartSlice";
 import { tokenManager } from "@/lib/tokenManager";
 import { authService } from "@/services/auth";
 import { Logo } from "@/components/ui/Logo";
@@ -112,6 +113,7 @@ export interface LessonViewerLayoutProps {
   onToggleComplete: (lessonId: string | number) => void;
   onNextLesson?: () => void;
   onPrevLesson?: () => void;
+  onFinishCourse?: () => void;
   progressPercent?: number;
   serverProgressPercent?: number | null;
   locale?: string;
@@ -135,6 +137,7 @@ export function LessonViewerLayout({
   onToggleComplete,
   onNextLesson,
   onPrevLesson,
+  onFinishCourse,
   progressPercent: externalProgressPercent,
   serverProgressPercent,
   locale = "en",
@@ -162,6 +165,8 @@ export function LessonViewerLayout({
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
   const [showShortcutsModal, setShowShortcutsModal] = useState(false);
+  const [showCelebrationModal, setShowCelebrationModal] = useState(false);
+  const [hasDismissedCelebration, setHasDismissedCelebration] = useState(false);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -212,12 +217,28 @@ export function LessonViewerLayout({
   const totalLessons = allLessons.length;
   const completedCount = completedLessonIds.length;
   const calculatedProgress = totalLessons > 0 ? Math.round((completedCount / totalLessons) * 100) : 0;
-  const progressPercent =
-    typeof serverProgressPercent === "number"
-      ? serverProgressPercent
-      : typeof externalProgressPercent === "number"
-      ? externalProgressPercent
-      : calculatedProgress;
+  const progressPercent = Math.max(
+    calculatedProgress,
+    typeof serverProgressPercent === "number" ? serverProgressPercent : 0,
+    typeof externalProgressPercent === "number" ? externalProgressPercent : 0
+  );
+
+  // Auto-trigger Course Completion Celebration Modal once 100% is reached
+  useEffect(() => {
+    if (progressPercent >= 100 && totalLessons > 0 && completedCount >= totalLessons) {
+      if (!hasDismissedCelebration) {
+        setShowCelebrationModal(true);
+      }
+    }
+  }, [progressPercent, totalLessons, completedCount, hasDismissedCelebration]);
+
+  const handleNavigateToCertificate = () => {
+    if (onFinishCourse) {
+      onFinishCourse();
+    } else {
+      router.push(`/${locale}/student/certificates/${courseSlug || "1"}`);
+    }
+  };
 
   // Initialize all sections as open
   useEffect(() => {
@@ -550,14 +571,29 @@ export function LessonViewerLayout({
     if (!url) return null;
     if (url.includes("youtube.com/watch?v=")) {
       const id = url.split("v=")[1]?.split("&")[0];
-      return `https://www.youtube.com/embed/${id}?autoplay=1&rel=0`;
+      return `https://www.youtube.com/embed/${id}?autoplay=1&rel=0&enablejsapi=1`;
     }
     if (url.includes("youtu.be/")) {
       const id = url.split("youtu.be/")[1]?.split("?")[0];
-      return `https://www.youtube.com/embed/${id}?autoplay=1&rel=0`;
+      return `https://www.youtube.com/embed/${id}?autoplay=1&rel=0&enablejsapi=1`;
     }
     return null;
   }, [activeLesson?.videoUrl, activeLesson?.video_url]);
+
+  // YouTube iframe message listener for video end
+  useEffect(() => {
+    const handleWindowMessage = (e: MessageEvent) => {
+      try {
+        const data = typeof e.data === "string" ? JSON.parse(e.data) : e.data;
+        // YouTube PlayerState 0 is ENDED
+        if (data?.event === "onStateChange" && data?.info === 0) {
+          handleVideoEnded();
+        }
+      } catch {}
+    };
+    window.addEventListener("message", handleWindowMessage);
+    return () => window.removeEventListener("message", handleWindowMessage);
+  }, [activeLesson, completedLessonIds]);
 
   // Language switch
   const handleToggleLanguage = () => {
@@ -686,10 +722,12 @@ export function LessonViewerLayout({
           {/* Right Actions: Shopping Cart, Language Switcher, User Dropdown */}
           <div className="flex items-center gap-2.5 sm:gap-3">
             {/* Shopping Cart Button */}
-            <Link
-              href={`/${locale}/student/cart`}
+            <button
+              type="button"
+              onClick={() => dispatch(openCartDrawer())}
               className="p-2 text-slate-700 hover:text-[#0F5244] transition-colors cursor-pointer inline-flex items-center justify-center"
               title={tNav("cart")}
+              aria-label={tNav("cart")}
             >
               <span className="relative inline-flex items-center justify-center">
                 <ShoppingCart className="h-5 w-5" />
@@ -699,7 +737,7 @@ export function LessonViewerLayout({
                   </span>
                 )}
               </span>
-            </Link>
+            </button>
 
             {/* Language Switcher Button */}
             <button
@@ -832,13 +870,32 @@ export function LessonViewerLayout({
               </span>
             </div>
 
-            {/* Quick Header Actions (Progress pill) */}
+            {/* Quick Header Actions (Progress pill & Certificate button) */}
             <div className="flex items-center gap-2 shrink-0">
               {/* Overall Course Progress Pill */}
               <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-emerald-200/80 bg-emerald-50/60 text-xs font-bold text-[#0F5244]">
                 <Sparkles className="w-3.5 h-3.5 text-[#0F5244]" />
                 <span>{progressPercent}% {t("completeBadge")}</span>
               </div>
+
+              {/* View Certificate Button if Course Completed or 100% */}
+              {(progressPercent >= 100 || (allLessons.length > 0 && completedLessonIds.length >= allLessons.length)) && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (onFinishCourse) {
+                      onFinishCourse();
+                    } else {
+                      router.push(`/${locale}/student/certificates/${courseSlug || "1"}`);
+                    }
+                  }}
+                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold shadow-xs transition-all cursor-pointer active:scale-95"
+                  title={t("viewCertificate")}
+                >
+                  <Award className="w-3.5 h-3.5 text-amber-300" />
+                  <span>{t("viewCertificate")}</span>
+                </button>
+              )}
             </div>
           </div>
 
@@ -1396,17 +1453,38 @@ export function LessonViewerLayout({
                 <span>{t("prev")}</span>
               </button>
 
-              {/* Next Lesson */}
-              <button
-                type="button"
-                onClick={onNextLesson}
-                disabled={activeLessonIndex >= allLessons.length - 1}
-                className="h-9 px-4 sm:px-4.5 rounded-full bg-[#0F5244] hover:bg-[#0b3d32] text-white disabled:opacity-30 disabled:pointer-events-none text-xs font-semibold inline-flex items-center gap-1.5 transition-all shadow-2xs hover:shadow-xs cursor-pointer active:scale-98"
-                title={t("nextLesson")}
-              >
-                <span>{t("next")}</span>
-                <ChevronRight className="w-3.5 h-3.5 rtl:rotate-180 text-white/90" />
-              </button>
+              {/* Next Lesson or Finish Course & Certificate */}
+              {activeLessonIndex >= allLessons.length - 1 ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (progressPercent >= 100) {
+                      handleNavigateToCertificate();
+                    } else if (onFinishCourse) {
+                      onFinishCourse();
+                    } else if (onNextLesson) {
+                      onNextLesson();
+                    } else {
+                      handleNavigateToCertificate();
+                    }
+                  }}
+                  className="h-9 px-4 sm:px-5 rounded-full bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold inline-flex items-center gap-1.5 transition-all shadow-sm hover:shadow cursor-pointer active:scale-98"
+                  title={progressPercent >= 100 ? t("viewCertificate") : t("finishCourseAndCertificate")}
+                >
+                  <Award className="w-4 h-4 text-amber-300 shrink-0" />
+                  <span>{progressPercent >= 100 ? t("viewCertificate") : t("finishCourseAndCertificate")}</span>
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={onNextLesson}
+                  className="h-9 px-4 sm:px-4.5 rounded-full bg-[#0F5244] hover:bg-[#0b3d32] text-white text-xs font-semibold inline-flex items-center gap-1.5 transition-all shadow-2xs hover:shadow-xs cursor-pointer active:scale-98"
+                  title={t("nextLesson")}
+                >
+                  <span>{t("next")}</span>
+                  <ChevronRight className="w-3.5 h-3.5 rtl:rotate-180 text-white/90" />
+                </button>
+              )}
             </div>
           </div>
 
@@ -1813,6 +1891,71 @@ export function LessonViewerLayout({
                 className="px-4 py-1.5 rounded bg-[#0F5244] hover:bg-[#07382E] text-white text-xs font-bold transition-colors cursor-pointer"
               >
                 {t("close")}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Course Completion Celebration Modal */}
+      {showCelebrationModal && (
+        <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-300">
+          <div className="bg-white rounded-3xl border border-slate-200/80 max-w-md w-full p-6 sm:p-8 text-center space-y-6 shadow-2xl relative overflow-hidden animate-in zoom-in-95 duration-200">
+            {/* Top decorative gradient glow */}
+            <div className="absolute top-0 inset-x-0 h-2 bg-gradient-to-r from-emerald-500 via-amber-400 to-emerald-600" />
+
+            {/* Close button */}
+            <button
+              type="button"
+              onClick={() => {
+                setShowCelebrationModal(false);
+                setHasDismissedCelebration(true);
+              }}
+              className="absolute top-4 end-4 p-1.5 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
+            >
+              <X size={18} />
+            </button>
+
+            {/* Glowing Trophy / Badge Icon */}
+            <div className="relative mx-auto w-20 h-20 rounded-3xl bg-gradient-to-br from-amber-400/20 via-emerald-500/15 to-emerald-600/20 border border-amber-300/40 flex items-center justify-center shadow-lg">
+              <div className="absolute inset-0 rounded-3xl bg-amber-400/10 animate-ping" style={{ animationDuration: "3s" }} />
+              <Award className="w-10 h-10 text-amber-500 shrink-0 drop-shadow-md" />
+            </div>
+
+            {/* Title and message */}
+            <div className="space-y-2">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-black">
+                <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
+                <span>100% {t("completeBadge")}</span>
+              </div>
+              <h3 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+                {t("courseCompletedTitle")}
+              </h3>
+              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed max-w-sm mx-auto">
+                {displayCourseTitle ? `${t("courseCompletedSubtitle")} (${displayCourseTitle})` : t("courseCompletedSubtitle")}
+              </p>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="space-y-2.5 pt-2">
+              <button
+                type="button"
+                onClick={handleNavigateToCertificate}
+                className="w-full py-3.5 px-5 rounded-2xl bg-[#0F5244] hover:bg-[#0b3d32] text-white text-xs sm:text-sm font-black shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-98"
+              >
+                <Award className="w-4 h-4 text-amber-300" />
+                <span>{t("viewAndDownloadCertificate")}</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setShowCelebrationModal(false);
+                  setHasDismissedCelebration(true);
+                }}
+                className="w-full py-2.5 px-4 rounded-xl text-xs font-bold text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition-all cursor-pointer"
+              >
+                {t("continueReview")}
               </button>
             </div>
           </div>

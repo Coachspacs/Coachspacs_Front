@@ -6,9 +6,10 @@ import { useTranslations, useLocale } from "next-intl";
 import { BookOpen, Search, Filter } from "lucide-react";
 import { CourseCard } from "@/components/course/CourseCard";
 import { StudentCourseCardSkeleton } from "@/components/ui/Skeleton";
+import { EnrolledCourse } from "@/types/course";
 
 interface StudentCoursesTabProps {
-  courses: any[];
+  courses: EnrolledCourse[];
   isLoading?: boolean;
   initialFilter?: "all" | "in_progress" | "completed";
 }
@@ -169,9 +170,9 @@ export function StudentCoursesTab({
                     : "No courses match your query"
                   : courseFilter !== "all"
                   ? isAr
-                    ? "لا توجد دورات في هذا التصنيف"
-                    : "No courses in this category"
-                  : tWs("noCoursesEnrolled")}
+                  : isAr
+                  ? "لم تسجل في أي دورات بعد"
+                  : "No enrolled courses yet"}
               </h3>
               <p className="text-xs text-slate-400">
                 {courses.length === 0

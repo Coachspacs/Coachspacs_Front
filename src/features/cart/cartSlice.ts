@@ -3,6 +3,7 @@ import { Course, CartItem } from '@/types';
 
 interface CartState {
   items: CartItem[];
+  isDrawerOpen: boolean;
 }
 
 const loadInitialCart = (): CartItem[] => {
@@ -28,6 +29,7 @@ const saveCart = (items: CartItem[]) => {
 
 const initialState: CartState = {
   items: [],
+  isDrawerOpen: false,
 };
 
 export const cartSlice = createSlice({
@@ -36,6 +38,18 @@ export const cartSlice = createSlice({
   reducers: {
     syncCartFromStorage: (state) => {
       state.items = loadInitialCart();
+    },
+    openCartDrawer: (state) => {
+      state.isDrawerOpen = true;
+    },
+    closeCartDrawer: (state) => {
+      state.isDrawerOpen = false;
+    },
+    toggleCartDrawer: (state) => {
+      state.isDrawerOpen = !state.isDrawerOpen;
+    },
+    setCartDrawerOpen: (state, action: PayloadAction<boolean>) => {
+      state.isDrawerOpen = action.payload;
     },
     addToCart: (state, action: PayloadAction<any>) => {
       const course = action.payload.course || action.payload;
@@ -83,5 +97,15 @@ export const cartSlice = createSlice({
   },
 });
 
-export const { addToCart, removeFromCart, clearCart, syncCartFromStorage, setCartItems } = cartSlice.actions;
+export const {
+  addToCart,
+  removeFromCart,
+  clearCart,
+  syncCartFromStorage,
+  setCartItems,
+  openCartDrawer,
+  closeCartDrawer,
+  toggleCartDrawer,
+  setCartDrawerOpen,
+} = cartSlice.actions;
 export default cartSlice.reducer;

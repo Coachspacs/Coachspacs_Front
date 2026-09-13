@@ -4,10 +4,12 @@ import React from "react";
 import Link from "next/link";
 import { useTranslations, useLocale } from "next-intl";
 import { Sparkles, Play, BookOpen, Award, TrendingUp } from "lucide-react";
+import { EnrolledCourse } from "@/types/course";
 
 interface StudentOverviewTabProps {
-  courses: any[];
+  courses: EnrolledCourse[];
   isLoading?: boolean;
+  certificatesCount?: number;
   onNavigateTab?: (
     tab: "overview" | "courses" | "certificates" | "orders" | "cart" | "settings",
     filter?: "all" | "in_progress" | "completed"
@@ -17,15 +19,17 @@ interface StudentOverviewTabProps {
 export function StudentOverviewTab({
   courses,
   isLoading = false,
+  certificatesCount,
   onNavigateTab,
 }: StudentOverviewTabProps) {
   const tWs = useTranslations("studentWorkspace");
   const locale = useLocale() || "en";
   const isAr = locale === "ar";
 
-  const completedCount = courses.filter((c) => c.isCompleted).length;
-  const inProgressCount = courses.filter((c) => !c.isCompleted).length;
-  const continueCourse = courses.find((c) => !c.isCompleted) || courses[0];
+  const completedCount =
+    typeof certificatesCount === "number" ? certificatesCount : 0;
+  const inProgressCount = courses.filter((c) => !c.isCompleted && (c.progress || 0) < 100).length;
+  const continueCourse = courses.find((c) => !c.isCompleted && (c.progress || 0) < 100);
 
   return (
     <div className="space-y-6 sm:space-y-8 animate-in fade-in duration-200">
