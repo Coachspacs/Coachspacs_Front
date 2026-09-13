@@ -261,7 +261,7 @@ export function OrderHistoryView({ orders: initialOrders }: OrderHistoryViewProp
             ${isAr ? "الإجمالي المدفوع:" : "Total Paid:"} $${order.total.toFixed(2)}
           </div>
           <div class="footer">
-            ${isAr ? "شكراً لاشتراكك مع منصة كوتش سبيس - نتمنى لك رحلة تدريبية ملهمة ومثمرة" : "Thank you for enrolling with CoachSpace"}
+            ${isAr ? "شكراً لاشتراكك مع منصة Coach Space - نتمنى لك رحلة تدريبية ملهمة ومثمرة" : "Thank you for enrolling with Coach Space"}
           </div>
           <script>
             window.onload = function() {

@@ -25,6 +25,7 @@ export const FOOTER_LINK_GROUPS: FooterLinkGroup[] = [
       { key: "footer.helpCenter", href: "#help" },
       { key: "footer.safetyCenter", href: "#safety" },
       { key: "footer.contact", href: "#contact" },
+      { key: "footer.verifyCertificate", href: "/certificates/verify" },
     ],
   },
 ];

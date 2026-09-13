@@ -4,3 +4,4 @@ export * from "./order";
 export * from "./api";
 export * from "./catalog";
 export * from "./publicInstructor";
+export * from "./certificate";

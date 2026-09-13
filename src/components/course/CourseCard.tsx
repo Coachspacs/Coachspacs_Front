@@ -26,12 +26,14 @@ import {
   Loader2,
   Award,
   FileText,
+  GraduationCap,
 } from "lucide-react";
-import { Course } from "@/types/catalog";
+import { Course, EnrolledCourse } from "@/types/course";
 import { normalizeInstructorSlug } from "@/lib/instructorProfile";
 import { RootState } from "@/lib/store";
-import { addToCart } from "@/features/cart/cartSlice";
+import { addToCart, openCartDrawer } from "@/features/cart/cartSlice";
 import { cartService } from "@/services/cartService";
+import { enrollmentService } from "@/services/enrollmentService";
 import { VerifiedBadge } from "@/components/ui/VerifiedBadge";
 
 export type CourseCardVariant =
@@ -42,10 +44,16 @@ export type CourseCardVariant =
   | "instructor-row";
 
 export interface UnifiedCourseCardProps {
-  course: any;
+  course: Course | EnrolledCourse | any;
   variant?: CourseCardVariant;
   isAr?: boolean;
   className?: string;
+
+  // Dynamic pricing & enrollment state props
+  isFree?: boolean;
+  isEnrolled?: boolean;
+  price?: number;
+  onEnrollFree?: (courseId: string | number) => void;
 
   // Student variant specific props
   onContinueLearning?: () => void;
@@ -103,6 +111,10 @@ export function CourseCard({
   variant = "catalog",
   isAr: isArProp,
   className = "",
+  isFree: isFreeProp,
+  isEnrolled: isEnrolledProp,
+  price: priceProp,
+  onEnrollFree,
   onContinueLearning,
   onViewCertificate,
   isExpandedStudents = false,
@@ -127,17 +139,65 @@ export function CourseCard({
 
   const [imgSrc, setImgSrc] = useState<string>(getSafeImage(course));
   const [imgError, setImgError] = useState(false);
+  const [isEnrolling, setIsEnrolling] = useState(false);
+  const [enrolledState, setEnrolledState] = useState<boolean>(
+    Boolean(isEnrolledProp || course?.isEnrolled || course?.is_enrolled || course?.enrolled)
+  );
 
   useEffect(() => {
     setImgSrc(getSafeImage(course));
     setImgError(false);
   }, [course]);
 
+  useEffect(() => {
+    if (isEnrolledProp !== undefined) {
+      setEnrolledState(isEnrolledProp);
+      return;
+    }
+    if (course?.isEnrolled || course?.is_enrolled || course?.enrolled) {
+      setEnrolledState(true);
+      return;
+    }
+    if (typeof window !== "undefined" && course?.id) {
+      try {
+        const enrolledCoursesRaw = localStorage.getItem("coachspace_enrolled_courses");
+        if (enrolledCoursesRaw) {
+          const enrolledList = JSON.parse(enrolledCoursesRaw);
+          if (Array.isArray(enrolledList)) {
+            const found = enrolledList.some(
+              (c: any) =>
+                String(c.id || c.courseId || c.course_id || c) === String(course.id) ||
+                (course.slug && String(c.slug || c) === String(course.slug))
+            );
+            if (found) {
+              setEnrolledState(true);
+            }
+          }
+        }
+      } catch {
+        // ignore
+      }
+    }
+  }, [isEnrolledProp, course]);
+
+  const resolvedPrice = priceProp !== undefined ? priceProp : course.price;
+  const isFree = isFreeProp !== undefined ? isFreeProp : Boolean(
+    course.priceFormatted === "Free" ||
+      course.priceFormatted === "مجاني" ||
+      resolvedPrice === 0 ||
+      course.is_free ||
+      course.isFree
+  );
+
+  const coursePath = enrolledState
+    ? `/${currentLocale}/student/learn/${course.id}`
+    : `/${currentLocale}/courses/${course.slug || course.id}`;
+
   const handleCartClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     if (isInCart) {
-      router.push(`/${currentLocale}/student/cart`);
+      dispatch(openCartDrawer());
     } else {
       dispatch(addToCart(course));
       if (typeof window !== "undefined") {
@@ -149,14 +209,50 @@ export function CourseCard({
     }
   };
 
-  const coursePath = `/${currentLocale}/courses/${course.slug || course.id}`;
-  const isFree = Boolean(
-    course.priceFormatted === "Free" ||
-      course.priceFormatted === "مجاني" ||
-      course.price === 0 ||
-      course.is_free ||
-      course.isFree
-  );
+  const handleFreeEnroll = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (enrolledState) {
+      router.push(`/${currentLocale}/student/learn/${course.id}`);
+      return;
+    }
+
+    if (!isAuthenticated) {
+      router.push(`/${currentLocale}/courses/${course.slug || course.id}`);
+      return;
+    }
+
+    try {
+      setIsEnrolling(true);
+      await enrollmentService.enrollFree(course.id);
+
+      if (typeof window !== "undefined") {
+        try {
+          const enrolledRaw = localStorage.getItem("coachspace_enrolled_courses");
+          const list = enrolledRaw ? JSON.parse(enrolledRaw) : [];
+          if (Array.isArray(list)) {
+            if (!list.some((item: any) => String(item.id || item) === String(course.id))) {
+              list.push({ id: course.id, slug: course.slug, title: course.title });
+              localStorage.setItem("coachspace_enrolled_courses", JSON.stringify(list));
+            }
+          }
+        } catch {
+          // ignore
+        }
+        window.dispatchEvent(new CustomEvent("coachspace:enrolled-updated"));
+      }
+
+      setEnrolledState(true);
+      onEnrollFree?.(course.id);
+      router.push(`/${currentLocale}/student/learn/${course.id}`);
+    } catch (err) {
+      console.error("Failed to enroll in free course:", err);
+      router.push(`/${currentLocale}/courses/${course.slug || course.id}`);
+    } finally {
+      setIsEnrolling(false);
+    }
+  };
 
   const displayTitle = isAr
     ? course.titleAr || course.title_ar || course.title
@@ -207,6 +303,17 @@ export function CourseCard({
                 </span>
               </div>
             )}
+
+            {/* Enrolled Badge */}
+            {enrolledState && (
+              <div className="absolute top-2 right-2 rtl:right-auto rtl:left-2 z-10">
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[9px] font-black rounded-md bg-emerald-700 text-white shadow-xs">
+                  <CheckCircle2 className="w-2.5 h-2.5 text-emerald-200" />
+                  <span>{isAr ? "مسجل" : "Enrolled"}</span>
+                </span>
+              </div>
+            )}
+
             {course.badge && course.badge !== "New" && (
               <div className="absolute top-2 left-2 rtl:left-auto rtl:right-2">
                 <span className="inline-block px-2 py-0.5 text-[9px] font-black rounded-md uppercase tracking-wider bg-[#38BDF8] text-slate-900 shadow-2xs">
@@ -229,19 +336,50 @@ export function CourseCard({
               </h4>
             </div>
 
-            {/* Footer: Price & Cart Button */}
+            {/* Footer: Price & Action Button */}
             <div className="flex items-center justify-between pt-2 border-t border-slate-100">
               <span className="text-sm sm:text-base font-black text-slate-900 leading-tight">
-                {isFree ? (
+                {enrolledState ? (
+                  <span className="text-emerald-700 font-extrabold text-xs sm:text-sm">
+                    {isAr ? "مسجل" : "Enrolled"}
+                  </span>
+                ) : isFree ? (
                   <span className="text-emerald-600 font-extrabold">
                     {isAr ? "مجاني" : "Free"}
                   </span>
                 ) : (
-                  course.priceFormatted || `$${Number(course.price || 0).toFixed(2)}`
+                  course.priceFormatted || `$${Number(resolvedPrice || 0).toFixed(2)}`
                 )}
               </span>
 
-              {!isFree && (
+              {enrolledState ? (
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    router.push(`/${currentLocale}/student/learn/${course.id}`);
+                  }}
+                  title={isAr ? "تابع التعلم" : "Continue Learning"}
+                  className="p-2 rounded-full border border-emerald-700 bg-emerald-700 text-white hover:bg-emerald-800 transition-all cursor-pointer flex items-center justify-center text-xs font-extrabold shadow-2xs active:scale-95 shrink-0"
+                >
+                  <Play className="h-3.5 w-3.5 fill-current" />
+                </button>
+              ) : isFree ? (
+                <button
+                  type="button"
+                  onClick={handleFreeEnroll}
+                  disabled={isEnrolling}
+                  title={isAr ? "سجل مجاناً" : "Enroll Free"}
+                  className="p-2 rounded-full border border-[#0F5244] bg-[#0F5244] text-white hover:bg-[#07382E] transition-all cursor-pointer flex items-center justify-center text-xs font-extrabold shadow-2xs active:scale-95 shrink-0 disabled:opacity-70"
+                >
+                  {isEnrolling ? (
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  ) : (
+                    <GraduationCap className="h-3.5 w-3.5" />
+                  )}
+                </button>
+              ) : (
                 <button
                   type="button"
                   onClick={handleCartClick}
@@ -375,31 +513,35 @@ export function CourseCard({
           </div>
 
           <div className="flex items-center gap-2">
-            <Link
-              href={learnUrl}
-              onClick={onContinueLearning}
-              className="flex-1 py-2.5 rounded-xl bg-[#0F5244] hover:bg-[#07382E] text-white text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer shadow-2xs active:scale-98"
-            >
-              <Play className="h-3.5 w-3.5 fill-current" />
-              <span>
-                {progress > 0
-                  ? isAr
-                    ? "متابعة التعلم"
-                    : "Continue Learning"
-                  : isAr
-                  ? "ابدأ التعلم"
-                  : "Start Learning"}
-              </span>
-            </Link>
-
-            {isCompleted && (
+            {isCompleted ? (
               <Link
-                href={`/${currentLocale}/student/certificates`}
+                href={
+                  course.certificateId || course.certificate_code
+                    ? `/${currentLocale}/student/certificates/${course.certificateId || course.certificate_code}`
+                    : `/${currentLocale}/student/certificates`
+                }
                 onClick={onViewCertificate}
-                className="p-2.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200/90 text-xs font-bold flex items-center justify-center transition-all cursor-pointer shadow-2xs"
-                title={isAr ? "عرض الشهادة" : "View Certificate"}
+                className="w-full py-2.5 rounded-xl bg-[#0F5244] hover:bg-[#07382E] text-white text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer shadow-2xs active:scale-98"
               >
-                <Award className="w-4 h-4 text-emerald-700" />
+                <Award className="h-4 w-4 shrink-0 text-emerald-300" />
+                <span>{isAr ? "عرض الشهادة" : "View Certificate"}</span>
+              </Link>
+            ) : (
+              <Link
+                href={learnUrl}
+                onClick={onContinueLearning}
+                className="w-full py-2.5 rounded-xl bg-[#0F5244] hover:bg-[#07382E] text-white text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer shadow-2xs active:scale-98"
+              >
+                <Play className="h-3.5 w-3.5 fill-current" />
+                <span>
+                  {progress > 0
+                    ? isAr
+                      ? "متابعة التعلم"
+                      : "Continue Learning"
+                    : isAr
+                    ? "ابدأ التعلم"
+                    : "Start Learning"}
+                </span>
               </Link>
             )}
           </div>
@@ -785,6 +927,16 @@ export function CourseCard({
             </div>
           )}
 
+          {/* Enrolled Badge on Top Corner */}
+          {enrolledState && (
+            <div className="absolute top-3 right-3 rtl:right-auto rtl:left-3 z-10">
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-extrabold rounded-md bg-emerald-700 text-white shadow-md backdrop-blur-xs">
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-200" />
+                <span>{isAr ? "مسجل" : "Enrolled"}</span>
+              </span>
+            </div>
+          )}
+
           {/* Top-Left Badge */}
           {course.badge && course.badge !== "New" && (
             <div className="absolute top-3 left-3 rtl:left-auto rtl:right-3">
@@ -862,21 +1014,59 @@ export function CourseCard({
               </div>
             )}
 
-            {/* Price & Add to Cart Capsule Button */}
+            {/* Price & Action Capsule Button */}
             <div className="flex items-center justify-between pt-3 border-t border-slate-100 gap-2">
               <div className="flex items-center">
                 <span className="text-lg font-black text-slate-900 leading-tight">
-                  {isFree ? (
+                  {enrolledState ? (
+                    <span className="text-emerald-700 font-extrabold text-sm sm:text-base">
+                      {isAr ? "مسجل" : "Enrolled"}
+                    </span>
+                  ) : isFree ? (
                     <span className="text-emerald-600 font-extrabold">
                       {isAr ? "مجاني" : "Free"}
                     </span>
                   ) : (
-                    course.priceFormatted || `$${Number(course.price || 0).toFixed(2)}`
+                    course.priceFormatted || `$${Number(resolvedPrice || 0).toFixed(2)}`
                   )}
                 </span>
               </div>
 
-              {!isFree && (
+              {enrolledState ? (
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    router.push(`/${currentLocale}/student/learn/${course.id}`);
+                  }}
+                  title={isAr ? "تابع التعلم" : "Continue Learning"}
+                  className="px-4 py-2 rounded-full bg-[#0F5244] hover:bg-[#07382E] text-white transition-all cursor-pointer flex items-center justify-center gap-2 text-xs font-bold shadow-2xs active:scale-95 shrink-0"
+                >
+                  <Play className="h-3.5 w-3.5 fill-current" />
+                  <span>{isAr ? "تابع التعلم" : "Continue Learning"}</span>
+                </button>
+              ) : isFree ? (
+                <button
+                  type="button"
+                  onClick={handleFreeEnroll}
+                  disabled={isEnrolling}
+                  title={isAr ? "سجل مجاناً" : "Enroll Free"}
+                  className="px-4 py-2 rounded-full bg-[#0F5244] hover:bg-[#07382E] text-white transition-all cursor-pointer flex items-center justify-center gap-2 text-xs font-bold shadow-2xs active:scale-95 shrink-0 disabled:opacity-70"
+                >
+                  {isEnrolling ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      <span>{isAr ? "جاري التسجيل..." : "Enrolling..."}</span>
+                    </>
+                  ) : (
+                    <>
+                      <GraduationCap className="h-4 w-4" />
+                      <span>{isAr ? "سجل مجاناً" : "Enroll Free"}</span>
+                    </>
+                  )}
+                </button>
+              ) : (
                 <button
                   type="button"
                   onClick={handleCartClick}

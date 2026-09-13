@@ -270,7 +270,15 @@
     "employmentDeletedToast": "Employment history item deleted successfully",
     "verifyCredential": "Verify Credential",
     "untitledCourse": "Untitled Course",
-    "submitReviewFailed": "Failed to submit course for review. Please check your connection and try again."
+    "submitReviewFailed": "Failed to submit course for review. Please check your connection and try again.",
+    "allCourses": "All Courses",
+    "selectCourseToViewStudents": "Select Course",
+    "filterByCourse": "Filter by Course",
+    "noStudentsInCourse": "No students enrolled in this course yet.",
+    "accessDeniedCourse": "You do not have permission to view students for this course.",
+    "totalStudentsDistinct": "Total Learners",
+    "totalCoursesMetric": "Total Courses",
+    "enrolledDate": "Enrolled Date"
   },
   "header": {
     "brandName": "Coach Space",
@@ -744,13 +752,25 @@
       "addToCart": "Add to Cart",
       "inCart": "In Cart",
       "addedToCart": "Added to Cart",
+      "enrollNow": "Enroll Free",
+      "enrolled": "Enrolled",
+      "continueLearning": "Continue Learning",
+      "startLearning": "Start Learning",
+      "purchased": "Purchased",
+      "enrolling": "Enrolling...",
       "viewInstructorProfile": "View Instructor Profile"
     },
     "courseCard": {
       "free": "Free",
       "addToCart": "Add to Cart",
       "inCart": "In Cart",
-      "addedToCart": "Added to Cart"
+      "addedToCart": "Added to Cart",
+      "enrollNow": "Enroll Free",
+      "enrolled": "Enrolled",
+      "continueLearning": "Continue Learning",
+      "startLearning": "Start Learning",
+      "purchased": "Purchased",
+      "enrolling": "Enrolling..."
     },
     "pagination": {
       "previous": "Previous Page",
@@ -842,6 +862,7 @@
   },
   "cart": {
     "title": "My Cart",
+    "drawerTitle": "Shopping Cart",
     "emptyTitle": "Your cart is empty",
     "emptySubtitle": "Looks like you haven't added any courses yet. Explore our catalog to find your next learning adventure.",
     "empty": "Your cart is empty",
@@ -854,9 +875,14 @@
     "taxesNote": "Taxes (Calculated at checkout)",
     "total": "Total",
     "checkout": "Checkout",
+    "processing": "Processing...",
+    "viewFullCart": "View Full Cart",
+    "continueShopping": "Continue Shopping",
+    "closeCart": "Close cart",
     "guarantee": "30-Day Money-Back Guarantee",
     "remove": "Remove",
-    "itemsCount": "{count} items"
+    "itemsCount": "{count} items",
+    "defaultInstructor": "Coach Space Instructor"
   },
   "skillSelector": {
     "defaultLabel": "Selected Skills & Domains",
@@ -1056,6 +1082,7 @@
     "rights": "Coach Space. All rights reserved.",
     "privacyPolicy": "Privacy Policy",
     "termsOfService": "Terms of Service",
+    "verifyCertificate": "Verify Certificate",
     "brandSubtitle": "Premium education & mentorship for modern professional",
     "company": "COMPANY",
     "aboutUs": "About Us",
@@ -1170,7 +1197,16 @@
     "enrolledStatus": "Enrolled",
     "certificateBtn": "Certificate",
     "earnedCertificatesTitle": "Earned Certificates",
-    "earnedCertificatesDesc": "All verified certificates earned upon completing your courses.",
+    "earnedCertificatesDesc": "All verified credentials earned upon completing your courses & coaching tracks.",
+    "searchCredentialPlaceholder": "Search credential...",
+    "noSearchResultTitle": "No credentials match your search",
+    "noSearchResultDesc": "Try typing a different course title or credential ID.",
+    "showcaseTitle": "Showcase your achievements",
+    "showcaseDesc": "Add verified Coach Space credentials directly to your LinkedIn or portfolio.",
+    "shareProfile": "Share Profile",
+    "profileLinkCopied": "Profile link copied to clipboard!",
+    "viewCertificate": "View",
+    "completed100": "Completed 100%",
     "noCertificatesTitle": "No Certificates Earned Yet",
     "noCertificatesDesc": "Complete 100% of your enrolled courses to earn and download verified certificates.",
     "downloadPdf": "Download PDF",
@@ -1180,6 +1216,7 @@
     "startJourneySubtitle": "Browse available courses from top coaches and enroll in your first course.",
     "exploreCourses": "Explore Courses",
     "noEnrolledCourses": "No enrolled courses yet",
+    "noCoursesEnrolled": "No enrolled courses yet",
     "noEnrolledCoursesDesc": "Explore the catalog and begin your learning journey now.",
     "instructorAccount": "Instructor Account",
     "studentUserFallback": "Student User"
@@ -1197,7 +1234,11 @@
     "signOut": "Sign Out",
     "studentRole": "Student",
     "instructorRole": "Instructor",
-    "defaultUser": "User"
+    "defaultUser": "User",
+    "learningMilestone": "Learning Milestone",
+    "courseCompletion": "Course Completion",
+    "viewAllCertificates": "View certificates →",
+    "earnedBadge": "Earned"
   },
   "courseStudio": {
     "courseInfoTab": "Course Info",
@@ -1629,6 +1670,12 @@
     "forward10": "Forward 10s",
     "prev": "Previous",
     "next": "Next",
+    "finishCourseAndCertificate": "Complete & Certificate",
+    "viewCertificate": "View Certificate",
+    "courseCompletedTitle": "Congratulations! You've Completed the Course",
+    "courseCompletedSubtitle": "Your official certificate of completion is ready. You can view and download it now as a high-quality PDF.",
+    "viewAndDownloadCertificate": "View & Download Certificate (PDF)",
+    "continueReview": "Continue Browsing Lessons",
     "lessonOf": "Lesson {current} of {total}",
     "currentModule": "Current Module",
     "viewProfile": "View Profile",
@@ -1754,5 +1801,44 @@
         "description": "Our dedicated Data Protection team is here to assist you with any privacy questions or requests."
       }
     }
+  },
+  "certificate": {
+    "title": "Certificate of Completion",
+    "download": "Download PDF",
+    "certifyThat": "This is to certify that",
+    "hasCompleted": "has successfully completed the online course",
+    "issueDate": "Issue Date",
+    "issued": "Issued",
+    "verifiedCertificate": "Verified Certificate",
+    "instructorSignature": "Instructor Signature",
+    "preparingCertificate": "Preparing your certificate...",
+    "retryingDownload": "Generating certificate PDF, please wait...",
+    "downloadReady": "Your certificate is ready for download.",
+    "verifyCredential": "Verify Credential",
+    "verified": "Verified",
+    "backToCertificates": "Back to My Certificates",
+    "notFound": "Certificate Not Found",
+    "notFoundDesc": "No verified certificate was found matching this identifier, or the course has not been 100% completed yet."
+  },
+  "certificateVerify": {
+    "verifyTitle": "Certificate Credential Verification",
+    "verifySubtitle": "Confirm the authenticity of any CoachSpace Academy certificate credential.",
+    "enterCodePlaceholder": "Enter Certificate Code (e.g. CS-12345678)",
+    "verifyButton": "Verify Credential",
+    "searching": "Verifying credential...",
+    "verifiedCredential": "Verified Official Credential",
+    "studentName": "Recipient Learner",
+    "courseCompleted": "Course Completed",
+    "issuedOn": "Issued On",
+    "credentialId": "Credential ID",
+    "authenticityNotice": "This credential has been officially verified and cryptographically recorded by CoachSpace Academy.",
+    "invalidFormatTitle": "Invalid Certificate Code Format",
+    "invalidFormatDesc": "CoachSpace certificate codes must start with CS- followed by 8 characters (e.g., CS-12345678).",
+    "notFoundTitle": "Certificate Not Found",
+    "notFoundDesc": "Certificate not found. Please verify the certificate code and try again.",
+    "rateLimitedTitle": "Rate Limit Exceeded",
+    "rateLimitedDesc": "Rate limit exceeded (maximum 20 verification requests per hour). Please try again later.",
+    "backToHome": "Return to Home",
+    "exploreCourses": "Explore Accredited Courses"
   }
 }

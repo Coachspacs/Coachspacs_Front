@@ -80,13 +80,20 @@ export default function CoursePlayerPage() {
     }
   }, [courseId, locale]);
 
-  // Load Persisted Completed Lessons
+  // Load Persisted Completed Lessons & Progress
   useEffect(() => {
     if (typeof window !== "undefined" && courseId) {
       try {
         const savedCompleted = localStorage.getItem(`coachspace_course_${courseId}_completed`);
         if (savedCompleted) {
-          setCompletedLessonIds(JSON.parse(savedCompleted));
+          const parsed = JSON.parse(savedCompleted);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            setCompletedLessonIds((prev) => Array.from(new Set([...prev, ...parsed])));
+          }
+        }
+        const savedProgress = localStorage.getItem(`coachspace_course_${courseId}_progress`);
+        if (savedProgress && !isNaN(Number(savedProgress))) {
+          setServerProgressPercent((prev) => (prev === null ? Number(savedProgress) : Math.max(prev, Number(savedProgress))));
         }
       } catch (e) {
         console.warn("Could not read from localStorage:", e);
@@ -146,6 +153,25 @@ export default function CoursePlayerPage() {
     });
   }, [sectionsList, isAr, t, liveLessonOverrides]);
 
+  // Infer / Sync completed lessons if serverProgressPercent > 0 but completedLessonIds was empty
+  useEffect(() => {
+    if (
+      allLessons.length > 0 &&
+      completedLessonIds.length === 0 &&
+      typeof serverProgressPercent === "number" &&
+      serverProgressPercent > 0
+    ) {
+      const lessonsToCompleteCount = Math.round((serverProgressPercent / 100) * allLessons.length);
+      if (lessonsToCompleteCount > 0) {
+        const inferredIds = allLessons.slice(0, lessonsToCompleteCount).map((l) => String(l.id));
+        setCompletedLessonIds(inferredIds);
+        if (typeof window !== "undefined" && courseId) {
+          localStorage.setItem(`coachspace_course_${courseId}_completed`, JSON.stringify(inferredIds));
+        }
+      }
+    }
+  }, [allLessons, completedLessonIds.length, serverProgressPercent, courseId]);
+
   // Fetch live single lesson player data (US-12) including authenticated streaming URL
   useEffect(() => {
     const currentLesson = allLessons[activeLessonIndex];
@@ -186,8 +212,25 @@ export default function CoursePlayerPage() {
       : [...completedLessonIds, idStr];
 
     setCompletedLessonIds(updated);
+
+    const calcPct = allLessons.length > 0 ? Math.round((updated.length / allLessons.length) * 100) : 0;
+    setServerProgressPercent(calcPct);
+
     if (typeof window !== "undefined" && courseId) {
       localStorage.setItem(`coachspace_course_${courseId}_completed`, JSON.stringify(updated));
+      localStorage.setItem(`coachspace_course_${courseId}_progress`, String(calcPct));
+
+      // Sync with enrolled courses list in localStorage
+      try {
+        const enrolled = JSON.parse(localStorage.getItem("coachspace_enrolled_courses") || "[]");
+        const updatedEnrolled = enrolled.map((c: any) => {
+          if (String(c.id) === String(courseId) || String(c.course_id) === String(courseId) || String(c.slug) === String(courseId)) {
+            return { ...c, progress: calcPct, completed: calcPct >= 100 };
+          }
+          return c;
+        });
+        localStorage.setItem("coachspace_enrolled_courses", JSON.stringify(updatedEnrolled));
+      } catch (_) {}
     }
 
     // Call live Sprint 8 Delta API if enrollment is found
@@ -211,16 +254,70 @@ export default function CoursePlayerPage() {
   };
 
   const handleNextLesson = useCallback(() => {
+    // 1. Auto-complete current lesson when advancing forward
+    const currentLesson = allLessons[activeLessonIndex];
+    if (currentLesson && !completedLessonIds.includes(String(currentLesson.id))) {
+      toggleLessonCompletion(currentLesson.id);
+    }
+
+    // 2. Advance to next lesson if not at the end
     if (activeLessonIndex < allLessons.length - 1) {
       setActiveLessonIndex((prev) => prev + 1);
     }
-  }, [activeLessonIndex, allLessons.length]);
+  }, [activeLessonIndex, allLessons, completedLessonIds, toggleLessonCompletion]);
 
   const handlePrevLesson = useCallback(() => {
     if (activeLessonIndex > 0) {
       setActiveLessonIndex((prev) => prev - 1);
     }
   }, [activeLessonIndex]);
+
+  // Complete entire course and view certificate
+  const handleFinishCourse = useCallback(async () => {
+    // 1. Mark ALL lessons in the course as complete (100%)
+    const allLessonIds = allLessons.map((l) => String(l.id));
+    setCompletedLessonIds(allLessonIds);
+    setServerProgressPercent(100);
+
+    if (typeof window !== "undefined" && courseId) {
+      localStorage.setItem(`coachspace_course_${courseId}_completed`, JSON.stringify(allLessonIds));
+      localStorage.setItem(`coachspace_course_${courseId}_progress`, "100");
+      localStorage.setItem(`coachspace_course_${courseId}_finished`, "true");
+
+      try {
+        const enrolled = JSON.parse(localStorage.getItem("coachspace_enrolled_courses") || "[]");
+        const updated = enrolled.map((c: any) => {
+          if (String(c.id) === String(courseId) || String(c.course_id) === String(courseId) || String(c.slug) === String(courseId)) {
+            return { ...c, progress: 100, completed: true };
+          }
+          return c;
+        });
+        localStorage.setItem("coachspace_enrolled_courses", JSON.stringify(updated));
+      } catch (_) {}
+    }
+
+    // 2. Inform backend for current lesson and capture any issued certificate
+    let realCertCode: string | null = null;
+    if (enrollmentId) {
+      try {
+        const currentLesson = allLessons[activeLessonIndex];
+        if (currentLesson) {
+          const res = await enrollmentService.markLessonComplete(enrollmentId, currentLesson.id);
+          if (res?.certificate?.certificate_code) {
+            realCertCode = res.certificate.certificate_code;
+          } else if (res?.certificate?.id) {
+            realCertCode = String(res.certificate.id);
+          }
+        }
+      } catch (err) {
+        console.warn("[CoursePlayer] Error completing lesson API:", err);
+      }
+    }
+
+    // 3. Navigate to Certificate page or certificates list
+    const certTarget = realCertCode || course?.certificate_code || course?.id || courseId;
+    router.push(`/${locale}/student/certificates/${certTarget}`);
+  }, [activeLessonIndex, allLessons, course, courseId, enrollmentId, locale, router]);
 
   if (isLoading) {
     return (
@@ -288,6 +385,7 @@ export default function CoursePlayerPage() {
       onToggleComplete={toggleLessonCompletion}
       onNextLesson={handleNextLesson}
       onPrevLesson={handlePrevLesson}
+      onFinishCourse={handleFinishCourse}
       serverProgressPercent={serverProgressPercent}
       locale={locale}
       isAr={isAr}

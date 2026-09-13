@@ -99,10 +99,12 @@ axiosInstance.interceptors.request.use(
     }
 
     const fullUrl = (config.baseURL || '').replace(/\/+$/, '') + (config.url || '');
-    console.log(`[Axios Request] ${config.method?.toUpperCase()} -> ${fullUrl}`, {
-      locale: currentLocale,
-      headers: config.headers,
-    });
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`[Axios Request] ${config.method?.toUpperCase()} -> ${fullUrl}`, {
+        locale: currentLocale,
+        hasAuth: Boolean(token),
+      });
+    }
 
     return config;
   },
