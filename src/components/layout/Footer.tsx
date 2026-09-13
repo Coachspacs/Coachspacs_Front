@@ -36,6 +36,13 @@ export function Footer({ lang, variant = "main" }: FooterProps) {
             {/* Privacy Policy & Terms Links */}
             <div className="flex items-center gap-3 text-slate-500">
               <Link
+                href={`/${currentLocale}/certificates/verify`}
+                className="hover:text-slate-900 transition-colors"
+              >
+                {t("verifyCertificate")}
+              </Link>
+              <span className="text-slate-300">·</span>
+              <Link
                 href={`/${currentLocale}/privacy`}
                 className="hover:text-slate-900 transition-colors"
               >
@@ -160,6 +167,14 @@ export function Footer({ lang, variant = "main" }: FooterProps) {
                   {t("contact")}
                 </Link>
               </li>
+              <li>
+                <Link
+                  href={`/${currentLocale}/certificates/verify`}
+                  className="hover:text-white transition-colors"
+                >
+                  {t("verifyCertificate")}
+                </Link>
+              </li>
             </ul>
           </div>
 
@@ -206,6 +221,12 @@ export function Footer({ lang, variant = "main" }: FooterProps) {
           </p>
 
           <div className="flex items-center gap-6">
+            <Link
+              href={`/${currentLocale}/certificates/verify`}
+              className="hover:text-white transition-colors"
+            >
+              {t("verifyCertificate")}
+            </Link>
             <Link
               href={`/${currentLocale}/privacy`}
               className="hover:text-white transition-colors"
