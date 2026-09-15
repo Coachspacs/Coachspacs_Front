@@ -15,7 +15,6 @@ import {
   ShoppingCart,
   BookOpen,
   Settings,
-  Sparkles,
   ChevronDown,
 } from "lucide-react";
 import { RootState } from "@/lib/store";
@@ -249,7 +248,7 @@ export function Header({ lang, onLanguageToggle, variant = "main", className = "
           </Link>
 
           {/* 3. Role-Based Navigation Link */}
-          {mounted && isAuthenticated ? (
+          {mounted && isAuthenticated && (
             isInstructor ? (
               <Link
                 href={instructorDashboardUrl}
@@ -275,18 +274,6 @@ export function Header({ lang, onLanguageToggle, variant = "main", className = "
                 <span>{tNav("myLearning")}</span>
               </Link>
             )
-          ) : (
-            <Link
-              href={`/${locale}/become-instructor`}
-              className={`px-3.5 py-2 rounded-xl text-xs lg:text-sm font-bold transition-all inline-flex items-center gap-1.5 ${
-                isActive("/become-instructor")
-                  ? "bg-emerald-50 text-[#0F5244] font-extrabold border border-emerald-200/60 shadow-2xs"
-                  : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
-              }`}
-            >
-              <Sparkles className="h-4 w-4 text-emerald-600 shrink-0" />
-              <span>{tNav("becomeInstructor")}</span>
-            </Link>
           )}
 
         </nav>
@@ -711,21 +698,7 @@ export function Header({ lang, onLanguageToggle, variant = "main", className = "
                     </Link>
                   </>
                 )
-              ) : (
-                /* Guest Become Instructor Link */
-                <Link
-                  href={`/${locale}/become-instructor`}
-                  onClick={() => setMobileMenuOpen(false)}
-                  className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all ${
-                    isActive("/become-instructor")
-                      ? "bg-[#0F5244] text-white shadow-xs"
-                      : "text-slate-700 hover:bg-slate-50"
-                  }`}
-                >
-                  <Sparkles className="h-4 w-4 text-emerald-700" />
-                  <span>{tNav("becomeInstructor")}</span>
-                </Link>
-              )}
+              ) : null}
 
               {/* Shopping Cart Link (For guests and students) */}
               {(!mounted || !isAuthenticated || !isInstructor) && (

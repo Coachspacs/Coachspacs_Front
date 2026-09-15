@@ -304,7 +304,7 @@ export function FilterSidebar({
       </div>
 
       {/* Action Buttons */}
-      <div className="pt-4 border-t border-slate-100 space-y-2">
+      <div className="pt-3 space-y-2">
         <button
           type="button"
           onClick={() => {

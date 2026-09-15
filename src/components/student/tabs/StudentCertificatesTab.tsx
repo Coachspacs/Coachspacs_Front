@@ -64,19 +64,28 @@ export function StudentCertificatesTab({
   // Only display official backend certificates from /api/certificates
   const certificateList = liveCertificates.map((item) => {
     const code = item.certificate_code || `CS-${item.id}`;
+    const courseId = item.course?.id || item.course_id || (typeof item.course === 'number' || typeof item.course === 'string' ? item.course : undefined);
+    
+    // Look up in passed enrolled courses if title not directly present
+    const matchedEnr = courses?.find(
+      (c) => String(c.id) === String(courseId) || String(c.course_id) === String(courseId)
+    );
+
     const courseTitle =
       (isAr
-        ? (item.course?.title_ar || item.course?.title || item.course_title)
-        : (item.course?.title_en || item.course?.title || item.course_title)) ||
+        ? item.course?.title_ar || item.course?.title || item.course_title || matchedEnr?.title_ar || matchedEnr?.title
+        : item.course?.title_en || item.course?.title || item.course_title || matchedEnr?.title_en || matchedEnr?.title) ||
+      matchedEnr?.title ||
       item.course?.title ||
       item.course_title ||
-      (isAr ? "شهادة إتمام الدورة" : "Course Certificate");
+      item.title ||
+      (isAr ? "دورة تدريبية متخصصة" : "Specialized Course");
 
     return {
       id: item.id,
       certificate_code: code,
       title: courseTitle,
-      course_id: item.course?.id,
+      course_id: courseId,
       issued_at: item.issued_at,
       pdf_url: item.pdf_url,
       source: "api",

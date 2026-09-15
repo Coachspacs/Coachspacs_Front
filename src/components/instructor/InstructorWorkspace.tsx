@@ -8,7 +8,6 @@ import {
   LayoutDashboard,
   BookOpen,
   Users,
-  CreditCard,
   Settings,
   Plus,
   Star,
@@ -68,12 +67,11 @@ import {
   InstructorOverviewTab,
   InstructorCoursesTab,
   InstructorStudentsTab,
-  InstructorPayoutTab,
   InstructorSettingsTab,
 } from "./tabs";
 
 interface InstructorWorkspaceProps {
-  initialTab?: "overview" | "courses" | "students" | "payout" | "settings";
+  initialTab?: "overview" | "courses" | "students" | "settings";
   hideSidebar?: boolean;
 }
 
@@ -104,7 +102,7 @@ export function InstructorWorkspace({
       ? "settings"
       : initialTab;
   const [activeTab, setActiveTab] = useState<
-    "overview" | "courses" | "students" | "payout" | "settings"
+    "overview" | "courses" | "students" | "settings"
   >(defaultTab);
   const [studentSearch, setStudentSearch] = useState("");
   const [courseSearch, setCourseSearch] = useState("");
@@ -889,7 +887,6 @@ export function InstructorWorkspace({
                   overview: tInst("analyticsRevenue"),
                   courses: tInst("courseLifecycle"),
                   students: tInst("enrolledStudentsNav"),
-                  payout: tInst("payoutAndBilling"),
                 };
                 setPendingFeatureName(tabLabels[tabId] || tabId);
                 setShowPendingModal(true);
@@ -912,11 +909,6 @@ export function InstructorWorkspace({
                 id: "students",
                 label: tInst("enrolledStudentsNav"),
                 icon: Users,
-              },
-              {
-                id: "payout",
-                label: tInst("payoutAndBilling"),
-                icon: CreditCard,
               },
               { id: "settings", label: t("accountSettings"), icon: Settings },
             ]}
@@ -990,30 +982,6 @@ export function InstructorWorkspace({
                   studentSearch={studentSearch}
                   setStudentSearch={setStudentSearch}
                   isLoading={isLoadingCourses}
-                />
-              </motion.div>
-            )}
-
-            {activeTab === "payout" && (
-              <motion.div
-                key="payout"
-                initial={{ opacity: 0, y: 6 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -6 }}
-                transition={{ duration: 0.15 }}
-              >
-                <InstructorPayoutTab
-                  formData={formData}
-                  courses={courses}
-                  onSavePayout={async (payoutData) => {
-                    setFormData((prev) => ({ ...prev, ...payoutData }));
-                    setToastMessage(
-                      isAr
-                        ? "تم حفظ إعدادات الدفع بنجاح"
-                        : "Payout settings saved successfully",
-                    );
-                    setTimeout(() => setToastMessage(null), 3000);
-                  }}
                 />
               </motion.div>
             )}

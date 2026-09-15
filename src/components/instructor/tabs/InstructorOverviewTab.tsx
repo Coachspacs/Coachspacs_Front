@@ -5,7 +5,7 @@ import Link from "next/link";
 import {
   Star,
   Users,
-  CreditCard,
+  TrendingUp,
   BookOpen,
   Layers,
   ChevronLeft,
@@ -102,14 +102,14 @@ export function InstructorOverviewTab({
           </div>
         </div>
 
-        {/* Card 3: Payout & Revenue */}
+        {/* Card 3: Revenue */}
         <div className="p-5 rounded-2xl bg-white border border-slate-200/80 shadow-xs hover:border-blue-500/30 transition-all duration-200">
           <div className="flex items-center justify-between gap-2">
             <span className="text-xs font-bold text-slate-500">
-              {tInst("payoutAndBilling")}
+              {tInst("totalRevenueMetric")}
             </span>
             <div className="w-9 h-9 rounded-xl bg-blue-50 text-blue-700 ring-1 ring-blue-100 flex items-center justify-center shrink-0">
-              <CreditCard className="w-4.5 h-4.5" />
+              <TrendingUp className="w-4.5 h-4.5" />
             </div>
           </div>
           <div className="mt-3">

@@ -18,7 +18,6 @@ import {
   LayoutDashboard,
   BookOpen,
   Users,
-  CreditCard,
   Settings,
   ExternalLink,
 } from "lucide-react";
@@ -253,15 +252,6 @@ export function InstructorLayoutClient({
       href: `/${locale}/instructor/students`,
       onClick: !isApproved
         ? handleRestrictedClick(tInst("enrolledStudentsNav"))
-        : undefined,
-    },
-    {
-      id: "payout",
-      label: tInst("payoutAndBilling"),
-      icon: CreditCard,
-      href: `/${locale}/instructor/orders`,
-      onClick: !isApproved
-        ? handleRestrictedClick(tInst("payoutAndBilling"))
         : undefined,
     },
     {
