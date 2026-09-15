@@ -363,57 +363,91 @@ export default function CertificatePage() {
         const jsPDF = (await import('jspdf')).default;
         const pdf = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
         
-        // Background & Borders
-        pdf.setFillColor(253, 254, 253);
-        pdf.rect(8, 8, 281, 194, 'F');
-        pdf.setDrawColor(15, 82, 68);
-        pdf.setLineWidth(1.2);
-        pdf.rect(14, 14, 269, 182, 'D');
-        pdf.setDrawColor(217, 119, 6);
-        pdf.setLineWidth(0.4);
-        pdf.rect(17, 17, 263, 176, 'D');
+        // Split Layout: Left Emerald Panel & Right Warm Cream Area
+        const pageWidth = 297;
+        const pageHeight = 210;
 
-        // Header
-        pdf.setFontSize(18);
-        pdf.setTextColor(15, 82, 68);
-        pdf.text('COACH SPACE ACADEMY', 148.5, 36, { align: 'center' });
-        
-        pdf.setFontSize(24);
-        pdf.setTextColor(30, 41, 59);
-        pdf.text('Certificate of Completion & Excellence', 148.5, 52, { align: 'center' });
-        
-        pdf.setFontSize(13);
-        pdf.setTextColor(100, 116, 139);
-        pdf.text('This is to officially certify that', 148.5, 68, { align: 'center' });
+        // Right Area: Warm Cream Background
+        pdf.setFillColor(250, 248, 245);
+        pdf.rect(0, 0, pageWidth, pageHeight, 'F');
 
-        // Student Name
-        pdf.setFontSize(28);
-        pdf.setTextColor(15, 82, 68);
-        pdf.text(String(certificateData.studentName || 'Student'), 148.5, 88, { align: 'center' });
+        // Left Panel: Deep Dark Forest Emerald
+        pdf.setFillColor(11, 59, 44);
+        pdf.rect(0, 0, 95, pageHeight, 'F');
 
-        // Course Section
-        pdf.setFontSize(13);
-        pdf.setTextColor(100, 116, 139);
-        pdf.text('has successfully fulfilled all requirements and assessments for:', 148.5, 106, { align: 'center' });
+        // Left Panel: Brand Header
+        pdf.setFontSize(16);
+        pdf.setTextColor(255, 255, 255);
+        pdf.text('Coach Space', 20, 28);
 
-        pdf.setFontSize(22);
-        pdf.setTextColor(30, 41, 59);
-        pdf.text(String(certificateData.courseTitle || 'Course Title'), 148.5, 122, { align: 'center' });
+        // Left Panel: Course Section
+        pdf.setFontSize(10);
+        pdf.setTextColor(167, 243, 208);
+        pdf.text('COURSE', 20, 95);
 
-        // Authority / Footer
-        pdf.setDrawColor(226, 232, 240);
-        pdf.setLineWidth(0.5);
-        pdf.line(25, 145, 272, 145);
+        pdf.setFontSize(16);
+        pdf.setTextColor(255, 255, 255);
+        const splitCourse = pdf.splitTextToSize(String(certificateData.courseTitle || 'Course'), 65);
+        pdf.text(splitCourse, 20, 106);
 
+        // Left Panel: Verified Credential
+        pdf.setFontSize(10);
+        pdf.setTextColor(255, 255, 255);
+        pdf.text('Verified credential', 20, 180);
+        pdf.setFontSize(8.5);
+        pdf.setTextColor(167, 243, 208);
+        pdf.text(`ID ${certificateData.certificateCode || cleanCode}`, 20, 187);
+
+        // Right Panel: Awarded to
+        pdf.setFontSize(12);
+        pdf.setTextColor(155, 112, 35);
+        pdf.text('Awarded to', 115, 45);
+
+        // Right Panel: Student Name
+        pdf.setFontSize(26);
+        pdf.setTextColor(15, 23, 42);
+        pdf.text(String(certificateData.studentName || 'Student Name'), 115, 62);
+
+        // Right Panel: Gold Underline Accent
+        pdf.setFillColor(197, 155, 39);
+        pdf.rect(115, 68, 24, 1.2, 'F');
+
+        // Right Panel: Description Paragraph
         pdf.setFontSize(11);
-        pdf.setTextColor(100, 116, 139);
-        pdf.text(`Issue Date: ${certificateData.issueDate || 'Recent'}`, 30, 160);
-        pdf.text(`Credential ID: ${certificateData.certificateCode || cleanCode}`, 30, 168);
+        pdf.setTextColor(71, 85, 105);
+        const descText = `For completing ${certificateData.courseTitle || 'the course'} in full — every lesson, exercise, and assessment finished to a certified standard. This credential reflects practical skill, not just attendance.`;
+        const splitDesc = pdf.splitTextToSize(descText, 155);
+        pdf.text(splitDesc, 115, 88);
 
-        pdf.text('Coach Space Verified Credential', 148.5, 164, { align: 'center' });
+        // Right Panel: Divider
+        pdf.setDrawColor(226, 232, 240);
+        pdf.setLineWidth(0.4);
+        pdf.line(115, 138, 275, 138);
 
-        pdf.text(`Instructor: ${certificateData.instructorName || 'Academy Instructor'}`, 265, 160, { align: 'right' });
-        pdf.text('Authorized Signature', 265, 168, { align: 'right' });
+        // Right Panel: Metadata Row
+        pdf.setFontSize(8.5);
+        pdf.setTextColor(148, 163, 184);
+        pdf.text('Issue date', 115, 152);
+        pdf.setFontSize(10);
+        pdf.setTextColor(15, 23, 42);
+        pdf.text(String(certificateData.issueDate || 'Recent'), 115, 160);
+
+        pdf.setFontSize(8.5);
+        pdf.setTextColor(148, 163, 184);
+        pdf.text('Instructor', 170, 152);
+        pdf.setFontSize(10);
+        pdf.setTextColor(15, 23, 42);
+        pdf.text(String(certificateData.instructorName || 'Certified Instructor'), 170, 160);
+
+        pdf.setFontSize(14);
+        pdf.setTextColor(30, 41, 59);
+        pdf.text(String(certificateData.instructorName || 'Laila Hourani'), 230, 158);
+        pdf.setDrawColor(203, 213, 225);
+        pdf.setLineWidth(0.3);
+        pdf.line(230, 163, 272, 163);
+        pdf.setFontSize(8.5);
+        pdf.setTextColor(148, 163, 184);
+        pdf.text('Instructor signature', 230, 170);
 
         pdf.save(fileName);
         setDownloadStatus(isAr ? 'تم التنزيل بنجاح!' : 'Downloaded successfully!');
@@ -458,11 +492,13 @@ export default function CertificatePage() {
     return (
       <div className="max-w-xl mx-auto px-4 py-16 text-center space-y-6">
         <div className="w-16 h-16 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center mx-auto shadow-xs border border-amber-200">
-          <AlertCircle className="w-8 h-8" />
+          <Award className="w-8 h-8" />
         </div>
         <div className="space-y-2">
-          <h2 className="text-xl font-bold text-slate-900">{t('notFound')}</h2>
-          <p className="text-sm text-slate-500">
+          <h2 className="text-xl font-bold text-slate-900">
+            {t('notFound')}
+          </h2>
+          <p className="text-xs text-slate-500 leading-relaxed max-w-sm mx-auto">
             {t('notFoundDesc')}
           </p>
         </div>
@@ -478,7 +514,7 @@ export default function CertificatePage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 print-certificate-container" dir={isAr ? 'rtl' : 'ltr'}>
+    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 print-certificate-container" dir={isAr ? 'rtl' : 'ltr'}>
       {/* Action Header */}
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4 print:hidden">
         <div className="flex items-center gap-3">
@@ -529,158 +565,148 @@ export default function CertificatePage() {
         </div>
       </div>
 
-      {/* Soft & Elegant Luxury Certificate of Excellence */}
-      <div ref={certificateCardRef} className="relative print-certificate-card rounded-3xl bg-white border border-slate-200/80 shadow-md p-3 sm:p-6 md:p-8">
-        {/* Delicate Inner Hairline Frame */}
-        <div className="relative rounded-2xl border border-emerald-900/[0.08] bg-gradient-to-b from-[#FCFDFD] via-white to-[#F9FCFA] p-6 sm:p-12 md:p-14 text-center space-y-6 sm:space-y-8 overflow-hidden">
+      {/* Modern Luxury Split-Layout Certificate */}
+      <div
+        ref={certificateCardRef}
+        className="relative print-certificate-card w-full rounded-3xl bg-white border border-slate-200/90 shadow-2xl overflow-hidden"
+      >
+        <div className="w-full flex flex-col md:flex-row items-stretch min-h-[500px] sm:min-h-[540px]">
           
-          {/* 4 Soft Minimalist Corner Accents */}
-          <div className="absolute top-3.5 left-3.5 w-3.5 h-3.5 border-t border-l border-amber-400/50 rounded-tl-xs pointer-events-none" />
-          <div className="absolute top-3.5 right-3.5 w-3.5 h-3.5 border-t border-r border-amber-400/50 rounded-tr-xs pointer-events-none" />
-          <div className="absolute bottom-3.5 left-3.5 w-3.5 h-3.5 border-b border-l border-amber-400/50 rounded-bl-xs pointer-events-none" />
-          <div className="absolute bottom-3.5 right-3.5 w-3.5 h-3.5 border-b border-r border-amber-400/50 rounded-br-xs pointer-events-none" />
+          {/* LEFT SIDEBAR: Deep Forest Emerald (33% width) */}
+          <div className="relative w-full md:w-[35%] lg:w-[32%] bg-[#0B3B2C] text-white p-6 sm:p-8 md:p-10 flex flex-col justify-between overflow-hidden shrink-0 select-none">
+            
+            {/* Subtle botanical organic leaf watermark vectors in background */}
+            <svg
+              className="absolute -top-12 -left-12 w-48 h-48 text-white/[0.04] pointer-events-none"
+              viewBox="0 0 100 100"
+              fill="currentColor"
+            >
+              <path d="M50 0 C70 30, 90 40, 100 70 C80 90, 40 100, 20 70 C0 40, 30 10, 50 0 Z" />
+            </svg>
+            <svg
+              className="absolute top-1/3 -right-12 w-56 h-56 text-emerald-400/[0.05] pointer-events-none"
+              viewBox="0 0 100 100"
+              fill="currentColor"
+            >
+              <path d="M50 0 C80 20, 100 60, 70 90 C40 100, 10 70, 0 40 C10 10, 30 0, 50 0 Z" />
+            </svg>
+            <svg
+              className="absolute -bottom-10 -left-6 w-44 h-44 text-white/[0.03] pointer-events-none"
+              viewBox="0 0 100 100"
+              fill="currentColor"
+            >
+              <path d="M50 0 C70 30, 90 40, 100 70 C80 90, 40 100, 20 70 C0 40, 30 10, 50 0 Z" />
+            </svg>
 
-          {/* Ultra-Soft Subtle Botanical Leaf Watermark */}
-          <svg
-            className="absolute inset-0 m-auto w-64 h-64 sm:w-80 sm:h-80 text-[#0F5244]/[0.02] pointer-events-none select-none"
-            viewBox="0 0 200 200"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.2"
-            aria-hidden="true"
-          >
-            <path d="M100 20 C110 50, 150 70, 160 110 C170 150, 130 180, 100 180 C70 180, 30 150, 40 110 C50 70, 90 50, 100 20 Z" />
-            <path d="M100 25 L100 175" strokeWidth="1" />
-            <path d="M100 60 C120 70, 135 90, 140 110" />
-            <path d="M100 80 C80 90, 65 110, 60 130" />
-            <path d="M100 110 C120 120, 130 135, 135 150" />
-            <path d="M100 130 C80 140, 70 155, 65 170" />
-          </svg>
-
-          {/* Top Header: Academy Recognition with Official Logo */}
-          <div className="space-y-3 sm:space-y-4 relative z-10">
-            {/* Official Website Brand Logo */}
-            <div className="flex items-center justify-center gap-3">
-              <img
-                src="/images/brand-logo.png"
-                alt="Coach Space Logo"
-                className="h-12 sm:h-14 md:h-16 w-auto object-contain shrink-0 drop-shadow-xs"
-                crossOrigin="anonymous"
-              />
-              <span className="text-xl sm:text-2xl md:text-3xl font-black text-[#0F5244] tracking-tight">
+            {/* Top: Brand Logo & Title */}
+            <div className="relative z-10 flex items-center gap-3">
+              <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center shrink-0 shadow-xs">
+                <div className="w-3.5 h-3.5 rounded-full bg-[#0B3B2C]" />
+              </div>
+              <span className="font-serif-luxury text-xl sm:text-2xl font-bold text-white tracking-wide">
                 Coach Space
               </span>
             </div>
 
-            {/* Official Credential Badge */}
-            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-emerald-50/80 border border-emerald-100 text-[#0F5244] text-[11px] font-semibold tracking-wide">
-              <Sparkles className="w-3.5 h-3.5 text-amber-500/90" />
-              <span>{isAr ? 'شهادة إتمام وتفوق رسمية' : 'Official Certificate of Excellence'}</span>
-              <span className="w-1 h-1 rounded-full bg-[#0F5244]/30" />
-              <span className="text-[10px] font-medium text-slate-500">
-                {isAr ? 'معتمدة وموثقة' : 'Verified Credential'}
+            {/* Middle: Course Label and Course Title */}
+            <div className="relative z-10 my-8 sm:my-12 space-y-2">
+              <span className="text-[11px] sm:text-xs font-semibold uppercase tracking-widest text-emerald-300/80 block">
+                {isAr ? "الدورة التدريبية" : "Course"}
               </span>
-            </div>
-
-            {/* Certificate Title */}
-            <div className="space-y-1.5">
-              <h2 className="text-xl sm:text-2xl md:text-3xl font-serif font-bold text-slate-800 tracking-normal">
-                {isAr ? 'شهادة إتمام دورة تدريبية' : 'Certificate of Course Completion'}
-              </h2>
-              <div className="w-20 h-[1.5px] bg-gradient-to-r from-transparent via-amber-400/60 to-transparent mx-auto" />
-              <p className="text-xs sm:text-sm text-slate-500 font-normal pt-0.5">
-                {t('certifyThat')}
-              </p>
-            </div>
-          </div>
-
-          {/* Recipient Student Name */}
-          <div className="py-2 relative z-10">
-            <h3 className="text-2xl sm:text-4xl md:text-5xl font-serif font-bold text-slate-900 tracking-normal">
-              {certificateData.studentName}
-            </h3>
-            <div className="flex items-center justify-center gap-2 mt-2 text-amber-400/80">
-              <span className="h-[1px] w-8 sm:w-16 bg-gradient-to-r from-transparent to-amber-300/80" />
-              <span className="text-[10px]">✦</span>
-              <span className="h-[1px] w-8 sm:w-16 bg-gradient-to-l from-transparent to-amber-300/80" />
-            </div>
-          </div>
-
-          {/* Completed Course Title Section */}
-          <div className="max-w-3xl mx-auto space-y-2 relative z-10">
-            <p className="text-xs sm:text-sm text-slate-400 font-medium">
-              {t('hasCompleted')}
-            </p>
-            
-            {/* Elegant Luxury Typography - No Green Box */}
-            <div className="py-1">
-              <h4 className="text-2xl sm:text-3xl md:text-4xl font-serif font-bold text-[#0F5244] leading-snug tracking-tight">
+              <h3 className="font-serif-luxury italic text-white text-2xl sm:text-3xl font-bold leading-tight drop-shadow-xs">
                 {certificateData.courseTitle}
-              </h4>
-              <div className="flex items-center justify-center gap-2 mt-2.5 text-amber-400/60">
-                <span className="h-[1px] w-12 sm:w-24 bg-gradient-to-r from-transparent via-amber-300 to-transparent" />
+              </h3>
+            </div>
+
+            {/* Bottom: Verified Credential & ID Badge */}
+            <div className="relative z-10 pt-4 flex items-center gap-3">
+              <div className="w-11 h-11 rounded-full border border-emerald-400/30 bg-emerald-950/60 flex items-center justify-center text-emerald-300 shrink-0 shadow-inner">
+                <ShieldCheck className="w-5 h-5 text-emerald-400" />
               </div>
-            </div>
-
-            <p className="text-xs sm:text-sm text-slate-500 font-normal max-w-xl mx-auto leading-relaxed pt-0.5">
-              {isAr
-                ? 'تقديراً لاجتياز كافة متطلبات الدورة التدريبية والاختبارات العملية المعتمدة بنجاح وتفوق.'
-                : 'In recognition of successfully fulfilling all certified curriculum requirements and practical assessments with distinction.'}
-            </p>
-          </div>
-
-          {/* Bottom Authority Row: Date, Soft Seal, Signature */}
-          <div className="pt-7 sm:pt-9 border-t border-slate-100/90 grid grid-cols-1 sm:grid-cols-3 items-center gap-6 relative z-10">
-            {/* Issue Date & ID */}
-            <div className="space-y-1 sm:text-start order-2 sm:order-1">
-              <span className="block text-[10px] font-semibold uppercase tracking-wider text-slate-400">
-                {t('issueDate')}
-              </span>
-              <span className="text-xs sm:text-sm font-semibold text-slate-700 block">
-                {certificateData.issueDate}
-              </span>
-              <Link
-                href={`/${locale}/certificates/verify/${encodeURIComponent(certificateData.certificateCode)}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-slate-50 hover:bg-emerald-50 border border-slate-200/60 hover:border-emerald-300 text-[10px] font-mono text-slate-600 hover:text-emerald-800 transition-colors cursor-pointer group/badge"
-                title={isAr ? "انقر للتحقق من صحة الشهادة" : "Click to verify certificate"}
-              >
-                <ShieldCheck className="w-3 h-3 text-emerald-600 group-hover/badge:scale-110 transition-transform" />
-                <span>ID: {certificateData.certificateCode}</span>
-              </Link>
-            </div>
-
-            {/* Soft, Refined Center Academy Seal */}
-            <div className="flex flex-col items-center justify-center order-1 sm:order-2">
-              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full p-[1.5px] bg-gradient-to-tr from-amber-400/70 via-amber-200/90 to-amber-300/70 shadow-xs">
-                <div className="w-full h-full rounded-full bg-white p-1 flex flex-col items-center justify-center text-center relative border border-amber-100">
-                  <div className="w-full h-full rounded-full border border-dashed border-amber-300/60 flex flex-col items-center justify-center">
-                    <Award className="w-5 h-5 sm:w-6 sm:h-6 text-[#0F5244] stroke-[1.8]" />
-                    <span className="text-[7px] font-bold tracking-widest text-[#0F5244] uppercase mt-0.5">
-                      COACH SPACE
-                    </span>
-                    <span className="text-[5px] font-semibold tracking-wider text-amber-600 uppercase">
-                      VERIFIED
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Instructor Signature */}
-            <div className="space-y-1.5 sm:text-end order-3">
-              <div className="flex items-end justify-center sm:justify-end pb-0.5">
-                <span className="font-serif text-lg sm:text-xl font-bold text-slate-800 tracking-wide block">
-                  {certificateData.instructorName}
+              <div className="min-w-0">
+                <span className="block text-xs font-bold text-white tracking-tight">
+                  {isAr ? "شهادة معتمدة وموثقة" : "Verified credential"}
+                </span>
+                <span className="block text-[11px] font-mono text-emerald-300/85 tracking-wider uppercase">
+                  ID {certificateData.certificateCode}
                 </span>
               </div>
-              <div className="w-32 sm:w-40 h-[1px] bg-slate-300 mx-auto sm:ms-auto sm:me-0" />
-              <span className="block text-xs font-semibold text-slate-500 pt-0.5">
-                {t('instructorSignature')}
-              </span>
             </div>
+
           </div>
+
+          {/* RIGHT CONTENT AREA: Warm Paper Cream (67-68% width) */}
+          <div className="relative flex-1 bg-[#FAF8F5] p-6 sm:p-10 md:p-12 lg:p-14 flex flex-col justify-between space-y-6 sm:space-y-8 text-slate-800">
+            
+            {/* Top: Awarded to & Recipient Student Name */}
+            <div className="space-y-2 sm:space-y-3 text-start">
+              <span className="font-serif-luxury italic text-amber-900/80 text-sm sm:text-base font-semibold block">
+                {isAr ? "مُنحت إلى" : "Awarded to"}
+              </span>
+              
+              <h2 className="font-serif-luxury text-3xl sm:text-4xl md:text-5xl font-bold text-slate-900 tracking-tight leading-tight">
+                {certificateData.studentName}
+              </h2>
+
+              <div className="w-16 sm:w-20 h-0.5 bg-[#C59B27] mt-3 rounded-full" />
+            </div>
+
+            {/* Middle: Rich descriptive paragraph with bold course name */}
+            <div className="space-y-2 text-start">
+              <p className="text-xs sm:text-sm lg:text-base text-slate-600 font-normal leading-relaxed max-w-xl">
+                {isAr ? (
+                  <>
+                    تقديراً لاجتياز دورة <strong className="font-bold text-slate-900">{certificateData.courseTitle}</strong> بالكامل وتفوق — وإتمام كافة الدروس والتمارين والتقييمات وفقاً لأعلى المعايير المعتمدة التي تعكس المهارة العملية الحقيقية.
+                  </>
+                ) : (
+                  <>
+                    For completing <strong className="font-bold text-slate-900">{certificateData.courseTitle}</strong> in full — every lesson, exercise, and assessment finished to a certified standard. This credential reflects practical skill, not just attendance.
+                  </>
+                )}
+              </p>
+            </div>
+
+            {/* Divider Line */}
+            <div className="border-t border-slate-200/80 pt-6 sm:pt-8" />
+
+            {/* Bottom: 3-column Metadata Row (Issue Date, Instructor, Instructor Signature) */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 items-end text-start">
+              
+              {/* 1. Issue Date */}
+              <div className="space-y-1">
+                <span className="block text-[11px] font-semibold text-slate-400">
+                  {isAr ? "تاريخ الإصدار" : "Issue date"}
+                </span>
+                <span className="block text-xs sm:text-sm font-bold text-slate-900">
+                  {certificateData.issueDate}
+                </span>
+              </div>
+
+              {/* 2. Instructor Name */}
+              <div className="space-y-1">
+                <span className="block text-[11px] font-semibold text-slate-400">
+                  {isAr ? "المدرب" : "Instructor"}
+                </span>
+                <span className="block text-xs sm:text-sm font-bold text-slate-900">
+                  {certificateData.instructorName || (isAr ? "المدرب المعتمد" : "Certified Instructor")}
+                </span>
+              </div>
+
+              {/* 3. Instructor Signature */}
+              <div className="space-y-1 sm:text-end flex flex-col sm:items-end">
+                <span className="font-signature text-3xl sm:text-4xl text-slate-800 tracking-wider select-none leading-none -rotate-2">
+                  {certificateData.instructorName || "Laila Hourani"}
+                </span>
+                <div className="w-32 sm:w-36 h-[1px] bg-slate-300 mt-1" />
+                <span className="block text-[11px] font-semibold text-slate-400 pt-0.5">
+                  {isAr ? "توقيع المدرب" : "Instructor signature"}
+                </span>
+              </div>
+
+            </div>
+
+          </div>
+
         </div>
       </div>
 
@@ -731,14 +757,12 @@ export default function CertificatePage() {
 
           .print-certificate-card {
             box-shadow: none !important;
-            border: 1.5px solid rgba(15, 82, 68, 0.35) !important;
-            padding: 16px !important;
+            border: 1px solid #e2e8f0 !important;
             page-break-inside: avoid !important;
             break-inside: avoid !important;
             width: 100% !important;
             max-width: 100% !important;
             margin: 0 auto !important;
-            background-color: #ffffff !important;
           }
         }
       `}</style>
