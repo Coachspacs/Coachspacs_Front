@@ -160,33 +160,44 @@ export function StudentCertificatesTab({
           </p>
         </div>
 
-        {/* Search Credential Input */}
-        {certificateList.length > 0 && (
-          <div className="relative w-full sm:w-72 md:w-80 group">
-            <div className="absolute top-1/2 -translate-y-1/2 rtl:right-3.5 ltr:left-3.5 pointer-events-none flex items-center justify-center text-slate-400 group-focus-within:text-emerald-600 transition-colors">
-              <Search className="w-4 h-4 stroke-[2.2]" />
+        {/* Search & Quick Verification Tool */}
+        <div className="flex items-center gap-2.5 flex-wrap sm:flex-nowrap w-full sm:w-auto">
+          {certificateList.length > 0 && (
+            <div className="relative w-full sm:w-72 md:w-80 group">
+              <div className="absolute top-1/2 -translate-y-1/2 rtl:right-3.5 ltr:left-3.5 pointer-events-none flex items-center justify-center text-slate-400 group-focus-within:text-emerald-600 transition-colors">
+                <Search className="w-4 h-4 stroke-[2.2]" />
+              </div>
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder={tWs("searchCredentialPlaceholder")}
+                style={{ outline: "none" }}
+                className="w-full h-11 rounded-2xl border border-slate-200 bg-slate-50/60 hover:bg-white hover:border-slate-300 focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/15 outline-none focus:outline-none focus-visible:outline-none transition-all duration-200 rtl:pr-11 ltr:pl-11 rtl:pl-10 ltr:pr-10 text-sm font-medium text-slate-800 placeholder:text-slate-400"
+              />
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery("")}
+                  className="absolute top-1/2 -translate-y-1/2 rtl:left-3 ltr:right-3 p-1 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 transition-all focus:outline-none cursor-pointer"
+                  title={isAr ? "مسح" : "Clear"}
+                  aria-label={isAr ? "مسح" : "Clear"}
+                >
+                  <X className="w-3.5 h-3.5 stroke-[2.2]" />
+                </button>
+              )}
             </div>
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder={tWs("searchCredentialPlaceholder")}
-              style={{ outline: "none" }}
-              className="w-full h-11 rounded-2xl border border-slate-200 bg-slate-50/60 hover:bg-white hover:border-slate-300 focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/15 outline-none focus:outline-none focus-visible:outline-none transition-all duration-200 rtl:pr-11 ltr:pl-11 rtl:pl-10 ltr:pr-10 text-sm font-medium text-slate-800 placeholder:text-slate-400"
-            />
-            {searchQuery && (
-              <button
-                type="button"
-                onClick={() => setSearchQuery("")}
-                className="absolute top-1/2 -translate-y-1/2 rtl:left-3 ltr:right-3 p-1 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 transition-all focus:outline-none cursor-pointer"
-                title={isAr ? "مسح" : "Clear"}
-                aria-label={isAr ? "مسح" : "Clear"}
-              >
-                <X className="w-3.5 h-3.5 stroke-[2.2]" />
-              </button>
-            )}
-          </div>
-        )}
+          )}
+
+          <Link
+            href={`/${locale}/certificates/verify`}
+            className="inline-flex items-center justify-center gap-1.5 h-11 px-4 rounded-2xl bg-emerald-50/80 hover:bg-emerald-100/80 border border-emerald-200 text-[#0F5244] text-xs font-bold transition-all shadow-2xs shrink-0 whitespace-nowrap cursor-pointer"
+            title={isAr ? "التحقق من صحة ومصداقية أي شهادة" : "Verify Certificate Authenticity"}
+          >
+            <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
+            <span>{isAr ? "فحص شهادة" : "Verify Certificate"}</span>
+          </Link>
+        </div>
       </div>
 
       {/* Certificate Cards Grid */}
@@ -277,8 +288,20 @@ export function StudentCertificatesTab({
                   </div>
                 </div>
 
-                {/* Bottom Action Row: View + Download PDF ONLY */}
+                {/* Bottom Action Row: View + Verify + Download PDF */}
                 <div className="mt-5 pt-4 border-t border-slate-100 relative z-10 flex items-center justify-end gap-2 sm:gap-2.5 flex-wrap">
+                  {/* Verify Certificate Link */}
+                  <Link
+                    href={`/${locale}/certificates/verify/${encodeURIComponent(cert.certificate_code || cert.id)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-emerald-800 hover:text-emerald-950 bg-emerald-50/80 hover:bg-emerald-100/90 border border-emerald-200/70 text-xs font-bold transition-all cursor-pointer shrink-0 whitespace-nowrap shadow-2xs group/verify"
+                    title={isAr ? "التحقق من صحة ومصداقية هذه الشهادة" : "Verify certificate authenticity"}
+                  >
+                    <ShieldCheck className="w-4 h-4 text-emerald-600 group-hover/verify:scale-105 transition-transform shrink-0" />
+                    <span className="whitespace-nowrap">{isAr ? "تحقق" : "Verify"}</span>
+                  </Link>
+
                   {/* View Certificate Page */}
                   <Link
                     href={`/${locale}/student/certificates/${cert.certificate_code || cert.id}`}

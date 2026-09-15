@@ -311,6 +311,7 @@
     "cart": "Cart",
     "orders": "Order History",
     "certificates": "Certificates",
+    "verifyCertificate": "Verify Certificate",
     "profile": "Profile",
     "account": "Account",
     "settings": "Settings",

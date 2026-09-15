@@ -495,8 +495,19 @@ export default function CertificatePage() {
           </h1>
         </div>
 
-        {/* Action: Dedicated Download PDF Button Only */}
-        <div className="flex items-center gap-2.5">
+        {/* Actions: Verify Authenticity & Download PDF */}
+        <div className="flex items-center gap-2.5 flex-wrap">
+          <Link
+            href={`/${locale}/certificates/verify/${encodeURIComponent(certificateData.certificateCode || certificateData.id)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-emerald-300/80 bg-emerald-50/80 hover:bg-emerald-100 text-[#0F5244] text-xs font-bold transition-all shadow-2xs active:scale-98 cursor-pointer"
+            title={isAr ? "التحقق من صحة ومصداقية الشهادة" : "Verify certificate authenticity"}
+          >
+            <ShieldCheck className="w-4 h-4 text-emerald-600" />
+            <span>{isAr ? 'التحقق من صحة الشهادة' : 'Verify Certificate'}</span>
+          </Link>
+
           <button
             type="button"
             onClick={handleDownloadPdf}
@@ -628,10 +639,16 @@ export default function CertificatePage() {
               <span className="text-xs sm:text-sm font-semibold text-slate-700 block">
                 {certificateData.issueDate}
               </span>
-              <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-slate-50 border border-slate-200/60 text-[10px] font-mono text-slate-600">
-                <ShieldCheck className="w-3 h-3 text-emerald-600" />
+              <Link
+                href={`/${locale}/certificates/verify/${encodeURIComponent(certificateData.certificateCode)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-slate-50 hover:bg-emerald-50 border border-slate-200/60 hover:border-emerald-300 text-[10px] font-mono text-slate-600 hover:text-emerald-800 transition-colors cursor-pointer group/badge"
+                title={isAr ? "انقر للتحقق من صحة الشهادة" : "Click to verify certificate"}
+              >
+                <ShieldCheck className="w-3 h-3 text-emerald-600 group-hover/badge:scale-110 transition-transform" />
                 <span>ID: {certificateData.certificateCode}</span>
-              </div>
+              </Link>
             </div>
 
             {/* Soft, Refined Center Academy Seal */}

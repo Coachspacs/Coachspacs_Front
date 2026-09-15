@@ -16,6 +16,7 @@ import {
   BookOpen,
   Settings,
   ChevronDown,
+  ShieldCheck,
 } from "lucide-react";
 import { RootState } from "@/lib/store";
 import { logout } from "@/features/auth/slice";
@@ -437,6 +438,19 @@ export function Header({ lang, onLanguageToggle, variant = "main", className = "
                         </Link>
                       </>
                     )}
+
+                    <Link
+                      href={`/${locale}/certificates/verify`}
+                      onClick={() => setUserDropdownOpen(false)}
+                      className={`flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-bold transition-colors ${
+                        isActive("/certificates/verify")
+                          ? "bg-emerald-50 text-[#0F5244]"
+                          : "hover:bg-slate-50 text-slate-700 hover:text-[#0F5244]"
+                      }`}
+                    >
+                      <ShieldCheck className="h-4 w-4 text-emerald-600 shrink-0" />
+                      <span>{tNav("verifyCertificate")}</span>
+                    </Link>
                   </div>
 
                   {/* Sign Out Button */}
@@ -699,6 +713,20 @@ export function Header({ lang, onLanguageToggle, variant = "main", className = "
                   </>
                 )
               ) : null}
+
+              {/* Verify Certificate Link */}
+              <Link
+                href={`/${locale}/certificates/verify`}
+                onClick={() => setMobileMenuOpen(false)}
+                className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all ${
+                  isActive("/certificates/verify")
+                    ? "bg-[#0F5244] text-white shadow-xs"
+                    : "text-slate-700 hover:bg-slate-50"
+                }`}
+              >
+                <ShieldCheck className={`h-4 w-4 ${isActive("/certificates/verify") ? "text-white" : "text-emerald-700"}`} />
+                <span>{tNav("verifyCertificate")}</span>
+              </Link>
 
               {/* Shopping Cart Link (For guests and students) */}
               {(!mounted || !isAuthenticated || !isInstructor) && (
