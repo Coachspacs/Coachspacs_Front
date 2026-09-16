@@ -3,9 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import {
-  Star,
   Users,
-  TrendingUp,
   BookOpen,
   Layers,
   ChevronLeft,
@@ -13,6 +11,9 @@ import {
 } from "lucide-react";
 import { useTranslations, useLocale } from "next-intl";
 import { InstructorDashboardResponse } from "@/types/certificate";
+
+import { motion, Variants } from "framer-motion";
+import { AnimatedCounter } from "@/components/ui/AnimatedCounter";
 
 interface InstructorOverviewTabProps {
   courses: any[];
@@ -36,24 +37,34 @@ export function InstructorOverviewTab({
   // US-17: Total courses created (including drafts and archived)
   const totalCourses = dashboardData?.total_courses ?? courses.length;
 
-  const totalRevenue = courses.reduce(
-    (acc, curr) => acc + Number(curr.revenue || 0),
-    0
-  );
-
-  const ratedCourses = courses.filter((c) => Number(c.reviewsCount || 0) > 0);
-  const avgRating =
-    ratedCourses.length > 0
-      ? (
-          ratedCourses.reduce((acc, curr) => acc + Number(curr.rating || 0), 0) /
-          ratedCourses.length
-        ).toFixed(1)
-      : "—";
-
   const coursesDistribution = dashboardData?.courses || [];
 
+  const containerVariants: Variants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.08,
+      },
+    },
+  };
+
+  const itemVariants: Variants = {
+    hidden: { opacity: 0, y: 12 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.35, ease: "easeOut" },
+    },
+  };
+
   return (
-    <div className="space-y-6 sm:space-y-7 animate-in fade-in duration-200">
+    <motion.div
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+      className="space-y-6 sm:space-y-7"
+    >
       {/* Header */}
       <div className="space-y-1">
         <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
@@ -66,10 +77,19 @@ export function InstructorOverviewTab({
         </p>
       </div>
 
-      {/* Modern Minimal Metric Cards Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-4.5">
+      {/* Modern Minimal Metric Cards Grid with Staggered Motion */}
+      <motion.div
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+        className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-4.5"
+      >
         {/* Card 1: Distinct Students */}
-        <div className="p-5 rounded-2xl bg-white border border-slate-200/80 shadow-xs hover:border-emerald-500/30 transition-all duration-200">
+        <motion.div
+          variants={itemVariants}
+          whileHover={{ y: -3, transition: { duration: 0.2 } }}
+          className="p-5 rounded-2xl bg-white border border-slate-200/80 shadow-xs hover:shadow-md hover:border-emerald-500/40 transition-all duration-200"
+        >
           <div className="flex items-center justify-between gap-2">
             <span className="text-xs font-bold text-slate-500">
               {tInst("enrolledStudentsNav")}
@@ -80,13 +100,17 @@ export function InstructorOverviewTab({
           </div>
           <div className="mt-3">
             <div className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-              {totalStudents.toLocaleString()}
+              <AnimatedCounter value={totalStudents} duration={1} />
             </div>
           </div>
-        </div>
+        </motion.div>
 
         {/* Card 2: Total Courses */}
-        <div className="p-5 rounded-2xl bg-white border border-slate-200/80 shadow-xs hover:border-teal-500/30 transition-all duration-200">
+        <motion.div
+          variants={itemVariants}
+          whileHover={{ y: -3, transition: { duration: 0.2 } }}
+          className="p-5 rounded-2xl bg-white border border-slate-200/80 shadow-xs hover:shadow-md hover:border-teal-500/40 transition-all duration-200"
+        >
           <div className="flex items-center justify-between gap-2">
             <span className="text-xs font-bold text-slate-500">
               {tInst("totalCoursesMetric")}
@@ -97,50 +121,11 @@ export function InstructorOverviewTab({
           </div>
           <div className="mt-3">
             <div className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-              {totalCourses.toLocaleString()}
+              <AnimatedCounter value={totalCourses} duration={1} />
             </div>
           </div>
-        </div>
-
-        {/* Card 3: Revenue */}
-        <div className="p-5 rounded-2xl bg-white border border-slate-200/80 shadow-xs hover:border-blue-500/30 transition-all duration-200">
-          <div className="flex items-center justify-between gap-2">
-            <span className="text-xs font-bold text-slate-500">
-              {tInst("totalRevenueMetric")}
-            </span>
-            <div className="w-9 h-9 rounded-xl bg-blue-50 text-blue-700 ring-1 ring-blue-100 flex items-center justify-center shrink-0">
-              <TrendingUp className="w-4.5 h-4.5" />
-            </div>
-          </div>
-          <div className="mt-3">
-            <div className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-              ${totalRevenue.toLocaleString()}
-            </div>
-          </div>
-        </div>
-
-        {/* Card 4: Rating */}
-        <div className="p-5 rounded-2xl bg-white border border-slate-200/80 shadow-xs hover:border-amber-500/30 transition-all duration-200">
-          <div className="flex items-center justify-between gap-2">
-            <span className="text-xs font-bold text-slate-500">
-              {tInst("ratingLabel")}
-            </span>
-            <div className="w-9 h-9 rounded-xl bg-amber-50 text-amber-600 ring-1 ring-amber-100 flex items-center justify-center shrink-0">
-              <Star className="w-4.5 h-4.5 fill-amber-400 text-amber-400" />
-            </div>
-          </div>
-          <div className="mt-3 flex items-center gap-2">
-            <div className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-              {avgRating}
-            </div>
-            {avgRating !== "—" && (
-              <div className="flex items-center text-amber-400">
-                <Star className="w-4 h-4 fill-current" />
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
 
       {/* Course Enrollment Breakdown Section */}
       {coursesDistribution.length > 0 && (
@@ -233,7 +218,7 @@ export function InstructorOverviewTab({
           </div>
         </div>
       )}
-    </div>
+    </motion.div>
   );
 }
 

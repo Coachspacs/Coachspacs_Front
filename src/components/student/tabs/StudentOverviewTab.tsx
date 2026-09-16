@@ -6,6 +6,9 @@ import { useTranslations, useLocale } from "next-intl";
 import { Sparkles, Play, BookOpen, Award, TrendingUp } from "lucide-react";
 import { EnrolledCourse } from "@/types/course";
 
+import { motion, Variants } from "framer-motion";
+import { AnimatedCounter } from "@/components/ui/AnimatedCounter";
+
 interface StudentOverviewTabProps {
   courses: EnrolledCourse[];
   isLoading?: boolean;
@@ -31,8 +34,32 @@ export function StudentOverviewTab({
   const inProgressCount = courses.filter((c) => !c.isCompleted && (c.progress || 0) < 100).length;
   const continueCourse = courses.find((c) => !c.isCompleted && (c.progress || 0) < 100);
 
+  const containerVariants: Variants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.08,
+      },
+    },
+  };
+
+  const itemVariants: Variants = {
+    hidden: { opacity: 0, y: 12 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.35, ease: "easeOut" },
+    },
+  };
+
   return (
-    <div className="space-y-6 sm:space-y-8 animate-in fade-in duration-200">
+    <motion.div
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+      className="space-y-6 sm:space-y-8"
+    >
       {/* Title */}
       <div className="space-y-1">
         <h2 className="text-xl sm:text-2xl font-black text-slate-900">
@@ -45,92 +72,103 @@ export function StudentOverviewTab({
         </p>
       </div>
 
-      {/* Metrics Row - Clickable Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-5">
+      {/* Metrics Row - Clickable Cards with Staggered Motion */}
+      <motion.div
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+        className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-5"
+      >
         {/* Enrolled / Active Courses */}
-        <Link
-          href={`/${locale}/student/courses`}
-          onClick={(e) => {
-            if (onNavigateTab) {
-              e.preventDefault();
-              onNavigateTab("courses", "all");
-            }
-          }}
-          className="group relative p-4 sm:p-5 rounded-2xl bg-white border border-slate-200/80 shadow-2xs hover:border-[#0F5244] hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 flex items-start justify-between gap-3 min-w-0 overflow-hidden cursor-pointer active:scale-[0.99] focus:outline-none focus:ring-2 focus:ring-[#0F5244]/20"
-        >
-          <div className="min-w-0 flex-1">
-            <span className="text-[11px] sm:text-xs font-bold text-slate-400 group-hover:text-[#0F5244] uppercase tracking-wider block mb-1 truncate transition-colors">
-              {tWs("enrolled")}
-            </span>
-            <div className="text-2xl sm:text-3xl font-black text-slate-900 leading-tight">
-              {courses.length}
+        <motion.div variants={itemVariants}>
+          <Link
+            href={`/${locale}/student/courses`}
+            onClick={(e) => {
+              if (onNavigateTab) {
+                e.preventDefault();
+                onNavigateTab("courses", "all");
+              }
+            }}
+            className="group relative p-4 sm:p-5 rounded-2xl bg-white border border-slate-200/80 shadow-2xs hover:border-[#0F5244] hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 flex items-start justify-between gap-3 min-w-0 overflow-hidden cursor-pointer active:scale-[0.99] focus:outline-none focus:ring-2 focus:ring-[#0F5244]/20"
+          >
+            <div className="min-w-0 flex-1">
+              <span className="text-[11px] sm:text-xs font-bold text-slate-400 group-hover:text-[#0F5244] uppercase tracking-wider block mb-1 truncate transition-colors">
+                {tWs("enrolled")}
+              </span>
+              <div className="text-2xl sm:text-3xl font-black text-slate-900 leading-tight">
+                <AnimatedCounter value={courses.length} duration={0.9} />
+              </div>
+              <div className="text-[10px] sm:text-[11px] font-bold text-[#0F5244] bg-emerald-50 group-hover:bg-emerald-100/80 px-2 py-0.5 rounded-md mt-2.5 inline-flex items-center gap-1 border border-emerald-100 max-w-full truncate transition-colors">
+                <BookOpen className="w-3 h-3 shrink-0" />
+                <span className="truncate">{isAr ? "دورة تدريبية" : "Courses enrolled"}</span>
+              </div>
             </div>
-            <div className="text-[10px] sm:text-[11px] font-bold text-[#0F5244] bg-emerald-50 group-hover:bg-emerald-100/80 px-2 py-0.5 rounded-md mt-2.5 inline-flex items-center gap-1 border border-emerald-100 max-w-full truncate transition-colors">
-              <BookOpen className="w-3 h-3 shrink-0" />
-              <span className="truncate">{isAr ? "دورة تدريبية" : "Courses enrolled"}</span>
+            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-emerald-50 text-[#0F5244] group-hover:bg-[#0F5244] group-hover:text-white flex items-center justify-center shrink-0 border border-emerald-100/80 transition-all duration-200 shadow-2xs">
+              <BookOpen className="w-5 h-5" />
             </div>
-          </div>
-          <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-emerald-50 text-[#0F5244] group-hover:bg-[#0F5244] group-hover:text-white flex items-center justify-center shrink-0 border border-emerald-100/80 transition-all duration-200 shadow-2xs">
-            <BookOpen className="w-5 h-5" />
-          </div>
-        </Link>
+          </Link>
+        </motion.div>
 
         {/* In Progress */}
-        <Link
-          href={`/${locale}/student/courses?filter=in_progress`}
-          onClick={(e) => {
-            if (onNavigateTab) {
-              e.preventDefault();
-              onNavigateTab("courses", "in_progress");
-            }
-          }}
-          className="group relative p-4 sm:p-5 rounded-2xl bg-white border border-slate-200/80 shadow-2xs hover:border-blue-500 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 flex items-start justify-between gap-3 min-w-0 overflow-hidden cursor-pointer active:scale-[0.99] focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-        >
-          <div className="min-w-0 flex-1">
-            <span className="text-[11px] sm:text-xs font-bold text-slate-400 group-hover:text-blue-600 uppercase tracking-wider block mb-1 truncate transition-colors">
-              {isAr ? "قيد التقدم" : "In Progress"}
-            </span>
-            <div className="text-2xl sm:text-3xl font-black text-blue-950 leading-tight">
-              {inProgressCount}
+        <motion.div variants={itemVariants}>
+          <Link
+            href={`/${locale}/student/courses?filter=in_progress`}
+            onClick={(e) => {
+              if (onNavigateTab) {
+                e.preventDefault();
+                onNavigateTab("courses", "in_progress");
+              }
+            }}
+            className="group relative p-4 sm:p-5 rounded-2xl bg-white border border-slate-200/80 shadow-2xs hover:border-blue-500 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 flex items-start justify-between gap-3 min-w-0 overflow-hidden cursor-pointer active:scale-[0.99] focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+          >
+            <div className="min-w-0 flex-1">
+              <span className="text-[11px] sm:text-xs font-bold text-slate-400 group-hover:text-blue-600 uppercase tracking-wider block mb-1 truncate transition-colors">
+                {isAr ? "قيد التقدم" : "In Progress"}
+              </span>
+              <div className="text-2xl sm:text-3xl font-black text-blue-950 leading-tight">
+                <AnimatedCounter value={inProgressCount} duration={0.9} />
+              </div>
+              <div className="text-[10px] sm:text-[11px] font-bold text-blue-700 bg-blue-50 group-hover:bg-blue-100/80 px-2 py-0.5 rounded-md mt-2.5 inline-flex items-center gap-1 border border-blue-100 max-w-full truncate transition-colors">
+                <TrendingUp className="w-3 h-3 shrink-0" />
+                <span className="truncate">{isAr ? "دروس نشطة" : "Active courses"}</span>
+              </div>
             </div>
-            <div className="text-[10px] sm:text-[11px] font-bold text-blue-700 bg-blue-50 group-hover:bg-blue-100/80 px-2 py-0.5 rounded-md mt-2.5 inline-flex items-center gap-1 border border-blue-100 max-w-full truncate transition-colors">
-              <TrendingUp className="w-3 h-3 shrink-0" />
-              <span className="truncate">{isAr ? "دروس نشطة" : "Active courses"}</span>
+            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-blue-50 text-blue-600 group-hover:bg-blue-600 group-hover:text-white flex items-center justify-center shrink-0 border border-blue-100/80 transition-all duration-200 shadow-2xs">
+              <Play className="w-5 h-5 fill-current" />
             </div>
-          </div>
-          <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-blue-50 text-blue-600 group-hover:bg-blue-600 group-hover:text-white flex items-center justify-center shrink-0 border border-blue-100/80 transition-all duration-200 shadow-2xs">
-            <Play className="w-5 h-5 fill-current" />
-          </div>
-        </Link>
+          </Link>
+        </motion.div>
 
         {/* Certificates */}
-        <Link
-          href={`/${locale}/student/certificates`}
-          onClick={(e) => {
-            if (onNavigateTab) {
-              e.preventDefault();
-              onNavigateTab("certificates");
-            }
-          }}
-          className="group relative p-4 sm:p-5 rounded-2xl bg-white border border-slate-200/80 shadow-2xs hover:border-emerald-600 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 flex items-start justify-between gap-3 min-w-0 overflow-hidden sm:col-span-2 xl:col-span-1 cursor-pointer active:scale-[0.99] focus:outline-none focus:ring-2 focus:ring-emerald-600/20"
-        >
-          <div className="min-w-0 flex-1">
-            <span className="text-[11px] sm:text-xs font-bold text-slate-400 group-hover:text-emerald-700 uppercase tracking-wider block mb-1 truncate transition-colors">
-              {tWs("certificatesCount")}
-            </span>
-            <div className="text-2xl sm:text-3xl font-black text-emerald-900 leading-tight">
-              {completedCount}
+        <motion.div variants={itemVariants}>
+          <Link
+            href={`/${locale}/student/certificates`}
+            onClick={(e) => {
+              if (onNavigateTab) {
+                e.preventDefault();
+                onNavigateTab("certificates");
+              }
+            }}
+            className="group relative p-4 sm:p-5 rounded-2xl bg-white border border-slate-200/80 shadow-2xs hover:border-emerald-600 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 flex items-start justify-between gap-3 min-w-0 overflow-hidden sm:col-span-2 xl:col-span-1 cursor-pointer active:scale-[0.99] focus:outline-none focus:ring-2 focus:ring-emerald-600/20"
+          >
+            <div className="min-w-0 flex-1">
+              <span className="text-[11px] sm:text-xs font-bold text-slate-400 group-hover:text-emerald-700 uppercase tracking-wider block mb-1 truncate transition-colors">
+                {tWs("certificatesCount")}
+              </span>
+              <div className="text-2xl sm:text-3xl font-black text-emerald-900 leading-tight">
+                <AnimatedCounter value={completedCount} duration={0.9} />
+              </div>
+              <div className="text-[10px] sm:text-[11px] font-bold text-emerald-800 bg-emerald-50 group-hover:bg-emerald-100/80 px-2 py-0.5 rounded-md mt-2.5 inline-flex items-center gap-1 border border-emerald-100 max-w-full truncate transition-colors">
+                <Award className="w-3 h-3 shrink-0" />
+                <span className="truncate">{tWs("earned")}</span>
+              </div>
             </div>
-            <div className="text-[10px] sm:text-[11px] font-bold text-emerald-800 bg-emerald-50 group-hover:bg-emerald-100/80 px-2 py-0.5 rounded-md mt-2.5 inline-flex items-center gap-1 border border-emerald-100 max-w-full truncate transition-colors">
-              <Award className="w-3 h-3 shrink-0" />
-              <span className="truncate">{tWs("earned")}</span>
+            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-emerald-50 text-emerald-700 group-hover:bg-emerald-700 group-hover:text-white flex items-center justify-center shrink-0 border border-emerald-100/80 transition-all duration-200 shadow-2xs">
+              <Award className="w-5 h-5" />
             </div>
-          </div>
-          <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-emerald-50 text-emerald-700 group-hover:bg-emerald-700 group-hover:text-white flex items-center justify-center shrink-0 border border-emerald-100/80 transition-all duration-200 shadow-2xs">
-            <Award className="w-5 h-5" />
-          </div>
-        </Link>
-      </div>
+          </Link>
+        </motion.div>
+      </motion.div>
 
       {/* Hero Continue Learning Card */}
       {courses.length > 0 && continueCourse ? (
@@ -213,6 +251,6 @@ export function StudentOverviewTab({
           </Link>
         </div>
       )}
-    </div>
+    </motion.div>
   );
 }

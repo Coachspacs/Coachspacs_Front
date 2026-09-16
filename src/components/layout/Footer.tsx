@@ -139,21 +139,19 @@ export function Footer({ lang, variant = "main" }: FooterProps) {
           
           {/* Column 1: Brand Identity & Support (5 cols on Desktop, 2 cols on Tablet) */}
           <div className="md:col-span-2 lg:col-span-5 space-y-4 text-start">
-            {/* Elegant Glassmorphic Brand Box */}
+            {/* Clean Brand Logo */}
             <Link
               href={`/${currentLocale}`}
-              className="inline-flex items-center gap-3 px-3.5 py-2 rounded-xl bg-white/[0.07] hover:bg-white/[0.12] border border-white/10 hover:border-[#45D1B4]/40 backdrop-blur-md transition-all duration-200 shadow-sm hover:shadow-md group cursor-pointer"
+              className="inline-flex items-center gap-2.5 transition-opacity duration-150 hover:opacity-90 group cursor-pointer"
             >
-              <div className="w-8 h-8 rounded-lg bg-white/[0.08] border border-white/10 flex items-center justify-center group-hover:bg-[#45D1B4]/15 group-hover:border-[#45D1B4]/30 transition-all duration-200 shrink-0">
-                <Image
-                  src="/images/brand-logo-white.png"
-                  alt="Coach Space"
-                  width={32}
-                  height={32}
-                  className="w-auto h-5 sm:h-5.5 object-contain drop-shadow-sm group-hover:scale-105 transition-transform duration-200"
-                />
-              </div>
-              <span className="text-lg sm:text-xl font-bold text-white tracking-tight leading-none group-hover:text-white transition-colors">
+              <Image
+                src="/images/brand-logo-white.png"
+                alt="Coach Space"
+                width={36}
+                height={36}
+                className="w-auto h-7 sm:h-8 object-contain drop-shadow-sm group-hover:scale-105 transition-transform duration-200"
+              />
+              <span className="text-xl sm:text-2xl font-bold text-white tracking-tight leading-none">
                 {headerT("brandName")}
               </span>
             </Link>

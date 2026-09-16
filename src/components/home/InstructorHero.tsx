@@ -129,7 +129,7 @@ export function InstructorHero() {
                   </span>
                 </div>
 
-                {/* 4 Metrics Grid */}
+                {/* 2 Metrics Grid */}
                 <div className="grid grid-cols-2 gap-3.5">
                   
                   {/* Metric 1 */}
@@ -150,29 +150,6 @@ export function InstructorHero() {
                     </div>
                     <div className="text-xl font-black text-slate-900">6</div>
                     <div className="text-[11px] font-semibold text-slate-500">{t("activeCoursesCount")}</div>
-                  </div>
-
-                  {/* Metric 3 */}
-                  <div className="bg-slate-50/80 rounded-2xl p-3.5 border border-slate-100">
-                    <div className="flex items-center justify-between text-slate-400 mb-1.5">
-                      <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
-                      <span className="text-[10px] font-bold text-amber-700 bg-amber-50 px-1.5 py-0.2 rounded">184</span>
-                    </div>
-                    <div className="flex items-center gap-1 text-xl font-black text-slate-900">
-                      <span>4.9</span>
-                      <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
-                    </div>
-                    <div className="text-[11px] font-semibold text-slate-500">{t("instructorRatingValue")}</div>
-                  </div>
-
-                  {/* Metric 4 */}
-                  <div className="bg-slate-50/80 rounded-2xl p-3.5 border border-slate-100">
-                    <div className="flex items-center justify-between text-slate-400 mb-1.5">
-                      <DollarSign className="w-4 h-4 text-teal-600" />
-                      <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.2 rounded">+22%</span>
-                    </div>
-                    <div className="text-xl font-black text-slate-900">$3,850</div>
-                    <div className="text-[11px] font-semibold text-slate-500">{t("monthlyEarningsValue")}</div>
                   </div>
 
                 </div>

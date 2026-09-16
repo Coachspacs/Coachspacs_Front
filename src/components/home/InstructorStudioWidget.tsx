@@ -6,7 +6,7 @@ import { useTranslations, useLocale } from "next-intl";
 import { useSelector } from "react-redux";
 import { RootState } from "@/lib/store";
 import { instructorCourseService } from "@/services/instructorCourseService";
-import { Users, BookOpen, Star, DollarSign, PlusCircle, LayoutDashboard, Sparkles, TrendingUp, ArrowUpRight, Loader2 } from "lucide-react";
+import { Users, BookOpen, PlusCircle, LayoutDashboard, Sparkles, TrendingUp, Loader2 } from "lucide-react";
 
 export function InstructorStudioWidget() {
   const t = useTranslations("home");
@@ -58,20 +58,6 @@ export function InstructorStudioWidget() {
   const publishedCount = publishedCourses.length > 0 ? publishedCourses.length : (courses.length > 0 ? courses.length : 0);
   const draftCount = courses.filter((c) => c.status === "draft" || c.status === "review").length;
 
-  const ratedCourses = courses.filter((c) => Number(c.rating || 0) > 0);
-  const avgRating =
-    ratedCourses.length > 0
-      ? (
-          ratedCourses.reduce((acc, curr) => acc + Number(curr.rating || 0), 0) /
-          ratedCourses.length
-        ).toFixed(1)
-      : courses.length > 0 ? "5.0" : "—";
-
-  const totalRevenue = courses.reduce(
-    (acc, curr) => acc + Number(curr.revenue || curr.earnings || 0),
-    0
-  );
-
   return (
     <section className="w-full py-6 sm:py-8 font-sans">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -115,8 +101,8 @@ export function InstructorStudioWidget() {
             </div>
           </div>
 
-          {/* 4 Refined Metric Tiles */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-5">
+          {/* 2 Refined Metric Tiles */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
             
             {/* Stat 1: Total Students */}
             <div className="bg-[#F8FAFC] hover:bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/70 hover:border-blue-200 shadow-2xs hover:shadow-md transition-all duration-200">
@@ -151,42 +137,6 @@ export function InstructorStudioWidget() {
               </div>
               <div className="text-xs text-slate-500 font-medium mt-0.5">
                 {t("activeCoursesCount")}
-              </div>
-            </div>
-
-            {/* Stat 3: Rating */}
-            <div className="bg-[#F8FAFC] hover:bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/70 hover:border-amber-200 shadow-2xs hover:shadow-md transition-all duration-200">
-              <div className="flex items-center justify-between mb-2.5">
-                <div className="w-9 h-9 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center border border-amber-100">
-                  <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
-                </div>
-                <span className="text-[11px] font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-md border border-amber-200/60">
-                  {ratedCourses.length} {isAr ? "تقييمات" : "Reviews"}
-                </span>
-              </div>
-              <div className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-                {isLoading ? <Loader2 className="w-5 h-5 animate-spin text-slate-400" /> : avgRating}
-              </div>
-              <div className="text-xs text-slate-500 font-medium mt-0.5">
-                {t("instructorRatingValue")}
-              </div>
-            </div>
-
-            {/* Stat 4: Total Earnings */}
-            <div className="bg-[#F8FAFC] hover:bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/70 hover:border-teal-200 shadow-2xs hover:shadow-md transition-all duration-200">
-              <div className="flex items-center justify-between mb-2.5">
-                <div className="w-9 h-9 rounded-xl bg-teal-50 text-teal-700 flex items-center justify-center border border-teal-100">
-                  <DollarSign className="w-4 h-4" />
-                </div>
-                <span className="inline-flex items-center gap-0.5 text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200/50">
-                  <ArrowUpRight className="w-3 h-3" /> {isAr ? "مكتمل" : "Earned"}
-                </span>
-              </div>
-              <div className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-                {isLoading ? <Loader2 className="w-5 h-5 animate-spin text-slate-400" /> : `$${totalRevenue.toLocaleString()}`}
-              </div>
-              <div className="text-xs text-slate-500 font-medium mt-0.5">
-                {t("monthlyEarningsValue")}
               </div>
             </div>
 

@@ -212,11 +212,11 @@ export function HeroSection() {
                 <Image
                   src="/images/hero-coach.png"
                   alt="Coach Space"
-                  width={480}
-                  height={480}
+                  width={640}
+                  height={640}
                   priority
-                  quality={75}
-                  sizes="(max-width: 768px) 100vw, 480px"
+                  quality={100}
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 640px"
                   className="w-full h-full object-cover object-center group-hover/heroimg:scale-105 transition-transform duration-700 ease-out"
                 />
               </div>

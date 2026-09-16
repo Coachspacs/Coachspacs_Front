@@ -85,7 +85,7 @@ export default function CertificatePage() {
 
         // Helper to resolve real course title with deep fallback chain
         const resolveCourseTitle = async (candidateObj: any, courseIdCandidate?: any) => {
-          let title =
+          const title =
             (isAr
               ? candidateObj?.course?.title_ar || candidateObj?.course?.title || candidateObj?.title_ar
               : candidateObj?.course?.title_en || candidateObj?.course?.title || candidateObj?.title_en) ||
