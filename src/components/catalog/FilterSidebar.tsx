@@ -9,7 +9,7 @@ import { categoryService } from "@/services/categoryService";
 interface FilterSidebarProps {
   filters: FilterState;
   onFilterChange: (newFilters: FilterState) => void;
-  onApplyFilters: () => void;
+  onApplyFilters?: () => void;
   onResetFilters: () => void;
   isAr?: boolean;
   mobileDrawerOpen?: boolean;
@@ -303,25 +303,14 @@ export function FilterSidebar({
         </div>
       </div>
 
-      {/* Action Buttons */}
-      <div className="pt-3 space-y-2">
-        <button
-          type="button"
-          onClick={() => {
-            onApplyFilters();
-            setDrawerOpen(false);
-          }}
-          className="w-full py-2.5 px-4 rounded-xl bg-[#0F5244] hover:bg-[#07382E] text-white text-xs font-extrabold shadow-sm transition-all cursor-pointer"
-        >
-          {t("applyFilters")}
-        </button>
-
+      {/* Reset Filter Button */}
+      <div className="pt-3">
         <button
           type="button"
           onClick={onResetFilters}
-          className="w-full flex items-center justify-center gap-1.5 py-1.5 text-xs font-semibold text-slate-500 hover:text-slate-800 transition-colors cursor-pointer"
+          className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl border border-slate-200 hover:bg-slate-50 hover:border-slate-300 text-xs font-bold text-slate-600 hover:text-slate-900 transition-all cursor-pointer shadow-2xs active:scale-98"
         >
-          <RotateCcw className="h-3.5 w-3.5" />
+          <RotateCcw className="h-3.5 w-3.5 text-slate-400" />
           <span>{t("resetAll")}</span>
         </button>
       </div>

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import { motion, Variants } from "framer-motion";
 import { useTranslations, useLocale } from "next-intl";
 import {
   Code,
@@ -94,12 +95,40 @@ export function TopCategoriesSection() {
     };
   }, [locale]);
 
+  const containerVariants: Variants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.08,
+      },
+    },
+  };
+
+  const itemVariants: Variants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.5,
+        ease: "easeOut",
+      },
+    },
+  };
+
   return (
-    <section suppressHydrationWarning className="w-full bg-white pt-8 pb-16 sm:pb-24">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <section suppressHydrationWarning className="w-full bg-white pt-8 pb-16 sm:pb-24 relative overflow-hidden">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative z-10">
         
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 mb-10 sm:mb-14 pb-5 border-b border-slate-100">
+        <motion.div
+          initial={{ opacity: 0, y: 18 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-40px" }}
+          transition={{ duration: 0.55, ease: "easeOut" }}
+          className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 mb-10 sm:mb-14 pb-5 border-b border-slate-100"
+        >
           <div className="space-y-2">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#6CF8BB]/20 text-[#0F5244] border border-[#6CF8BB]/40 text-xs font-extrabold tracking-wider uppercase shadow-2xs">
               <Sparkles className="w-3.5 h-3.5 text-[#0F5244]" />
@@ -121,37 +150,49 @@ export function TopCategoriesSection() {
             <span>{t("viewAllCategories")}</span>
             <ArrowRight className="w-4 h-4 rtl:rotate-180 group-hover:translate-x-1 rtl:group-hover:-translate-x-1 transition-transform" />
           </Link>
-        </div>
+        </motion.div>
 
         {/* Categories Grid */}
-        <div suppressHydrationWarning className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 sm:gap-5 lg:gap-6">
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-40px" }}
+          suppressHydrationWarning
+          className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 sm:gap-5 lg:gap-6"
+        >
           {categories.map((cat, idx) => {
             const Icon = cat.icon;
             const isLastOnMobile = idx === categories.length - 1;
             return (
-              <Link
+              <motion.div
                 key={cat.id}
-                href={cat.href}
-                className={`group relative bg-white hover:bg-emerald-50/40 rounded-3xl p-6 sm:p-7 min-h-[155px] sm:min-h-[175px] flex flex-col items-center justify-center text-center gap-3 sm:gap-4 border border-slate-200/90 hover:border-[#0F5244]/40 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-[#0F5244]/12 overflow-hidden ${
+                variants={itemVariants}
+                className={
                   isLastOnMobile
                     ? "col-span-2 sm:col-span-1 justify-self-center w-full max-w-[280px] sm:max-w-none"
-                    : ""
-                }`}
+                    : "w-full"
+                }
               >
-                {/* Ambient Soft Glow on Hover */}
-                <div className="pointer-events-none absolute -bottom-10 -right-10 w-32 h-32 bg-[#34D399]/20 blur-2xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <Link
+                  href={cat.href}
+                  className="group relative bg-white hover:bg-emerald-50/40 rounded-3xl p-6 sm:p-7 min-h-[155px] sm:min-h-[175px] flex flex-col items-center justify-center text-center gap-3 sm:gap-4 border border-slate-200/90 hover:border-[#0F5244]/40 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-[#0F5244]/12 overflow-hidden w-full h-full block"
+                >
+                  {/* Ambient Soft Glow on Hover */}
+                  <div className="pointer-events-none absolute -bottom-10 -right-10 w-32 h-32 bg-[#34D399]/20 blur-2xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
-                {/* Standalone Centered Icon */}
-                <Icon className="w-9 h-9 sm:w-10 sm:h-10 text-[#0F5244] group-hover:scale-115 group-hover:-translate-y-1 transition-all duration-300 ease-out" />
+                  {/* Standalone Centered Icon */}
+                  <Icon className="w-9 h-9 sm:w-10 sm:h-10 text-[#0F5244] group-hover:scale-115 group-hover:-translate-y-1 transition-all duration-300 ease-out" />
 
-                {/* Centered Category Title */}
-                <h3 className="text-slate-900 font-extrabold text-base sm:text-lg group-hover:text-[#0F5244] transition-colors leading-snug">
-                  {cat.title}
-                </h3>
-              </Link>
+                  {/* Centered Category Title */}
+                  <h3 className="text-slate-900 font-extrabold text-base sm:text-lg group-hover:text-[#0F5244] transition-colors leading-snug">
+                    {cat.title}
+                  </h3>
+                </Link>
+              </motion.div>
             );
           })}
-        </div>
+        </motion.div>
 
       </div>
     </section>

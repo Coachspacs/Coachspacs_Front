@@ -216,12 +216,6 @@ export function CourseCatalogView() {
     setCurrentPage(1);
   };
 
-  // Apply filters handler
-  const handleApplyFilters = () => {
-    setActiveFilters(filters);
-    setCurrentPage(1);
-  };
-
   // Reset filters handler
   const handleResetFilters = () => {
     setFilters(INITIAL_FILTERS);
@@ -258,7 +252,6 @@ export function CourseCatalogView() {
           <FilterSidebar
             filters={filters}
             onFilterChange={handleFilterChange}
-            onApplyFilters={handleApplyFilters}
             onResetFilters={handleResetFilters}
             isAr={isAr}
             mobileDrawerOpen={mobileDrawerOpen}

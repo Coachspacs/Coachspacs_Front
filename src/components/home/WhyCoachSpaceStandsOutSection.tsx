@@ -2,6 +2,7 @@
 
 import React from "react";
 import Image from "next/image";
+import { motion, Variants } from "framer-motion";
 import { useTranslations } from "next-intl";
 import { Award, Globe, LucideIcon } from "lucide-react";
 
@@ -43,30 +44,65 @@ export function WhyCoachSpaceStandsOutSection() {
     },
   ];
 
+  const containerVariants: Variants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+      },
+    },
+  };
+
+  const cardVariants: Variants = {
+    hidden: { opacity: 0, y: 24 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.55,
+        ease: "easeOut",
+      },
+    },
+  };
+
   return (
-    <section className="w-full bg-[#F0F3FF] pb-16 sm:pb-24 pt-4">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <section className="w-full bg-[#F0F3FF] pb-16 sm:pb-24 pt-4 relative overflow-hidden">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative z-10">
         {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-14">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-40px" }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
+          className="text-center max-w-3xl mx-auto mb-10 sm:mb-14"
+        >
           <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight">
             {t("standsOutTitle")}
           </h2>
           <p className="mt-3 text-slate-500 text-sm sm:text-base font-medium leading-relaxed">
             {t("standsOutSubtitle")}
           </p>
-        </div>
+        </motion.div>
 
         {/* Features Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 w-full">
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-40px" }}
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 w-full"
+        >
           {features.map((feature) => {
             const Icon = feature.icon;
             return (
-              <div
+              <motion.div
                 key={feature.id}
-                className="bg-white rounded-3xl p-6 sm:p-7 shadow-sm hover:shadow-md transition-all duration-300 border border-slate-100/80 flex flex-col justify-start gap-4 group w-full"
+                variants={cardVariants}
+                className="bg-white rounded-3xl p-6 sm:p-7 shadow-xs hover:shadow-xl hover:-translate-y-2 transition-all duration-300 border border-slate-100/90 flex flex-col justify-start gap-4 group w-full cursor-default"
               >
                 {/* Icon Box */}
-                <div className="w-12 h-12 rounded-2xl bg-[#e2f3f0] text-[#0d7a66] flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:bg-[#004442] group-hover:text-white transition-all duration-300">
+                <div className="w-12 h-12 rounded-2xl bg-[#e2f3f0] text-[#0d7a66] flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:bg-[#004442] group-hover:text-white group-hover:shadow-md transition-all duration-300">
                   {feature.customIcon ? (
                     <Image
                       src={feature.customIcon}
@@ -89,11 +125,12 @@ export function WhyCoachSpaceStandsOutSection() {
                     {feature.description}
                   </p>
                 </div>
-              </div>
+              </motion.div>
             );
           })}
-        </div>
+        </motion.div>
       </div>
     </section>
   );
 }
+

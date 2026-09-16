@@ -30,6 +30,7 @@ export function CertificateVerifyView({
   initialCode = "",
 }: CertificateVerifyViewProps) {
   const t = useTranslations("certificateVerify");
+  const tCert = useTranslations("certificate");
   const locale = useLocale() || "en";
   const isAr = locale === "ar";
 
@@ -67,8 +68,8 @@ export function CertificateVerifyView({
               if (matched) {
                 setResult({
                   certificate_code: targetCode,
-                  course_title: (isAr ? (matched.title_ar || matched.title) : (matched.title_en || matched.title)) || "Python Programming",
-                  student_full_name: (typeof window !== "undefined" ? JSON.parse(localStorage.getItem("user") || "{}").fullName : null) || (isAr ? "الطالب المتميز" : "Distinguished Student"),
+                  course_title: (isAr ? (matched.title_ar || matched.title) : (matched.title_en || matched.title)) || tCert("defaultCourseTitle"),
+                  student_full_name: (typeof window !== "undefined" ? JSON.parse(localStorage.getItem("user") || "{}").fullName : null) || tCert("defaultStudentName"),
                   issued_at: new Date().toISOString(),
                 });
                 return;
@@ -88,18 +89,13 @@ export function CertificateVerifyView({
           setErrorMessage(t("rateLimitedDesc"));
         } else {
           setErrorType("generic");
-          setErrorMessage(
-            err?.message ||
-              (isAr
-                ? "حدث خطأ غير متوقع أثناء التحقق. يرجى المحاولة مرة أخرى."
-                : "An unexpected error occurred during verification. Please try again.")
-          );
+          setErrorMessage(err?.message || t("genericError"));
         }
       } finally {
         setIsLoading(false);
       }
     },
-    [code, isAr, t]
+    [code, isAr, t, tCert]
   );
 
   // Auto-verify on mount if an initialCode is provided in URL
@@ -187,7 +183,7 @@ export function CertificateVerifyView({
                 setErrorType(null);
               }}
               className="p-1.5 rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors shrink-0 me-1 cursor-pointer"
-              title={isAr ? "مسح" : "Clear"}
+              title={t("clear")}
             >
               <X className="w-4 h-4" />
             </button>
@@ -251,19 +247,19 @@ export function CertificateVerifyView({
             <button
               onClick={handleCopyLink}
               className="px-3.5 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold inline-flex items-center gap-2 transition-all shadow-2xs cursor-pointer shrink-0"
-              title={isAr ? "نسخ رابط التحقق" : "Copy verification link"}
+              title={tCert("copyVerificationLink")}
             >
               {copied ? (
                 <>
                   <Check className="w-4 h-4 text-emerald-600" />
                   <span className="text-emerald-700">
-                    {isAr ? "تم النسخ!" : "Copied!"}
+                    {t("copiedLink")}
                   </span>
                 </>
               ) : (
                 <>
                   <Copy className="w-4 h-4 text-slate-400" />
-                  <span>{isAr ? "مشاركة الرابط" : "Share Link"}</span>
+                  <span>{t("shareLink")}</span>
                 </>
               )}
             </button>
@@ -366,7 +362,7 @@ export function CertificateVerifyView({
           </div>
           <div className="space-y-2 max-w-md mx-auto">
             <h3 className="text-lg sm:text-xl font-black text-slate-900">
-              {isAr ? "تعذر التحقق" : "Verification Unavailable"}
+              {t("verificationUnavailable")}
             </h3>
             <p className="text-xs sm:text-sm text-slate-500 leading-relaxed font-medium">
               {errorMessage}
