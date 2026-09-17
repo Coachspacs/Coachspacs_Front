@@ -119,7 +119,9 @@ export default function middleware(request: NextRequest) {
     !pathWithoutLocale.includes('/confirm-email');
   const isProfileRoute = pathWithoutLocale === '/profile' || pathWithoutLocale.startsWith('/profile/');
 
+  const isAdminRoute = pathWithoutLocale.startsWith('/admin');
   const isProtectedRoute =
+    isAdminRoute ||
     isInstructorRoute ||
     isStudentRoute ||
     (isCartOrCheckoutRoute && !isStudentRoute) ||

@@ -3,8 +3,9 @@
 import React from "react";
 import Image from "next/image";
 import { motion, Variants } from "framer-motion";
-import { useTranslations } from "next-intl";
-import { Award, Globe, LucideIcon } from "lucide-react";
+import { Award, Globe, Clock, Sparkles, TrendingUp, LucideIcon } from "lucide-react";
+import { useTranslations, useLocale } from "next-intl";
+import { WhyCoachSpaceStandsOutSectionData } from "@/types/cms";
 
 interface FeatureItem {
   id: string;
@@ -14,10 +15,19 @@ interface FeatureItem {
   description: string;
 }
 
-export function WhyCoachSpaceStandsOutSection() {
-  const t = useTranslations("home");
+interface WhyCoachSpaceStandsOutProps {
+  data?: WhyCoachSpaceStandsOutSectionData;
+}
 
-  const features: FeatureItem[] = [
+export function WhyCoachSpaceStandsOutSection({ data }: WhyCoachSpaceStandsOutProps = {}) {
+  const t = useTranslations("home");
+  const locale = useLocale();
+  const isAr = locale === "ar";
+
+  const titleText = (isAr ? data?.title_ar : data?.title_en) || t("standsOutTitle");
+  const subtitleText = (isAr ? data?.subtitle_ar : data?.subtitle_en) || t("standsOutSubtitle");
+
+  const defaultFeatures: FeatureItem[] = [
     {
       id: "learn-anywhere",
       customIcon: "/images/icons/learn-anywhere.png",
@@ -43,6 +53,19 @@ export function WhyCoachSpaceStandsOutSection() {
       description: t("feature4Desc"),
     },
   ];
+
+  const features: FeatureItem[] =
+    data?.cards && data.cards.length > 0
+      ? data.cards.map((c, i) => {
+          const icons = [Clock, Sparkles, TrendingUp, Award, Globe];
+          return {
+            id: c.id || `card-${i}`,
+            icon: icons[i % icons.length],
+            title: isAr ? c.title_ar : c.title_en,
+            description: isAr ? c.desc_ar : c.desc_en,
+          };
+        })
+      : defaultFeatures;
 
   const containerVariants: Variants = {
     hidden: { opacity: 0 },
@@ -78,10 +101,10 @@ export function WhyCoachSpaceStandsOutSection() {
           className="text-center max-w-3xl mx-auto mb-10 sm:mb-14"
         >
           <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight">
-            {t("standsOutTitle")}
+            {titleText}
           </h2>
           <p className="mt-3 text-slate-500 text-sm sm:text-base font-medium leading-relaxed">
-            {t("standsOutSubtitle")}
+            {subtitleText}
           </p>
         </motion.div>
 

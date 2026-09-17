@@ -17,11 +17,20 @@ import {
   GraduationCap,
 } from "lucide-react";
 import { categoryService } from "@/services/categoryService";
+import { TopCategoriesSectionData } from "@/types/cms";
 
-export function TopCategoriesSection() {
+interface TopCategoriesSectionProps {
+  data?: TopCategoriesSectionData;
+}
+
+export function TopCategoriesSection({ data }: TopCategoriesSectionProps = {}) {
   const t = useTranslations("home");
   const locale = useLocale() || "en";
   const isAr = locale === "ar";
+
+
+  const titleText = (isAr ? data?.title_ar : data?.title_en) || t("topCategoriesTitle");
+  const subtitleText = (isAr ? data?.subtitle_ar : data?.subtitle_en) || t("topCategoriesSubtitle");
 
   const defaultCategories = [
     {
@@ -117,6 +126,10 @@ export function TopCategoriesSection() {
     },
   };
 
+  if (data?.is_visible === false) {
+    return null;
+  }
+
   return (
     <section suppressHydrationWarning className="w-full bg-white pt-8 pb-16 sm:pb-24 relative overflow-hidden">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative z-10">
@@ -136,10 +149,10 @@ export function TopCategoriesSection() {
             </div>
             
             <h2 className="text-3xl sm:text-4xl lg:text-4xl font-black text-slate-900 tracking-tight leading-tight">
-              {t("topCategoriesTitle")}
+              {titleText}
             </h2>
             <p className="text-slate-500 text-sm sm:text-base font-medium">
-              {t("topCategoriesSubtitle")}
+              {subtitleText}
             </p>
           </div>
 

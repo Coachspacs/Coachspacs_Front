@@ -8,12 +8,23 @@ import { useTranslations, useLocale } from "next-intl";
 import { useSelector } from "react-redux";
 import { RootState } from "@/lib/store";
 import { ChevronRight, Sparkles } from "lucide-react";
+import { JoinFutureSectionData } from "@/types/cms";
 
-export function JoinFutureSection() {
+interface JoinFutureSectionProps {
+  data?: JoinFutureSectionData;
+}
+
+export function JoinFutureSection({ data }: JoinFutureSectionProps = {}) {
   const t = useTranslations("home");
   const locale = useLocale();
+  const isAr = locale === "ar";
   const [mounted, setMounted] = useState(false);
   const { user, isAuthenticated } = useSelector((state: RootState) => state.auth);
+
+  const titleText = (isAr ? data?.title_ar : data?.title_en) || t("joinTitle");
+  const subtitleText = (isAr ? data?.subtitle_ar : data?.subtitle_en) || t("joinSubtitle");
+  const buttonText = (isAr ? data?.button_text_ar : data?.button_text_en) || t("startTeaching");
+  const buttonLink = data?.button_link || `/${locale}/become-instructor`;
 
   useEffect(() => {
     setMounted(true);
@@ -49,20 +60,20 @@ export function JoinFutureSection() {
             </div>
 
             <h2 className="text-2xl sm:text-4xl lg:text-5xl font-black text-slate-900 leading-[1.2] tracking-tight">
-              {t("joinTitle")}
+              {titleText}
             </h2>
 
             <p className="text-slate-600 text-sm sm:text-base font-medium leading-relaxed max-w-xl">
-              {t("joinSubtitle")}
+              {subtitleText}
             </p>
 
             {/* Buttons Row */}
             <div className="flex flex-wrap items-center gap-4 sm:gap-6 pt-2">
               <Link
-                href={`/${locale}/become-instructor`}
+                href={buttonLink}
                 className="bg-[#0F5244] hover:bg-[#08382E] active:scale-95 text-white text-sm sm:text-base font-black px-8 py-3.5 rounded-full transition-all duration-200 shadow-md hover:shadow-xl inline-flex items-center justify-center cursor-pointer animate-shimmer"
               >
-                {t("startTeaching")}
+                {buttonText}
               </Link>
 
               <Link

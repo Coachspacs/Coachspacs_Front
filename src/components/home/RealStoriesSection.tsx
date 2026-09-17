@@ -2,13 +2,21 @@ import React, { useState, useEffect, useRef } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { Star, ChevronLeft, ChevronRight } from "lucide-react";
 import { motion } from "framer-motion";
+import { RealStoriesSectionData } from "@/types/cms";
 
-export function RealStoriesSection() {
+interface RealStoriesSectionProps {
+  data?: RealStoriesSectionData;
+}
+
+export function RealStoriesSection({ data }: RealStoriesSectionProps = {}) {
   const t = useTranslations("home");
   const locale = useLocale();
   const isRtl = locale === "ar";
 
-  const stories = [
+  const titleText = (isRtl ? data?.title_ar : data?.title_en) || t("storiesTitle");
+  const subtitleText = (isRtl ? data?.subtitle_ar : data?.subtitle_en) || t("storiesSubtitle");
+
+  const defaultStories = [
     {
       id: "story-1",
       name: t("story1Name"),
@@ -52,6 +60,17 @@ export function RealStoriesSection() {
       initials: t("story6Initials"),
     },
   ];
+
+  const stories =
+    data?.testimonials && data.testimonials.length > 0
+      ? data.testimonials.map((item, idx) => ({
+          id: item.id || `story-${idx + 1}`,
+          name: isRtl ? item.name_ar : item.name_en,
+          role: isRtl ? item.role_ar : item.role_en,
+          quote: isRtl ? item.quote_ar : item.quote_en,
+          initials: (isRtl ? item.name_ar : item.name_en).slice(0, 2).toUpperCase(),
+        }))
+      : defaultStories;
 
   const [itemsPerPage, setItemsPerPage] = useState(3);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -140,10 +159,10 @@ export function RealStoriesSection() {
             <span>{t("storiesBadge")}</span>
           </div>
           <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight">
-            {t("storiesTitle")}
+            {titleText}
           </h2>
           <p className="mt-3 text-slate-600 text-sm sm:text-base font-medium leading-relaxed">
-            {t("storiesSubtitle")}
+            {subtitleText}
           </p>
         </motion.div>
 

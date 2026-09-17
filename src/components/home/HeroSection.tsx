@@ -15,12 +15,28 @@ import {
   Sparkles,
 } from "lucide-react";
 import { VerifiedBadge } from "@/components/ui/VerifiedBadge";
+import { HeroSectionData } from "@/types/cms";
 
-export function HeroSection() {
+interface HeroSectionProps {
+  data?: HeroSectionData;
+}
+
+export function HeroSection({ data }: HeroSectionProps = {}) {
   const t = useTranslations("home");
   const locale = useLocale();
+  const isAr = locale === "ar";
   const [mounted, setMounted] = useState(false);
   const { user, isAuthenticated } = useSelector((state: RootState) => state.auth);
+
+  const badgeText = (isAr ? data?.badge_ar : data?.badge_en) || t("heroBadge");
+  const titleText = (isAr ? data?.title_ar : data?.title_en) || t("heroTitle");
+  const highlightText = (isAr ? data?.highlighted_text_ar : data?.highlighted_text_en) || t("heroTitleHighlight");
+  const descriptionText = (isAr ? data?.description_ar : data?.description_en) || t("heroSubtitle");
+  const ctaPrimaryText = (isAr ? data?.cta_primary_text_ar : data?.cta_primary_text_en) || t("exploreCourses");
+  const ctaPrimaryLink = data?.cta_primary_link || `/${locale}/courses`;
+  const ctaSecondaryText = (isAr ? data?.cta_secondary_text_ar : data?.cta_secondary_text_en) || t("startLearningFree");
+  const ctaSecondaryLink = data?.cta_secondary_link || `/${locale}/register`;
+  const heroImageUrl = data?.hero_image_url || "/images/hero-coach.png";
 
   React.useEffect(() => {
     setMounted(true);
@@ -99,7 +115,7 @@ export function HeroSection() {
               ) : (
                 <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#6CF8BB]/20 text-[#0F5244] border border-[#6CF8BB]/40 shadow-xs mb-6 text-xs font-bold tracking-wider uppercase">
                   <VerifiedBadge size="xs" />
-                  <span>{t("heroBadge")}</span>
+                  <span>{badgeText}</span>
                 </div>
               )}
             </motion.div>
@@ -109,9 +125,9 @@ export function HeroSection() {
               variants={itemVariants}
               className="text-3xl sm:text-5xl lg:text-[3.25rem] font-extrabold text-slate-900 tracking-tight leading-[1.35] mb-6"
             >
-              {t("heroTitle")}{" "}
+              {titleText}{" "}
               <span className="text-[#0F5244] block mt-2 sm:mt-3">
-                {t("heroTitleHighlight")}
+                {highlightText}
               </span>
             </motion.h1>
 
@@ -120,7 +136,7 @@ export function HeroSection() {
               variants={itemVariants}
               className="text-slate-600 text-base sm:text-lg leading-relaxed max-w-xl mb-8 font-medium"
             >
-              {t("heroSubtitle")}
+              {descriptionText}
             </motion.p>
 
             {/* Dynamic CTAs Row */}
@@ -175,18 +191,18 @@ export function HeroSection() {
               ) : (
                 <>
                   <Link
-                    href={`/${locale}/courses`}
+                    href={ctaPrimaryLink}
                     className="inline-flex items-center gap-3 bg-[#0F5244] hover:bg-[#0c4337] text-white font-bold text-sm sm:text-base px-8 py-3.5 rounded-full shadow-lg shadow-[#0F5244]/20 hover:shadow-xl hover:shadow-[#0F5244]/30 transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0 group cursor-pointer animate-shimmer"
                   >
-                    <span>{t("exploreCourses")}</span>
+                    <span>{ctaPrimaryText}</span>
                     <ArrowRight className="w-5 h-5 rtl:rotate-180 group-hover:translate-x-1 rtl:group-hover:-translate-x-1 transition-transform" />
                   </Link>
 
                   <Link
-                    href={`/${locale}/register`}
+                    href={ctaSecondaryLink}
                     className="inline-flex items-center gap-2 bg-white hover:bg-slate-50 text-[#0F5244] border-2 border-[#0F5244]/30 hover:border-[#0F5244] font-bold text-sm sm:text-base px-6 py-3.5 rounded-full shadow-xs transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer"
                   >
-                    <span>{t("startLearningFree")}</span>
+                    <span>{ctaSecondaryText}</span>
                   </Link>
                 </>
               )}
@@ -210,7 +226,7 @@ export function HeroSection() {
               
               <div className="w-full aspect-square rounded-[2.5rem] overflow-hidden border-4 border-white shadow-2xl bg-white group/heroimg">
                 <Image
-                  src="/images/hero-coach.png"
+                  src={heroImageUrl}
                   alt="Coach Space"
                   width={640}
                   height={640}
