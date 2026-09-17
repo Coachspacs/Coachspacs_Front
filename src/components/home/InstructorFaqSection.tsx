@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { useSelector } from "react-redux";
 import { RootState } from "@/lib/store";
 import { ChevronDown } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 export function InstructorFaqSection() {
   const t = useTranslations("home");
@@ -62,8 +63,9 @@ export function InstructorFaqSection() {
           {faqs.map((faq, idx) => {
             const isOpen = openIndex === idx;
             return (
-              <div
+              <motion.div
                 key={faq.id}
+                initial={false}
                 className={`rounded-2xl transition-all duration-300 overflow-hidden cursor-pointer ${
                   isOpen
                     ? "bg-[#E6F9F3] border border-[#6CF8BB]/80 shadow-xs"
@@ -86,17 +88,28 @@ export function InstructorFaqSection() {
                     <h3 className="text-base sm:text-lg font-bold text-slate-900 tracking-tight leading-snug">
                       {faq.question}
                     </h3>
-                    {isOpen && (
-                      <p className="text-slate-600 text-xs sm:text-sm font-medium leading-relaxed pt-1 animate-fadeIn">
-                        {faq.answer}
-                      </p>
-                    )}
+                    <AnimatePresence initial={false}>
+                      {isOpen && (
+                        <motion.div
+                          key="content"
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: "auto" }}
+                          exit={{ opacity: 0, height: 0 }}
+                          transition={{ duration: 0.25, ease: "easeInOut" }}
+                          className="overflow-hidden"
+                        >
+                          <p className="text-slate-600 text-xs sm:text-sm font-medium leading-relaxed pt-1">
+                            {faq.answer}
+                          </p>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </div>
 
                   {/* Spacer for symmetry */}
                   <div className="w-6 shrink-0 hidden sm:block" />
                 </div>
-              </div>
+              </motion.div>
             );
           })}
         </div>

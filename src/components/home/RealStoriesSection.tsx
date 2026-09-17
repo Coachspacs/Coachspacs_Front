@@ -1,8 +1,7 @@
-"use client";
-
 import React, { useState, useEffect, useRef } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { Star, ChevronLeft, ChevronRight } from "lucide-react";
+import { motion } from "framer-motion";
 
 export function RealStoriesSection() {
   const t = useTranslations("home");
@@ -126,11 +125,17 @@ export function RealStoriesSection() {
   const translateOffset = (currentIndex * 100) / itemsPerPage;
 
   return (
-    <section className="w-full bg-[#F0F3FF]/40 py-16 sm:py-24 border-t border-slate-100 overflow-hidden font-sans">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <section className="w-full bg-[#F0F3FF]/40 py-16 sm:py-24 border-t border-slate-100 overflow-hidden font-sans relative">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative z-10">
         
         {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16">
+        <motion.div
+          initial={{ opacity: 0, y: 18 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-40px" }}
+          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+          className="text-center max-w-3xl mx-auto mb-12 sm:mb-16"
+        >
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#0F5244]/10 border border-[#0F5244]/20 text-[#0F5244] text-xs font-bold tracking-wider uppercase mb-3">
             <span>{t("storiesBadge")}</span>
           </div>
@@ -140,10 +145,16 @@ export function RealStoriesSection() {
           <p className="mt-3 text-slate-600 text-sm sm:text-base font-medium leading-relaxed">
             {t("storiesSubtitle")}
           </p>
-        </div>
+        </motion.div>
 
         {/* Carousel Window Container */}
-        <div className="relative w-full px-2 sm:px-6 md:px-10">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.98 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true, margin: "-40px" }}
+          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+          className="relative w-full px-2 sm:px-6 md:px-10"
+        >
           
           {/* Left Arrow Button (Sleek Glassmorphic Style) */}
           <button
@@ -235,7 +246,7 @@ export function RealStoriesSection() {
           >
             <ChevronRight className="w-6 h-6 stroke-[2.2] group-hover:translate-x-0.5 transition-transform" />
           </button>
-        </div>
+        </motion.div>
 
         {/* Enhanced Pagination Controls Bar */}
         <div className="flex items-center justify-center gap-3 mt-10">

@@ -1,8 +1,10 @@
-"use client";
+import { redirect } from "next/navigation";
 
-import React from "react";
-import { InstructorWorkspace } from "@/components/instructor/InstructorWorkspace";
-
-export default function InstructorOrdersPage() {
-  return <InstructorWorkspace initialTab="payout" />;
+export default async function InstructorOrdersPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  redirect(`/${locale}/instructor/dashboard`);
 }

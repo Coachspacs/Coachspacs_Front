@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { motion } from "framer-motion";
 import { useTranslations, useLocale } from "next-intl";
 import { useSelector } from "react-redux";
 import { RootState } from "@/lib/store";
@@ -24,14 +25,20 @@ export function JoinFutureSection() {
   }
 
   return (
-    <section className="w-full bg-[#FAFCFC] py-12 sm:py-16 border-t border-slate-200/60 font-sans">
-      <div className="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8">
+    <section className="w-full bg-[#FAFCFC] py-12 sm:py-16 border-t border-slate-200/60 font-sans relative overflow-hidden">
+      <div className="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8 relative z-10">
         {/* Full-width container with elegant light mint background for perfect contrast before the dark footer */}
-        <div className="relative bg-gradient-to-br from-[#EBF5F3] via-[#F4F9F8] to-[#E2F1EE] rounded-3xl lg:rounded-[36px] overflow-hidden grid grid-cols-1 lg:grid-cols-12 shadow-lg border border-[#0F5244]/15">
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-40px" }}
+          transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
+          className="relative bg-gradient-to-br from-[#EBF5F3] via-[#F4F9F8] to-[#E2F1EE] rounded-3xl lg:rounded-[36px] overflow-hidden grid grid-cols-1 lg:grid-cols-12 shadow-lg border border-[#0F5244]/15 group/banner"
+        >
           
           {/* Subtle Decorative Background Elements */}
-          <div className="absolute top-0 right-1/4 w-96 h-96 bg-[#45D1B4]/20 rounded-full blur-3xl pointer-events-none" />
-          <div className="absolute bottom-0 left-0 w-80 h-80 bg-[#0F5244]/5 rounded-full blur-2xl pointer-events-none" />
+          <div className="absolute top-0 right-1/4 w-96 h-96 bg-[#45D1B4]/20 rounded-full blur-3xl pointer-events-none animate-aurora-drift" />
+          <div className="absolute bottom-0 left-0 w-80 h-80 bg-[#0F5244]/5 rounded-full blur-2xl pointer-events-none animate-float-delayed" />
 
           {/* Left Column (Content & Actions) */}
           <div className="col-span-1 lg:col-span-7 p-7 sm:p-10 lg:p-14 flex flex-col justify-center text-left rtl:text-right space-y-6 z-20">
@@ -53,7 +60,7 @@ export function JoinFutureSection() {
             <div className="flex flex-wrap items-center gap-4 sm:gap-6 pt-2">
               <Link
                 href={`/${locale}/become-instructor`}
-                className="bg-[#0F5244] hover:bg-[#08382E] active:scale-95 text-white text-sm sm:text-base font-black px-8 py-3.5 rounded-full transition-all duration-200 shadow-md hover:shadow-xl inline-flex items-center justify-center cursor-pointer"
+                className="bg-[#0F5244] hover:bg-[#08382E] active:scale-95 text-white text-sm sm:text-base font-black px-8 py-3.5 rounded-full transition-all duration-200 shadow-md hover:shadow-xl inline-flex items-center justify-center cursor-pointer animate-shimmer"
               >
                 {t("startTeaching")}
               </Link>
@@ -77,11 +84,11 @@ export function JoinFutureSection() {
               alt={t("joinTitle")}
               fill
               sizes="(max-width: 1024px) 100vw, 500px"
-              className="w-full h-full object-cover object-center"
+              className="w-full h-full object-cover object-center group-hover/banner:scale-105 transition-transform duration-700 ease-out"
             />
           </div>
 
-        </div>
+        </motion.div>
       </div>
     </section>
   );

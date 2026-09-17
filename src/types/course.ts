@@ -76,7 +76,9 @@ export interface CreateSectionRequest {
 
 export interface ReorderSectionItem {
   id: number | string;
+  order?: number;
   lesson_ids?: Array<number | string>;
+  lessons?: Array<{ id: number | string; order?: number }>;
 }
 
 export interface ReorderCurriculumRequest {

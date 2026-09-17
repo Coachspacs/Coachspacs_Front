@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useDispatch, useSelector } from "react-redux";
 import {
   Star,
@@ -35,6 +35,7 @@ import { addToCart, openCartDrawer } from "@/features/cart/cartSlice";
 import { cartService } from "@/services/cartService";
 import { enrollmentService } from "@/services/enrollmentService";
 import { VerifiedBadge } from "@/components/ui/VerifiedBadge";
+import { InstructorPurchaseNoticeModal } from "@/components/modals/InstructorPurchaseNoticeModal";
 
 export type CourseCardVariant =
   | "catalog"
@@ -130,13 +131,33 @@ export function CourseCard({
   const router = useRouter();
   const dispatch = useDispatch();
 
-  const { isAuthenticated } = useSelector((state: RootState) => state.auth);
+  const { user, isAuthenticated } = useSelector((state: RootState) => state.auth);
   const cartItems = useSelector((state: RootState) => state.cart?.items || []);
   const isInCart = cartItems.some(
     (item: any) =>
       String(item.course?.id || item.courseId || item.id) === String(course.id)
   );
 
+  // Instructor & Ownership detection
+  const isInstructor = Boolean(
+    isAuthenticated &&
+      ((user?.role || "").toLowerCase() === "instructor" ||
+        (user?.role || "").toLowerCase() === "coach")
+  );
+
+  const courseInstructorId =
+    course.instructorId ||
+    (typeof course.instructor === "object" ? course.instructor?.id : undefined) ||
+    course.instructor_id;
+
+  const isMyOwnCourse = Boolean(
+    isInstructor &&
+      user?.id &&
+      courseInstructorId &&
+      String(courseInstructorId) === String(user.id)
+  );
+
+  const [instructorModalOpen, setInstructorModalOpen] = useState(false);
   const [imgSrc, setImgSrc] = useState<string>(getSafeImage(course));
   const [imgError, setImgError] = useState(false);
   const [isEnrolling, setIsEnrolling] = useState(false);
@@ -196,6 +217,13 @@ export function CourseCard({
   const handleCartClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+
+    // If user is an instructor, they cannot buy courses via cart -> show notice modal
+    if (isInstructor) {
+      setInstructorModalOpen(true);
+      return;
+    }
+
     if (isInCart) {
       dispatch(openCartDrawer());
     } else {
@@ -212,6 +240,12 @@ export function CourseCard({
   const handleFreeEnroll = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+
+    // If user is an instructor, they cannot enroll via student flow -> show notice modal
+    if (isInstructor) {
+      setInstructorModalOpen(true);
+      return;
+    }
 
     if (enrolledState) {
       router.push(`/${currentLocale}/student/learn/${course.id}`);
@@ -280,7 +314,8 @@ export function CourseCard({
   // =========================================================================
   if (variant === "compact") {
     return (
-      <Link href={coursePath} className={`block group h-full select-none ${className}`}>
+      <>
+        <Link href={coursePath} className={`block group h-full select-none ${className}`}>
         <div className="flex flex-col justify-between h-full rounded-2xl bg-white border border-slate-200/80 shadow-2xs hover:shadow-md hover:border-[#0F5244]/30 hover:-translate-y-0.5 transition-all duration-300 overflow-hidden cursor-pointer">
           {/* Thumbnail */}
           <div className="relative w-full aspect-[16/10] bg-slate-100 overflow-hidden flex items-center justify-center">
@@ -352,7 +387,35 @@ export function CourseCard({
                 )}
               </span>
 
-              {enrolledState ? (
+              {isInstructor ? (
+                isMyOwnCourse ? (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      router.push(`/${currentLocale}/instructor/courses/create?id=${course.id}`);
+                    }}
+                    title={isAr ? "إدارة الدورة" : "Manage in Studio"}
+                    className="p-2 rounded-full border border-[#0F5244] bg-[#0F5244] text-white hover:bg-[#07382E] transition-all cursor-pointer flex items-center justify-center text-xs font-extrabold shadow-2xs active:scale-95 shrink-0"
+                  >
+                    <Edit className="h-3.5 w-3.5" />
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      router.push(coursePath);
+                    }}
+                    title={isAr ? "معاينة الدورة" : "Preview Course"}
+                    className="p-2 rounded-full border border-slate-200 bg-slate-50 hover:bg-emerald-50 text-slate-700 hover:text-[#0F5244] hover:border-emerald-200 transition-all cursor-pointer flex items-center justify-center text-xs font-extrabold shadow-2xs active:scale-95 shrink-0"
+                  >
+                    <Eye className="h-3.5 w-3.5" />
+                  </button>
+                )
+              ) : enrolledState ? (
                 <button
                   type="button"
                   onClick={(e) => {
@@ -409,6 +472,12 @@ export function CourseCard({
           </div>
         </div>
       </Link>
+      <InstructorPurchaseNoticeModal
+        isOpen={instructorModalOpen}
+        onClose={() => setInstructorModalOpen(false)}
+        courseTitle={displayTitle}
+      />
+    </>
     );
   }
 
@@ -903,7 +972,8 @@ export function CourseCard({
   };
 
   return (
-    <Link href={coursePath} className={`block group h-full ${className}`}>
+    <>
+      <Link href={coursePath} className={`block group h-full ${className}`}>
       <div className="flex flex-col justify-between h-full rounded-2xl bg-white border border-slate-200/80 shadow-2xs hover:shadow-xl hover:border-[#0F5244]/30 hover:-translate-y-1 transition-all duration-300 overflow-hidden cursor-pointer">
         {/* Top Image Banner */}
         <div className="relative w-full aspect-[16/10] bg-slate-100 overflow-hidden">
@@ -1032,7 +1102,37 @@ export function CourseCard({
                 </span>
               </div>
 
-              {enrolledState ? (
+              {isInstructor ? (
+                isMyOwnCourse ? (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      router.push(`/${currentLocale}/instructor/courses/create?id=${course.id}`);
+                    }}
+                    title={isAr ? "إدارة الدورة" : "Manage in Studio"}
+                    className="px-4 py-2 rounded-full bg-[#0F5244] hover:bg-[#07382E] text-white transition-all cursor-pointer flex items-center justify-center gap-2 text-xs font-bold shadow-2xs active:scale-95 shrink-0"
+                  >
+                    <Edit className="h-4 w-4" />
+                    <span>{isAr ? "إدارة الدورة" : "Manage in Studio"}</span>
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      router.push(coursePath);
+                    }}
+                    title={isAr ? "معاينة الدورة" : "Preview Course"}
+                    className="px-4 py-2 rounded-full border border-slate-200 bg-slate-50 hover:bg-emerald-50 text-slate-700 hover:text-[#0F5244] hover:border-emerald-200 transition-all cursor-pointer flex items-center justify-center gap-2 text-xs font-bold shadow-2xs active:scale-95 shrink-0"
+                  >
+                    <Eye className="h-4 w-4" />
+                    <span>{isAr ? "معاينة الدورة" : "Preview Course"}</span>
+                  </button>
+                )
+              ) : enrolledState ? (
                 <button
                   type="button"
                   onClick={(e) => {
@@ -1103,6 +1203,12 @@ export function CourseCard({
         </div>
       </div>
     </Link>
+    <InstructorPurchaseNoticeModal
+      isOpen={instructorModalOpen}
+      onClose={() => setInstructorModalOpen(false)}
+      courseTitle={displayTitle}
+    />
+  </>
   );
 }
 

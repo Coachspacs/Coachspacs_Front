@@ -6,6 +6,7 @@ import { useTranslations, useLocale } from "next-intl";
 import { courseService } from "@/services/courseService";
 import { CourseCard } from "@/components/catalog/CourseCard";
 import { Course } from "@/types/catalog";
+import { motion, Variants } from "framer-motion";
 
 export function MasterYourCraftSection() {
   const t = useTranslations("home");
@@ -71,19 +72,47 @@ export function MasterYourCraftSection() {
     };
   }, [locale, isAr]);
 
+  const containerVariants: Variants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.14,
+      },
+    },
+  };
+
+  const cardVariants: Variants = {
+    hidden: { opacity: 0, y: 24 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.6,
+        ease: "easeOut",
+      },
+    },
+  };
+
   return (
-    <section suppressHydrationWarning className="w-full bg-[#F0F3FF] py-12 sm:py-16 font-sans">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <section suppressHydrationWarning className="w-full bg-[#F0F3FF] py-12 sm:py-16 font-sans relative overflow-hidden">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative z-10">
         
         {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-14">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-40px" }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
+          className="text-center max-w-3xl mx-auto mb-10 sm:mb-14"
+        >
           <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight">
             {t("masterYourCraftTitle")}
           </h2>
           <p className="mt-3 text-slate-500 text-sm sm:text-base font-medium">
             {t("masterYourCraftSubtitle")}
           </p>
-        </div>
+        </motion.div>
 
         {/* Course Cards Grid */}
         {isLoading ? (
@@ -124,11 +153,19 @@ export function MasterYourCraftSection() {
             </Link>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 w-full">
+          <motion.div
+            variants={containerVariants}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-40px" }}
+            className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 w-full"
+          >
             {courses.map((course) => (
-              <CourseCard key={course.id} course={course} isAr={isAr} />
+              <motion.div key={course.id} variants={cardVariants} className="w-full">
+                <CourseCard course={course} isAr={isAr} />
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         )}
       </div>
     </section>
