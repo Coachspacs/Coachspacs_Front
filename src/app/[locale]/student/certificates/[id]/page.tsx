@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useTranslations, useLocale } from 'next-intl';
@@ -10,20 +10,17 @@ import { enrollmentService } from '@/services/enrollmentService';
 import { certificateService } from '@/services/certificateService';
 import { courseService } from '@/services/courseService';
 import { exportElementToPdf } from '@/utils/certificatePdfGenerator';
+import { CertificateTemplate } from '@/components/certificate/CertificateTemplate';
 
 import {
   Award,
   Download,
   ShieldCheck,
-  Sparkles,
   ArrowLeft,
   ArrowRight,
   Loader2,
-  AlertCircle,
   Printer,
-  Calendar,
 } from 'lucide-react';
-
 
 export default function CertificatePage() {
   const t = useTranslations('certificate');
@@ -72,7 +69,10 @@ export default function CertificatePage() {
         const enrollments = enrollmentsRes.status === 'fulfilled' && Array.isArray(enrollmentsRes.value) ? enrollmentsRes.value : [];
 
         // Helper to resolve student name
-        const resolveStudentName = () => {
+        const resolveStudentName = (overrideName?: string) => {
+          if (overrideName && overrideName.trim() && overrideName !== 'Distinguished Student' && overrideName !== 'الطالب المتميز') {
+            return overrideName.trim();
+          }
           let name = user?.fullName || user?.name;
           if (!name && typeof window !== 'undefined') {
             try {
@@ -80,37 +80,129 @@ export default function CertificatePage() {
               name = u.fullName || u.name || u.email?.split('@')[0];
             } catch (_) {}
           }
-          return name || (isAr ? 'الطالب المتميز' : 'Distinguished Student');
+          return name || t('defaultStudentName');
+        };
+
+        // Helper to resolve real course title with deep fallback chain
+        const resolveCourseTitle = async (candidateObj: any, courseIdCandidate?: any) => {
+          const title =
+            (isAr
+              ? candidateObj?.course?.title_ar || candidateObj?.course?.title || candidateObj?.title_ar
+              : candidateObj?.course?.title_en || candidateObj?.course?.title || candidateObj?.title_en) ||
+            candidateObj?.course?.title ||
+            candidateObj?.course?.name ||
+            candidateObj?.course_title ||
+            candidateObj?.course_name ||
+            candidateObj?.title;
+
+          if (title && typeof title === 'string' && title.trim() && !title.toLowerCase().includes('coach space course')) {
+            return title.trim();
+          }
+
+          const targetCourseId =
+            courseIdCandidate ||
+            candidateObj?.course?.id ||
+            candidateObj?.course_id ||
+            (typeof candidateObj?.course === 'number' || typeof candidateObj?.course === 'string' ? candidateObj?.course : null);
+
+          // Check enrollments list
+          if (targetCourseId) {
+            const matchedEnrCourse = enrollments.find(
+              (e: any) => String(e.course?.id || e.course_id || e.id) === String(targetCourseId)
+            );
+            if (matchedEnrCourse) {
+              const enrTitle =
+                (isAr
+                  ? matchedEnrCourse.course?.title_ar || matchedEnrCourse.course?.title || matchedEnrCourse.title_ar
+                  : matchedEnrCourse.course?.title_en || matchedEnrCourse.course?.title || matchedEnrCourse.title_en) ||
+                matchedEnrCourse.course?.title ||
+                matchedEnrCourse.course?.name ||
+                matchedEnrCourse.course_title;
+              if (enrTitle && !enrTitle.toLowerCase().includes('coach space course')) return enrTitle.trim();
+            }
+          }
+
+          // Check localStorage cached enrolled courses
+          if (typeof window !== 'undefined') {
+            try {
+              const savedStr = localStorage.getItem('coachspace_enrolled_courses');
+              if (savedStr) {
+                const list: any[] = JSON.parse(savedStr);
+                const localMatch = list.find(
+                  (c: any) =>
+                    String(c.id) === String(targetCourseId) ||
+                    String(c.certificate_code || '').toLowerCase() === targetLower ||
+                    String(c.id) === normalizedNumId
+                );
+                if (localMatch) {
+                  const lTitle =
+                    (isAr ? localMatch.title_ar || localMatch.title : localMatch.title_en || localMatch.title) ||
+                    localMatch.title;
+                  if (lTitle) return lTitle.trim();
+                }
+              }
+            } catch (_) {}
+          }
+
+          // Try verification endpoint
+          try {
+            const verifyRes = await certificateService.verifyCertificate(rawParam);
+            if (verifyRes?.course_title) {
+              return verifyRes.course_title.trim();
+            }
+          } catch (_) {}
+
+          // Try fetching course details by ID directly
+          if (targetCourseId) {
+            try {
+              const fetchedCourse = await courseService.getCourseById(targetCourseId, locale);
+              if (fetchedCourse) {
+                const fTitle =
+                  (isAr
+                    ? fetchedCourse.title_ar || fetchedCourse.title
+                    : fetchedCourse.title_en || fetchedCourse.title) || fetchedCourse.title;
+                if (fTitle) return fTitle.trim();
+              }
+            } catch (_) {}
+          }
+
+          return t('defaultCourseTitle');
+        };
+
+        // Helper to resolve instructor name
+        const resolveInstructorName = (candidateObj: any) => {
+          const instObj = typeof candidateObj?.course?.instructor === 'object' ? candidateObj?.course?.instructor : null;
+          const inst =
+            instObj?.full_name ||
+            instObj?.name ||
+            (typeof candidateObj?.course?.instructor === 'string' ? candidateObj?.course?.instructor : '') ||
+            candidateObj?.instructor_name ||
+            candidateObj?.course?.instructor_name ||
+            candidateObj?.instructor;
+
+          if (inst && typeof inst === 'string' && inst.trim() && !inst.toLowerCase().includes('coach space instructor')) {
+            return inst.trim();
+          }
+          return t('defaultInstructor');
         };
 
         // 1. First priority: match in live certificates list
         const matchedCert = certs.find((c) => {
           const code = String(c.certificate_code || '').toLowerCase();
           const idStr = String(c.id || '').toLowerCase();
-          const courseIdStr = String(c.course?.id || c.course_id || '').toLowerCase();
+          const courseIdStr = String(c.course?.id || c.course_id || (typeof c.course === 'number' || typeof c.course === 'string' ? c.course : '') || '').toLowerCase();
           return (
             code === targetLower ||
             idStr === targetLower ||
             idStr === normalizedNumId ||
-            courseIdStr === targetLower ||
-            courseIdStr === normalizedNumId ||
-            code === `cert-${normalizedNumId}` ||
-            code === `cs-${normalizedNumId}`
+            (courseIdStr && courseIdStr === normalizedNumId)
           );
         });
 
         if (matchedCert) {
-          const studentName = matchedCert.student_name || resolveStudentName();
-          const courseTitle =
-            (isAr ? matchedCert.course?.title_ar : matchedCert.course?.title_en) ||
-            matchedCert.course?.title ||
-            matchedCert.course_title ||
-            'Coach Space Course';
-          const instructorName =
-            matchedCert.course?.instructor?.name ||
-            matchedCert.course?.instructor?.full_name ||
-            'Coach Space Instructor';
-
+          const resolvedTitle = await resolveCourseTitle(matchedCert, matchedCert.course?.id || matchedCert.course_id);
+          const studentName = resolveStudentName(matchedCert.student_name || matchedCert.student_full_name);
+          const instName = resolveInstructorName(matchedCert);
           const issueDate = matchedCert.issued_at
             ? new Date(matchedCert.issued_at).toLocaleDateString(isAr ? 'ar-EG' : 'en-US', {
                 year: 'numeric',
@@ -126,91 +218,121 @@ export default function CertificatePage() {
           setCertificateData({
             id: matchedCert.id,
             studentName,
-            courseTitle,
-            instructorName,
+            courseTitle: resolvedTitle,
+            instructorName: instName,
             issueDate,
-            certificateCode: matchedCert.certificate_code || rawParam.toUpperCase(),
+            certificateCode: matchedCert.certificate_code || `CS-${matchedCert.id}`,
             pdfUrl: matchedCert.pdf_url,
           });
           return;
         }
 
-        // 2. Second priority: match in student enrollments from API
-        const matchedEnr = enrollments.find((e: any) => {
+        // 2. Second priority: match in enrollments
+        const matchedEnrollment = enrollments.find((e: any) => {
+          const courseId = String(e.course?.id || e.course_id || e.id || '').toLowerCase();
           const certCode = String(e.certificate?.certificate_code || e.certificate_code || '').toLowerCase();
-          const certId = String(e.certificate?.id || '').toLowerCase();
-          const courseId = String(e.course?.id || e.course_id || '').toLowerCase();
-          const enrollmentId = String(e.id || '').toLowerCase();
-
           return (
-            certCode === targetLower ||
-            certId === targetLower ||
-            certId === normalizedNumId ||
             courseId === targetLower ||
             courseId === normalizedNumId ||
-            enrollmentId === targetLower ||
-            enrollmentId === normalizedNumId ||
-            targetLower === `cert-${enrollmentId}` ||
-            targetLower === `cert-${courseId}` ||
-            targetLower === `cs-${enrollmentId}` ||
-            targetLower === `cs-${courseId}`
+            (certCode && (certCode === targetLower || certCode === normalizedNumId))
           );
         });
 
-        if (matchedEnr) {
+        if (matchedEnrollment) {
+          const courseId = matchedEnrollment.course?.id || matchedEnrollment.course_id || matchedEnrollment.id;
+          const resolvedTitle = await resolveCourseTitle(matchedEnrollment, courseId);
           const studentName = resolveStudentName();
-          const courseTitle = isAr
-            ? matchedEnr.course?.title_ar || matchedEnr.course?.title || matchedEnr.course?.title_en || ''
-            : matchedEnr.course?.title_en || matchedEnr.course?.title || matchedEnr.course?.title_ar || '';
+          const instName = resolveInstructorName(matchedEnrollment);
+          const code =
+            matchedEnrollment.certificate?.certificate_code ||
+            matchedEnrollment.certificate_code ||
+            `CS-${courseId}`;
 
-          const instObj = typeof matchedEnr.course?.instructor === 'object' ? matchedEnr.course?.instructor : null;
-          const instructorName =
-            instObj?.full_name ||
-            instObj?.name ||
-            (typeof matchedEnr.course?.instructor === 'string' ? matchedEnr.course?.instructor : '') ||
-            matchedEnr.course?.instructor_name ||
-            'Coach Space Instructor';
-
-          const rawDate = matchedEnr.certificate?.issued_at || matchedEnr.completed_at || matchedEnr.enrolled_at;
-          const issueDate = rawDate
-            ? new Date(rawDate).toLocaleDateString(isAr ? 'ar-EG' : 'en-US', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-              })
+          const issueDate = matchedEnrollment.completed_at || matchedEnrollment.certificate?.issued_at
+            ? new Date(matchedEnrollment.completed_at || matchedEnrollment.certificate?.issued_at).toLocaleDateString(
+                isAr ? 'ar-EG' : 'en-US',
+                { year: 'numeric', month: 'long', day: 'numeric' }
+              )
             : new Date().toLocaleDateString(isAr ? 'ar-EG' : 'en-US', {
                 year: 'numeric',
                 month: 'long',
                 day: 'numeric',
               });
 
-          const certificateCode =
-            matchedEnr.certificate?.certificate_code ||
-            matchedEnr.certificate_code ||
-            matchedEnr.certificate?.code ||
-            (matchedEnr.certificate?.id ? `CS-${matchedEnr.certificate.id}` : null);
-
-          if (!certificateCode) {
-            setCertificateData(null);
-            return;
-          }
-
           setCertificateData({
-            id: matchedEnr.certificate?.id || matchedEnr.id,
+            id: courseId,
             studentName,
-            courseTitle: courseTitle || 'Coach Space Course',
-            instructorName,
+            courseTitle: resolvedTitle,
+            instructorName: instName,
             issueDate,
-            certificateCode,
+            certificateCode: code,
           });
           return;
         }
 
-        // No authentic certificate found for this ID
-        setCertificateData(null);
+        // 3. Fallback: verification endpoint check
+        try {
+          const verifyData = await certificateService.verifyCertificate(rawParam);
+          if (verifyData && (verifyData.course_title || verifyData.student_full_name)) {
+            const studentName = resolveStudentName(verifyData.student_full_name);
+            const issueDate = verifyData.issued_at
+              ? new Date(verifyData.issued_at).toLocaleDateString(isAr ? 'ar-EG' : 'en-US', {
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric',
+                })
+              : new Date().toLocaleDateString(isAr ? 'ar-EG' : 'en-US', {
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric',
+                });
+
+            setCertificateData({
+              id: rawParam,
+              studentName,
+              courseTitle: verifyData.course_title || t('defaultCourseTitle'),
+              instructorName: t('defaultInstructor'),
+              issueDate,
+              certificateCode: verifyData.certificate_code || rawParam,
+            });
+            return;
+          }
+        } catch (_) {}
+
+        // 4. Fallback: Local storage active course
+        if (typeof window !== 'undefined') {
+          try {
+            const savedCoursesStr = localStorage.getItem('coachspace_enrolled_courses');
+            if (savedCoursesStr) {
+              const list: any[] = JSON.parse(savedCoursesStr);
+              const found = list.find(
+                (c) =>
+                  String(c.id).toLowerCase() === targetLower ||
+                  String(c.id).toLowerCase() === normalizedNumId ||
+                  String(c.certificate_code || '').toLowerCase() === targetLower
+              );
+              if (found) {
+                const title =
+                  (isAr ? found.title_ar || found.title : found.title_en || found.title) || found.title;
+                setCertificateData({
+                  id: found.id,
+                  studentName: resolveStudentName(),
+                  courseTitle: title || t('defaultCourseTitle'),
+                  instructorName: resolveInstructorName(found),
+                  issueDate: new Date().toLocaleDateString(isAr ? 'ar-EG' : 'en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                  }),
+                  certificateCode: found.certificate_code || `CS-${found.id}`,
+                });
+                return;
+              }
+            }
+          } catch (_) {}
+        }
       } catch (err) {
-        console.warn('Failed to load dynamic certificate:', err);
-        setCertificateData(null);
+        console.warn('Error loading certificate details:', err);
       } finally {
         if (isSubscribed) {
           setIsLoading(false);
@@ -223,21 +345,22 @@ export default function CertificatePage() {
     return () => {
       isSubscribed = false;
     };
-  }, [certificateIdParam, user, isAr]);
+  }, [certificateIdParam, user, locale, isAr, t]);
 
-  const handleDownloadPdf = async () => {
-    if (!certificateData) return;
-    const targetId = certificateData.id || certificateData.certificateCode;
-    const cleanCode = String(certificateData.certificateCode || targetId || 'CERT').trim();
-    const fileName = `CoachSpace-Certificate-${cleanCode}.pdf`;
+  const handleDownloadPdf = useCallback(async () => {
+    if (!certificateData || isDownloading) return;
+
+    const cleanCode = (certificateData.certificateCode || `CS-${certificateData.id}`)
+      .replace(/[^a-zA-Z0-9-_]/g, '_');
+    const fileName = `Certificate_${cleanCode}.pdf`;
 
     setIsDownloading(true);
-    setDownloadStatus(isAr ? 'جاري تجهيز وتنزيل ملف PDF...' : 'Generating and downloading PDF...');
+    setDownloadStatus(t('downloadPreparing'));
 
     try {
       if (certificateCardRef.current) {
         await exportElementToPdf(certificateCardRef.current, fileName);
-        setDownloadStatus(isAr ? 'تم التنزيل بنجاح!' : 'Downloaded successfully!');
+        setDownloadStatus(t('downloadSuccess'));
       } else {
         throw new Error('Certificate card DOM element not found');
       }
@@ -247,60 +370,90 @@ export default function CertificatePage() {
         const jsPDF = (await import('jspdf')).default;
         const pdf = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
         
-        // Background & Borders
-        pdf.setFillColor(253, 254, 253);
-        pdf.rect(8, 8, 281, 194, 'F');
+        const pageWidth = 297;
+        const pageHeight = 210;
+
+        // Background: Warm Ivory Linen
+        pdf.setFillColor(250, 248, 245);
+        pdf.rect(0, 0, pageWidth, pageHeight, 'F');
+
+        // Outer Emerald Frame (Soft & Thin)
         pdf.setDrawColor(15, 82, 68);
-        pdf.setLineWidth(1.2);
-        pdf.rect(14, 14, 269, 182, 'D');
-        pdf.setDrawColor(217, 119, 6);
-        pdf.setLineWidth(0.4);
-        pdf.rect(17, 17, 263, 176, 'D');
+        pdf.setLineWidth(1.5);
+        pdf.rect(8, 8, pageWidth - 16, pageHeight - 16, 'D');
 
-        // Header
-        pdf.setFontSize(18);
+        // Inner Gold Hairline Frame
+        pdf.setDrawColor(197, 155, 39);
+        pdf.setLineWidth(0.6);
+        pdf.rect(11, 11, pageWidth - 22, pageHeight - 22, 'D');
+
+        // Header: Brand Title
+        pdf.setFontSize(12);
         pdf.setTextColor(15, 82, 68);
-        pdf.text('COACH SPACE ACADEMY', 148.5, 36, { align: 'center' });
-        
-        pdf.setFontSize(24);
-        pdf.setTextColor(30, 41, 59);
-        pdf.text('Certificate of Completion & Excellence', 148.5, 52, { align: 'center' });
-        
-        pdf.setFontSize(13);
-        pdf.setTextColor(100, 116, 139);
-        pdf.text('This is to officially certify that', 148.5, 68, { align: 'center' });
+        pdf.text('COACH SPACE', pageWidth / 2, 26, { align: 'center' });
 
-        // Student Name
-        pdf.setFontSize(28);
-        pdf.setTextColor(15, 82, 68);
-        pdf.text(String(certificateData.studentName || 'Student'), 148.5, 88, { align: 'center' });
-
-        // Course Section
-        pdf.setFontSize(13);
-        pdf.setTextColor(100, 116, 139);
-        pdf.text('has successfully fulfilled all requirements and assessments for:', 148.5, 106, { align: 'center' });
-
+        // Certificate Title
         pdf.setFontSize(22);
+        pdf.setTextColor(15, 82, 68);
+        pdf.text('CERTIFICATE OF ACHIEVEMENT', pageWidth / 2, 40, { align: 'center' });
+
+        pdf.setFontSize(9.5);
+        pdf.setTextColor(197, 155, 39);
+        pdf.text('THIS CERTIFICATE IS PROUDLY PRESENTED TO', pageWidth / 2, 48, { align: 'center' });
+
+        // Recipient Name
+        pdf.setFontSize(28);
         pdf.setTextColor(30, 41, 59);
-        pdf.text(String(certificateData.courseTitle || 'Course Title'), 148.5, 122, { align: 'center' });
+        pdf.text(String(certificateData.studentName || t('defaultStudentName')), pageWidth / 2, 72, { align: 'center' });
 
-        // Authority / Footer
-        pdf.setDrawColor(226, 232, 240);
-        pdf.setLineWidth(0.5);
-        pdf.line(25, 145, 272, 145);
+        // Gold Accent Underline
+        pdf.setFillColor(197, 155, 39);
+        pdf.rect(pageWidth / 2 - 25, 76, 50, 0.6, 'F');
 
-        pdf.setFontSize(11);
+        // Description Paragraph
+        pdf.setFontSize(10.5);
         pdf.setTextColor(100, 116, 139);
-        pdf.text(`Issue Date: ${certificateData.issueDate || 'Recent'}`, 30, 160);
-        pdf.text(`Credential ID: ${certificateData.certificateCode || cleanCode}`, 30, 168);
+        pdf.text('In recognition of successfully fulfilling all curriculum requirements and practical coursework in:', pageWidth / 2, 94, { align: 'center' });
 
-        pdf.text('Coach Space Verified Credential', 148.5, 164, { align: 'center' });
+        // Course Title
+        pdf.setFontSize(17);
+        pdf.setTextColor(15, 82, 68);
+        const splitCourse = pdf.splitTextToSize(`« ${certificateData.courseTitle} »`, 200);
+        pdf.text(splitCourse, pageWidth / 2, 108, { align: 'center' });
 
-        pdf.text(`Instructor: ${certificateData.instructorName || 'Academy Instructor'}`, 265, 160, { align: 'right' });
-        pdf.text('Authorized Signature', 265, 168, { align: 'right' });
+        // Divider
+        pdf.setDrawColor(226, 232, 240);
+        pdf.setLineWidth(0.4);
+        pdf.line(30, 142, pageWidth - 30, 142);
+
+        // Footer Metadata: Issue Date (Left)
+        pdf.setFontSize(8);
+        pdf.setTextColor(148, 163, 184);
+        pdf.text('ISSUE DATE', 35, 158);
+        pdf.setFontSize(10);
+        pdf.setTextColor(51, 65, 85);
+        pdf.text(String(certificateData.issueDate || 'Recent'), 35, 166);
+
+        pdf.setFontSize(8);
+        pdf.setTextColor(15, 82, 68);
+        pdf.text(`ID: ${certificateData.certificateCode || cleanCode}`, 35, 174);
+
+        // Right: Instructor Signature
+        pdf.setFontSize(13);
+        pdf.setTextColor(30, 41, 59);
+        const resolvedInst = certificateData.instructorName && !certificateData.instructorName.toLowerCase().includes('certified instructor')
+          ? certificateData.instructorName
+          : t('defaultInstructor');
+        pdf.text(resolvedInst, pageWidth - 35, 162, { align: 'right' });
+        pdf.setDrawColor(203, 213, 225);
+        pdf.setLineWidth(0.4);
+        pdf.line(pageWidth - 75, 165, pageWidth - 35, 165);
+        pdf.setFontSize(8);
+        pdf.setTextColor(148, 163, 184);
+        pdf.text('LEAD INSTRUCTOR & ACADEMIC MENTOR', pageWidth - 35, 172, { align: 'right' });
 
         pdf.save(fileName);
-        setDownloadStatus(isAr ? 'تم التنزيل بنجاح!' : 'Downloaded successfully!');
+        setDownloadStatus(t('downloadSuccess'));
       } catch (vectorErr) {
         console.error('Vector fallback failed:', vectorErr);
       }
@@ -309,6 +462,12 @@ export default function CertificatePage() {
         setIsDownloading(false);
         setDownloadStatus(null);
       }, 1500);
+    }
+  }, [certificateData, isDownloading, t]);
+
+  const handlePrint = () => {
+    if (typeof window !== 'undefined') {
+      window.print();
     }
   };
 
@@ -325,14 +484,14 @@ export default function CertificatePage() {
         return () => clearTimeout(timer);
       }
     }
-  }, [certificateData]);
+  }, [certificateData, handleDownloadPdf]);
 
   if (isLoading) {
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center gap-3">
         <Loader2 className="w-8 h-8 text-[#0F5244] animate-spin" />
         <span className="text-xs text-slate-500 font-medium">
-          {isAr ? 'جاري تحميل الشهادة...' : 'Loading certificate...'}
+          {t('loadingCertificate')}
         </span>
       </div>
     );
@@ -342,11 +501,13 @@ export default function CertificatePage() {
     return (
       <div className="max-w-xl mx-auto px-4 py-16 text-center space-y-6">
         <div className="w-16 h-16 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center mx-auto shadow-xs border border-amber-200">
-          <AlertCircle className="w-8 h-8" />
+          <Award className="w-8 h-8" />
         </div>
         <div className="space-y-2">
-          <h2 className="text-xl font-bold text-slate-900">{t('notFound')}</h2>
-          <p className="text-sm text-slate-500">
+          <h2 className="text-xl font-bold text-slate-900">
+            {t('notFound')}
+          </h2>
+          <p className="text-xs text-slate-500 leading-relaxed max-w-sm mx-auto">
             {t('notFoundDesc')}
           </p>
         </div>
@@ -362,13 +523,13 @@ export default function CertificatePage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 print-certificate-container" dir={isAr ? 'rtl' : 'ltr'}>
-      {/* Action Header */}
+    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 print-certificate-container" dir={isAr ? 'rtl' : 'ltr'}>
+      {/* Top Action Header */}
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4 print:hidden">
         <div className="flex items-center gap-3">
           <Link
             href={`/${locale}/student/certificates`}
-            className="p-2 rounded-xl border border-slate-200 hover:bg-slate-100 text-slate-600 transition-colors"
+            className="p-2 rounded-xl border border-slate-200 hover:bg-slate-100 text-slate-600 transition-colors cursor-pointer"
             title={t('backToCertificates')}
           >
             {isAr ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
@@ -379,158 +540,62 @@ export default function CertificatePage() {
           </h1>
         </div>
 
-        {/* Action: Dedicated Download PDF Button Only */}
-        <div className="flex items-center gap-2.5">
+        {/* Action Buttons: Print, Verify & Download PDF */}
+        <div className="flex items-center gap-2 flex-wrap">
+          {/* Direct Print Button */}
+          <button
+            type="button"
+            onClick={handlePrint}
+            className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold transition-all shadow-2xs active:scale-98 cursor-pointer"
+            title={t('printCertificate')}
+          >
+            <Printer className="w-3.5 h-3.5 text-slate-500" />
+            <span>{t('print')}</span>
+          </button>
+
+          {/* Verify Public Link */}
+          <Link
+            href={`/${locale}/certificates/verify/${encodeURIComponent(certificateData.certificateCode || certificateData.id)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl border border-emerald-300/80 bg-emerald-50/80 hover:bg-emerald-100 text-[#0F5244] text-xs font-bold transition-all shadow-2xs active:scale-98 cursor-pointer"
+            title={t('verifyCertificate')}
+          >
+            <ShieldCheck className="w-4 h-4 text-emerald-600" />
+            <span>{t('verify')}</span>
+          </Link>
+
+          {/* Download PDF Button */}
           <button
             type="button"
             onClick={handleDownloadPdf}
             disabled={isDownloading}
-            className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-[#0F5244] hover:bg-[#093C31] text-white text-xs font-bold transition-all shadow-xs hover:shadow-sm active:scale-98 cursor-pointer disabled:opacity-75 disabled:cursor-not-allowed"
+            className="inline-flex items-center gap-2 px-5 sm:px-6 py-2.5 rounded-xl bg-[#0F5244] hover:bg-[#07382E] text-white text-xs font-bold transition-all shadow-xs hover:shadow-sm active:scale-98 cursor-pointer disabled:opacity-75 disabled:cursor-not-allowed"
           >
             {isDownloading ? (
               <>
                 <Loader2 className="w-4 h-4 animate-spin text-white" />
-                <span>{downloadStatus || (isAr ? 'جاري التنزيل...' : 'Downloading...')}</span>
+                <span>{downloadStatus || t('downloading')}</span>
               </>
             ) : (
               <>
                 <Download className="w-4 h-4 text-emerald-100" />
-                <span>{isAr ? 'تنزيل الشهادة (PDF)' : 'Download PDF'}</span>
+                <span>{t('downloadPdf')}</span>
               </>
             )}
           </button>
         </div>
       </div>
 
-      {/* Soft & Elegant Luxury Certificate of Excellence */}
-      <div ref={certificateCardRef} className="relative print-certificate-card rounded-3xl bg-white border border-slate-200/80 shadow-md p-3 sm:p-6 md:p-8">
-        {/* Delicate Inner Hairline Frame */}
-        <div className="relative rounded-2xl border border-emerald-900/[0.08] bg-gradient-to-b from-[#FCFDFD] via-white to-[#F9FCFA] p-6 sm:p-12 md:p-14 text-center space-y-6 sm:space-y-8 overflow-hidden">
-          
-          {/* 4 Soft Minimalist Corner Accents */}
-          <div className="absolute top-3.5 left-3.5 w-3.5 h-3.5 border-t border-l border-amber-400/50 rounded-tl-xs pointer-events-none" />
-          <div className="absolute top-3.5 right-3.5 w-3.5 h-3.5 border-t border-r border-amber-400/50 rounded-tr-xs pointer-events-none" />
-          <div className="absolute bottom-3.5 left-3.5 w-3.5 h-3.5 border-b border-l border-amber-400/50 rounded-bl-xs pointer-events-none" />
-          <div className="absolute bottom-3.5 right-3.5 w-3.5 h-3.5 border-b border-r border-amber-400/50 rounded-br-xs pointer-events-none" />
-
-          {/* Ultra-Soft Subtle Botanical Leaf Watermark */}
-          <svg
-            className="absolute inset-0 m-auto w-64 h-64 sm:w-80 sm:h-80 text-[#0F5244]/[0.02] pointer-events-none select-none"
-            viewBox="0 0 200 200"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.2"
-            aria-hidden="true"
-          >
-            <path d="M100 20 C110 50, 150 70, 160 110 C170 150, 130 180, 100 180 C70 180, 30 150, 40 110 C50 70, 90 50, 100 20 Z" />
-            <path d="M100 25 L100 175" strokeWidth="1" />
-            <path d="M100 60 C120 70, 135 90, 140 110" />
-            <path d="M100 80 C80 90, 65 110, 60 130" />
-            <path d="M100 110 C120 120, 130 135, 135 150" />
-            <path d="M100 130 C80 140, 70 155, 65 170" />
-          </svg>
-
-          {/* Top Header: Academy Recognition */}
-          <div className="space-y-3 relative z-10">
-            {/* Minimal refined emblem & badge */}
-            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-emerald-50/70 border border-emerald-100 text-[#0F5244] text-[11px] font-semibold tracking-wide">
-              <Sparkles className="w-3.5 h-3.5 text-amber-500/80" />
-              <span>Coach Space Academy</span>
-              <span className="w-1 h-1 rounded-full bg-[#0F5244]/25" />
-              <span className="text-[10px] font-medium text-slate-500">
-                {isAr ? 'اعتماد رسمي' : 'Official Credential'}
-              </span>
-            </div>
-
-            {/* Certificate Title */}
-            <div className="space-y-1.5">
-              <h2 className="text-xl sm:text-2xl md:text-3xl font-serif font-bold text-slate-800 tracking-normal">
-                {isAr ? 'شهادة إتمام وتفوق معتمدة' : 'Certificate of Completion & Excellence'}
-              </h2>
-              <div className="w-16 h-[1px] bg-gradient-to-r from-transparent via-amber-400/50 to-transparent mx-auto" />
-              <p className="text-xs sm:text-sm text-slate-400 font-normal pt-0.5">
-                {t('certifyThat')}
-              </p>
-            </div>
-          </div>
-
-          {/* Recipient Student Name */}
-          <div className="py-1 relative z-10">
-            <h3 className="text-2xl sm:text-4xl md:text-5xl font-serif font-bold text-slate-900 tracking-normal">
-              {certificateData.studentName}
-            </h3>
-            <div className="flex items-center justify-center gap-2 mt-2 text-amber-400/70">
-              <span className="h-[1px] w-8 sm:w-16 bg-gradient-to-r from-transparent to-amber-300/70" />
-              <span className="text-[10px]">✦</span>
-              <span className="h-[1px] w-8 sm:w-16 bg-gradient-to-l from-transparent to-amber-300/70" />
-            </div>
-          </div>
-
-          {/* Course Completion Section (Soft & Clean - No Clunky Box!) */}
-          <div className="max-w-xl mx-auto space-y-2 relative z-10">
-            <p className="text-xs text-slate-400 font-normal">
-              {t('hasCompleted')}
-            </p>
-            <h4 className="text-lg sm:text-2xl font-bold text-[#0F5244] leading-relaxed">
-              {certificateData.courseTitle}
-            </h4>
-            <p className="text-[11px] sm:text-xs text-slate-400 font-normal max-w-md mx-auto pt-0.5 leading-relaxed">
-              {isAr
-                ? 'تقديراً لاجتياز كافة متطلبات الدورة التدريبية والاختبارات العملية المعتمدة بنجاح وتفوق.'
-                : 'In recognition of successfully fulfilling all certified curriculum requirements and practical assessments with distinction.'}
-            </p>
-          </div>
-
-          {/* Bottom Authority Row: Date, Soft Seal, Signature */}
-          <div className="pt-7 sm:pt-9 border-t border-slate-100/90 grid grid-cols-1 sm:grid-cols-3 items-center gap-6 relative z-10">
-            {/* Issue Date & ID */}
-            <div className="space-y-1 sm:text-start order-2 sm:order-1">
-              <span className="block text-[10px] font-semibold uppercase tracking-wider text-slate-400">
-                {t('issueDate')}
-              </span>
-              <span className="text-xs sm:text-sm font-semibold text-slate-700 block">
-                {certificateData.issueDate}
-              </span>
-              <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-slate-50 border border-slate-200/60 text-[10px] font-mono text-slate-600">
-                <ShieldCheck className="w-3 h-3 text-emerald-600" />
-                <span>ID: {certificateData.certificateCode}</span>
-              </div>
-            </div>
-
-            {/* Soft, Refined Center Academy Seal */}
-            <div className="flex flex-col items-center justify-center order-1 sm:order-2">
-              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full p-[1.5px] bg-gradient-to-tr from-amber-400/70 via-amber-200/90 to-amber-300/70 shadow-xs">
-                <div className="w-full h-full rounded-full bg-white p-1 flex flex-col items-center justify-center text-center relative border border-amber-100">
-                  <div className="w-full h-full rounded-full border border-dashed border-amber-300/60 flex flex-col items-center justify-center">
-                    <Award className="w-5 h-5 sm:w-6 sm:h-6 text-[#0F5244] stroke-[1.8]" />
-                    <span className="text-[7px] font-bold tracking-widest text-[#0F5244] uppercase mt-0.5">
-                      COACH SPACE
-                    </span>
-                    <span className="text-[5px] font-semibold tracking-wider text-amber-600 uppercase">
-                      VERIFIED
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Instructor Signature */}
-            <div className="space-y-1.5 sm:text-end order-3">
-              <div className="flex items-end justify-center sm:justify-end pb-0.5">
-                <span className="font-serif text-lg sm:text-xl font-bold text-slate-800 tracking-wide block">
-                  {certificateData.instructorName}
-                </span>
-              </div>
-              <div className="w-32 sm:w-40 h-[1px] bg-slate-300 mx-auto sm:ms-auto sm:me-0" />
-              <span className="block text-xs font-semibold text-slate-500 pt-0.5">
-                {t('instructorSignature')}
-              </span>
-            </div>
-          </div>
-        </div>
+      {/* Luxury Redesigned Certificate Card */}
+      <div ref={certificateCardRef} className="print-certificate-card w-full">
+        <CertificateTemplate
+          data={certificateData}
+          locale={locale}
+        />
       </div>
 
-      {/* Print Specific Global CSS */}
+      {/* Print Specific CSS */}
       <style jsx global>{`
         @media print {
           @page {
@@ -577,14 +642,11 @@ export default function CertificatePage() {
 
           .print-certificate-card {
             box-shadow: none !important;
-            border: 1.5px solid rgba(15, 82, 68, 0.35) !important;
-            padding: 16px !important;
             page-break-inside: avoid !important;
             break-inside: avoid !important;
             width: 100% !important;
             max-width: 100% !important;
             margin: 0 auto !important;
-            background-color: #ffffff !important;
           }
         }
       `}</style>

@@ -36,6 +36,7 @@ import { normalizeInstructorSlug, getPublicInstructorByIdOrSlug } from "@/lib/in
 import { VerifiedBadge } from "@/components/ui/VerifiedBadge";
 import { enrollmentService } from "@/services/enrollmentService";
 import { cartService } from "@/services/cartService";
+import { InstructorPurchaseNoticeModal } from "@/components/modals/InstructorPurchaseNoticeModal";
 
 interface CourseDetailsViewProps {
   course: Course;
@@ -118,6 +119,7 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
   });
 
   // Modal states
+  const [instructorModalOpen, setInstructorModalOpen] = useState(false);
   const [previewModalOpen, setPreviewModalOpen] = useState(false);
   const [previewTitle, setPreviewTitle] = useState("");
   const [previewVideoUrl, setPreviewVideoUrl] = useState<string | undefined>(undefined);
@@ -129,6 +131,10 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
   };
 
   const handleAddToCart = async () => {
+    if (isInstructor) {
+      setInstructorModalOpen(true);
+      return;
+    }
     if (isEnrolled) {
       setToastMessage(isAr ? "أنت مسجل بالفعل في هذه الدورة!" : "You are already enrolled in this course!");
       setTimeout(() => setToastMessage(null), 3500);
@@ -156,6 +162,10 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
   };
 
   const handleBuyNow = async () => {
+    if (isInstructor) {
+      setInstructorModalOpen(true);
+      return;
+    }
     if (!isAuthenticated) {
       router.push(`/${locale}/login?redirect=/${locale}/courses/${course.id}`);
       return;
@@ -181,6 +191,10 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
   };
 
   const handleFreeEnroll = async () => {
+    if (isInstructor) {
+      setInstructorModalOpen(true);
+      return;
+    }
     if (!isAuthenticated) {
       router.push(`/${locale}/login?redirect=/${locale}/courses/${course.id}`);
       return;
@@ -261,6 +275,12 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
       <Toast message={toastMessage} onClose={() => setToastMessage(null)} />
       
       {/* Modals */}
+      <InstructorPurchaseNoticeModal
+        isOpen={instructorModalOpen}
+        onClose={() => setInstructorModalOpen(false)}
+        courseTitle={isAr ? course.titleAr || course.title : course.title}
+      />
+
       <VideoPreviewModal
         isOpen={previewModalOpen}
         onClose={() => setPreviewModalOpen(false)}
@@ -709,28 +729,38 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
                 {/* CASE 0: User is logged in as Instructor */}
                 {isInstructor ? (
                   isOwner ? (
-                    <div className="w-full py-4 px-4 rounded-xl bg-emerald-50 border border-emerald-200 text-center space-y-2.5">
+                    <div className="w-full py-4 px-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-center space-y-2.5">
                       <p className="text-xs font-bold text-emerald-900">
                         {t("youAreInstructor")}
                       </p>
                       <Link
-                        href={`/${locale}/instructor/courses/${course.id}/edit`}
-                        className="inline-flex items-center justify-center gap-2 w-full py-2.5 px-4 rounded-lg bg-[#0F5244] text-white text-xs font-bold hover:bg-[#07382E] transition-colors shadow-xs cursor-pointer"
+                        href={`/${locale}/instructor/courses/create?id=${course.id}`}
+                        className="inline-flex items-center justify-center gap-2 w-full py-2.5 px-4 rounded-xl bg-[#0F5244] text-white text-xs font-bold hover:bg-[#07382E] transition-colors shadow-xs cursor-pointer"
                       >
                         <span>{t("editInStudio")}</span>
                         <ArrowRight className="h-4 w-4 rtl:rotate-180" />
                       </Link>
                     </div>
                   ) : (
-                    <div className="w-full py-4 px-4 rounded-xl bg-emerald-50 border border-emerald-200 text-center space-y-2">
-                      <p className="text-xs font-bold text-emerald-900">
-                        {t("loggedInAsInstructorNotice")}
+                    <div className="w-full py-4 px-4 rounded-2xl bg-slate-50 border border-slate-200/90 text-center space-y-2.5">
+                      <p className="text-xs font-bold text-slate-700">
+                        {isAr
+                          ? "أنت تتصفح هذه الدورة بحساب مدرب."
+                          : "You are viewing this course with an Instructor account."}
                       </p>
+                      <button
+                        type="button"
+                        onClick={() => setInstructorModalOpen(true)}
+                        className="inline-flex items-center justify-center gap-1.5 w-full py-2.5 px-4 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200/80 text-xs font-bold transition-colors cursor-pointer"
+                      >
+                        <span>{isAr ? "معلومات شراء الدورات للمدرب" : "Instructor Purchase Notice"}</span>
+                      </button>
                       <Link
                         href={`/${locale}/instructor/dashboard`}
-                        className="inline-block px-4 py-2 rounded-lg bg-[#0F5244] text-white text-xs font-bold hover:bg-[#07382E] transition-colors cursor-pointer"
+                        className="inline-flex items-center justify-center gap-2 w-full py-2.5 px-4 rounded-xl bg-[#0F5244] text-white text-xs font-bold hover:bg-[#07382E] transition-colors cursor-pointer"
                       >
-                        {t("goToInstructorDashboard")}
+                        <span>{t("goToInstructorDashboard")}</span>
+                        <ArrowRight className="h-4 w-4 rtl:rotate-180" />
                       </Link>
                     </div>
                   )
