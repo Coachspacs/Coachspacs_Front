@@ -38,7 +38,7 @@ describe("US-08: Instructor Curriculum Reordering & Media Validation", () => {
     };
 
     expect(payload.sections[0].order).toBe(1);
-    expect(payload.sections[0].lessons[1].order).toBe(2);
+    expect(payload.sections[0].lessons?.[1]?.order).toBe(2);
     expect(payload.sections[1].order).toBe(2);
   });
 });

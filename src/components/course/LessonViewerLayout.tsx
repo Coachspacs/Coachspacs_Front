@@ -544,6 +544,7 @@ export function LessonViewerLayout({
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isPlaying, volume, duration, isMuted]);
 
   // Filtered Sections by Search
@@ -593,6 +594,7 @@ export function LessonViewerLayout({
     };
     window.addEventListener("message", handleWindowMessage);
     return () => window.removeEventListener("message", handleWindowMessage);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeLesson, completedLessonIds]);
 
   // Language switch

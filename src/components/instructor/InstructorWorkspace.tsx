@@ -347,7 +347,7 @@ export function InstructorWorkspace({
     } finally {
       setIsLoadingCourses(false);
     }
-  }, [isAr]);
+  }, [isAr, tInst]);
 
   useEffect(() => {
     fetchMyCourses();

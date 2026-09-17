@@ -172,11 +172,12 @@ export default function CoursePlayerPage() {
     }
   }, [allLessons, completedLessonIds.length, serverProgressPercent, courseId]);
 
+  const currentLessonId = allLessons[activeLessonIndex]?.id;
+
   // Fetch live single lesson player data (US-12) including authenticated streaming URL
   useEffect(() => {
-    const currentLesson = allLessons[activeLessonIndex];
     const numEnrollmentId = Number(enrollmentId);
-    const numLessonId = Number(currentLesson?.id);
+    const numLessonId = Number(currentLessonId);
     if (!numEnrollmentId || isNaN(numEnrollmentId) || !numLessonId || isNaN(numLessonId)) return;
 
     let isMounted = true;
@@ -199,10 +200,10 @@ export default function CoursePlayerPage() {
     return () => {
       isMounted = false;
     };
-  }, [enrollmentId, activeLessonIndex, allLessons.length]);
+  }, [enrollmentId, currentLessonId]);
 
   // Toggle Lesson Completion (Sprint 8 Delta US-13)
-  const toggleLessonCompletion = async (lessonId: string | number) => {
+  const toggleLessonCompletion = useCallback(async (lessonId: string | number) => {
     const idStr = String(lessonId);
     const isCurrentlyDone = completedLessonIds.includes(idStr);
 
@@ -251,7 +252,7 @@ export default function CoursePlayerPage() {
         console.warn("[CoursePlayer] Error calling complete/incomplete API:", err);
       }
     }
-  };
+  }, [allLessons.length, completedLessonIds, courseId, enrollmentId]);
 
   const handleNextLesson = useCallback(() => {
     // 1. Auto-complete current lesson when advancing forward

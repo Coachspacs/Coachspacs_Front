@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useTranslations, useLocale } from 'next-intl';
@@ -345,9 +345,9 @@ export default function CertificatePage() {
     return () => {
       isSubscribed = false;
     };
-  }, [certificateIdParam, user, locale, isAr]);
+  }, [certificateIdParam, user, locale, isAr, t]);
 
-  const handleDownloadPdf = async () => {
+  const handleDownloadPdf = useCallback(async () => {
     if (!certificateData || isDownloading) return;
 
     const cleanCode = (certificateData.certificateCode || `CS-${certificateData.id}`)
@@ -463,7 +463,7 @@ export default function CertificatePage() {
         setDownloadStatus(null);
       }, 1500);
     }
-  };
+  }, [certificateData, isDownloading, t]);
 
   const handlePrint = () => {
     if (typeof window !== 'undefined') {
@@ -484,7 +484,7 @@ export default function CertificatePage() {
         return () => clearTimeout(timer);
       }
     }
-  }, [certificateData]);
+  }, [certificateData, handleDownloadPdf]);
 
   if (isLoading) {
     return (

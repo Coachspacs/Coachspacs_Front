@@ -16,6 +16,11 @@ export default function CartPage() {
   const dispatch = useDispatch();
 
   const reduxCartItems = useSelector((state: RootState) => state.cart.items || []);
+  const reduxCartItemsRef = React.useRef(reduxCartItems);
+  useEffect(() => {
+    reduxCartItemsRef.current = reduxCartItems;
+  }, [reduxCartItems]);
+
   const [isSyncing, setIsSyncing] = useState(false);
 
   useEffect(() => {
@@ -40,9 +45,9 @@ export default function CartPage() {
             };
           });
           dispatch(setCartItems(mapped));
-        } else if (reduxCartItems.length > 0) {
+        } else if (reduxCartItemsRef.current.length > 0) {
           // If server cart is empty but local Redux has items, sync them to server
-          const courseIds = reduxCartItems
+          const courseIds = reduxCartItemsRef.current
             .map((i: any) => i.courseId || i.course?.id || i.id)
             .filter(Boolean);
           if (courseIds.length > 0) {

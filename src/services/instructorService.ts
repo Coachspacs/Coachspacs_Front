@@ -82,7 +82,10 @@ export const instructorService = {
         : Array.isArray(data?.results)
           ? data.results
           : [];
-      const count = data?.count ?? rawList.length;
+      const count =
+        !Array.isArray(data) && typeof (data as any)?.count === "number"
+          ? (data as any).count
+          : rawList.length;
 
       const normalizedResults = rawList.map((st: any, idx: number) => {
         const nested =
@@ -159,8 +162,8 @@ export const instructorService = {
 
       return {
         count,
-        next: data?.next ?? null,
-        previous: data?.previous ?? null,
+        next: (!Array.isArray(data) ? (data as any)?.next : null) ?? null,
+        previous: (!Array.isArray(data) ? (data as any)?.previous : null) ?? null,
         results: normalizedResults,
       };
     } catch (err: any) {
