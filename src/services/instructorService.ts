@@ -77,19 +77,91 @@ export const instructorService = {
       });
 
       const data = response.data;
-      if (Array.isArray(data)) {
+      const rawList = Array.isArray(data)
+        ? data
+        : Array.isArray(data?.results)
+          ? data.results
+          : [];
+      const count = data?.count ?? rawList.length;
+
+      const normalizedResults = rawList.map((st: any, idx: number) => {
+        const nested =
+          (typeof st.student === "object" && st.student !== null ? st.student : null) ||
+          (typeof st.user === "object" && st.user !== null ? st.user : null) ||
+          (typeof st.learner === "object" && st.learner !== null ? st.learner : null) ||
+          (typeof st.profile === "object" && st.profile !== null ? st.profile : null) ||
+          (typeof st.student_profile === "object" && st.student_profile !== null ? st.student_profile : null);
+
+        const email =
+          st.email ||
+          nested?.email ||
+          st.student_email ||
+          st.user_email ||
+          st.learner_email ||
+          (typeof st.student === "string" && st.student.includes("@") ? st.student : "") ||
+          (typeof st.user === "string" && st.user.includes("@") ? st.user : "") ||
+          "";
+
+        let full_name =
+          st.full_name ||
+          st.fullName ||
+          st.student_full_name ||
+          st.student_name ||
+          st.studentName ||
+          nested?.full_name ||
+          nested?.fullName ||
+          nested?.student_full_name ||
+          nested?.student_name ||
+          nested?.name ||
+          st.name ||
+          nested?.username ||
+          st.username ||
+          st.student_username ||
+          "";
+
+        if (!full_name || full_name.trim().length === 0) {
+          const fn = st.first_name || nested?.first_name || "";
+          const ln = st.last_name || nested?.last_name || "";
+          if (fn || ln) {
+            full_name = `${fn} ${ln}`.trim();
+          }
+        }
+
+        if ((!full_name || full_name.toLowerCase() === "student") && email) {
+          const prefix = email.split("@")[0];
+          full_name = prefix
+            .replace(/[._-]+/g, " ")
+            .split(" ")
+            .filter(Boolean)
+            .map((w: string) => w.charAt(0).toUpperCase() + w.slice(1))
+            .join(" ");
+        }
+
+        const avatar =
+          st.avatar ||
+          nested?.avatar ||
+          st.student_avatar ||
+          st.user_avatar ||
+          st.avatar_url ||
+          nested?.avatar_url ||
+          st.profile_picture ||
+          nested?.profile_picture ||
+          null;
+
         return {
-          count: data.length,
-          next: null,
-          previous: null,
-          results: data,
+          ...st,
+          full_name: full_name || st.full_name || "",
+          name: full_name || st.name || "",
+          email: email || st.email || "",
+          avatar: avatar || st.avatar || null,
         };
-      }
+      });
+
       return {
-        count: data?.count ?? (data?.results?.length || 0),
+        count,
         next: data?.next ?? null,
         previous: data?.previous ?? null,
-        results: Array.isArray(data?.results) ? data.results : [],
+        results: normalizedResults,
       };
     } catch (err: any) {
       if (err?.response?.status === 403) {

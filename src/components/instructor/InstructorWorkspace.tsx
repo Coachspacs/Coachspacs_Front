@@ -284,6 +284,55 @@ export function InstructorWorkspace({
       });
       setStudents(allDynamicStudents);
 
+      // Async live fetch for courses with enrolled students (US-17)
+      const coursesWithStudents = realCourses.filter(
+        (c: any) => Number(c.studentsCount || c.students_count || 0) > 0
+      );
+      if (coursesWithStudents.length > 0) {
+        Promise.all(
+          coursesWithStudents.map(async (c: any) => {
+            try {
+              const res = await instructorService.getCourseStudents(c.id, 1, 50);
+              return (res.results || []).map((st: any, idx: number) => ({
+                id: String(st.id || `${c.id}-st-${idx + 1}`),
+                courseId: String(c.id),
+                name:
+                  st.full_name ||
+                  st.name ||
+                  st.email?.split("@")[0] ||
+                  (isAr ? `طالب مسجل ${idx + 1}` : `Student ${idx + 1}`),
+                email: st.email || `student${idx + 1}@example.com`,
+                avatar: st.avatar || null,
+                course: isAr ? c.titleAr : c.titleEn,
+                date: st.enrolled_at
+                  ? new Date(st.enrolled_at).toLocaleDateString(
+                      isAr ? "ar-EG" : "en-US",
+                    )
+                  : isAr
+                    ? "مؤخراً"
+                    : "Recently",
+                progress:
+                  typeof st.progress_percent === "number"
+                    ? st.progress_percent
+                    : (st.progress ?? 0),
+                status:
+                  st.is_completed || st.progress_percent === 100
+                    ? "completed"
+                    : "active",
+              }));
+            } catch (err) {
+              console.warn(`Failed to fetch students for course ${c.id}:`, err);
+              return [];
+            }
+          })
+        ).then((nested) => {
+          const flat = nested.flat();
+          if (flat.length > 0) {
+            setStudents(flat);
+          }
+        });
+      }
+
       // Fetch live instructor dashboard summary metrics (US-17)
       try {
         const dash = await instructorService.getDashboard();

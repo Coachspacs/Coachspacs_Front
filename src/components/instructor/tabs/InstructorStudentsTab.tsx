@@ -63,23 +63,64 @@ export function InstructorStudentsTab({
 
   const fetchCourseStudents = useCallback(
     async (courseId: string, page: number) => {
-      if (courseId === "all") {
-        setCourseStudents([]);
-        setForbiddenError(null);
-        return;
-      }
-
       setIsLoadingCourseStudents(true);
       setForbiddenError(null);
 
       try {
-        const response = await instructorService.getCourseStudents(
-          courseId,
-          page,
-          pageSize
-        );
-        setCourseStudents(response.results || []);
-        setTotalCourseStudents(response.count || 0);
+        if (courseId === "all") {
+          // Fetch enrolled students across all instructor courses (US-17)
+          if (!courses || courses.length === 0) {
+            setCourseStudents([]);
+            setTotalCourseStudents(0);
+            return;
+          }
+
+          const responses = await Promise.all(
+            courses.map(async (c) => {
+              try {
+                const res = await instructorService.getCourseStudents(
+                  c.id,
+                  1,
+                  100
+                );
+                return (res.results || []).map((st) => ({
+                  ...st,
+                  course_id: c.id,
+                  course_title:
+                    (isAr ? c.titleAr : c.titleEn) || c.title || "Course",
+                }));
+              } catch (err: any) {
+                console.warn(
+                  `Could not fetch students for course ${c.id}:`,
+                  err
+                );
+                return [];
+              }
+            })
+          );
+          const allStudents = responses.flat();
+          setCourseStudents(allStudents);
+          setTotalCourseStudents(allStudents.length);
+        } else {
+          const response = await instructorService.getCourseStudents(
+            courseId,
+            page,
+            pageSize
+          );
+          const currentCourse = courses.find(
+            (c) => String(c.id) === String(courseId)
+          );
+          const mapped = (response.results || []).map((st) => ({
+            ...st,
+            course_id: courseId,
+            course_title:
+              (isAr ? currentCourse?.titleAr : currentCourse?.titleEn) ||
+              currentCourse?.title ||
+              "Course",
+          }));
+          setCourseStudents(mapped);
+          setTotalCourseStudents(response.count || 0);
+        }
       } catch (err: any) {
         if (err?.isForbidden || err?.status === 403) {
           setForbiddenError(
@@ -95,7 +136,7 @@ export function InstructorStudentsTab({
         setIsLoadingCourseStudents(false);
       }
     },
-    [tInst]
+    [courses, isAr, pageSize, tInst]
   );
 
   useEffect(() => {
@@ -113,30 +154,119 @@ export function InstructorStudentsTab({
   // Determine which list to display
   const isSpecificCourse = selectedCourseId !== "all";
 
-  // Map live course students to display format if specific course selected
-  const mappedLiveStudents = courseStudents.map((st, idx) => ({
-    id: String(st.id || `${selectedCourseId}-st-${idx}`),
-    name: st.full_name || st.name || "Student",
-    email: st.email || "—",
-    avatar: st.avatar || null,
-    course:
-      courses.find((c) => String(c.id) === String(selectedCourseId))?.[
-        isAr ? "titleAr" : "titleEn"
-      ] ||
-      courses.find((c) => String(c.id) === String(selectedCourseId))?.title ||
-      "Selected Course",
-    date: st.enrolled_at
-      ? new Date(st.enrolled_at).toLocaleDateString(isAr ? "ar-EG" : "en-US", {
-          year: "numeric",
-          month: "short",
-          day: "numeric",
-        })
-      : "—",
-    progress: st.progress_percent ?? 0,
-    status: st.is_completed ? ("completed" as const) : ("active" as const),
-  }));
+  // Map live course students to display format
+  const mappedLiveStudents = courseStudents.map((st: any, idx) => {
+    const nested =
+      (typeof st.student === "object" && st.student !== null ? st.student : null) ||
+      (typeof st.user === "object" && st.user !== null ? st.user : null) ||
+      (typeof st.learner === "object" && st.learner !== null ? st.learner : null) ||
+      (typeof st.profile === "object" && st.profile !== null ? st.profile : null);
 
-  const activeStudentList = isSpecificCourse ? mappedLiveStudents : students;
+    const email =
+      st.email ||
+      nested?.email ||
+      st.student_email ||
+      st.user_email ||
+      st.learner_email ||
+      (typeof st.student === "string" && st.student.includes("@") ? st.student : "") ||
+      (typeof st.user === "string" && st.user.includes("@") ? st.user : "") ||
+      "";
+
+    let name =
+      st.full_name ||
+      st.fullName ||
+      st.student_full_name ||
+      st.student_name ||
+      st.studentName ||
+      nested?.full_name ||
+      nested?.fullName ||
+      nested?.student_full_name ||
+      nested?.student_name ||
+      nested?.name ||
+      st.name ||
+      nested?.username ||
+      st.username ||
+      st.student_username ||
+      "";
+
+    if (!name || name.trim().length === 0) {
+      const fn = st.first_name || nested?.first_name || "";
+      const ln = st.last_name || nested?.last_name || "";
+      if (fn || ln) {
+        name = `${fn} ${ln}`.trim();
+      }
+    }
+
+    if ((!name || name.trim().toLowerCase() === "student") && email) {
+      const prefix = email.split("@")[0];
+      name = prefix
+        .replace(/[._-]+/g, " ")
+        .split(" ")
+        .filter(Boolean)
+        .map((w: string) => w.charAt(0).toUpperCase() + w.slice(1))
+        .join(" ");
+    }
+
+    if (!name || name.trim().toLowerCase() === "student") {
+      const sId =
+        st.student_id ||
+        (typeof st.student === "number" || typeof st.student === "string"
+          ? st.student
+          : "") ||
+        st.id;
+      name = sId
+        ? (isAr ? `طالب #${sId}` : `Student #${sId}`)
+        : (isAr ? `طالب مسجل ${idx + 1}` : `Student ${idx + 1}`);
+    }
+
+    const avatar =
+      st.avatar ||
+      nested?.avatar ||
+      st.student_avatar ||
+      st.user_avatar ||
+      st.avatar_url ||
+      nested?.avatar_url ||
+      st.profile_picture ||
+      null;
+
+    return {
+      id: String(st.id || `${st.course_id || selectedCourseId}-st-${idx}`),
+      name,
+      email: email || "—",
+      avatar,
+      course:
+        st.course_title ||
+        courses.find(
+          (c) => String(c.id) === String(st.course_id || selectedCourseId)
+        )?.[isAr ? "titleAr" : "titleEn"] ||
+        courses.find(
+          (c) => String(c.id) === String(st.course_id || selectedCourseId)
+        )?.title ||
+        "Selected Course",
+      date: st.enrolled_at
+        ? new Date(st.enrolled_at).toLocaleDateString(isAr ? "ar-EG" : "en-US", {
+            year: "numeric",
+            month: "short",
+            day: "numeric",
+          })
+        : "—",
+      progress:
+        typeof st.progress_percent === "number"
+          ? st.progress_percent
+          : (st.progress ?? 0),
+      status:
+        st.is_completed || st.progress_percent === 100
+          ? ("completed" as const)
+          : ("active" as const),
+    };
+  });
+
+  const activeStudentList =
+    courseStudents.length > 0
+      ? mappedLiveStudents
+      : students.length > 0
+        ? students
+        : mappedLiveStudents;
 
   const filteredStudents = activeStudentList.filter(
     (student) =>
@@ -151,11 +281,15 @@ export function InstructorStudentsTab({
 
   const paginatedStudents = isSpecificCourse
     ? filteredStudents
-    : filteredStudents.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+    : filteredStudents.slice(
+        (currentPage - 1) * pageSize,
+        currentPage * pageSize
+      );
 
-  const displayTotalCount = isSpecificCourse
-    ? totalCourseStudents
-    : filteredStudents.length;
+  const displayTotalCount =
+    totalCourseStudents > 0
+      ? totalCourseStudents
+      : filteredStudents.length;
 
   return (
     <div className="space-y-6 animate-in fade-in duration-200">
