@@ -25,7 +25,7 @@ const nextConfig: NextConfig = {
   outputFileTracingRoot: path.join(__dirname),
   reactStrictMode: true,
   compress: true,
-  serverExternalPackages: ['axios'],
+  serverExternalPackages: ['axios', 'firebase-admin'],
   images: {
     formats: ['image/avif', 'image/webp'],
     remotePatterns: [

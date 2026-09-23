@@ -1877,5 +1877,97 @@
     "goToStudio": "Go to Instructor Studio",
     "signInAsStudent": "Sign In as Student",
     "stayHere": "Dismiss"
+  },
+  "myPath": {
+    "badge": "AI Learning Companion",
+    "generatingBadge": "Generating your path...",
+    "robotGreeting": "Hi! Let's build your path",
+    "speedSprint": "Sprint",
+    "speedRecommended": "Recommended",
+    "speedMastery": "Mastery",
+    "rankMaster": "Mastery Level",
+    "rankAdvanced": "Advanced Level",
+    "rankApprentice": "Apprentice Level",
+    "rankStarter": "Starter Level",
+    "step1Badge": "STEP 1 OF 4 • Overview",
+    "step2Badge": "STEP 2 OF 4 • Skill Assessment",
+    "step3Badge": "STEP 3 OF 4 • Schedule & Goals",
+    "step4Badge": "STEP 4 OF 4 • Generating Roadmap",
+    "title": "My Path",
+    "subtitle": "Your AI-tailored roadmap to accelerate your skills and career.",
+    "description": "A clear, guided step-by-step roadmap tailored to your schedule, skill level, and goals.",
+    "whyTitle": "Why My Path?",
+    "benefits": {
+      "personalizedTitle": "Tailored to Your Goals",
+      "personalizedDesc": "Calibrated directly to your skill level, weekly time, and career ambitions.",
+      "coursesTitle": "Built on Verified Curricula",
+      "coursesDesc": "Hands-on projects and recognized certificates designed by industry leaders.",
+      "flexibleTitle": "Adaptive & Always Current",
+      "flexibleDesc": "Dynamic milestones that easily adjust whenever your pace or priorities change."
+    },
+    "startAssessment": "Start My Path",
+    "continue": "Continue",
+    "back": "Back",
+    "regenerate": "Regenerate Roadmap",
+    "editGoals": "Modify My Goals",
+    "step2": {
+      "title": "Select your learning focus & skill level",
+      "subtitle": "Tell us what field you want to master and where you're starting from.",
+      "fieldLabel": "Choose your primary learning track",
+      "levelLabel": "Your current proficiency level",
+      "fields": {
+        "frontend": "Frontend Web Development",
+        "backend": "Backend & Cloud Architecture",
+        "fullstack": "Full Stack Engineering",
+        "ai": "Artificial Intelligence & ML",
+        "uiux": "UI/UX Design & Product",
+        "data": "Data Analysis & Science",
+        "business": "Product Leadership & Business"
+      },
+      "levels": {
+        "beginner": "Complete Beginner (Starting from zero)",
+        "intermediate": "Intermediate (Know fundamentals, building projects)",
+        "advanced": "Advanced (Looking for mastery & advanced best practices)"
+      }
+    },
+    "step3": {
+      "title": "Your schedule & completion target",
+      "subtitle": "How much time can you realistically dedicate to learning each week?",
+      "hoursLabel": "Weekly learning commitment",
+      "hours3": "3-5 Hours / Week (Casual pace)",
+      "hours8": "8-12 Hours / Week (Steady & focused)",
+      "hours15": "15+ Hours / Week (Intensive bootcamp pace)",
+      "targetLabel": "Target completion timeframe",
+      "target1": "1 Month (Sprint)",
+      "target3": "3 Months (Balanced deep dive)",
+      "target6": "6 Months (Comprehensive career track)"
+    },
+    "step4": {
+      "generatingTitle": "AI is architecting your optimal learning path...",
+      "generatingDesc": "Analyzing course synergies, prerequisite dependencies, and your available weekly hours.",
+      "stepAnalyzing": "Analyzing skills & prerequisites...",
+      "stepSequencing": "Sequencing optimal course modules...",
+      "stepMilestones": "Formulating milestone credentials..."
+    },
+    "roadmap": {
+      "headerTitle": "Your AI-Generated Learning Roadmap",
+      "headerSubtitle": "Sequential milestones engineered to take you from your current level to your goal.",
+      "estimatedWeeks": "Estimated Duration",
+      "weeks": "Weeks",
+      "hoursPerWeek": "Hours / Week",
+      "totalMilestones": "Milestones",
+      "milestone": "Milestone",
+      "statusPlanned": "Planned",
+      "statusInProgress": "In Progress",
+      "statusCompleted": "Completed",
+      "enrollCourse": "Start Module",
+      "viewCourse": "View Details",
+      "markComplete": "Mark as Done",
+      "completedBadge": "Completed Milestone",
+      "recommendedCourses": "Curriculum Modules",
+      "congratsTitle": "Ready to launch your journey!",
+      "congratsDesc": "Begin with Module 1 below. Each milestone unlocks verified portfolio projects and certificate preparation."
+    }
   }
 }
+

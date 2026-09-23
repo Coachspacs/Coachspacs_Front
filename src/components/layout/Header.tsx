@@ -17,6 +17,7 @@ import {
   Settings,
   ChevronDown,
   ShieldCheck,
+  Sparkles,
 } from "lucide-react";
 import { RootState } from "@/lib/store";
 import { logout } from "@/features/auth/slice";
@@ -263,17 +264,30 @@ export function Header({ lang, onLanguageToggle, variant = "main", className = "
                 <span>{tNav("instructorStudio")}</span>
               </Link>
             ) : (
-              <Link
-                href={`/${locale}/student/courses`}
-                className={`px-3.5 py-2 rounded-xl text-xs lg:text-sm font-bold transition-all inline-flex items-center gap-1.5 ${
-                  isActive("/student/courses")
-                    ? "bg-emerald-50 text-[#0F5244] font-extrabold border border-emerald-200/60 shadow-2xs"
-                    : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
-                }`}
-              >
-                <BookOpen className="h-4 w-4 text-[#0F5244] shrink-0" />
-                <span>{tNav("myLearning")}</span>
-              </Link>
+              <>
+                <Link
+                  href={`/${locale}/student/courses`}
+                  className={`px-3.5 py-2 rounded-xl text-xs lg:text-sm font-bold transition-all inline-flex items-center gap-1.5 ${
+                    isActive("/student/courses")
+                      ? "bg-emerald-50 text-[#0F5244] font-extrabold border border-emerald-200/60 shadow-2xs"
+                      : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
+                  }`}
+                >
+                  <BookOpen className="h-4 w-4 text-[#0F5244] shrink-0" />
+                  <span>{tNav("myLearning")}</span>
+                </Link>
+                <Link
+                  href={`/${locale}/student/my-path`}
+                  className={`px-3.5 py-2 rounded-xl text-xs lg:text-sm font-bold transition-all inline-flex items-center gap-1.5 ${
+                    isActive("/student/my-path")
+                      ? "bg-emerald-50 text-[#0F5244] font-extrabold border border-emerald-200/60 shadow-2xs"
+                      : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
+                  }`}
+                >
+                  <Sparkles className="h-4 w-4 text-[#0F5244] shrink-0" />
+                  <span>{isAr ? "مساري" : "My Path"}</span>
+                </Link>
+              </>
             )
           )}
 
@@ -696,6 +710,19 @@ export function Header({ lang, onLanguageToggle, variant = "main", className = "
                     >
                       <BookOpen className="h-4 w-4 text-emerald-700" />
                       <span>{tNav("myLearning")}</span>
+                    </Link>
+
+                    <Link
+                      href={`/${locale}/student/my-path`}
+                      onClick={() => setMobileMenuOpen(false)}
+                      className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all ${
+                        isActive("/student/my-path")
+                          ? "bg-[#0F5244] text-white shadow-xs"
+                          : "text-slate-700 hover:bg-slate-50"
+                      }`}
+                    >
+                      <Sparkles className="h-4 w-4 text-emerald-700" />
+                      <span>{isAr ? "مساري (My Path)" : "My Path"}</span>
                     </Link>
 
                     <Link

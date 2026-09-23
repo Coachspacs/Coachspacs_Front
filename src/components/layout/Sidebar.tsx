@@ -19,6 +19,7 @@ import {
   LogOut,
   ChevronDown,
   BookOpen,
+  Sparkles,
 } from "lucide-react";
 
 export interface SidebarNavItem {
@@ -145,6 +146,12 @@ export function Sidebar({ activeTab, onTabChange, items, user, summary }: Sideba
       label: t("browseCourses"),
       icon: BookOpen,
       href: `/${locale}/student/courses`,
+    },
+    {
+      id: "my-path",
+      label: isAr ? "مساري (My Path)" : "My Path",
+      icon: Sparkles,
+      href: `/${locale}/student/my-path`,
     },
     {
       id: "cart",

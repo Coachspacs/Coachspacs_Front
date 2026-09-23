@@ -1,12 +1,13 @@
-import { getApps, initializeApp, cert, type App } from 'firebase-admin/app';
-import { getFirestore, type Firestore } from 'firebase-admin/firestore';
+import * as admin from 'firebase-admin';
+import type { App } from 'firebase-admin/app';
+import type { Firestore } from 'firebase-admin/firestore';
 
 let isInitialized = false;
 
 export function getFirebaseAdminApp(): App | null {
-  const existingApps = getApps();
+  const existingApps = admin.getApps ? admin.getApps() : [];
   if (isInitialized && existingApps.length > 0) {
-    return existingApps[0]!;
+    return existingApps[0] as unknown as App;
   }
 
   const projectId = process.env.FIREBASE_PROJECT_ID;
@@ -25,18 +26,18 @@ export function getFirebaseAdminApp(): App | null {
 
   try {
     if (existingApps.length === 0) {
-      const app = initializeApp({
-        credential: cert({
+      const app = admin.initializeApp({
+        credential: admin.credential.cert({
           projectId,
           clientEmail,
           privateKey,
         }),
       });
       isInitialized = true;
-      return app;
+      return app as unknown as App;
     }
     isInitialized = true;
-    return existingApps[0]!;
+    return existingApps[0] as unknown as App;
   } catch (error) {
     console.warn('[FirebaseAdmin] Failed to initialize Firebase Admin SDK:', error);
     return null;
@@ -47,7 +48,7 @@ export function getFirestoreDb(): Firestore | null {
   const app = getFirebaseAdminApp();
   if (!app) return null;
   try {
-    return getFirestore(app);
+    return admin.firestore(app as any) as unknown as Firestore;
   } catch (err) {
     console.warn('[FirebaseAdmin] Could not get Firestore instance:', err);
     return null;
