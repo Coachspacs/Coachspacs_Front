@@ -35,7 +35,7 @@ export function CleanHeroBanner({ isAr }: CleanHeroBannerProps) {
   };
 
   return (
-    <div className="w-full h-52 sm:h-64 relative rounded-2xl overflow-hidden border border-emerald-200/80 dark:border-emerald-800/60 shadow-xs select-none mb-4 perspective-1000">
+    <div className="w-full h-56 sm:h-64 relative rounded-2xl overflow-hidden border border-emerald-100/90 shadow-xs select-none mb-5 perspective-1000 bg-emerald-50/20">
       <motion.div
         ref={cardRef}
         onMouseMove={handleMouseMove}
@@ -47,19 +47,19 @@ export function CleanHeroBanner({ isAr }: CleanHeroBannerProps) {
         }}
         className="w-full h-full relative group cursor-pointer"
       >
-        {/* Background Scenic Landscape (Rolling green hills, road, milestone flags 1, 2, 3, sunrise star) */}
+        {/* Background Scenic Landscape (Daylight rolling green hills, white winding road, milestone flags) */}
         <Image
-          src="/images/mypath/mypath-landscape-bg.jpg"
+          src="/images/mypath/mypath-daylight-hero.jpg"
           alt="Coach Space Learning Journey Landscape"
           fill
           priority
-          className="object-cover"
+          className="object-cover object-center"
         />
 
         {/* ========================================================================= */}
         {/* LIVE ANIMATED ROBOT (Floating, Waving Arm, Blinking LED Eyes) */}
         {/* ========================================================================= */}
-        <div className="absolute top-[10%] left-[8%] sm:left-[12%] rtl:left-auto rtl:right-[8%] sm:rtl:right-[12%] z-20 flex flex-col items-center">
+        <div className="absolute top-[8%] left-[8%] sm:left-[12%] rtl:left-auto rtl:right-[8%] sm:rtl:right-[12%] z-20 flex flex-col items-center">
           <AnimatedRobotCharacter />
 
           {/* Interactive Speech Bubble from Robot */}
@@ -67,28 +67,27 @@ export function CleanHeroBanner({ isAr }: CleanHeroBannerProps) {
             initial={{ opacity: 0, y: 6 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.6 }}
-            className="absolute -top-3 left-24 rtl:left-auto rtl:right-24 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-emerald-300 dark:border-emerald-600 rounded-2xl px-3 py-1 shadow-sm whitespace-nowrap hidden sm:flex items-center gap-1.5"
+            className="absolute -top-2 left-24 rtl:left-auto rtl:right-24 bg-white/95 backdrop-blur-md border border-emerald-200 rounded-2xl px-3 py-1 shadow-sm whitespace-nowrap hidden sm:flex items-center gap-1.5"
           >
-            <Sparkles className="w-3.5 h-3.5 text-emerald-600 dark:text-[#38E09D] animate-pulse" />
-            <span className="text-[11px] font-black text-[#0F5244] dark:text-emerald-300">
+            <Sparkles className="w-3.5 h-3.5 text-emerald-600 animate-pulse" />
+            <span className="text-[11px] font-black text-[#0F5244]">
               {t("robotGreeting")}
             </span>
           </motion.div>
         </div>
 
-        {/* Soft Ambient Light Gradient */}
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/20 via-transparent to-transparent pointer-events-none" />
+        {/* Soft Ambient Light Gradient on edge */}
+        <div className="absolute inset-0 bg-gradient-to-t from-emerald-950/10 via-transparent to-transparent pointer-events-none" />
 
-        {/* Real HTML/CSS Translatable Floating Badges */}
-        {/* Bottom Corner Pill */}
+        {/* Real HTML/CSS Translatable Floating Badge */}
         <div className="absolute bottom-3 left-3.5 rtl:left-auto rtl:right-3.5 z-20">
           <motion.div
             animate={{ y: [0, -2, 0] }}
             transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
-            className="inline-flex items-center gap-2 bg-slate-900/85 dark:bg-slate-950/90 backdrop-blur-md border border-emerald-300/40 rounded-xl px-3 py-1.5 shadow-sm text-start"
+            className="inline-flex items-center gap-2 bg-white/95 backdrop-blur-md border border-emerald-200/90 rounded-xl px-3 py-1.5 shadow-sm text-start"
           >
-            <div className="w-2 h-2 rounded-full bg-[#38E09D] animate-ping" />
-            <span className="text-[11px] font-black text-emerald-200">
+            <div className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
+            <span className="text-[11px] font-black text-[#0F5244]">
               {t("generatingBadge")}
             </span>
           </motion.div>

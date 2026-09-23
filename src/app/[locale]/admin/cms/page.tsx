@@ -6,6 +6,7 @@ import { useParams } from "next/navigation";
 import {
   Palette,
   FileText,
+  ShieldCheck,
   Eye,
   Send,
   Sparkles,
@@ -14,7 +15,7 @@ import {
   RefreshCw,
   Loader2,
 } from "lucide-react";
-import { GlobalBrandingConfig, LandingPageDoc } from "@/types/cms";
+import { GlobalBrandingConfig, LandingPageDoc, LegalPagesDoc } from "@/types/cms";
 
 export default function CmsOverviewPage() {
   const params = useParams();
@@ -23,6 +24,7 @@ export default function CmsOverviewPage() {
 
   const [branding, setBranding] = useState<GlobalBrandingConfig | null>(null);
   const [landingDoc, setLandingDoc] = useState<LandingPageDoc | null>(null);
+  const [legalDoc, setLegalDoc] = useState<LegalPagesDoc | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isPublishing, setIsPublishing] = useState(false);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
@@ -35,6 +37,7 @@ export default function CmsOverviewPage() {
         if (json.success) {
           setBranding(json.branding);
           setLandingDoc(json.landing);
+          setLegalDoc(json.legal);
         }
       } catch (e) {
         console.warn("Failed to load CMS overview data:", e);
@@ -72,32 +75,33 @@ export default function CmsOverviewPage() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center p-20">
+      <div className="flex items-center justify-center p-12 sm:p-20">
         <Loader2 className="w-8 h-8 text-emerald-400 animate-spin" />
       </div>
     );
   }
 
   const hasDraft = landingDoc?.status === "has_draft_changes";
+  const hasLegalDraft = legalDoc?.status === "has_draft_changes";
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8 font-sans">
+    <div className="max-w-7xl mx-auto space-y-6 sm:space-y-8 font-sans">
       {/* Welcome Banner */}
-      <div className="relative overflow-hidden bg-gradient-to-br from-emerald-950 via-slate-900 to-slate-950 border border-emerald-500/20 rounded-3xl p-8 sm:p-10 shadow-2xl">
+      <div className="relative overflow-hidden bg-gradient-to-br from-emerald-950 via-slate-900 to-slate-950 border border-emerald-500/20 rounded-2xl sm:rounded-3xl p-6 sm:p-8 md:p-10 shadow-2xl">
         <div className="absolute top-0 right-0 w-80 h-80 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
           <div className="space-y-3">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-xs font-bold">
               <Sparkles className="w-3.5 h-3.5" />
               <span>{isAr ? "نظام إدارة المحتوى والهوية الموحدة" : "Unified CMS & Global Branding"}</span>
             </div>
-            <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-white tracking-tight">
               {isAr ? "لوحة التحكم بالصفحات والهوية" : "Brand & Marketing Management"}
             </h2>
             <p className="text-slate-400 text-xs sm:text-sm max-w-xl leading-relaxed">
               {isAr
-                ? "تعديل محتوى الصفحة الرئيسية باللغتين العربية والإنجليزية، وتخصيص الهوية البصرية والألوان بضغطة زر دون الحاجة لأي برمجة أو إعادة بناء للتطبيق."
-                : "Manage bilingual landing page content and customize global branding tokens with instant zero-deployment updates."}
+                ? "تعديل محتوى الصفحة الرئيسية والصفحات القانونية (سياسة الخصوصية وشروط الاستخدام) وتخصيص الهوية البصرية بسهولة ودون إعادة بناء للتطبيق."
+                : "Manage bilingual landing page content, legal policy pages, and global branding tokens with instant zero-deployment updates."}
             </p>
           </div>
 
@@ -105,7 +109,7 @@ export default function CmsOverviewPage() {
             <Link
               href={`/api/cms/preview?secret=coachspace_cms_preview_secret&locale=${locale}`}
               target="_blank"
-              className="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold transition-all shadow-md cursor-pointer border border-slate-700"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold transition-all shadow-md cursor-pointer border border-slate-700"
             >
               <Eye className="w-4 h-4 text-amber-400" />
               <span>{isAr ? "معاينة المسودة" : "Preview Draft"}</span>
@@ -114,7 +118,7 @@ export default function CmsOverviewPage() {
             <button
               onClick={handlePublish}
               disabled={isPublishing}
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white text-xs font-black transition-all shadow-lg shadow-emerald-950/50 cursor-pointer disabled:opacity-50"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white text-xs font-black transition-all shadow-lg shadow-emerald-950/50 cursor-pointer disabled:opacity-50"
             >
               {isPublishing ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
@@ -134,10 +138,10 @@ export default function CmsOverviewPage() {
         )}
       </div>
 
-      {/* Grid of Control Modules */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {/* Grid of Control Modules - 3 Responsive Columns */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {/* Module 1: Global Branding */}
-        <div className="bg-slate-900/70 border border-slate-800 rounded-3xl p-7 flex flex-col justify-between hover:border-slate-700 transition-all group">
+        <div className="bg-slate-900/70 border border-slate-800 rounded-3xl p-6 sm:p-7 flex flex-col justify-between hover:border-slate-700 transition-all group">
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center justify-center group-hover:scale-110 transition-transform">
@@ -166,22 +170,22 @@ export default function CmsOverviewPage() {
                   {isAr ? "الألوان الحالية:" : "Active Colors:"}
                 </span>
                 <span
-                  className="w-6 h-6 rounded-full border border-white/20 shadow-sm"
+                  className="w-5 h-5 rounded-full border border-white/20 shadow-xs"
                   style={{ backgroundColor: branding.colors.primaryMain }}
                   title="Primary Main"
                 />
                 <span
-                  className="w-6 h-6 rounded-full border border-white/20 shadow-sm"
+                  className="w-5 h-5 rounded-full border border-white/20 shadow-xs"
                   style={{ backgroundColor: branding.colors.primaryDark }}
                   title="Primary Dark"
                 />
                 <span
-                  className="w-6 h-6 rounded-full border border-white/20 shadow-sm"
+                  className="w-5 h-5 rounded-full border border-white/20 shadow-xs"
                   style={{ backgroundColor: branding.colors.primaryLight }}
                   title="Primary Light"
                 />
                 <span
-                  className="w-6 h-6 rounded-full border border-white/20 shadow-sm"
+                  className="w-5 h-5 rounded-full border border-white/20 shadow-xs"
                   style={{ backgroundColor: branding.colors.accentMint }}
                   title="Accent Mint"
                 />
@@ -192,7 +196,7 @@ export default function CmsOverviewPage() {
           <div className="pt-6">
             <Link
               href={`/${locale}/admin/cms/branding`}
-              className="w-full flex items-center justify-center gap-2 px-5 py-3 rounded-2xl bg-slate-800 hover:bg-emerald-600 hover:text-white text-slate-200 text-xs font-bold transition-all cursor-pointer shadow-sm"
+              className="w-full flex items-center justify-center gap-2 px-5 py-3 rounded-2xl bg-slate-800 hover:bg-emerald-600 hover:text-white text-slate-200 text-xs font-bold transition-all cursor-pointer shadow-xs"
             >
               <span>{isAr ? "فتح إعدادات الهوية" : "Configure Branding"}</span>
             </Link>
@@ -200,7 +204,7 @@ export default function CmsOverviewPage() {
         </div>
 
         {/* Module 2: Landing Page Sections */}
-        <div className="bg-slate-900/70 border border-slate-800 rounded-3xl p-7 flex flex-col justify-between hover:border-slate-700 transition-all group">
+        <div className="bg-slate-900/70 border border-slate-800 rounded-3xl p-6 sm:p-7 flex flex-col justify-between hover:border-slate-700 transition-all group">
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div className="w-12 h-12 rounded-2xl bg-blue-500/10 text-blue-400 border border-blue-500/20 flex items-center justify-center group-hover:scale-110 transition-transform">
@@ -235,8 +239,8 @@ export default function CmsOverviewPage() {
             </div>
 
             <div className="text-[11px] text-slate-400 flex items-center gap-2 pt-2">
-              <Clock className="w-3.5 h-3.5 text-slate-400" />
-              <span>
+              <Clock className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+              <span className="truncate">
                 {isAr ? "آخر تحديث: " : "Last updated: "}
                 {landingDoc?.updatedAt
                   ? new Date(landingDoc.updatedAt).toLocaleString(isAr ? "ar-EG" : "en-US")
@@ -248,9 +252,65 @@ export default function CmsOverviewPage() {
           <div className="pt-6">
             <Link
               href={`/${locale}/admin/cms/landing`}
-              className="w-full flex items-center justify-center gap-2 px-5 py-3 rounded-2xl bg-slate-800 hover:bg-blue-600 hover:text-white text-slate-200 text-xs font-bold transition-all cursor-pointer shadow-sm"
+              className="w-full flex items-center justify-center gap-2 px-5 py-3 rounded-2xl bg-slate-800 hover:bg-blue-600 hover:text-white text-slate-200 text-xs font-bold transition-all cursor-pointer shadow-xs"
             >
               <span>{isAr ? "تحرير أقسام الصفحة" : "Edit Sections"}</span>
+            </Link>
+          </div>
+        </div>
+
+        {/* Module 3: Legal & Static Pages (Privacy Policy, Terms of Service) */}
+        <div className="bg-slate-900/70 border border-slate-800 rounded-3xl p-6 sm:p-7 flex flex-col justify-between hover:border-slate-700 transition-all group">
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="w-12 h-12 rounded-2xl bg-purple-500/10 text-purple-400 border border-purple-500/20 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <ShieldCheck className="w-6 h-6" />
+              </div>
+              <span
+                className={`text-[11px] font-bold px-3 py-1 rounded-full border ${
+                  hasLegalDraft
+                    ? "bg-amber-500/15 border-amber-500/30 text-amber-300"
+                    : "bg-emerald-500/15 border-emerald-500/30 text-emerald-300"
+                }`}
+              >
+                {hasLegalDraft
+                  ? isAr
+                    ? "توجد مسودة غير منشورة"
+                    : "Draft Changes Pending"
+                  : isAr
+                  ? "منشور ومحدث"
+                  : "All Changes Published"}
+              </span>
+            </div>
+
+            <div>
+              <h3 className="text-lg font-black text-white">
+                {isAr ? "الصفحات القانونية (الشروط والخصوصية)" : "Legal & Policy Pages"}
+              </h3>
+              <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+                {isAr
+                  ? "تحرير سياسة الخصوصية وشروط الاستخدام وحقوق المتدربين والمدربين باللغتين العربية والإنجليزية."
+                  : "Bilingual editor for Privacy Policy, Terms of Service, user rights, and legal agreements."}
+              </p>
+            </div>
+
+            <div className="text-[11px] text-slate-400 flex items-center gap-2 pt-2">
+              <Clock className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+              <span className="truncate">
+                {isAr ? "آخر تحديث: " : "Last updated: "}
+                {legalDoc?.updatedAt
+                  ? new Date(legalDoc.updatedAt).toLocaleString(isAr ? "ar-EG" : "en-US")
+                  : "Recently"}
+              </span>
+            </div>
+          </div>
+
+          <div className="pt-6">
+            <Link
+              href={`/${locale}/admin/cms/pages`}
+              className="w-full flex items-center justify-center gap-2 px-5 py-3 rounded-2xl bg-slate-800 hover:bg-purple-600 hover:text-white text-slate-200 text-xs font-bold transition-all cursor-pointer shadow-xs"
+            >
+              <span>{isAr ? "تحرير الصفحات القانونية" : "Edit Legal Pages"}</span>
             </Link>
           </div>
         </div>
@@ -258,3 +318,4 @@ export default function CmsOverviewPage() {
     </div>
   );
 }
+

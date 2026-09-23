@@ -4,15 +4,17 @@ import { CmsServerService } from '@/services/cms/cmsServerService';
 
 export async function GET() {
   try {
-    const [branding, landingDoc] = await Promise.all([
+    const [branding, landingDoc, legalDoc] = await Promise.all([
       CmsServerService.getPublishedBranding(),
       CmsServerService.getLandingPageDoc(),
+      CmsServerService.getLegalPagesDoc(),
     ]);
 
     return NextResponse.json({
       success: true,
       branding,
       landing: landingDoc,
+      legal: legalDoc,
     });
   } catch (error: any) {
     console.error('[CmsContentAPI] Error fetching CMS content:', error);
@@ -74,6 +76,34 @@ export async function POST(req: NextRequest) {
         success: true,
         message: 'Branding settings updated and revalidated',
         branding: updatedBranding,
+      });
+    }
+
+    if (action === 'save_legal_draft') {
+      const updatedLegal = await CmsServerService.saveLegalDraft(data, userEmail);
+      return NextResponse.json({
+        success: true,
+        message: 'Legal pages draft saved successfully',
+        legal: updatedLegal,
+      });
+    }
+
+    if (action === 'publish_legal') {
+      const publishedLegal = await CmsServerService.publishLegalPages(userEmail);
+      // Revalidate legal pages
+      revalidatePath('/ar/privacy');
+      revalidatePath('/en/privacy');
+      revalidatePath('/ar/privacy-policy');
+      revalidatePath('/en/privacy-policy');
+      revalidatePath('/ar/terms');
+      revalidatePath('/en/terms');
+      revalidatePath('/ar/terms-of-service');
+      revalidatePath('/en/terms-of-service');
+
+      return NextResponse.json({
+        success: true,
+        message: 'Legal pages published successfully',
+        legal: publishedLegal,
       });
     }
 

@@ -1,4 +1,14 @@
-import { GlobalBrandingConfig, LandingSectionsData } from '@/types/cms';
+import { GlobalBrandingConfig, LandingSectionsData, LandingSectionKey, LegalPagesContent } from '@/types/cms';
+
+export const DEFAULT_SECTION_ORDER: LandingSectionKey[] = [
+  'hero',
+  'top_categories',
+  'master_craft',
+  'why_stands_out',
+  'real_stories',
+  'faq',
+  'join_future',
+];
 
 export const DEFAULT_BRANDING: GlobalBrandingConfig = {
   logoUrl: '/images/logo.png',
@@ -13,6 +23,9 @@ export const DEFAULT_BRANDING: GlobalBrandingConfig = {
     accentMint: '#34D399',
   },
   buttonRadius: '12px',
+  fontFamilyAr: 'Cairo',
+  fontFamilyEn: 'Plus Jakarta Sans',
+  customGoogleFontName: '',
   updatedAt: new Date().toISOString(),
   updatedBy: 'system',
 };
@@ -34,6 +47,8 @@ export const DEFAULT_LANDING_SECTIONS: LandingSectionsData = {
     cta_secondary_text_en: 'Become an Instructor',
     cta_secondary_link: '/become-instructor',
     hero_image_url: '/images/hero-coach.png',
+    is_visible: true,
+    allowed_roles: ['all'],
   },
   top_categories: {
     title_ar: 'استكشف أبرز المجالات',
@@ -41,6 +56,7 @@ export const DEFAULT_LANDING_SECTIONS: LandingSectionsData = {
     subtitle_ar: 'تصفح نخبة من التخصصات المصممة لتلبية متطلبات سوق العمل العالمي.',
     subtitle_en: 'Browse our curated collection of specialized programs designed for modern industry requirements.',
     is_visible: true,
+    allowed_roles: ['all'],
   },
   master_craft: {
     heading_ar: 'طريقك نحو الإتقان العملي والتميز الوظيفي',
@@ -73,6 +89,8 @@ export const DEFAULT_LANDING_SECTIONS: LandingSectionsData = {
         icon: 'ShieldCheck',
       },
     ],
+    is_visible: true,
+    allowed_roles: ['all'],
   },
   why_stands_out: {
     title_ar: 'لماذا تختار منصة كوتش سبيس؟',
@@ -105,6 +123,8 @@ export const DEFAULT_LANDING_SECTIONS: LandingSectionsData = {
         icon: 'TrendingUp',
       },
     ],
+    is_visible: true,
+    allowed_roles: ['all'],
   },
   real_stories: {
     title_ar: 'قصص نجاح من واقع التجربة',
@@ -146,6 +166,8 @@ export const DEFAULT_LANDING_SECTIONS: LandingSectionsData = {
         avatar: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=200&q=80',
       },
     ],
+    is_visible: true,
+    allowed_roles: ['all'],
   },
   faq: {
     title_ar: 'الأسئلة الشائعة',
@@ -182,6 +204,8 @@ export const DEFAULT_LANDING_SECTIONS: LandingSectionsData = {
         answer_en: 'Click "Become an Instructor", submit your credentials and experience, and our team will review and approve your studio access.',
       },
     ],
+    is_visible: true,
+    allowed_roles: ['all'],
   },
   join_future: {
     title_ar: 'هل أنت مستعد لبدء خطوتك القادمة؟',
@@ -191,5 +215,134 @@ export const DEFAULT_LANDING_SECTIONS: LandingSectionsData = {
     button_text_ar: 'ابدأ التعلم الآن مجاناً',
     button_text_en: 'Get Started for Free',
     button_link: '/register',
+    is_visible: true,
+    allowed_roles: ['all'],
+  },
+  section_order: DEFAULT_SECTION_ORDER,
+};
+
+export const DEFAULT_LEGAL_PAGES: LegalPagesContent = {
+  privacy: {
+    badge_ar: 'الشفافية والأمان',
+    badge_en: 'Trust & Transparency',
+    title_ar: 'سياسة الخصوصية',
+    title_en: 'Privacy Policy',
+    subtitle_ar: 'نلتزم في منصة Coach Space بحماية بياناتك وتقديم بيئة تعليمية موثوقة ومحمية وفق أعلى المعايير العالمية.',
+    subtitle_en: 'At Coach Space, we are committed to protecting your personal data and ensuring a secure, trusted learning experience.',
+    lastUpdatedDate_ar: '9 سبتمبر 2026',
+    lastUpdatedDate_en: 'September 9, 2026',
+    contactTitle_ar: 'هل لديك استفسار حول الخصوصية؟',
+    contactTitle_en: 'Have Questions About Privacy?',
+    contactDescription_ar: 'فريق حماية البيانات في Coach Space مستعد للإجابة على جميع تساؤلاتك ومساعدتك في أي وقت.',
+    contactDescription_en: 'Our dedicated Data Protection team is here to assist you with any privacy questions or requests.',
+    contactEmail: 'coachspace4@gmail.com',
+    sections: [
+      {
+        id: 'introduction',
+        icon: 'Shield',
+        title_ar: '1. مقدمة والتزامنا بالخصوصية',
+        title_en: '1. Introduction & Our Privacy Commitment',
+        content_ar: 'مرحباً بكم في منصة Coach Space. نولي خصوصية بياناتكم وأمانها اهتماماً بالغاً. توضح سياسة الخصوصية هذه كيفية جمعنا واستخدامنا وحمايتنا لبياناتك الشخصية عند استخدام منصتنا التعليمية وموقعنا وتطبيقاتنا.\n\nباستخدامك للمنصة، فإنك توافق على الممارسات الموضحة في هذه السياسة. إذا كانت لديك أي استفسارات، يمكنك التواصل معنا في أي وقت.',
+        content_en: 'Welcome to Coach Space. We are committed to protecting your privacy and ensuring transparency regarding how your personal information is handled across our education platform, websites, and applications.\n\nBy accessing or using Coach Space, you agree to the collection and use of information in accordance with this Privacy Policy.',
+      },
+      {
+        id: 'collection',
+        icon: 'Database',
+        title_ar: '2. البيانات التي نقوم بجمعها',
+        title_en: '2. Information We Collect',
+        content_ar: 'نقوم بجمع البيانات الضرورية فقط لتقديم تجربة تدريبية متكاملة وآمنة:\n• بيانات الحساب: الاسم الكامل، البريد الإلكتروني، كلمة المرور المشفرة، ورقم الهاتف (اختياري).\n• بيانات التعلم: الدورات التي قمت بالتسجيل فيها، التقدم في المشاهدة، الاختبارات المجتازة، والشهادات المكتسبة.\n• بيانات المدربين: المؤهلات، النبذة التعريفية، وروابط التواصل المهنية للمدربين المعتمدين.\n• البيانات التقنية: عنوان الـ IP، نوع المتصفح، نظام التشغيل، وملفات تعريف الارتباط الضرورية لتوثيق الدخول وحفظ الجلسة.',
+        content_en: 'We collect only the data necessary to provide you with a world-class, seamless learning experience:\n• Account Information: Your full name, email address, securely hashed passwords, and optional contact details.\n• Learning Records: Enrolled courses, video progress, quiz results, and verified completion certificates.\n• Instructor Profiles: Certifications, biography, expertise, and professional links for verified coaches.\n• Technical Data: IP address, device type, browser specifications, and essential session authentication cookies.',
+      },
+      {
+        id: 'usage',
+        icon: 'UserCheck',
+        title_ar: '3. كيف نستخدم بياناتك الشخصية',
+        title_en: '3. How We Use Your Information',
+        content_ar: 'تُستخدم معلوماتكم لأغراض مشروعة ومحددة تشمل:\n• توفير إمكانية الوصول إلى الدورات والمحتوى التدريبي وتفعيل الدروس فوراً بعد الشراء.\n• إصدار الشهادات الرسمية والتحقق من صحتها عبر رمز التحقق المخصص.\n• إرسال الإشعارات الضرورية المتعلقة بحسابك، مثل استعادة كلمة المرور وتحديثات الدورات.\n• تحسين أداء واستقرار المنصة وتطوير المحتوى التعليمي.\n• حماية المنصة من محاولات الاحتيال أو الاستخدام غير المصرح به.',
+        content_en: 'Your information is used strictly for legitimate educational and operational purposes:\n• Granting immediate access to training materials, lessons, and course updates upon enrollment.\n• Issuing verifiable digital certificates of completion with unique validation IDs.\n• Sending critical account-related communications such as password resets and enrollment confirmations.\n• Maintaining high platform availability, speed, security, and content quality.\n• Preventing unauthorized access and fraudulent transactions.',
+      },
+      {
+        id: 'payments',
+        icon: 'Lock',
+        title_ar: '4. معلومات الدفع وأمان المعاملات المالية',
+        title_en: '4. Payment Security & Financial Data',
+        content_ar: 'معالجة آمنة بنسبة 100%: نحن لا نقوم بتخزين أي بيانات حساسة لبطاقات الائتمان (مثل رقم البطاقة أو رمز CVV) على خوادمنا.\n\nتتم معالجة جميع المدفوعات المالية عبر بوابة Stripe العالمية المعتمدة والمتوافقة مع أعلى معايير الأمان المصرفي العالمية (PCI-DSS المستوى الأول)، باستخدام تشفير 256-Bit SSL لضمان الحماية الكاملة لمعاملاتك.',
+        content_en: '100% Secure Processing: We do not store credit card numbers, CVV codes, or full payment credentials on Coach Space servers.\n\nAll financial transactions are processed through Stripe, certified to PCI-DSS Level 1 (the highest standard in payment security), utilizing end-to-end 256-bit bank-grade SSL encryption.',
+      },
+      {
+        id: 'cookies',
+        icon: 'Eye',
+        title_ar: '5. ملفات تعريف الارتباط (Cookies)',
+        title_en: '5. Cookies & Session Technologies',
+        content_ar: 'نستخدم ملفات تعريف الارتباط الأساسية لتمكينك من تسجيل الدخول بأمان، وحفظ لغتك المفضلة (العربية أو الإنجليزية)، والحفاظ على عناصر سلة التسوق الخاصة بك. يمكنك إدارة تفضيلات ملفات تعريف الارتباط من خلال إعدادات المتصفح الخاص بك في أي وقت.',
+        content_en: 'We employ essential cookies to keep you safely logged in, remember your preferred language (English or Arabic), and preserve courses in your shopping cart. You can configure your browser to decline non-essential cookies at any time.',
+      },
+      {
+        id: 'rights',
+        icon: 'FileText',
+        title_ar: '6. حقوقك وخياراتك في بياناتك',
+        title_en: '6. Your Rights & Data Choices',
+        content_ar: 'يحق لك في أي وقت:\n• الوصول إلى نسختك من البيانات المسجلة في حسابك ومراجعتها.\n• تعديل بيانات ملفك الشخصي عبر صفحة إعدادات الحساب.\n• طلب حذف حسابك وبياناتك الشخصية بشكل نهائي من خلال التواصل مع الدعم الفني.',
+        content_en: 'Depending on your location, you hold full rights over your data, including:\n• Requesting a full copy of your personal data stored on our platform.\n• Updating and correcting your profile via Account Settings.\n• Requesting account closure and permanent deletion of personal details by contacting support.',
+      },
+    ],
+  },
+  terms: {
+    badge_ar: 'اتفاقية الاستخدام الرسمية',
+    badge_en: 'Official Agreement',
+    title_ar: 'شروط وأحكام الاستخدام',
+    title_en: 'Terms of Service',
+    subtitle_ar: 'شروط وأحكام استخدام منصة Coach Space وحقوق وواجبات الطلاب والمدربين المعتمدين.',
+    subtitle_en: 'Terms and conditions governing the use of the Coach Space platform for students and certified mentors.',
+    lastUpdatedDate_ar: '9 سبتمبر 2026',
+    lastUpdatedDate_en: 'September 9, 2026',
+    contactTitle_ar: 'استفسارات قانونية أو شروط الاستخدام؟',
+    contactTitle_en: 'Legal Questions or Inquiries?',
+    contactDescription_ar: 'يمكنك التواصل مع الإدارة القانونية لمنصة Coach Space للحصول على أي توضيحات بخصوص شروط الخدمة.',
+    contactDescription_en: 'Contact our legal compliance team for any clarifications regarding our platform terms.',
+    contactEmail: 'coachspace4@gmail.com',
+    sections: [
+      {
+        id: 'acceptance',
+        icon: 'CheckCircle2',
+        title_ar: '1. الموافقة على الشروط',
+        title_en: '1. Acceptance of Terms',
+        content_ar: 'من خلال إنشاء حساب أو شراء دورة تدريبية أو تصفح منصة Coach Space، فإنك تقر بأنك قرأت وفهمت ووافقت على الالتزام بجميع هذه الشروط والأحكام. إذا كنت لا توافق على أي جزء منها، يُرجى عدم استخدام المنصة.',
+        content_en: 'By creating an account, purchasing an online course, or accessing Coach Space, you acknowledge that you have read, understood, and agreed to be legally bound by these Terms of Service. If you disagree with any portion, please discontinue platform use.',
+      },
+      {
+        id: 'accounts',
+        icon: 'UserCheck',
+        title_ar: '2. الحسابات والأمان',
+        title_en: '2. Account Registration & Security',
+        content_ar: 'عند التسجيل، يجب عليك تقديم معلومات صحيحة ودقيقة وكاملة:\n• أنت مسؤول بالكامل عن الحفاظ على سرية كلمة المرور الخاصة بحسابك.\n• لا يجوز مشاركة الحساب أو بيانات تسجيل الدخول مع أي أطراف أخرى.\n• يجب إخطارنا فوراً في حال الاشتباه بأي دخول غير مصرح به إلى حسابك.',
+        content_en: 'When registering an account, you must provide true, current, and complete information:\n• You are solely responsible for maintaining the confidentiality of your login credentials.\n• Account sharing, reselling, or credential pooling is strictly prohibited.\n• You must immediately notify Coach Space of any suspected security breach or unauthorized access.',
+      },
+      {
+        id: 'license',
+        icon: 'BookOpen',
+        title_ar: '3. الوصول إلى الدورات وحقوق المشاهدة',
+        title_en: '3. Course Access & Learning License',
+        content_ar: 'عند شراء دورة تدريبية على منصة Coach Space، تمنحك المنصة ترخيصاً شخصياً للوصول إلى محتوى الدورة ومشاهدته لغايات التعلم الشخصي:\n• يحظر تماماً تنزيل أو إعادة بيع أو مشاركة أو تسجيل مقاطع الفيديو لأغراض تجارية.\n• المحتوى التدريبي محمي بموجب قوانين الملكية الفكرية وحقوق النشر الدولية.',
+        content_en: 'Upon purchasing a course, Coach Space grants you a personal license to view and complete the course materials solely for individual educational purposes:\n• Redistribution, commercial broadcasting, video ripping, or copying is strictly illegal.\n• All video lectures, downloadable guides, and exercises remain protected by international copyright laws.',
+      },
+      {
+        id: 'certificates',
+        icon: 'Award',
+        title_ar: '4. الشهادات الرقمية المعتمدة',
+        title_en: '4. Verified Certificates of Completion',
+        content_ar: 'تُمنح شهادة الإتمام الرقمية الرسمية فقط للطلاب الذين أكملوا مشاهدة كافة دروس الدورة واجتازوا متطلبات التقييم المحددة بنجاح. تحمل كل شهادة رمز تحقق رقمي فريد وموثوق.',
+        content_en: 'Official digital certificates are issued only after verified 100% completion of course lessons and passing any required assessments. Each certificate contains a unique validation identifier verifiable on our platform.',
+      },
+      {
+        id: 'conduct',
+        icon: 'ShieldAlert',
+        title_ar: '5. قواعد السلوك ومنع الانتهاكات',
+        title_en: '5. Platform Code of Conduct',
+        content_ar: 'يلتزم جميع المستخدمين (طلاباً ومدربين) بالسلوك المهني المحترم:\n• يمنع نشر أي محتوى مسيء، تشهيري، أو ينتهك حقوق الآخرين.\n• يحظر استخدام روبوتات تجريف البيانات (Scrapers) أو محاولة اختراق الخوادم.\n• تحتفظ Coach Space بالحق في تعليق أو حظر أي حساب ينتهك هذه المعايير دون تعويض.',
+        content_en: 'All community members (students and instructors) must maintain professional, respectful interactions:\n• Harassment, abusive behavior, and discriminatory content are strictly prohibited.\n• Automated scrapers, bot attacks, and reverse engineering attempts will result in immediate termination.\n• Coach Space reserves the right to suspend any account violating these rules without refund.',
+      },
+    ],
   },
 };
+

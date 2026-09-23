@@ -90,7 +90,7 @@ export default function AuthLayout({
   return (
     <div
       dir={isAr ? "rtl" : "ltr"}
-      className="relative flex min-h-screen w-full flex-col justify-between bg-slate-50 text-slate-800 selection:bg-[#0F5244] selection:text-white font-sans overflow-hidden"
+      className="relative flex min-h-screen w-full flex-col justify-between bg-slate-50 text-slate-800 selection:bg-emerald-800 selection:text-white font-sans overflow-hidden"
     >
       {/* Background SVG Grid Mesh Pattern */}
       <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(#cbd5e1_1px,transparent_1px)] [background-size:24px_24px] opacity-40" />

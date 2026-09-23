@@ -6,6 +6,14 @@ export interface GlobalBrandingColors {
   accentMint: string;
 }
 
+export type SectionRolePermission =
+  | 'all'
+  | 'guest'
+  | 'student'
+  | 'instructor'
+  | 'admin'
+  | 'authenticated';
+
 export interface GlobalBrandingConfig {
   logoUrl: string;
   faviconUrl: string;
@@ -13,6 +21,9 @@ export interface GlobalBrandingConfig {
   siteNameEn: string;
   colors: GlobalBrandingColors;
   buttonRadius: '6px' | '8px' | '12px' | '9999px';
+  fontFamilyAr?: string;
+  fontFamilyEn?: string;
+  customGoogleFontName?: string;
   updatedAt: string;
   updatedBy: string;
 }
@@ -33,6 +44,8 @@ export interface HeroSectionData {
   cta_secondary_text_en: string;
   cta_secondary_link: string;
   hero_image_url: string;
+  is_visible?: boolean;
+  allowed_roles?: SectionRolePermission[];
 }
 
 export interface TopCategoriesSectionData {
@@ -41,6 +54,7 @@ export interface TopCategoriesSectionData {
   subtitle_ar: string;
   subtitle_en: string;
   is_visible: boolean;
+  allowed_roles?: SectionRolePermission[];
 }
 
 export interface FeatureItem {
@@ -58,6 +72,8 @@ export interface MasterYourCraftSectionData {
   description_ar: string;
   description_en: string;
   features: FeatureItem[];
+  is_visible?: boolean;
+  allowed_roles?: SectionRolePermission[];
 }
 
 export interface WhyStandsOutCard {
@@ -75,6 +91,8 @@ export interface WhyCoachSpaceStandsOutSectionData {
   subtitle_ar: string;
   subtitle_en: string;
   cards: WhyStandsOutCard[];
+  is_visible?: boolean;
+  allowed_roles?: SectionRolePermission[];
 }
 
 export interface TestimonialItem {
@@ -95,6 +113,8 @@ export interface RealStoriesSectionData {
   subtitle_ar: string;
   subtitle_en: string;
   testimonials: TestimonialItem[];
+  is_visible?: boolean;
+  allowed_roles?: SectionRolePermission[];
 }
 
 export interface FaqItem {
@@ -111,6 +131,8 @@ export interface FaqSectionData {
   subtitle_ar: string;
   subtitle_en: string;
   items: FaqItem[];
+  is_visible?: boolean;
+  allowed_roles?: SectionRolePermission[];
 }
 
 export interface JoinFutureSectionData {
@@ -121,7 +143,18 @@ export interface JoinFutureSectionData {
   button_text_ar: string;
   button_text_en: string;
   button_link: string;
+  is_visible?: boolean;
+  allowed_roles?: SectionRolePermission[];
 }
+
+export type LandingSectionKey =
+  | 'hero'
+  | 'top_categories'
+  | 'master_craft'
+  | 'why_stands_out'
+  | 'real_stories'
+  | 'faq'
+  | 'join_future';
 
 export interface LandingSectionsData {
   hero: HeroSectionData;
@@ -131,6 +164,7 @@ export interface LandingSectionsData {
   real_stories: RealStoriesSectionData;
   faq: FaqSectionData;
   join_future: JoinFutureSectionData;
+  section_order?: LandingSectionKey[];
 }
 
 export interface LandingPageDoc {
@@ -141,3 +175,44 @@ export interface LandingPageDoc {
   published: LandingSectionsData;
   draft: LandingSectionsData;
 }
+
+export interface LegalSectionData {
+  id: string;
+  icon?: string;
+  title_ar: string;
+  title_en: string;
+  content_ar: string;
+  content_en: string;
+}
+
+export interface LegalPageData {
+  badge_ar: string;
+  badge_en: string;
+  title_ar: string;
+  title_en: string;
+  subtitle_ar: string;
+  subtitle_en: string;
+  lastUpdatedDate_ar: string;
+  lastUpdatedDate_en: string;
+  contactTitle_ar: string;
+  contactTitle_en: string;
+  contactDescription_ar: string;
+  contactDescription_en: string;
+  contactEmail: string;
+  sections: LegalSectionData[];
+}
+
+export interface LegalPagesContent {
+  privacy: LegalPageData;
+  terms: LegalPageData;
+}
+
+export interface LegalPagesDoc {
+  status: 'published' | 'draft_only' | 'has_draft_changes';
+  publishedAt: string | null;
+  updatedAt: string;
+  lastUpdatedBy: string;
+  published: LegalPagesContent;
+  draft: LegalPagesContent;
+}
+

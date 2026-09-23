@@ -1,5 +1,6 @@
 "use client";
 
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useTranslations, useLocale } from "next-intl";
@@ -27,18 +28,48 @@ export function Logo({
   const logoHeight = compact ? 36 : 46;
   const logoWidth = compact ? 34 : 44;
 
+  const [logoSrc, setLogoSrc] = useState<string>("/images/brand-logo.png");
+
+  useEffect(() => {
+    try {
+      const cached = localStorage.getItem("coachspace_cms_branding");
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (parsed?.logoUrl && parsed.logoUrl !== "/images/logo.png" && parsed.logoUrl.trim().length > 0) {
+          setLogoSrc(parsed.logoUrl.trim());
+        }
+      }
+    } catch {}
+
+    const handleBranding = (e: Event) => {
+      const customEvent = e as CustomEvent<any>;
+      if (customEvent?.detail?.logoUrl && customEvent.detail.logoUrl !== "/images/logo.png") {
+        setLogoSrc(customEvent.detail.logoUrl.trim());
+      }
+    };
+
+    window.addEventListener("cms-branding-updated", handleBranding);
+    return () => {
+      window.removeEventListener("cms-branding-updated", handleBranding);
+    };
+  }, []);
+
+  const isDefaultLogo = logoSrc === "/images/brand-logo.png";
+
   return (
     <Link
       href={targetHref}
       className={`inline-flex items-center gap-2.5 sm:gap-3 shrink-0 focus:outline-none ${className}`}
     >
       <Image
-        src="/images/brand-logo.png"
+        src={logoSrc}
         alt="Coach Space Logo"
         width={logoWidth}
         height={logoHeight}
         priority
         className={`w-auto shrink-0 object-contain ${
+          isDefaultLogo ? "brand-logo-img" : ""
+        } ${
           imageClassName
             ? imageClassName
             : compact
@@ -61,4 +92,5 @@ export function Logo({
     </Link>
   );
 }
+
 

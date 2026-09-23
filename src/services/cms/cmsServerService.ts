@@ -1,15 +1,29 @@
 import { getFirestoreDb } from '@/lib/firebaseAdmin';
-import { GlobalBrandingConfig, LandingSectionsData, LandingPageDoc } from '@/types/cms';
-import { DEFAULT_BRANDING, DEFAULT_LANDING_SECTIONS } from '@/lib/cmsDefaults';
+import {
+  GlobalBrandingConfig,
+  LandingSectionsData,
+  LandingPageDoc,
+  LegalPagesDoc,
+  LegalPageData,
+  LegalPagesContent,
+} from '@/types/cms';
+import {
+  DEFAULT_BRANDING,
+  DEFAULT_LANDING_SECTIONS,
+  DEFAULT_LEGAL_PAGES,
+} from '@/lib/cmsDefaults';
 
 const SETTINGS_COLLECTION = 'cms_settings';
 const BRANDING_DOC_ID = 'branding';
 const PAGES_COLLECTION = 'cms_pages';
 const LANDING_DOC_ID = 'landing';
+const LEGAL_DOC_ID = 'legal';
 
 // In-memory fallback caches for zero-downtime and test environments
 let inMemoryBranding: GlobalBrandingConfig | null = null;
 let inMemoryLandingDoc: LandingPageDoc | null = null;
+let inMemoryLegalDoc: LegalPagesDoc | null = null;
+
 
 export class CmsServerService {
   /**
@@ -221,4 +235,170 @@ export class CmsServerService {
 
     return publishedDoc;
   }
+
+  /**
+   * Fetch Legal Pages document (Privacy Policy & Terms of Service)
+   */
+  static async getLegalPagesDoc(): Promise<LegalPagesDoc> {
+    const db = getFirestoreDb();
+    if (!db) {
+      return (
+        inMemoryLegalDoc || {
+          status: 'published',
+          publishedAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          lastUpdatedBy: 'system',
+          published: DEFAULT_LEGAL_PAGES,
+          draft: DEFAULT_LEGAL_PAGES,
+        }
+      );
+    }
+
+    try {
+      const doc = await db.collection(PAGES_COLLECTION).doc(LEGAL_DOC_ID).get();
+      if (!doc.exists) {
+        return (
+          inMemoryLegalDoc || {
+            status: 'published',
+            publishedAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+            lastUpdatedBy: 'system',
+            published: DEFAULT_LEGAL_PAGES,
+            draft: DEFAULT_LEGAL_PAGES,
+          }
+        );
+      }
+
+      const data = doc.data() as Partial<LegalPagesDoc>;
+      const resolved: LegalPagesDoc = {
+        status: data.status || 'published',
+        publishedAt: data.publishedAt || null,
+        updatedAt: data.updatedAt || new Date().toISOString(),
+        lastUpdatedBy: data.lastUpdatedBy || 'admin',
+        published: {
+          privacy: {
+            ...DEFAULT_LEGAL_PAGES.privacy,
+            ...(data.published?.privacy || {}),
+          },
+          terms: {
+            ...DEFAULT_LEGAL_PAGES.terms,
+            ...(data.published?.terms || {}),
+          },
+        },
+        draft: {
+          privacy: {
+            ...DEFAULT_LEGAL_PAGES.privacy,
+            ...(data.draft?.privacy || data.published?.privacy || {}),
+          },
+          terms: {
+            ...DEFAULT_LEGAL_PAGES.terms,
+            ...(data.draft?.terms || data.published?.terms || {}),
+          },
+        },
+      };
+      inMemoryLegalDoc = resolved;
+      return resolved;
+    } catch (err) {
+      console.warn('[CmsServerService] Error reading legal pages doc:', err);
+      return (
+        inMemoryLegalDoc || {
+          status: 'published',
+          publishedAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          lastUpdatedBy: 'system',
+          published: DEFAULT_LEGAL_PAGES,
+          draft: DEFAULT_LEGAL_PAGES,
+        }
+      );
+    }
+  }
+
+  /**
+   * Fetch specific legal page content (Privacy or Terms)
+   */
+  static async getLegalPage(
+    page: 'privacy' | 'terms',
+    isPreview = false
+  ): Promise<LegalPageData> {
+    const doc = await this.getLegalPagesDoc();
+    if (isPreview && doc.draft) {
+      return doc.draft[page] || DEFAULT_LEGAL_PAGES[page];
+    }
+    return doc.published?.[page] || DEFAULT_LEGAL_PAGES[page];
+  }
+
+  /**
+   * Save Legal Pages Draft
+   */
+  static async saveLegalDraft(
+    draftData: Partial<LegalPagesContent>,
+    updatedBy: string
+  ): Promise<LegalPagesDoc> {
+    const db = getFirestoreDb();
+    const currentDoc = await this.getLegalPagesDoc();
+
+    const updatedDoc: LegalPagesDoc = {
+      ...currentDoc,
+      status: 'has_draft_changes',
+      updatedAt: new Date().toISOString(),
+      lastUpdatedBy: updatedBy,
+      draft: {
+        privacy: {
+          ...currentDoc.draft.privacy,
+          ...(draftData.privacy || {}),
+        },
+        terms: {
+          ...currentDoc.draft.terms,
+          ...(draftData.terms || {}),
+        },
+      },
+    };
+
+    inMemoryLegalDoc = updatedDoc;
+
+    if (db) {
+      try {
+        await db.collection(PAGES_COLLECTION).doc(LEGAL_DOC_ID).set(updatedDoc, { merge: true });
+      } catch (err) {
+        console.error('[CmsServerService] Error saving legal draft:', err);
+        throw new Error('Failed to save legal draft to database');
+      }
+    }
+
+    return updatedDoc;
+  }
+
+  /**
+   * Publish Legal Pages (copies draft into published)
+   */
+  static async publishLegalPages(updatedBy: string): Promise<LegalPagesDoc> {
+    const db = getFirestoreDb();
+    const currentDoc = await this.getLegalPagesDoc();
+
+    const publishedDoc: LegalPagesDoc = {
+      ...currentDoc,
+      status: 'published',
+      publishedAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      lastUpdatedBy: updatedBy,
+      published: {
+        privacy: { ...currentDoc.draft.privacy },
+        terms: { ...currentDoc.draft.terms },
+      },
+    };
+
+    inMemoryLegalDoc = publishedDoc;
+
+    if (db) {
+      try {
+        await db.collection(PAGES_COLLECTION).doc(LEGAL_DOC_ID).set(publishedDoc, { merge: true });
+      } catch (err) {
+        console.error('[CmsServerService] Error publishing legal pages:', err);
+        throw new Error('Failed to publish legal pages to database');
+      }
+    }
+
+    return publishedDoc;
+  }
 }
+

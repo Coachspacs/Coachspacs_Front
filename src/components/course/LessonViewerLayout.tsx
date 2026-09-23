@@ -673,7 +673,7 @@ export function LessonViewerLayout({
   return (
     <div
       dir={isAr ? "rtl" : "ltr"}
-      className="min-h-screen w-full bg-[#F8FAFC] text-slate-900 flex flex-col font-sans selection:bg-[#0F5244] selection:text-white"
+      className="min-h-screen w-full bg-[#F8FAFC] text-slate-900 flex flex-col font-sans selection:bg-emerald-800 selection:text-white"
     >
       {/* Toast Notification */}
       {toastMessage && (

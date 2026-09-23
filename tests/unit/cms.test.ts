@@ -103,4 +103,74 @@ describe("CMS & Global Branding Architecture Tests (US-23)", () => {
     expect(resolveBilingualField("أهلاً", undefined, "en")).toBe("أهلاً"); // Graceful fallback
     expect(resolveBilingualField(undefined, "Hello", "ar")).toBe("Hello"); // Graceful fallback
   });
+
+  it("verifies autoHarmonizePalette and curated presets generate cohesive design tokens", async () => {
+    const { autoHarmonizePalette, BRANDING_PRESETS } = await import("@/lib/brandingCss");
+
+    expect(BRANDING_PRESETS.length).toBeGreaterThanOrEqual(4);
+    for (const preset of BRANDING_PRESETS) {
+      expect(preset.colors.primaryMain).toMatch(/^#[0-9A-Fa-f]{6}$/);
+      expect(preset.colors.primaryDark).toMatch(/^#[0-9A-Fa-f]{6}$/);
+      expect(preset.colors.primaryLight).toMatch(/^#[0-9A-Fa-f]{6}$/);
+      expect(preset.colors.accentMint).toMatch(/^#[0-9A-Fa-f]{6}$/);
+    }
+
+    // Test auto-harmonization from a random blue hex
+    const harmonized = autoHarmonizePalette("#2563EB");
+    expect(harmonized.primaryMain).toBe("#2563EB");
+    expect(harmonized.primaryDark).toMatch(/^#[0-9A-Fa-f]{6}$/);
+    expect(harmonized.primaryLight).toMatch(/^#[0-9A-Fa-f]{6}$/);
+    expect(harmonized.secondaryLight).toMatch(/^#[0-9A-Fa-f]{6}$/);
+    expect(harmonized.accentMint).toMatch(/^#[0-9A-Fa-f]{6}$/);
+  });
+
+  it("verifies dynamic typography and dark mode CSS generation", async () => {
+    const { generateBrandingCss } = await import("@/lib/brandingCss");
+
+    const customBranding = {
+      ...DEFAULT_BRANDING,
+      fontFamilyAr: "Tajawal",
+      fontFamilyEn: "Inter",
+      customGoogleFontName: "Rubik",
+    };
+
+    const css = generateBrandingCss(customBranding);
+    expect(css).toContain("var(--font-custom-ar)");
+    expect(css).toContain("var(--font-custom-en)");
+    expect(css).toContain("'Rubik'");
+    // Verifies dark mode adaptation rules exist
+    expect(css).toContain(".dark .bg-emerald-50");
+  });
+
+  it("verifies role-based section visibility filtering logic", async () => {
+    const { isSectionAllowedForUser } = await import("@/lib/cmsPermissions");
+
+    // 1. Hidden section is never allowed
+    expect(isSectionAllowedForUser({ is_visible: false, allowed_roles: ["all"] }, null, false)).toBe(false);
+
+    // 2. Public / All allowed for everyone
+    expect(isSectionAllowedForUser({ is_visible: true, allowed_roles: ["all"] }, null, false)).toBe(true);
+    expect(isSectionAllowedForUser({ is_visible: true, allowed_roles: ["all"] }, "student", true)).toBe(true);
+
+    // 3. Guest only allowed when NOT authenticated
+    expect(isSectionAllowedForUser({ is_visible: true, allowed_roles: ["guest"] }, null, false)).toBe(true);
+    expect(isSectionAllowedForUser({ is_visible: true, allowed_roles: ["guest"] }, "student", true)).toBe(false);
+
+    // 4. Authenticated allowed when logged in
+    expect(isSectionAllowedForUser({ is_visible: true, allowed_roles: ["authenticated"] }, null, false)).toBe(false);
+    expect(isSectionAllowedForUser({ is_visible: true, allowed_roles: ["authenticated"] }, "student", true)).toBe(true);
+
+    // 5. Student only allowed for students
+    expect(isSectionAllowedForUser({ is_visible: true, allowed_roles: ["student"] }, "student", true)).toBe(true);
+    expect(isSectionAllowedForUser({ is_visible: true, allowed_roles: ["student"] }, "instructor", true)).toBe(false);
+
+    // 6. Instructor only allowed for instructors
+    expect(isSectionAllowedForUser({ is_visible: true, allowed_roles: ["instructor"] }, "instructor", true)).toBe(true);
+    expect(isSectionAllowedForUser({ is_visible: true, allowed_roles: ["instructor"] }, "coach", true)).toBe(true);
+    expect(isSectionAllowedForUser({ is_visible: true, allowed_roles: ["instructor"] }, "student", true)).toBe(false);
+
+    // 7. Admin only allowed for admins
+    expect(isSectionAllowedForUser({ is_visible: true, allowed_roles: ["admin"] }, "admin", true)).toBe(true);
+    expect(isSectionAllowedForUser({ is_visible: true, allowed_roles: ["admin"] }, "student", true)).toBe(false);
+  });
 });

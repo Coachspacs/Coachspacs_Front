@@ -18,9 +18,13 @@ import {
   Award,
   Plus,
   Trash2,
+  ArrowUpDown,
 } from "lucide-react";
-import { LandingSectionsData, LandingPageDoc } from "@/types/cms";
+import { LandingSectionsData, LandingPageDoc, SectionRolePermission, LandingSectionKey } from "@/types/cms";
 import { DEFAULT_LANDING_SECTIONS } from "@/lib/cmsDefaults";
+import { SectionVisibilityCard } from "@/components/cms/SectionVisibilityCard";
+import { SectionReorderDrawer } from "@/components/cms/SectionReorderDrawer";
+import { AiCopywriteButton } from "@/components/cms/AiCopywriteButton";
 
 type TabKey = "hero" | "top_categories" | "master_craft" | "why_stands_out" | "real_stories" | "faq" | "join_future";
 
@@ -36,6 +40,19 @@ export default function LandingEditorPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
+  const [isReorderOpen, setIsReorderOpen] = useState(false);
+
+  const handleSaveOrder = (newOrder: LandingSectionKey[]) => {
+    setSections((prev) => ({
+      ...prev,
+      section_order: newOrder,
+    }));
+    setStatusMessage(
+      isAr
+        ? "تم تحديث ترتيب الأقسام بنجاح! احفظ المسودة لتطبيق التعديلات."
+        : "Section sequence updated! Save draft to apply changes."
+    );
+  };
 
   useEffect(() => {
     async function loadContent() {
@@ -149,11 +166,20 @@ export default function LandingEditorPage() {
           </h2>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+          <button
+            type="button"
+            onClick={() => setIsReorderOpen(true)}
+            className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-950/60 hover:bg-emerald-900/80 text-emerald-300 text-xs font-bold transition-all shadow-xs cursor-pointer border border-emerald-700/60"
+          >
+            <ArrowUpDown className="w-4 h-4 text-emerald-400" />
+            <span>{isAr ? "إعادة ترتيب الأقسام (Drag & Drop)" : "Reorder Sections"}</span>
+          </button>
+
           <Link
             href={`/api/cms/preview?secret=coachspace_cms_preview_secret&locale=${locale}`}
             target="_blank"
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold transition-all shadow-md cursor-pointer border border-slate-700"
+            className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold transition-all shadow-xs cursor-pointer border border-slate-700"
           >
             <Eye className="w-4 h-4 text-amber-400" />
             <span>{isAr ? "معاينة المسودة" : "Preview Draft"}</span>
@@ -163,7 +189,7 @@ export default function LandingEditorPage() {
             onClick={handleSaveDraft}
             disabled={isSaving}
             type="button"
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold transition-all cursor-pointer shadow-md disabled:opacity-50"
+            className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold transition-all cursor-pointer shadow-xs disabled:opacity-50"
           >
             {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
             <span>{isAr ? "حفظ كمسودة" : "Save Draft"}</span>
@@ -173,7 +199,7 @@ export default function LandingEditorPage() {
             onClick={handlePublish}
             disabled={isPublishing}
             type="button"
-            className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black transition-all cursor-pointer shadow-lg shadow-emerald-950/40 disabled:opacity-50"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black transition-all cursor-pointer shadow-lg shadow-emerald-950/40 disabled:opacity-50"
           >
             {isPublishing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4 rtl:rotate-180" />}
             <span>{isAr ? "نشر التعديلات" : "Publish Live"}</span>
@@ -193,6 +219,7 @@ export default function LandingEditorPage() {
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.key;
+          const isSectionVisible = sections[tab.key]?.is_visible !== false;
           return (
             <button
               key={tab.key}
@@ -204,6 +231,12 @@ export default function LandingEditorPage() {
                   : "text-slate-400 hover:text-white hover:bg-slate-900"
               }`}
             >
+              <div
+                className={`w-2 h-2 rounded-full shrink-0 ${
+                  isSectionVisible ? "bg-emerald-400" : "bg-rose-500 opacity-60"
+                }`}
+                title={isSectionVisible ? "ظاهر" : "مخفي"}
+              />
               <Icon className="w-3.5 h-3.5" />
               <span>{tab.label}</span>
             </button>
@@ -216,9 +249,43 @@ export default function LandingEditorPage() {
         {/* ===================== HERO SECTION ===================== */}
         {activeTab === "hero" && (
           <div className="space-y-6">
-            <h3 className="text-base font-black text-white border-b border-slate-800 pb-3">
-              {isAr ? "بيانات قسم البداية (Hero Section)" : "Hero Section Details"}
-            </h3>
+            <SectionVisibilityCard
+              title={isAr ? "قسم البداية (Hero)" : "Hero Section"}
+              isVisible={sections.hero.is_visible !== false}
+              allowedRoles={sections.hero.allowed_roles}
+              onToggleVisible={(val) =>
+                setSections({ ...sections, hero: { ...sections.hero, is_visible: val } })
+              }
+              onRolesChange={(roles) =>
+                setSections({ ...sections, hero: { ...sections.hero, allowed_roles: roles } })
+              }
+              isAr={isAr}
+            />
+
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <h3 className="text-base font-black text-white">
+                {isAr ? "بيانات قسم البداية (Hero Section)" : "Hero Section Details"}
+              </h3>
+              <AiCopywriteButton
+                sectionKey="hero"
+                fieldType="title"
+                currentTextAr={sections.hero.title_ar}
+                currentTextEn={sections.hero.title_en}
+                isAr={isAr}
+                onApply={(s) => {
+                  setSections((prev) => ({
+                    ...prev,
+                    hero: {
+                      ...prev.hero,
+                      ...(s.titleAr ? { title_ar: s.titleAr } : {}),
+                      ...(s.titleEn ? { title_en: s.titleEn } : {}),
+                      ...(s.descAr ? { description_ar: s.descAr } : {}),
+                      ...(s.descEn ? { description_en: s.descEn } : {}),
+                    },
+                  }));
+                }}
+              />
+            </div>
 
             {/* Badge */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -386,26 +453,48 @@ export default function LandingEditorPage() {
         {/* ===================== TOP CATEGORIES ===================== */}
         {activeTab === "top_categories" && (
           <div className="space-y-6">
+            <SectionVisibilityCard
+              title={isAr ? "أبرز المجالات والتصنيفات" : "Top Categories"}
+              isVisible={sections.top_categories.is_visible !== false}
+              allowedRoles={sections.top_categories.allowed_roles}
+              onToggleVisible={(val) =>
+                setSections({
+                  ...sections,
+                  top_categories: { ...sections.top_categories, is_visible: val },
+                })
+              }
+              onRolesChange={(roles) =>
+                setSections({
+                  ...sections,
+                  top_categories: { ...sections.top_categories, allowed_roles: roles },
+                })
+              }
+              isAr={isAr}
+            />
+
             <div className="flex items-center justify-between border-b border-slate-800 pb-3">
               <h3 className="text-base font-black text-white">
                 {isAr ? "قسم التصنيفات الرئيسية" : "Top Categories Section"}
               </h3>
-              <label className="inline-flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={sections.top_categories.is_visible}
-                  onChange={(e) =>
-                    setSections({
-                      ...sections,
-                      top_categories: { ...sections.top_categories, is_visible: e.target.checked },
-                    })
-                  }
-                  className="w-4 h-4 text-emerald-500 rounded"
-                />
-                <span className="text-xs font-bold text-slate-300">
-                  {isAr ? "إظهار هذا القسم بالموقع" : "Show section on site"}
-                </span>
-              </label>
+              <AiCopywriteButton
+                sectionKey="top_categories"
+                fieldType="title"
+                currentTextAr={sections.top_categories.title_ar}
+                currentTextEn={sections.top_categories.title_en}
+                isAr={isAr}
+                onApply={(s) => {
+                  setSections((prev) => ({
+                    ...prev,
+                    top_categories: {
+                      ...prev.top_categories,
+                      ...(s.titleAr ? { title_ar: s.titleAr } : {}),
+                      ...(s.titleEn ? { title_en: s.titleEn } : {}),
+                      ...(s.descAr ? { subtitle_ar: s.descAr } : {}),
+                      ...(s.descEn ? { subtitle_en: s.descEn } : {}),
+                    },
+                  }));
+                }}
+              />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -475,9 +564,49 @@ export default function LandingEditorPage() {
         {/* ===================== MASTER YOUR CRAFT ===================== */}
         {activeTab === "master_craft" && (
           <div className="space-y-6">
-            <h3 className="text-base font-black text-white border-b border-slate-800 pb-3">
-              {isAr ? "قسم إتقان المهارات (Master Your Craft)" : "Master Your Craft Section"}
-            </h3>
+            <SectionVisibilityCard
+              title={isAr ? "إتقان المهارات" : "Master Your Craft"}
+              isVisible={sections.master_craft.is_visible !== false}
+              allowedRoles={sections.master_craft.allowed_roles}
+              onToggleVisible={(val) =>
+                setSections({
+                  ...sections,
+                  master_craft: { ...sections.master_craft, is_visible: val },
+                })
+              }
+              onRolesChange={(roles) =>
+                setSections({
+                  ...sections,
+                  master_craft: { ...sections.master_craft, allowed_roles: roles },
+                })
+              }
+              isAr={isAr}
+            />
+
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <h3 className="text-base font-black text-white">
+                {isAr ? "قسم إتقان المهارات (Master Your Craft)" : "Master Your Craft Section"}
+              </h3>
+              <AiCopywriteButton
+                sectionKey="master_craft"
+                fieldType="title"
+                currentTextAr={sections.master_craft.heading_ar}
+                currentTextEn={sections.master_craft.heading_en}
+                isAr={isAr}
+                onApply={(s) => {
+                  setSections((prev) => ({
+                    ...prev,
+                    master_craft: {
+                      ...prev.master_craft,
+                      ...(s.titleAr ? { heading_ar: s.titleAr } : {}),
+                      ...(s.titleEn ? { heading_en: s.titleEn } : {}),
+                      ...(s.descAr ? { description_ar: s.descAr } : {}),
+                      ...(s.descEn ? { description_en: s.descEn } : {}),
+                    },
+                  }));
+                }}
+              />
+            </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-1.5">
@@ -546,9 +675,49 @@ export default function LandingEditorPage() {
         {/* ===================== WHY COACH SPACE ===================== */}
         {activeTab === "why_stands_out" && (
           <div className="space-y-6">
-            <h3 className="text-base font-black text-white border-b border-slate-800 pb-3">
-              {isAr ? "قسم لماذا كوتش سبيس (Why Coach Space)" : "Why Coach Space Stands Out"}
-            </h3>
+            <SectionVisibilityCard
+              title={isAr ? "لماذا كوتش سبيس" : "Why Coach Space"}
+              isVisible={sections.why_stands_out.is_visible !== false}
+              allowedRoles={sections.why_stands_out.allowed_roles}
+              onToggleVisible={(val) =>
+                setSections({
+                  ...sections,
+                  why_stands_out: { ...sections.why_stands_out, is_visible: val },
+                })
+              }
+              onRolesChange={(roles) =>
+                setSections({
+                  ...sections,
+                  why_stands_out: { ...sections.why_stands_out, allowed_roles: roles },
+                })
+              }
+              isAr={isAr}
+            />
+
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <h3 className="text-base font-black text-white">
+                {isAr ? "قسم لماذا كوتش سبيس (Why Coach Space)" : "Why Coach Space Stands Out"}
+              </h3>
+              <AiCopywriteButton
+                sectionKey="why_stands_out"
+                fieldType="title"
+                currentTextAr={sections.why_stands_out.title_ar}
+                currentTextEn={sections.why_stands_out.title_en}
+                isAr={isAr}
+                onApply={(s) => {
+                  setSections((prev) => ({
+                    ...prev,
+                    why_stands_out: {
+                      ...prev.why_stands_out,
+                      ...(s.titleAr ? { title_ar: s.titleAr } : {}),
+                      ...(s.titleEn ? { title_en: s.titleEn } : {}),
+                      ...(s.descAr ? { subtitle_ar: s.descAr } : {}),
+                      ...(s.descEn ? { subtitle_en: s.descEn } : {}),
+                    },
+                  }));
+                }}
+              />
+            </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-1.5">
@@ -617,9 +786,49 @@ export default function LandingEditorPage() {
         {/* ===================== REAL STORIES / TESTIMONIALS ===================== */}
         {activeTab === "real_stories" && (
           <div className="space-y-6">
-            <h3 className="text-base font-black text-white border-b border-slate-800 pb-3">
-              {isAr ? "قسم قصص النجاح والآراء (Testimonials)" : "Testimonials & Success Stories"}
-            </h3>
+            <SectionVisibilityCard
+              title={isAr ? "قصص النجاح" : "Real Stories"}
+              isVisible={sections.real_stories.is_visible !== false}
+              allowedRoles={sections.real_stories.allowed_roles}
+              onToggleVisible={(val) =>
+                setSections({
+                  ...sections,
+                  real_stories: { ...sections.real_stories, is_visible: val },
+                })
+              }
+              onRolesChange={(roles) =>
+                setSections({
+                  ...sections,
+                  real_stories: { ...sections.real_stories, allowed_roles: roles },
+                })
+              }
+              isAr={isAr}
+            />
+
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <h3 className="text-base font-black text-white">
+                {isAr ? "قسم قصص النجاح والآراء (Testimonials)" : "Testimonials & Success Stories"}
+              </h3>
+              <AiCopywriteButton
+                sectionKey="real_stories"
+                fieldType="title"
+                currentTextAr={sections.real_stories.title_ar}
+                currentTextEn={sections.real_stories.title_en}
+                isAr={isAr}
+                onApply={(s) => {
+                  setSections((prev) => ({
+                    ...prev,
+                    real_stories: {
+                      ...prev.real_stories,
+                      ...(s.titleAr ? { title_ar: s.titleAr } : {}),
+                      ...(s.titleEn ? { title_en: s.titleEn } : {}),
+                      ...(s.descAr ? { subtitle_ar: s.descAr } : {}),
+                      ...(s.descEn ? { subtitle_en: s.descEn } : {}),
+                    },
+                  }));
+                }}
+              />
+            </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-1.5">
@@ -767,9 +976,49 @@ export default function LandingEditorPage() {
         {/* ===================== FAQ SECTION ===================== */}
         {activeTab === "faq" && (
           <div className="space-y-6">
-            <h3 className="text-base font-black text-white border-b border-slate-800 pb-3">
-              {isAr ? "قسم الأسئلة الشائعة (FAQ)" : "FAQ Section"}
-            </h3>
+            <SectionVisibilityCard
+              title={isAr ? "الأسئلة الشائعة" : "FAQ Section"}
+              isVisible={sections.faq.is_visible !== false}
+              allowedRoles={sections.faq.allowed_roles}
+              onToggleVisible={(val) =>
+                setSections({
+                  ...sections,
+                  faq: { ...sections.faq, is_visible: val },
+                })
+              }
+              onRolesChange={(roles) =>
+                setSections({
+                  ...sections,
+                  faq: { ...sections.faq, allowed_roles: roles },
+                })
+              }
+              isAr={isAr}
+            />
+
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <h3 className="text-base font-black text-white">
+                {isAr ? "قسم الأسئلة الشائعة (FAQ)" : "FAQ Section"}
+              </h3>
+              <AiCopywriteButton
+                sectionKey="faq"
+                fieldType="title"
+                currentTextAr={sections.faq.title_ar}
+                currentTextEn={sections.faq.title_en}
+                isAr={isAr}
+                onApply={(s) => {
+                  setSections((prev) => ({
+                    ...prev,
+                    faq: {
+                      ...prev.faq,
+                      ...(s.titleAr ? { title_ar: s.titleAr } : {}),
+                      ...(s.titleEn ? { title_en: s.titleEn } : {}),
+                      ...(s.descAr ? { subtitle_ar: s.descAr } : {}),
+                      ...(s.descEn ? { subtitle_en: s.descEn } : {}),
+                    },
+                  }));
+                }}
+              />
+            </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-1.5">
@@ -914,9 +1163,49 @@ export default function LandingEditorPage() {
         {/* ===================== JOIN FUTURE CTA ===================== */}
         {activeTab === "join_future" && (
           <div className="space-y-6">
-            <h3 className="text-base font-black text-white border-b border-slate-800 pb-3">
-              {isAr ? "قسم دعوة التسجيل (Join CTA)" : "Join CTA Section"}
-            </h3>
+            <SectionVisibilityCard
+              title={isAr ? "دعوة التسجيل" : "Join Future CTA"}
+              isVisible={sections.join_future.is_visible !== false}
+              allowedRoles={sections.join_future.allowed_roles}
+              onToggleVisible={(val) =>
+                setSections({
+                  ...sections,
+                  join_future: { ...sections.join_future, is_visible: val },
+                })
+              }
+              onRolesChange={(roles) =>
+                setSections({
+                  ...sections,
+                  join_future: { ...sections.join_future, allowed_roles: roles },
+                })
+              }
+              isAr={isAr}
+            />
+
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <h3 className="text-base font-black text-white">
+                {isAr ? "قسم دعوة التسجيل (Join CTA)" : "Join CTA Section"}
+              </h3>
+              <AiCopywriteButton
+                sectionKey="join_future"
+                fieldType="title"
+                currentTextAr={sections.join_future.title_ar}
+                currentTextEn={sections.join_future.title_en}
+                isAr={isAr}
+                onApply={(s) => {
+                  setSections((prev) => ({
+                    ...prev,
+                    join_future: {
+                      ...prev.join_future,
+                      ...(s.titleAr ? { title_ar: s.titleAr } : {}),
+                      ...(s.titleEn ? { title_en: s.titleEn } : {}),
+                      ...(s.descAr ? { subtitle_ar: s.descAr } : {}),
+                      ...(s.descEn ? { subtitle_en: s.descEn } : {}),
+                    },
+                  }));
+                }}
+              />
+            </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-1.5">
@@ -1013,6 +1302,16 @@ export default function LandingEditorPage() {
           </div>
         )}
       </div>
+
+      {/* Drag & Drop Section Reorder Drawer */}
+      <SectionReorderDrawer
+        isOpen={isReorderOpen}
+        onClose={() => setIsReorderOpen(false)}
+        sectionsData={sections}
+        isAr={isAr}
+        onSaveOrder={handleSaveOrder}
+        onSelectTab={(tab) => setActiveTab(tab)}
+      />
     </div>
   );
 }
