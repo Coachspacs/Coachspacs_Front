@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
+import { Volume2, VolumeX, Sparkles } from "lucide-react";
 import { AnimatedRobotCharacter } from "./AnimatedRobotCharacter";
 import { soundFx } from "@/lib/soundEffects";
 
@@ -22,21 +23,66 @@ const WAYPOINTS = [
   { step: 4, x: 88, y: 10 }, // Over Milestone 4 (FINISH)
 ];
 
+const MOTIVATIONAL_PHRASES: Record<number, { ar: string; en: string }> = {
+  1: { ar: "لنبدأ رحلتك! 🚀", en: "Let's start your journey! 🚀" },
+  2: { ar: "أداء رائع، واصل! 🎯", en: "Great job, keep going! 🎯" },
+  3: { ar: "نقترب من الهدف! ⚡", en: "Almost there! ⚡" },
+  4: { ar: "وصلنا لخط النهاية! 🏆", en: "Reached the finish! 🏆" },
+};
+
 export function RobotJourneyBanner({
   currentStepIndex,
+  isAr,
 }: RobotJourneyBannerProps) {
   const activeWaypoint =
     WAYPOINTS.find((w) => w.step === currentStepIndex) || WAYPOINTS[0];
   const isFirstMount = useRef(true);
+  const [soundOn, setSoundOn] = useState<boolean>(true);
+  const [showSpeechBubble, setShowSpeechBubble] = useState<boolean>(true);
 
-  // Trigger playful robotic jet glide sound effect whenever robot moves between milestones
+  // Initialize sound state from localStorage on client
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem("coachspace_mypath_sound_enabled");
+      if (saved !== null) {
+        const val = saved === "true";
+        setSoundOn(val);
+        soundFx.setEnabled(val);
+      }
+    } catch {}
+  }, []);
+
+  const toggleSound = () => {
+    const nextVal = !soundOn;
+    setSoundOn(nextVal);
+    soundFx.setEnabled(nextVal);
+    try {
+      localStorage.setItem("coachspace_mypath_sound_enabled", String(nextVal));
+    } catch {}
+    if (nextVal) {
+      soundFx.playOptionSelect();
+    }
+  };
+
+  // Trigger playful robotic jet glide sound effect and speech bubble animation on milestone changes
   useEffect(() => {
     if (isFirstMount.current) {
       isFirstMount.current = false;
       return;
     }
     soundFx.playRobotTravel(currentStepIndex);
+
+    // Refresh speech bubble on step change
+    setShowSpeechBubble(true);
+    const bubbleTimer = setTimeout(() => {
+      // Keep it visible or allow user to enjoy it
+    }, 4500);
+
+    return () => clearTimeout(bubbleTimer);
   }, [currentStepIndex]);
+
+  const currentPhrase =
+    MOTIVATIONAL_PHRASES[currentStepIndex] || MOTIVATIONAL_PHRASES[1];
 
   return (
     <div className="w-full h-44 sm:h-52 relative rounded-3xl overflow-hidden border border-emerald-200/70 shadow-xs select-none mb-4 bg-emerald-50/20">
@@ -48,6 +94,37 @@ export function RobotJourneyBanner({
         priority
         className="object-cover object-center"
       />
+
+      {/* Floating Sound Toggle Pill (Glassmorphic) */}
+      <div
+        className={`absolute top-3 ${
+          isAr ? "left-3" : "right-3"
+        } z-30 flex items-center gap-1.5`}
+      >
+        <button
+          type="button"
+          onClick={toggleSound}
+          aria-label={soundOn ? (isAr ? "كتم الصوت" : "Mute Sound") : (isAr ? "تفعيل الصوت" : "Unmute Sound")}
+          title={soundOn ? (isAr ? "كتم الصوت" : "Mute Sound") : (isAr ? "تفعيل الصوت" : "Unmute Sound")}
+          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full bg-white/85 hover:bg-white text-slate-700 backdrop-blur-md border border-slate-200/80 shadow-xs hover:shadow-sm transition-all cursor-pointer group"
+        >
+          {soundOn ? (
+            <>
+              <Volume2 className="w-3.5 h-3.5 text-emerald-600 group-hover:scale-110 transition-transform" />
+              <span className="text-[10px] font-extrabold text-slate-700 hidden sm:inline">
+                {isAr ? "الصوت مفعل" : "Sound On"}
+              </span>
+            </>
+          ) : (
+            <>
+              <VolumeX className="w-3.5 h-3.5 text-slate-400 group-hover:scale-110 transition-transform" />
+              <span className="text-[10px] font-extrabold text-slate-500 hidden sm:inline">
+                {isAr ? "الصوت مكتوم" : "Muted"}
+              </span>
+            </>
+          )}
+        </button>
+      </div>
 
       {/* ========================================================================= */}
       {/* 4TH MILESTONE PILLAR & FLAG (Exact Match to Posts 1, 2, 3) */}
@@ -154,6 +231,19 @@ export function RobotJourneyBanner({
         </svg>
       </div>
 
+      {/* Active Milestone Glowing Radar Wave */}
+      <motion.div
+        key={`radar-${currentStepIndex}`}
+        initial={{ scale: 0.8, opacity: 0.8 }}
+        animate={{ scale: [0.8, 1.8, 2.2], opacity: [0.8, 0.4, 0] }}
+        transition={{ repeat: Infinity, duration: 2.2, ease: "easeOut" }}
+        style={{
+          left: `${activeWaypoint.x}%`,
+          top: `${activeWaypoint.y + 14}%`,
+        }}
+        className="absolute w-12 h-12 rounded-full border-2 border-emerald-400 bg-emerald-400/20 -translate-x-1/2 -translate-y-1/2 pointer-events-none z-10"
+      />
+
       {/* Soft Ambient Light Gradient on edge */}
       <div className="absolute inset-0 bg-gradient-to-t from-emerald-950/10 via-transparent to-transparent pointer-events-none" />
 
@@ -175,8 +265,30 @@ export function RobotJourneyBanner({
         }}
         className="absolute z-30 flex flex-col items-center pointer-events-none"
       >
+        {/* Floating Speech Bubble with Friendly Motivational Message */}
+        <AnimatePresence mode="wait">
+          {showSpeechBubble && (
+            <motion.div
+              key={`speech-${currentStepIndex}`}
+              initial={{ opacity: 0, y: 6, scale: 0.85 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -4, scale: 0.85 }}
+              transition={{ duration: 0.3, ease: "easeOut" }}
+              className="mb-1.5 px-2.5 py-1 rounded-xl bg-white/95 backdrop-blur-md border border-emerald-300/80 shadow-md text-[11px] font-black text-[#0F5244] whitespace-nowrap relative flex items-center gap-1"
+            >
+              <span>{isAr ? currentPhrase.ar : currentPhrase.en}</span>
+              {/* Little bottom triangle pointer */}
+              <div
+                className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-white rotate-45 border-b border-r border-emerald-300/80"
+                aria-hidden="true"
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         <AnimatedRobotCharacter size="sm" />
       </motion.div>
     </div>
   );
 }
+

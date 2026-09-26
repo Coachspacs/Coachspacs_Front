@@ -525,15 +525,20 @@ export function MyPathWizard() {
 
             {/* Options List */}
             <div className="space-y-3 pt-2 max-w-2xl mx-auto" role="radiogroup">
-              {goalOptions.map((opt) => {
+              {goalOptions.map((opt, idx) => {
                 const Icon = opt.icon;
                 const isSelected = preferences.goal === opt.id;
                 return (
-                  <button
+                  <motion.button
                     key={opt.id}
                     type="button"
                     role="radio"
                     aria-checked={isSelected}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.25, delay: idx * 0.04 }}
+                    whileHover={{ scale: 1.01 }}
+                    whileTap={{ scale: 0.99 }}
                     onClick={() => {
                       soundFx.playOptionSelect();
                       setPreferences({ ...preferences, goal: opt.id });
@@ -575,7 +580,7 @@ export function MyPathWizard() {
                         <div className="w-5 h-5 sm:w-5.5 sm:h-5.5 rounded-full border-2 border-slate-200 bg-white" />
                       )}
                     </div>
-                  </button>
+                  </motion.button>
                 );
               })}
             </div>
@@ -635,15 +640,20 @@ export function MyPathWizard() {
 
             {/* Options List */}
             <div className="space-y-3 pt-2 max-w-2xl mx-auto" role="radiogroup">
-              {levelOptions.map((opt) => {
+              {levelOptions.map((opt, idx) => {
                 const Icon = opt.icon;
                 const isSelected = preferences.priorKnowledge === opt.id;
                 return (
-                  <button
+                  <motion.button
                     key={opt.id}
                     type="button"
                     role="radio"
                     aria-checked={isSelected}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.25, delay: idx * 0.04 }}
+                    whileHover={{ scale: 1.01 }}
+                    whileTap={{ scale: 0.99 }}
                     onClick={() => {
                       soundFx.playOptionSelect();
                       setPreferences({
@@ -697,7 +707,7 @@ export function MyPathWizard() {
                         <div className="w-5 h-5 sm:w-5.5 sm:h-5.5 rounded-full border-2 border-slate-200 bg-white" />
                       )}
                     </div>
-                  </button>
+                  </motion.button>
                 );
               })}
             </div>
@@ -757,15 +767,20 @@ export function MyPathWizard() {
 
             {/* Options List */}
             <div className="space-y-3 pt-2 max-w-2xl mx-auto" role="radiogroup">
-              {hourOptions.map((opt) => {
+              {hourOptions.map((opt, idx) => {
                 const Icon = opt.icon;
                 const isSelected = preferences.hoursPerWeek === opt.id;
                 return (
-                  <button
+                  <motion.button
                     key={opt.id}
                     type="button"
                     role="radio"
                     aria-checked={isSelected}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.25, delay: idx * 0.04 }}
+                    whileHover={{ scale: 1.01 }}
+                    whileTap={{ scale: 0.99 }}
                     onClick={() => {
                       soundFx.playOptionSelect();
                       setPreferences({ ...preferences, hoursPerWeek: opt.id });
@@ -813,7 +828,7 @@ export function MyPathWizard() {
                         <div className="w-5 h-5 sm:w-5.5 sm:h-5.5 rounded-full border-2 border-slate-200 bg-white" />
                       )}
                     </div>
-                  </button>
+                  </motion.button>
                 );
               })}
             </div>
@@ -892,7 +907,7 @@ export function MyPathWizard() {
 
             {/* Skills Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-1 max-w-2xl mx-auto">
-              {filteredSkills.map((trackItem) => {
+              {filteredSkills.map((trackItem, idx) => {
                 const Icon = trackItem.icon;
                 const isSelected =
                   preferences.track === trackItem.id && !preferences.customTrackName;
@@ -900,9 +915,14 @@ export function MyPathWizard() {
                 const tags = tagsStr ? tagsStr.split(",").map((s) => s.trim()) : [];
 
                 return (
-                  <button
+                  <motion.button
                     key={trackItem.id}
                     type="button"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.25, delay: idx * 0.04 }}
+                    whileHover={{ scale: 1.015 }}
+                    whileTap={{ scale: 0.985 }}
                     onClick={() => {
                       soundFx.playOptionSelect();
                       setPreferences({
@@ -970,7 +990,7 @@ export function MyPathWizard() {
                         ))}
                       </div>
                     )}
-                  </button>
+                  </motion.button>
                 );
               })}
             </div>
