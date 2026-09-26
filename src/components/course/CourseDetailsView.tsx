@@ -24,9 +24,18 @@ import {
   User as UserIcon,
   ExternalLink,
   ShieldCheck,
-  Award as AwardIcon
+  Award as AwardIcon,
+  Download,
+  Paperclip,
+  Loader2,
 } from "lucide-react";
-import { Course } from "@/types/catalog";
+import { Course, AttachmentItem } from "@/types/course";
+import { courseAttachmentService } from "@/services/courseAttachmentService";
+import {
+  AttachmentIcon,
+  getFileCategory,
+  formatFileSize,
+} from "@/components/shared/AttachmentIcon";
 import { RootState } from "@/lib/store";
 import { addToCart, syncCartFromStorage } from "@/features/cart/cartSlice";
 import { Toast } from "@/components/ui/Toast";
@@ -109,7 +118,34 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
   }, [course?.id]);
 
   // Tabs state
-  const [activeTab, setActiveTab] = useState<"curriculum" | "description" | "instructor">("curriculum");
+  const [activeTab, setActiveTab] = useState<"curriculum" | "description" | "instructor" | "materials">("curriculum");
+  const [downloadingId, setDownloadingId] = useState<string | number | null>(null);
+
+  // Extract course-level materials (US-21 Sprint 11)
+  const courseMaterials: AttachmentItem[] =
+    course.course_materials ||
+    (course as any).courseMaterials ||
+    (course as any).attachments ||
+    [];
+
+  const handleDownloadAttachment = async (attachmentId: string | number, fileName?: string) => {
+    if (!isEnrolled) {
+      handleOpenLocked(fileName || "Course Material");
+      return;
+    }
+    setDownloadingId(attachmentId);
+    try {
+      await courseAttachmentService.downloadAttachment(attachmentId, fileName);
+    } catch (err: any) {
+      setToastMessage(
+        isAr
+          ? "فشل تحميل الملف، يرجى التأكد من تسجيلك في الدورة"
+          : "Download failed. Please ensure you are enrolled."
+      );
+    } finally {
+      setDownloadingId(null);
+    }
+  };
 
   // Accordion state
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({
@@ -479,7 +515,25 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
                   )}
                 </button>
 
-
+                <button
+                  type="button"
+                  onClick={() => setActiveTab("materials")}
+                  className={`pb-3 text-sm sm:text-base font-extrabold transition-all relative flex items-center gap-1.5 ${
+                    activeTab === "materials"
+                      ? "text-[#0F5244]"
+                      : "text-slate-500 hover:text-slate-800"
+                  }`}
+                >
+                  <span>{isAr ? "مواد وملفات الدورة" : "Course Materials"}</span>
+                  {courseMaterials.length > 0 && (
+                    <span className="px-1.5 py-0.5 rounded-full bg-emerald-100 text-[#0F5244] text-[10px] font-black">
+                      {courseMaterials.length}
+                    </span>
+                  )}
+                  {activeTab === "materials" && (
+                    <span className="absolute bottom-0 left-0 right-0 h-1 bg-[#0F5244] rounded-t-full" />
+                  )}
+                </button>
               </div>
             </div>
 
@@ -693,6 +747,110 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
                       ? (instructorObj?.bioAr || t("defaultInstructorBio"))
                       : (instructorObj?.bio || t("defaultInstructorBio"))}
                   </p>
+                </div>
+              </div>
+            )}
+
+            {/* Tab 4: COURSE MATERIALS & ATTACHMENTS (US-21 Sprint 11) */}
+            {activeTab === "materials" && (
+              <div className="space-y-4 animate-in fade-in duration-200">
+                <div className="bg-white rounded-3xl p-6 sm:p-7 border border-slate-200/80 shadow-2xs space-y-5">
+                  <div className="flex items-center justify-between gap-3 pb-3 border-b border-slate-100">
+                    <div className="space-y-1">
+                      <h3 className="text-base sm:text-lg font-black text-slate-900 flex items-center gap-2">
+                        <Paperclip size={18} className="text-[#0F5244]" />
+                        <span>{isAr ? "مواد وملفات الدورة التدريبية" : "Course Materials & Resources"}</span>
+                      </h3>
+                      <p className="text-xs text-slate-500 font-medium">
+                        {isAr
+                          ? "ملفات داعمة، عروض تقديمية، ومشاريع قابلة للتحميل أعدها المدرب خصيصاً لهذه الدورة."
+                          : "Downloadable resources, presentation slides, and exercises prepared by the instructor."}
+                      </p>
+                    </div>
+                    <span className="px-3 py-1 rounded-full bg-emerald-50 text-[#0F5244] border border-emerald-200/80 text-xs font-black">
+                      {courseMaterials.length} {isAr ? "ملفات" : "Files"}
+                    </span>
+                  </div>
+
+                  {courseMaterials.length === 0 ? (
+                    <div className="py-10 text-center rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50/50 space-y-2">
+                      <Paperclip className="w-10 h-10 text-slate-300 mx-auto" />
+                      <p className="text-sm font-bold text-slate-700">
+                        {isAr ? "لا توجد ملفات مرفقة بهذه الدورة حالياً" : "No course materials attached yet"}
+                      </p>
+                      <p className="text-xs text-slate-400">
+                        {isAr
+                          ? "ستظهر الملفات هنا فور إضافتها من قبل المدرب"
+                          : "Any downloadable materials uploaded by the instructor will appear here."}
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="space-y-2.5">
+                      {courseMaterials.map((item) => {
+                        const { badgeBg } = getFileCategory(item.file_name);
+                        const sizeStr = formatFileSize(item.file_size || item.file_bytes);
+                        const isDownloading = downloadingId === item.id;
+
+                        return (
+                          <div
+                            key={item.id}
+                            className="p-3.5 sm:p-4 rounded-2xl border border-slate-200/80 bg-slate-50/60 hover:bg-white hover:border-emerald-300 hover:shadow-xs transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 group"
+                          >
+                            <div className="flex items-center gap-3 min-w-0">
+                              <div className="w-10 h-10 rounded-xl bg-white border border-slate-200 shadow-2xs flex items-center justify-center shrink-0">
+                                <AttachmentIcon fileName={item.file_name} size={20} />
+                              </div>
+                              <div className="min-w-0 space-y-0.5">
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  <h4 className="text-xs sm:text-sm font-extrabold text-slate-900 truncate">
+                                    {item.file_name}
+                                  </h4>
+                                  {sizeStr && (
+                                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${badgeBg}`}>
+                                      {sizeStr}
+                                    </span>
+                                  )}
+                                </div>
+                                <p className="text-[11px] text-slate-400 font-medium">
+                                  {isEnrolled
+                                    ? isAr ? "مرفق رسمي مصرح للتحميل" : "Authorized course resource"
+                                    : isAr ? "محتوى مخصص للطلاب المسجلين بالدورة" : "Exclusive to enrolled students"}
+                                </p>
+                              </div>
+                            </div>
+
+                            <div className="shrink-0 self-end sm:self-center">
+                              {isEnrolled ? (
+                                <button
+                                  type="button"
+                                  onClick={() => handleDownloadAttachment(item.id, item.file_name)}
+                                  disabled={isDownloading}
+                                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#0F5244] hover:bg-[#07382E] text-white text-xs font-bold shadow-2xs hover:shadow-xs transition-all cursor-pointer disabled:opacity-60 active:scale-95"
+                                >
+                                  {isDownloading ? (
+                                    <Loader2 size={14} className="animate-spin" />
+                                  ) : (
+                                    <Download size={14} />
+                                  )}
+                                  <span>{isAr ? "تحميل الملف" : "Download"}</span>
+                                </button>
+                              ) : (
+                                <button
+                                  type="button"
+                                  onClick={() => handleOpenLocked(item.file_name)}
+                                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-bold transition-all cursor-pointer"
+                                  title={isAr ? "سجل في الدورة لتحميل هذا المرفق" : "Enroll to download"}
+                                >
+                                  <Lock size={13} className="text-slate-400" />
+                                  <span>{isAr ? "مغلق للمشتركين" : "Locked"}</span>
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
               </div>
             )}

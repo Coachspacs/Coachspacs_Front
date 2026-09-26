@@ -418,6 +418,80 @@ All requests require `Authorization: Bearer <access_token>` of an enrolled stude
 
 ---
 
+## 📎 US-21: Course and Lesson Attachments (Sprint 11)
+
+### 1. `POST /api/instructor/courses/:id/attachment-upload-signature`
+- **Headers**: `Authorization: Bearer <access_token>`
+- **Description**: Generates a course-scoped Cloudinary signed upload signature for uploading raw attachment files (PDF, DOCX, XLSX, PPTX, ZIP, etc. under 50 MB).
+- **Response (200 OK)**:
+```json
+{
+  "cloud_name": "mrytwejm",
+  "api_key": "232972192826963",
+  "timestamp": 1727361234,
+  "folder": "courses/attachments/5",
+  "type": "authenticated",
+  "signature": "3f4a9b2c8..."
+}
+```
+
+### 2. Direct Cloudinary Raw Upload
+- **URL**: `POST https://api.cloudinary.com/v1_1/:cloud_name/raw/upload`
+- **Body**: `FormData` containing `file`, `api_key`, `timestamp`, `signature`, `folder`, `type`.
+- **Response (200 OK)**:
+```json
+{
+  "public_id": "courses/attachments/5/raw_xyz",
+  "format": "zip",
+  "bytes": 1048576,
+  "secure_url": "https://res.cloudinary.com/mrytwejm/raw/upload/..."
+}
+```
+
+### 3. `POST /api/instructor/courses/:id/attachments`
+- **Headers**: `Authorization: Bearer <access_token>`, `Content-Type: application/json`
+- **Body**:
+```json
+{
+  "file_name": "Resource Pack.zip",
+  "file_public_id": "courses/attachments/5/raw_xyz"
+}
+```
+- **Response (201 Created)**: Returns created `AttachmentItem`.
+
+### 4. `POST /api/instructor/lessons/:id/attachments`
+- **Headers**: `Authorization: Bearer <access_token>`, `Content-Type: application/json`
+- **Body**:
+```json
+{
+  "file_name": "Slides.pdf",
+  "file_public_id": "courses/attachments/5/raw_abc"
+}
+```
+- **Response (201 Created)**: Returns created `AttachmentItem`.
+
+### 5. `GET /api/instructor/courses/:id/attachments` & `GET /api/instructor/lessons/:id/attachments`
+- **Headers**: `Authorization: Bearer <access_token>`
+- **Response (200 OK)**: Array of `AttachmentItem`.
+
+### 6. `PATCH /api/instructor/attachments/:id`
+- **Headers**: `Authorization: Bearer <access_token>`, `Content-Type: application/json`
+- **Body**: `{ "file_name"?: string, "file_public_id"?: string }` (Can rename, or replace the file using a new `file_public_id`).
+- **Response (200 OK)**: Updated `AttachmentItem`.
+
+### 7. `DELETE /api/instructor/attachments/:id`
+- **Headers**: `Authorization: Bearer <access_token>`
+- **Response (200 OK / 204 No Content)`
+
+### 8. `GET /api/catalog/courses/:id`
+- **Description**: Returns `course_materials` array and lesson `attachments`. Enrolled students see full attachments; visitors only see preview lesson attachments.
+
+### 9. `GET /api/catalog/attachments/:id/download`
+- **Headers**: `Authorization: Bearer <access_token>`
+- **Response (302 Redirect)**: 302s to signed Cloudinary download URL if user is enrolled or it's a preview lesson; 403 Forbidden otherwise.
+
+---
+
 ## 💻 Frontend Connected Components Map
 
 | Feature Area | Connected UI Component | Service Called | Live Parameters |
@@ -430,8 +504,9 @@ All requests require `Authorization: Bearer <access_token>` of an enrolled stude
 | **Email Change** | `ChangeEmailModal.tsx`, `confirm-email/page.tsx` | `userService.requestEmailChange`, `confirmEmailChange` | `new_email`, `uid`, `token` |
 | **Home Categories** | `src/components/home/TopCategoriesSection.tsx` | `categoryService.getCategories` | `Accept-Language: ar \| en`, links with `?category={id}` |
 | **Course Catalog** | `src/components/catalog/CourseCatalogView.tsx`, `FilterSidebar.tsx`, `SearchSortBar.tsx` | `courseService.getCourses` | `category`, `level`, `language`, `price_min`, `price_max`, `search`, `sort`, `page`, `page_size` |
-| **Course Details** | `src/app/[locale]/(public)/courses/[slug]/page.tsx`, `CourseDetailsView.tsx` | `courseService.getCourseById` | `id`, `Accept-Language`, Bearer token for `is_enrolled` |
-| **Course Builder** | `src/components/instructor/CreateCourseStudio.tsx` | `instructorCourseService.*` | Course CRUD, Cloudinary video signature, sections, lessons, preview toggle, reorder |
+| **Course Details & Materials** | `src/app/[locale]/(public)/courses/[slug]/page.tsx`, `CourseDetailsView.tsx` | `courseService.getCourseById`, `courseAttachmentService.downloadAttachment` | `id`, `Accept-Language`, `is_enrolled`, `course_materials` |
+| **Course Builder & Materials** | `CreateCourseStudio.tsx`, `CourseMaterialsManager.tsx`, `LessonAttachmentsManager.tsx` | `instructorCourseService.*`, `courseAttachmentService.*` | Course CRUD, Cloudinary raw & video upload signatures, sections, lessons, attachments |
+| **Lesson Player & Attachments** | `src/app/[locale]/student/learn/[courseId]/page.tsx`, `LessonViewerLayout.tsx` | `enrollmentService.getLesson`, `courseAttachmentService.downloadAttachment` | Lesson streaming, lesson attachments, course materials download |
 | **Instructor Courses** | `src/components/instructor/InstructorWorkspace.tsx`, `InstructorDashboardView.tsx`, `InstructorCoursesPreview.tsx` | `instructorCourseService.getMyCourses`, `deleteCourse`, `updateCourse` | Courses listing, status filter, review submission, delete/archive |
 | **Instructor Analytics & Dashboard** | `src/components/instructor/tabs/InstructorOverviewTab.tsx`, `InstructorWorkspace.tsx` | `instructorService.getDashboard` | `total_courses`, `total_students` (distinct), courses enrollment breakdown |
 | **Instructor Course Students** | `src/components/instructor/tabs/InstructorStudentsTab.tsx` | `instructorService.getCourseStudents` | `course_id`, `page`, `page_size`, 403 access control |
@@ -439,5 +514,6 @@ All requests require `Authorization: Bearer <access_token>` of an enrolled stude
 | **Public Credential Verification** | `src/components/certificate/CertificateVerifyView.tsx`, `certificates/verify/[code]/page.tsx` | `certificateService.verifyCertificate` | `code`, public endpoint without auth, 404 security handling, 429 rate limit |
 | **Lesson Progress & Complete** | `src/app/[locale]/student/learn/[courseId]/page.tsx`, `CourseContentSidebar.tsx` | `enrollmentService.markLessonComplete`, `markLessonIncomplete`, `getMyEnrollments` | `enrollment_id`, `lesson_id` |
 | **Enrolled Courses** | `src/components/student/StudentWorkspace.tsx`, `StudentHomeWidget.tsx` | `enrollmentService.getMyEnrollments` | `progress_percent`, `completed_lessons`, `is_completed` |
+
 
 

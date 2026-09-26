@@ -41,6 +41,8 @@ import {
 import { useSelector } from "react-redux";
 import { RootState } from "@/lib/store";
 import { LessonVideoUploader } from "@/components/instructor/LessonVideoUploader";
+import { CourseMaterialsManager } from "@/components/instructor/attachments/CourseMaterialsManager";
+import { LessonAttachmentsManager } from "@/components/instructor/attachments/LessonAttachmentsManager";
 import {
   CourseIncompleteModal,
   IncompleteItem,
@@ -2081,6 +2083,13 @@ export function CreateCourseStudio({
               </div>
             </div>
 
+            {/* Course-level Materials & Resources Manager */}
+            {courseId ? (
+              <div className="pt-2">
+                <CourseMaterialsManager courseId={courseId} readOnly={isLockedForReview} />
+              </div>
+            ) : null}
+
             {/* Bottom Navigation for Step 2 */}
             <div className="flex items-center justify-between gap-4 pt-4 border-t border-slate-200/70">
               <button
@@ -2639,6 +2648,15 @@ export function CreateCourseStudio({
                       };
                     });
                   }}
+                />
+              </div>
+
+              {/* Lesson-level Attachments Manager */}
+              <div className="pt-2">
+                <LessonAttachmentsManager
+                  courseId={courseId}
+                  lessonId={editingLessonInfo.lesson.id}
+                  isNewLesson={editingLessonInfo.isNew}
                 />
               </div>
             </div>
