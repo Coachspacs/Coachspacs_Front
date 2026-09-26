@@ -858,16 +858,16 @@ export function CourseCard({
 
           {/* Action Buttons: Clean, Accessible, Prominent CTA */}
           <div className="flex items-center gap-2 w-full lg:w-auto justify-end border-t lg:border-t-0 pt-3 lg:pt-0 border-slate-100 shrink-0 flex-nowrap">
-            {status === "pending_review" ? (
-              <div className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-900 text-xs font-bold select-none shadow-2xs">
+            {status === "pending_review" && (
+              <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-900 text-xs font-bold select-none shadow-2xs">
                 <Clock className="w-3.5 h-3.5 text-amber-600 animate-pulse" />
                 <span>
                   {isAr ? "بانتظار مراجعة الإدارة" : "Waiting for Admin Review"}
                 </span>
               </div>
-            ) : (
-              <>
-                {(status === "draft" || status === "rejected") && onSubmitReview && (
+            )}
+
+            {(status === "draft" || status === "rejected") && onSubmitReview && (
                   <button
                     type="button"
                     disabled={isSubmittingReview}
@@ -945,9 +945,7 @@ export function CourseCard({
                     <Trash2 size={14} />
                   </button>
                 )}
-              </>
-            )}
-          </div>
+              </div>
         </div>
 
         {children}

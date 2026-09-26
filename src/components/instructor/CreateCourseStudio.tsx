@@ -274,7 +274,8 @@ export function CreateCourseStudio({
     isCoverValid,
   );
 
-  const isLockedForReview =
+  const isLockedForReview = false;
+  const isUnderReview =
     courseStatus === "pending_review" ||
     courseStatus === "review" ||
     courseStatus === "under_review";
@@ -1014,8 +1015,8 @@ export function CreateCourseStudio({
 
       {/* Main Content Container */}
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8 space-y-6 flex-1 w-full">
-        {/* Course Under Review Lock Notification Banner */}
-        {isLockedForReview && (
+        {/* Course Under Review Notification Banner */}
+        {isUnderReview && (
           <div className="p-4 sm:p-5 rounded-3xl bg-amber-500/10 border border-amber-500/30 text-amber-950 flex items-start gap-3.5 shadow-2xs animate-in fade-in">
             <div className="w-9 h-9 rounded-2xl bg-amber-500/20 text-amber-800 flex items-center justify-center shrink-0 mt-0.5">
               <Clock className="w-5 h-5 text-amber-700 animate-pulse" />
@@ -1026,7 +1027,7 @@ export function CreateCourseStudio({
                   {t("courseUnderReviewBannerTitle")}
                 </h2>
                 <span className="px-2.5 py-0.5 rounded-full bg-amber-200/80 text-amber-900 text-[11px] font-black">
-                  {t("lockedModeBadge")}
+                  {t("awaitingReviewBadge")}
                 </span>
               </div>
               <p className="text-xs sm:text-sm text-amber-900/90 font-medium leading-relaxed">
@@ -2438,7 +2439,11 @@ export function CreateCourseStudio({
                       ) : (
                         <>
                           <Send size={18} />
-                          <span>{t("publishCourse")}</span>
+                          <span>
+                            {isUnderReview
+                              ? t("updateAndResubmitReview")
+                              : t("publishCourse")}
+                          </span>
                         </>
                       )}
                     </button>
