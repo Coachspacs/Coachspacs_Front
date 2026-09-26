@@ -16,6 +16,7 @@ export type SectionRolePermission =
 
 export interface GlobalBrandingConfig {
   logoUrl: string;
+  footerLogoUrl?: string;
   faviconUrl: string;
   siteNameAr: string;
   siteNameEn: string;

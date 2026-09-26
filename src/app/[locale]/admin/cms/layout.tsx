@@ -59,12 +59,16 @@ export default function CmsAdminLayout({ children }: { children: React.ReactNode
   }
 
   const role = (user?.role || "").toLowerCase();
-  const isAdmin = isAuthenticated && (role === "admin" || role === "staff");
+  const isSuperuser = Boolean(
+    isAuthenticated && (
+      user?.is_superuser === true ||
+      (user as any)?.isSuperuser === true ||
+      role === "admin" ||
+      role === "superuser"
+    )
+  );
 
-  // In development mode, allow preview even if not explicitly logged in as admin
-  const isDev = process.env.NODE_ENV === "development";
-
-  if (!isAdmin && !isDev) {
+  if (!isSuperuser) {
     return (
       <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-6 text-slate-900 text-center font-sans">
         <div className="max-w-md w-full bg-white border border-slate-200 p-8 rounded-3xl space-y-5 shadow-xl">

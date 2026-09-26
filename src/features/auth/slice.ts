@@ -26,7 +26,12 @@ export const authSlice = createSlice({
       state.isAuthenticated = true;
 
       const status = (action.payload.user as any)?.approval_status || (action.payload.user as any)?.approvalStatus || '';
-      tokenManager.setAccessToken(action.payload.token, action.payload.user.role, status);
+      const isSuperuser = Boolean(
+        action.payload.user.is_superuser ||
+        (action.payload.user as any)?.isSuperuser ||
+        action.payload.user.role === 'admin'
+      );
+      tokenManager.setAccessToken(action.payload.token, action.payload.user.role, status, isSuperuser);
       if (action.payload.refreshToken) {
         tokenManager.setRefreshToken(action.payload.refreshToken);
       }
@@ -46,7 +51,12 @@ export const authSlice = createSlice({
       if (state.user) {
         state.user = { ...state.user, ...action.payload };
         const status = (state.user as any)?.approval_status || (state.user as any)?.approvalStatus || '';
-        tokenManager.setAccessToken(state.token, state.user.role, status);
+        const isSuperuser = Boolean(
+          state.user.is_superuser ||
+          (state.user as any)?.isSuperuser ||
+          state.user.role === 'admin'
+        );
+        tokenManager.setAccessToken(state.token, state.user.role, status, isSuperuser);
         if (typeof window !== 'undefined') {
           localStorage.setItem('user', JSON.stringify(state.user));
         }

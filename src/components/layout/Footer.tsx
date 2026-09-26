@@ -57,16 +57,16 @@ export function Footer({ lang, variant = "main" }: FooterProps) {
 
   const [logoSrc, setLogoSrc] = React.useState<string>(() => {
     if (typeof window !== "undefined") {
-      const globalBranding = (window as unknown as { __CMS_BRANDING__?: { logoUrl?: string } }).__CMS_BRANDING__;
-      if (globalBranding?.logoUrl && globalBranding.logoUrl.trim().length > 0) {
-        return globalBranding.logoUrl.trim();
+      const globalBranding = (window as unknown as { __CMS_BRANDING__?: { logoUrl?: string; footerLogoUrl?: string } }).__CMS_BRANDING__;
+      if (globalBranding?.footerLogoUrl && globalBranding.footerLogoUrl.trim().length > 0) {
+        return globalBranding.footerLogoUrl.trim();
       }
       try {
         const cached = localStorage.getItem("coachspace_cms_branding");
         if (cached) {
           const parsed = JSON.parse(cached);
-          if (parsed?.logoUrl && parsed.logoUrl.trim().length > 0) {
-            return parsed.logoUrl.trim();
+          if (parsed?.footerLogoUrl && parsed.footerLogoUrl.trim().length > 0) {
+            return parsed.footerLogoUrl.trim();
           }
         }
       } catch {}
@@ -76,8 +76,10 @@ export function Footer({ lang, variant = "main" }: FooterProps) {
 
   React.useEffect(() => {
     const handleBranding = (e: Event) => {
-      const customEvent = e as CustomEvent<{ logoUrl?: string }>;
-      if (customEvent?.detail?.logoUrl && customEvent.detail.logoUrl.trim().length > 0) {
+      const customEvent = e as CustomEvent<{ logoUrl?: string; footerLogoUrl?: string }>;
+      if (customEvent?.detail?.footerLogoUrl && customEvent.detail.footerLogoUrl.trim().length > 0) {
+        setLogoSrc(customEvent.detail.footerLogoUrl.trim());
+      } else if (customEvent?.detail?.logoUrl && customEvent.detail.logoUrl.trim().length > 0) {
         setLogoSrc(customEvent.detail.logoUrl.trim());
       }
     };

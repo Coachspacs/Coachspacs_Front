@@ -12,6 +12,7 @@ export const DEFAULT_SECTION_ORDER: LandingSectionKey[] = [
 
 export const DEFAULT_BRANDING: GlobalBrandingConfig = {
   logoUrl: '/images/logo.png',
+  footerLogoUrl: '/images/brand-logo-white.png',
   faviconUrl: '/favicon.ico',
   siteNameAr: 'كوتش سبيس',
   siteNameEn: 'Coach Space',

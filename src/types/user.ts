@@ -24,6 +24,9 @@ export interface User {
   approval_status?: 'pending' | 'approved' | 'rejected' | string;
   approvalStatus?: 'pending' | 'approved' | 'rejected' | string;
   instructorStatus?: string;
+  is_superuser?: boolean;
+  isSuperuser?: boolean;
+  is_staff?: boolean;
   createdAt?: string;
 }
 
@@ -35,7 +38,9 @@ export interface UserProfileResponse {
   phone_number?: string | null;
   preferred_language?: string;
   avatar?: string | null;
-  role: 'student' | 'instructor' | string;
+  role: 'student' | 'instructor' | 'admin' | string;
+  is_superuser?: boolean;
+  is_staff?: boolean;
   approval_status?: 'pending' | 'approved' | 'rejected' | string;
 }
 

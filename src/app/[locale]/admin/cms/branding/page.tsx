@@ -376,14 +376,25 @@ export default function BrandingSettingsPage() {
             </h3>
 
             <div className="space-y-5">
-              {/* Logo Upload (Cloudinary) */}
+              {/* Header / Main Logo Upload (Cloudinary) */}
               <CmsImageUpload
-                label={isAr ? "الشعار الرئيسي (Main Logo)" : "Main Platform Logo"}
+                label={isAr ? "شعار الهيدر / الرئيسي (Header Logo)" : "Header / Main Platform Logo"}
                 value={branding.logoUrl}
                 onChange={(url) => setBranding({ ...branding, logoUrl: url })}
                 folder="coachspace/branding"
                 aspectRatio="auto"
-                description={isAr ? "يظهر في شريط التنقل العلوي، الفوتر، وإشعارات المنصة" : "Displayed in navigation header, footer, and platform notifications"}
+                description={isAr ? "يظهر في شريط التنقل العلوي والصفحات ذات الخلفيات الفاتحة" : "Displayed in top navigation bar and light-background sections"}
+                isAr={isAr}
+              />
+
+              {/* Footer Logo Upload (Cloudinary) */}
+              <CmsImageUpload
+                label={isAr ? "شعار الفوتر (Footer Logo)" : "Footer Logo (Dark Background)"}
+                value={branding.footerLogoUrl || ""}
+                onChange={(url) => setBranding({ ...branding, footerLogoUrl: url })}
+                folder="coachspace/branding"
+                aspectRatio="auto"
+                description={isAr ? "يظهر في أسفل الصفحة على الخلفية الخضراء الداكنة (يُفضل شعار بلون أبيض أو فاتح)" : "Displayed in the footer on dark green background (recommended: white or light logo)"}
                 isAr={isAr}
               />
 

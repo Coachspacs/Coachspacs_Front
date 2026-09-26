@@ -511,8 +511,18 @@ export async function syncCurrentUserProfile(
     }
   }
 
+  const isSuperuserCandidate = Boolean(
+    rawUser.is_superuser ||
+    (rawUser as any).isSuperuser ||
+    decoded?.is_superuser ||
+    candidateRole === 'admin' ||
+    candidateRole === 'superuser'
+  );
+
   // 3. Determine final normalized role
-  const role: 'student' | 'instructor' = isExplicitInstructor ? 'instructor' : 'student';
+  const role: 'student' | 'instructor' | 'admin' = isSuperuserCandidate
+    ? 'admin'
+    : (isExplicitInstructor ? 'instructor' : 'student');
 
   // 4. If instructor, verify approval status and live dashboard access
   let approval_status: 'approved' | 'pending' | 'rejected' = 'approved';
@@ -598,6 +608,9 @@ export async function syncCurrentUserProfile(
     preferredLanguage: rawUser.preferred_language || rawUser.preferredLanguage || 'en',
     preferred_language: rawUser.preferred_language || rawUser.preferredLanguage || 'en',
     specialization: rawUser.specialization || '',
+    is_superuser: isSuperuserCandidate,
+    isSuperuser: isSuperuserCandidate,
+    is_staff: Boolean(rawUser.is_staff || decoded?.is_staff || isSuperuserCandidate),
     approval_status,
     approvalStatus: approval_status,
   };
