@@ -1408,7 +1408,9 @@
     "addNewLesson": "Add New Lesson",
     "lessonTitleEnPlaceholder": "e.g. Introduction to Routing",
     "lessonTitleArPlaceholder": "مثال: مقدمة إلى التوجيه",
-    "courseSubmittedSuccessDesc": "Your course has been submitted for review. You can track and manage it in your instructor dashboard."
+    "courseSubmittedSuccessDesc": "Your course has been submitted for review. You can track and manage it in your instructor dashboard.",
+    "courseUpdatedSuccess": "Course Updated Successfully!",
+    "courseUpdatedSuccessDesc": "All your course updates and materials have been saved and applied directly."
   },
   "instructorDashboard": {
     "title": "Instructor Dashboard",

@@ -167,12 +167,26 @@ export function InstructorWorkspace({
           | "draft"
           | "rejected"
           | "archived" = "draft";
+        // Authoritative backend status check
         if (
+          rawStatus === "published" ||
+          rawStatus === "approved" ||
+          (c.is_published &&
+            rawStatus !== "draft" &&
+            rawStatus !== "rejected" &&
+            rawStatus !== "archived")
+        ) {
+          removeCourseStatus(c.id);
+          normalizedStatus = "published";
+        } else if (
           rawStatus === "archived" ||
           Boolean(c.is_archived) ||
           savedStatus === "archived"
         ) {
           normalizedStatus = "archived";
+        } else if (rawStatus === "rejected" || rawStatus === "declined") {
+          removeCourseStatus(c.id);
+          normalizedStatus = "rejected";
         } else if (
           rawStatus === "pending_review" ||
           rawStatus === "pending" ||
@@ -181,19 +195,7 @@ export function InstructorWorkspace({
           savedStatus === "pending_review"
         ) {
           normalizedStatus = "pending_review";
-        } else if (rawStatus === "rejected" || rawStatus === "declined") {
-          removeCourseStatus(c.id);
-          normalizedStatus = "rejected";
-        } else if (
-          rawStatus === "published" ||
-          rawStatus === "approved" ||
-          savedStatus === "published" ||
-          (c.is_published &&
-            rawStatus !== "draft" &&
-            rawStatus !== "rejected" &&
-            rawStatus !== "archived")
-        ) {
-          removeCourseStatus(c.id);
+        } else if (savedStatus === "published") {
           normalizedStatus = "published";
         } else {
           normalizedStatus = "draft";

@@ -1413,7 +1413,9 @@
     "addNewLesson": "إضافة درس جديد",
     "lessonTitleEnPlaceholder": "e.g. Introduction to Routing",
     "lessonTitleArPlaceholder": "مثال: مقدمة إلى التوجيه",
-    "courseSubmittedSuccessDesc": "تم حفظ الدورة وإرسالها للمراجعة بنجاح! يمكنك الآن إدارة دوراتك ومتابعة حالتها."
+    "courseSubmittedSuccessDesc": "تم حفظ الدورة وإرسالها للمراجعة بنجاح! يمكنك الآن إدارة دوراتك ومتابعة حالتها.",
+    "courseUpdatedSuccess": "تم تحديث الدورة بنجاح!",
+    "courseUpdatedSuccessDesc": "تم حفظ جميع تعديلات ومرفقات الدورة وتطبيقها مباشرة."
   },
   "instructorDashboard": {
     "title": "لوحة التحكم للمدرب",

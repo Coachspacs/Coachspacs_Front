@@ -51,6 +51,7 @@ import { LiveCoursePreviewModal } from "@/components/modals/LiveCoursePreviewMod
 import {
   getSavedCourseStatus,
   saveCourseStatus,
+  removeCourseStatus,
 } from "@/lib/instructorProfile";
 
 interface Lesson {
@@ -967,6 +968,8 @@ export function CreateCourseStudio({
     setIsPublishing(true);
     try {
       const validCourseId = await ensureBackendCourseId();
+      const isAlreadyPublished = courseStatus === "published";
+
       await instructorCourseService.updateCourse(validCourseId, {
         title_ar: titleAr.trim(),
         title_en: titleEn.trim(),
@@ -975,22 +978,27 @@ export function CreateCourseStudio({
         category: Number(category) || 1,
         level: level || "beginner",
         price: price || "49.00",
-        status: "pending_review",
+        ...(isAlreadyPublished ? {} : { status: "pending_review" }),
       });
 
-      try {
-        await instructorCourseService.submitForReview(validCourseId);
-      } catch (submitErr) {
-        console.warn("Submit for review API info:", submitErr);
+      if (!isAlreadyPublished) {
+        try {
+          await instructorCourseService.submitForReview(validCourseId);
+        } catch (submitErr) {
+          console.warn("Submit for review API info:", submitErr);
+        }
+        saveCourseStatus(validCourseId, "pending_review");
+        setCourseStatus("pending_review");
+      } else {
+        removeCourseStatus(validCourseId);
       }
-
-      saveCourseStatus(validCourseId, "pending_review");
-      setCourseStatus("pending_review");
       setShowSuccessModal(true);
     } catch (err: any) {
       console.warn("Publish course info:", err);
-      if (courseId) saveCourseStatus(courseId, "pending_review");
-      setCourseStatus("pending_review");
+      if (courseStatus !== "published") {
+        if (courseId) saveCourseStatus(courseId, "pending_review");
+        setCourseStatus("pending_review");
+      }
       setShowSuccessModal(true);
     } finally {
       setIsPublishing(false);
@@ -2440,7 +2448,9 @@ export function CreateCourseStudio({
                         <>
                           <Send size={18} />
                           <span>
-                            {isUnderReview
+                            {courseStatus === "published"
+                              ? t("saveChanges")
+                              : isUnderReview
                               ? t("updateAndResubmitReview")
                               : t("publishCourse")}
                           </span>
@@ -2698,10 +2708,14 @@ export function CreateCourseStudio({
 
             <div className="space-y-2">
               <h3 className="text-xl font-black text-slate-900">
-                {t("courseSubmittedSuccess")}
+                {courseStatus === "published"
+                  ? t("courseUpdatedSuccess")
+                  : t("courseSubmittedSuccess")}
               </h3>
               <p className="text-xs sm:text-sm text-slate-600 font-medium">
-                {t("courseSubmittedSuccessDesc")}
+                {courseStatus === "published"
+                  ? t("courseUpdatedSuccessDesc")
+                  : t("courseSubmittedSuccessDesc")}
               </p>
             </div>
 
