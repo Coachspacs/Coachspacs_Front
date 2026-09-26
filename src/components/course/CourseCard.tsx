@@ -702,7 +702,19 @@ export function CourseCard({
   if (variant === "instructor-row") {
     const status = course.status || (course.isPublished ? "published" : "draft");
     const coursePrice = Number(course.price || 0);
-    const studentsCount = Number(course.studentsCount || course.students_count || 0);
+    const studentsCount = Number(
+      course.studentsCount ??
+      course.students_count ??
+      course.enrollment_count ??
+      course.enrollments_count ??
+      course.enrolled_count ??
+      course.enrolled_students_count ??
+      course.total_students ??
+      (Array.isArray(course.enrolledStudents) ? course.enrolledStudents.length : undefined) ??
+      (Array.isArray(course.students) ? course.students.length : undefined) ??
+      (Array.isArray(course.enrollments) ? course.enrollments.length : undefined) ??
+      0
+    );
 
     return (
       <div

@@ -53,7 +53,7 @@ export function LessonAttachmentsManager({
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const replaceFileInputRef = useRef<HTMLInputElement | null>(null);
 
-  const { isUploading, progress, uploadStatus, upload } = useAttachmentUpload();
+  const { isUploading, progress, uploadStatus, upload, cancel } = useAttachmentUpload();
 
   // Load lesson attachments when lessonId is available
   useEffect(() => {
@@ -288,20 +288,44 @@ export function LessonAttachmentsManager({
 
       {/* Upload progress */}
       {isUploading && (
-        <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200/80 space-y-1.5 animate-in fade-in">
-          <div className="flex items-center justify-between text-[11px] font-bold text-[#0F5244]">
-            <span>
-              {uploadStatus === "uploading"
-                ? isAr
-                  ? `جار الرفع إلى Cloudinary... (${progress}%)`
-                  : `Uploading directly to Cloudinary... (${progress}%)`
-                : isAr
-                ? "معالجة الملف..."
-                : "Processing..."}
-            </span>
-            <span className="font-mono">{progress}%</span>
+        <div className="p-3.5 rounded-2xl bg-emerald-50/90 border border-emerald-200/90 space-y-2 animate-in fade-in">
+          <div className="flex items-center justify-between text-xs font-bold text-[#0F5244] gap-2">
+            <div className="flex items-center gap-1.5 min-w-0">
+              <Loader2 size={13} className="animate-spin shrink-0 text-[#0F5244]" />
+              <span className="truncate">
+                {uploadStatus === "uploading"
+                  ? isAr
+                    ? `جار الرفع إلى Cloudinary... (${progress}%)`
+                    : `Uploading directly to Cloudinary... (${progress}%)`
+                  : isAr
+                  ? "معالجة الملف..."
+                  : "Processing..."}
+              </span>
+            </div>
+
+            <div className="flex items-center gap-2 shrink-0">
+              <span className="font-mono text-xs font-black">{progress}%</span>
+              <button
+                type="button"
+                onClick={() => {
+                  cancel();
+                  if (fileInputRef.current) fileInputRef.current.value = "";
+                  if (replaceFileInputRef.current) replaceFileInputRef.current.value = "";
+                  setFeedbackMsg({
+                    type: "error",
+                    text: isAr ? "تم إلغاء عملية الرفع." : "Upload canceled.",
+                  });
+                }}
+                className="px-2.5 py-1 rounded-xl bg-white hover:bg-rose-50 text-rose-700 hover:text-rose-800 border border-rose-200 text-[11px] font-bold transition-all cursor-pointer flex items-center gap-1 shadow-2xs active:scale-95"
+                title={isAr ? "إلغاء عملية الرفع" : "Cancel upload"}
+              >
+                <X size={13} />
+                <span>{isAr ? "إلغاء التحميل" : "Cancel"}</span>
+              </button>
+            </div>
           </div>
-          <div className="w-full h-1.5 rounded-full bg-emerald-200 overflow-hidden">
+
+          <div className="w-full h-1.5 rounded-full bg-emerald-200/80 overflow-hidden">
             <div
               className="h-full bg-[#0F5244] transition-all duration-200 rounded-full"
               style={{ width: `${progress}%` }}

@@ -54,7 +54,7 @@ export function CourseMaterialsManager({
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const replaceFileInputRef = useRef<HTMLInputElement | null>(null);
 
-  const { isUploading, progress, uploadStatus, error: uploadError, upload, reset } = useAttachmentUpload();
+  const { isUploading, progress, uploadStatus, error: uploadError, upload, reset, cancel } = useAttachmentUpload();
 
   // Load attachments on mount or courseId change
   useEffect(() => {
@@ -281,16 +281,36 @@ export function CourseMaterialsManager({
       {/* Upload Progress Bar Banner */}
       {isUploading && (
         <div className="p-4 rounded-2xl bg-emerald-50/80 border border-emerald-200/80 space-y-2 animate-in fade-in">
-          <div className="flex items-center justify-between text-xs font-bold text-[#0F5244]">
-            <div className="flex items-center gap-2">
-              <Loader2 size={14} className="animate-spin" />
-              <span>
+          <div className="flex items-center justify-between text-xs font-bold text-[#0F5244] gap-2">
+            <div className="flex items-center gap-2 min-w-0">
+              <Loader2 size={14} className="animate-spin shrink-0 text-[#0F5244]" />
+              <span className="truncate">
                 {uploadStatus === "signing" && (isAr ? "جلب توقيع الأمان..." : "Authenticating with Cloudinary...")}
                 {uploadStatus === "uploading" && (isAr ? `جار الرفع إلى Cloudinary... (${progress}%)` : `Uploading directly to Cloudinary... (${progress}%)`)}
                 {uploadStatus === "saving" && (isAr ? "حفظ المرفق في الدورة..." : "Saving attachment...")}
               </span>
             </div>
-            <span className="font-mono">{progress}%</span>
+
+            <div className="flex items-center gap-2 shrink-0">
+              <span className="font-mono text-xs font-black">{progress}%</span>
+              <button
+                type="button"
+                onClick={() => {
+                  cancel();
+                  if (fileInputRef.current) fileInputRef.current.value = "";
+                  if (replaceFileInputRef.current) replaceFileInputRef.current.value = "";
+                  setFeedbackMsg({
+                    type: "error",
+                    text: isAr ? "تم إلغاء عملية الرفع." : "Upload canceled.",
+                  });
+                }}
+                className="px-2.5 py-1 rounded-xl bg-white hover:bg-rose-50 text-rose-700 hover:text-rose-800 border border-rose-200 text-[11px] font-bold transition-all cursor-pointer flex items-center gap-1 shadow-2xs active:scale-95"
+                title={isAr ? "إلغاء عملية الرفع" : "Cancel upload"}
+              >
+                <X size={13} />
+                <span>{isAr ? "إلغاء التحميل" : "Cancel"}</span>
+              </button>
+            </div>
           </div>
 
           <div className="w-full h-2 rounded-full bg-emerald-200/60 overflow-hidden">
