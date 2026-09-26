@@ -34,6 +34,13 @@ export async function DynamicBrandingInjector() {
 
   const scriptContent = `
 (function() {
+  window.__CMS_BRANDING__ = ${JSON.stringify(branding)};
+  try {
+    if (window.__CMS_BRANDING__) {
+      localStorage.setItem('coachspace_cms_branding', JSON.stringify(window.__CMS_BRANDING__));
+    }
+  } catch(e) {}
+
   function getHueDiff(hex) {
     var cleanHex = (hex || '').replace('#', '');
     var r = 0, g = 0, b = 0;
@@ -89,6 +96,19 @@ export async function DynamicBrandingInjector() {
 
     if (data.buttonRadius) root.style.setProperty('--button-radius-custom', data.buttonRadius);
 
+    if (data.faviconUrl) {
+      try {
+        var existingIcons = document.querySelectorAll("link[rel*='icon']");
+        existingIcons.forEach(function(el) { el.href = data.faviconUrl; });
+        if (existingIcons.length === 0) {
+          var icon = document.createElement('link');
+          icon.rel = 'shortcut icon';
+          icon.href = data.faviconUrl;
+          document.head.appendChild(icon);
+        }
+      } catch(e) {}
+    }
+
     var customFont = (data.customGoogleFontName || '').trim();
     var fontAr = customFont || data.fontFamilyAr || 'Cairo';
     var fontEn = customFont || data.fontFamilyEn || 'Plus Jakarta Sans';
@@ -135,6 +155,15 @@ export async function DynamicBrandingInjector() {
 
   return (
     <>
+      {branding?.faviconUrl && (
+        <link rel="shortcut icon" href={branding.faviconUrl} />
+      )}
+      {branding?.ogImageUrl && (
+        <>
+          <meta property="og:image" content={branding.ogImageUrl} />
+          <meta name="twitter:image" content={branding.ogImageUrl} />
+        </>
+      )}
       {googleFontsUrl && (
         <>
           <link rel="preconnect" href="https://fonts.googleapis.com" />

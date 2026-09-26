@@ -23,6 +23,7 @@ export const DEFAULT_BRANDING: GlobalBrandingConfig = {
     accentMint: '#34D399',
   },
   buttonRadius: '12px',
+  ogImageUrl: '/images/hero-coach.png',
   fontFamilyAr: 'Cairo',
   fontFamilyEn: 'Plus Jakarta Sans',
   customGoogleFontName: '',

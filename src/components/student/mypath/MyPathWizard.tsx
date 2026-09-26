@@ -370,7 +370,7 @@ export function MyPathWizard() {
       const desc = t(`wizard.skills.${s.id}.desc`).toLowerCase();
       return title.includes(q) || desc.includes(q);
     });
-  }, [searchQuery, t]);
+  }, [searchQuery, t, skillTracks]);
 
   const handleSelectCustomSkill = () => {
     if (!customSkillInput.trim()) return;

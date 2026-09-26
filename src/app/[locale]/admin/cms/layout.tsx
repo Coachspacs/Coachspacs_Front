@@ -7,6 +7,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "@/lib/store";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
+import { Logo } from "@/components/ui/Logo";
 import {
   LayoutDashboard,
   Palette,
@@ -121,18 +122,12 @@ export default function CmsAdminLayout({ children }: { children: React.ReactNode
     <div className="flex flex-col h-full bg-white text-slate-800 font-sans">
       {/* Brand Header */}
       <div className="p-5 sm:p-6 border-b border-slate-200/80 flex items-center justify-between">
-        <Link
-          href={`/${locale}/admin/cms`}
-          className="inline-flex items-center gap-2.5 transition-opacity duration-150 hover:opacity-90 group cursor-pointer min-w-0"
-        >
-          <Image
-            src="/images/brand-logo.png"
-            alt="Coach Space"
-            width={36}
-            height={36}
-            className="w-auto h-7 sm:h-8 object-contain drop-shadow-xs group-hover:scale-105 transition-transform duration-200 shrink-0"
-          />
-          <div className="flex flex-col min-w-0">
+        <div className="inline-flex items-center gap-2.5 min-w-0">
+          <Logo showText={false} compact={true} href={`/${locale}/admin/cms`} />
+          <Link
+            href={`/${locale}/admin/cms`}
+            className="flex flex-col min-w-0 transition-opacity duration-150 hover:opacity-90 group cursor-pointer"
+          >
             <div className="flex items-center gap-1.5">
               <span className="text-xl sm:text-2xl font-bold text-[#0F5244] tracking-tight leading-none truncate">
                 {headerT("brandName")}
@@ -144,8 +139,8 @@ export default function CmsAdminLayout({ children }: { children: React.ReactNode
             <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">
               {t("studioAdmin")}
             </span>
-          </div>
-        </Link>
+          </Link>
+        </div>
 
         {/* Mobile close button */}
         <button

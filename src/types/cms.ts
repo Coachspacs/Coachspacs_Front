@@ -21,6 +21,7 @@ export interface GlobalBrandingConfig {
   siteNameEn: string;
   colors: GlobalBrandingColors;
   buttonRadius: '6px' | '8px' | '12px' | '9999px';
+  ogImageUrl?: string;
   fontFamilyAr?: string;
   fontFamilyEn?: string;
   customGoogleFontName?: string;

@@ -28,22 +28,49 @@ export function Logo({
   const logoHeight = compact ? 36 : 46;
   const logoWidth = compact ? 34 : 44;
 
-  const [logoSrc, setLogoSrc] = useState<string>("/images/brand-logo.png");
+  const [logoSrc, setLogoSrc] = useState<string>(() => {
+    if (typeof window !== "undefined") {
+      const globalBranding = (window as unknown as { __CMS_BRANDING__?: { logoUrl?: string } }).__CMS_BRANDING__;
+      if (globalBranding?.logoUrl && globalBranding.logoUrl.trim().length > 0) {
+        return globalBranding.logoUrl.trim();
+      }
+      try {
+        const cached = localStorage.getItem("coachspace_cms_branding");
+        if (cached) {
+          const parsed = JSON.parse(cached);
+          if (parsed?.logoUrl && parsed.logoUrl.trim().length > 0) {
+            return parsed.logoUrl.trim();
+          }
+        }
+      } catch {}
+    }
+    return "/images/brand-logo.png";
+  });
 
   useEffect(() => {
-    try {
-      const cached = localStorage.getItem("coachspace_cms_branding");
-      if (cached) {
-        const parsed = JSON.parse(cached);
-        if (parsed?.logoUrl && parsed.logoUrl !== "/images/logo.png" && parsed.logoUrl.trim().length > 0) {
-          setLogoSrc(parsed.logoUrl.trim());
+    const readLogo = () => {
+      try {
+        const globalBranding = (window as unknown as { __CMS_BRANDING__?: { logoUrl?: string } }).__CMS_BRANDING__;
+        if (globalBranding?.logoUrl && globalBranding.logoUrl.trim().length > 0) {
+          setLogoSrc(globalBranding.logoUrl.trim());
+          return;
         }
-      }
-    } catch {}
+
+        const cached = localStorage.getItem("coachspace_cms_branding");
+        if (cached) {
+          const parsed = JSON.parse(cached);
+          if (parsed?.logoUrl && parsed.logoUrl.trim().length > 0) {
+            setLogoSrc(parsed.logoUrl.trim());
+          }
+        }
+      } catch {}
+    };
+
+    readLogo();
 
     const handleBranding = (e: Event) => {
-      const customEvent = e as CustomEvent<any>;
-      if (customEvent?.detail?.logoUrl && customEvent.detail.logoUrl !== "/images/logo.png") {
+      const customEvent = e as CustomEvent<{ logoUrl?: string }>;
+      if (customEvent?.detail?.logoUrl && customEvent.detail.logoUrl.trim().length > 0) {
         setLogoSrc(customEvent.detail.logoUrl.trim());
       }
     };
@@ -54,7 +81,8 @@ export function Logo({
     };
   }, []);
 
-  const isDefaultLogo = logoSrc === "/images/brand-logo.png";
+  const isDefaultLogo = logoSrc === "/images/brand-logo.png" || logoSrc === "/images/logo.png";
+  const isSvg = logoSrc.toLowerCase().includes(".svg");
 
   return (
     <Link
@@ -67,6 +95,8 @@ export function Logo({
         width={logoWidth}
         height={logoHeight}
         priority
+        unoptimized={isSvg}
+        onError={() => setLogoSrc("/images/brand-logo.png")}
         className={`w-auto shrink-0 object-contain ${
           isDefaultLogo ? "brand-logo-img" : ""
         } ${

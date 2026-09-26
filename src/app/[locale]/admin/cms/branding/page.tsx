@@ -14,10 +14,16 @@ import {
   RefreshCw,
   Wand2,
   HelpCircle,
+  Type,
 } from "lucide-react";
 import { GlobalBrandingConfig } from "@/types/cms";
 import { DEFAULT_BRANDING } from "@/lib/cmsDefaults";
-import { autoHarmonizePalette } from "@/lib/brandingCss";
+import {
+  autoHarmonizePalette,
+  POPULAR_GOOGLE_FONTS_ARABIC,
+  POPULAR_GOOGLE_FONTS_ENGLISH,
+} from "@/lib/brandingCss";
+import { CmsImageUpload } from "@/components/cms/CmsImageUpload";
 
 export default function BrandingSettingsPage() {
   const params = useParams();
@@ -369,32 +375,39 @@ export default function BrandingSettingsPage() {
               {isAr ? "الشعار والأيقونات (Logos & Assets)" : "Brand Assets"}
             </h3>
 
-            <div className="space-y-4">
-              {/* Logo URL */}
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold text-slate-700">
-                  {isAr ? "رابط الشعار الرئيسي (Logo URL)" : "Main Logo URL"}
-                </label>
-                <input
-                  type="text"
-                  value={branding.logoUrl}
-                  onChange={(e) => setBranding({ ...branding, logoUrl: e.target.value })}
-                  className="w-full bg-slate-50 hover:bg-white border border-slate-200/90 rounded-xl px-4 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-[#0F5244] focus:bg-white font-mono"
-                />
-              </div>
+            <div className="space-y-5">
+              {/* Logo Upload (Cloudinary) */}
+              <CmsImageUpload
+                label={isAr ? "الشعار الرئيسي (Main Logo)" : "Main Platform Logo"}
+                value={branding.logoUrl}
+                onChange={(url) => setBranding({ ...branding, logoUrl: url })}
+                folder="coachspace/branding"
+                aspectRatio="auto"
+                description={isAr ? "يظهر في شريط التنقل العلوي، الفوتر، وإشعارات المنصة" : "Displayed in navigation header, footer, and platform notifications"}
+                isAr={isAr}
+              />
 
-              {/* Favicon URL */}
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold text-slate-700">
-                  {isAr ? "رابط الأيقونة المفضلة (Favicon URL)" : "Favicon URL"}
-                </label>
-                <input
-                  type="text"
-                  value={branding.faviconUrl}
-                  onChange={(e) => setBranding({ ...branding, faviconUrl: e.target.value })}
-                  className="w-full bg-slate-50 hover:bg-white border border-slate-200/90 rounded-xl px-4 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-[#0F5244] focus:bg-white font-mono"
-                />
-              </div>
+              {/* Favicon Upload (Cloudinary) */}
+              <CmsImageUpload
+                label={isAr ? "أيقونة التبويب (Favicon)" : "Favicon (Browser Tab Icon)"}
+                value={branding.faviconUrl}
+                onChange={(url) => setBranding({ ...branding, faviconUrl: url })}
+                folder="coachspace/branding"
+                aspectRatio="favicon"
+                description={isAr ? "الأيقونة المصغرة التي تظهر في شريط تبويب المتصفح (ICO, PNG, SVG)" : "Browser tab icon (ICO, PNG, SVG)"}
+                isAr={isAr}
+              />
+
+              {/* Open Graph Social Share Image (Cloudinary) */}
+              <CmsImageUpload
+                label={isAr ? "صورة المشاركة الاجتماعية (Open Graph / Social Share)" : "Social Preview Image (Open Graph)"}
+                value={branding.ogImageUrl || ""}
+                onChange={(url) => setBranding({ ...branding, ogImageUrl: url })}
+                folder="coachspace/opengraph"
+                aspectRatio="wide"
+                description={isAr ? "الصورة التي تظهر تلقائياً عند مشاركة رابط الموقع على واتساب، تويتر، لينكد إن وفيسبوك (المقاس المثالي 1200×630)" : "Preview image when sharing links on WhatsApp, LinkedIn, X, Facebook (Ideal: 1200x630)"}
+                isAr={isAr}
+              />
 
               {/* Button Radius */}
               <div className="space-y-1.5">
@@ -449,6 +462,143 @@ export default function BrandingSettingsPage() {
               >
                 {isAr ? "زر ثانوي" : "Secondary"}
               </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ========================================================================= */}
+      {/* 3. TYPOGRAPHY STUDIO (إضافة وإدارة أي خط) */}
+      {/* ========================================================================= */}
+      <div className="bg-white border border-slate-200/90 rounded-2xl sm:rounded-3xl p-6 sm:p-7 space-y-6 shadow-2xs">
+        <div className="flex items-center gap-3 border-b border-slate-100 pb-4">
+          <div className="w-9 h-9 rounded-xl bg-emerald-50 text-[#0F5244] border border-emerald-200/70 flex items-center justify-center shrink-0">
+            <Type className="w-5 h-5 text-[#0F5244]" />
+          </div>
+          <div>
+            <h3 className="text-base font-bold text-slate-900">
+              {isAr ? "استوديو الخطوط والطباعة (Typography Studio)" : "Global Typography Studio"}
+            </h3>
+            <p className="text-xs text-slate-500 font-medium mt-0.5">
+              {isAr ? "تخصيص الخطوط الأساسية باللغتين العربية والإنجليزية وإمكانية استيراد أي خط من Google Fonts" : "Customize primary fonts for Arabic & English or inject any custom Google Font"}
+            </p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Arabic Font Selector */}
+          <div className="space-y-2 text-right">
+            <label className="text-xs font-bold text-slate-800 block">
+              {isAr ? "الخط العربي الأساسي (Arabic Font)" : "Primary Arabic Font"}
+            </label>
+            <select
+              value={branding.fontFamilyAr || "Cairo"}
+              onChange={(e) => setBranding({ ...branding, fontFamilyAr: e.target.value })}
+              className="w-full bg-slate-50/70 hover:bg-slate-50 border border-slate-200/90 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:bg-white focus:outline-none focus:border-[#0F5244] focus:ring-1 focus:ring-[#0F5244]/20 cursor-pointer transition-all"
+            >
+              {POPULAR_GOOGLE_FONTS_ARABIC.map((font) => (
+                <option key={font} value={font}>
+                  {font} {font === "Cairo" ? (isAr ? "(الافتراضي)" : "(Default)") : ""}
+                </option>
+              ))}
+            </select>
+            <p className="text-[11px] text-slate-500 font-medium">
+              {isAr ? "يتم تطبيقه على النصوص والواجهات باللغة العربية" : "Applied to RTL Arabic interfaces"}
+            </p>
+          </div>
+
+          {/* English Font Selector */}
+          <div className="space-y-2 text-left">
+            <label className="text-xs font-bold text-slate-800 block" dir="ltr">
+              {isAr ? "الخط الإنجليزي الأساسي (English Font)" : "Primary English Font"}
+            </label>
+            <select
+              dir="ltr"
+              value={branding.fontFamilyEn || "Plus Jakarta Sans"}
+              onChange={(e) => setBranding({ ...branding, fontFamilyEn: e.target.value })}
+              className="w-full bg-slate-50/70 hover:bg-slate-50 border border-slate-200/90 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:bg-white focus:outline-none focus:border-[#0F5244] focus:ring-1 focus:ring-[#0F5244]/20 cursor-pointer transition-all"
+            >
+              {POPULAR_GOOGLE_FONTS_ENGLISH.map((font) => (
+                <option key={font} value={font}>
+                  {font} {font === "Plus Jakarta Sans" ? (isAr ? "(الافتراضي)" : "(Default)") : ""}
+                </option>
+              ))}
+            </select>
+            <p className="text-[11px] text-slate-500 font-medium" dir="ltr">
+              {isAr ? "يتم تطبيقه على النصوص والواجهات باللغة الإنجليزية" : "Applied to LTR English interfaces"}
+            </p>
+          </div>
+
+          {/* Custom Google Font Input */}
+          <div className="space-y-2">
+            <label className="text-xs font-bold text-slate-800 flex items-center justify-between">
+              <span>{isAr ? "إضافة أي خط مخصص من Google Fonts" : "Any Custom Google Font"}</span>
+              <span className="text-[10.5px] text-[#0F5244] font-semibold bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200/60">{isAr ? "اختياري" : "Optional"}</span>
+            </label>
+            <div className="flex items-center gap-2">
+              <input
+                type="text"
+                placeholder={isAr ? "مثال: Amiri, Rubik, Lemonada, Poppins..." : "e.g. Amiri, Lemonada, Montserrat..."}
+                value={branding.customGoogleFontName || ""}
+                onChange={(e) => setBranding({ ...branding, customGoogleFontName: e.target.value })}
+                className="flex-1 bg-slate-50/70 hover:bg-slate-50 border border-slate-200/90 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:border-[#0F5244] focus:ring-1 focus:ring-[#0F5244]/20 transition-all"
+              />
+              {branding.customGoogleFontName && (
+                <button
+                  type="button"
+                  onClick={() => setBranding({ ...branding, customGoogleFontName: "" })}
+                  className="px-2.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-xs font-bold cursor-pointer transition-colors"
+                  title={isAr ? "مسح الخط المخصص" : "Clear custom font"}
+                >
+                  ✕
+                </button>
+              )}
+            </div>
+            <p className="text-[11px] text-slate-500 font-medium">
+              {isAr ? "اكتب اسم أي خط معتمد في Google Fonts وسيتم جلبه وتطبيقه تلقائياً" : "Type any Google Font name to inject and apply globally"}
+            </p>
+          </div>
+        </div>
+
+        {/* Live Bilingual Typography Preview */}
+        <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-4">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold text-slate-700">
+              {isAr ? "معاينة حية للخطوط المختارة:" : "Live Typography Preview:"}
+            </span>
+            <div className="flex items-center gap-3 text-[11px] font-mono text-[#0F5244] font-bold">
+              <span>AR: {branding.customGoogleFontName || branding.fontFamilyAr || "Cairo"}</span>
+              <span>EN: {branding.customGoogleFontName || branding.fontFamilyEn || "Plus Jakarta Sans"}</span>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1">
+            {/* Arabic Preview */}
+            <div
+              dir="rtl"
+              style={{ fontFamily: `'${branding.customGoogleFontName || branding.fontFamilyAr || "Cairo"}', var(--font-cairo), system-ui, sans-serif` }}
+              className="p-4 rounded-xl bg-white border border-slate-200 shadow-2xs"
+            >
+              <h4 className="text-base font-black text-slate-900 mb-1">
+                انطلق في مسارك نحو الاحتراف والريادة
+              </h4>
+              <p className="text-xs text-slate-600 leading-relaxed font-normal">
+                اكتشف دورات تدريبية عملية يقودها نخبة من الخبراء لمساعدتك في بناء مهارات المستقبل.
+              </p>
+            </div>
+
+            {/* English Preview */}
+            <div
+              dir="ltr"
+              style={{ fontFamily: `'${branding.customGoogleFontName || branding.fontFamilyEn || "Plus Jakarta Sans"}', var(--font-jakarta), system-ui, sans-serif` }}
+              className="p-4 rounded-xl bg-white border border-slate-200 shadow-2xs"
+            >
+              <h4 className="text-base font-black text-slate-900 mb-1">
+                Elevate Your Career to True Mastery
+              </h4>
+              <p className="text-xs text-slate-600 leading-relaxed font-normal">
+                Explore practical industry-accredited courses led by certified leaders to accelerate your growth.
+              </p>
             </div>
           </div>
         </div>

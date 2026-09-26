@@ -55,6 +55,36 @@ export function Footer({ lang, variant = "main" }: FooterProps) {
   const currentLocale = useLocale() || (lang ? lang.toLowerCase() : "en");
   const isAr = currentLocale === "ar";
 
+  const [logoSrc, setLogoSrc] = React.useState<string>(() => {
+    if (typeof window !== "undefined") {
+      const globalBranding = (window as unknown as { __CMS_BRANDING__?: { logoUrl?: string } }).__CMS_BRANDING__;
+      if (globalBranding?.logoUrl && globalBranding.logoUrl.trim().length > 0) {
+        return globalBranding.logoUrl.trim();
+      }
+      try {
+        const cached = localStorage.getItem("coachspace_cms_branding");
+        if (cached) {
+          const parsed = JSON.parse(cached);
+          if (parsed?.logoUrl && parsed.logoUrl.trim().length > 0) {
+            return parsed.logoUrl.trim();
+          }
+        }
+      } catch {}
+    }
+    return "/images/brand-logo-white.png";
+  });
+
+  React.useEffect(() => {
+    const handleBranding = (e: Event) => {
+      const customEvent = e as CustomEvent<{ logoUrl?: string }>;
+      if (customEvent?.detail?.logoUrl && customEvent.detail.logoUrl.trim().length > 0) {
+        setLogoSrc(customEvent.detail.logoUrl.trim());
+      }
+    };
+    window.addEventListener("cms-branding-updated", handleBranding);
+    return () => window.removeEventListener("cms-branding-updated", handleBranding);
+  }, []);
+
   if (variant === "auth") {
     return (
       <footer
@@ -145,10 +175,12 @@ export function Footer({ lang, variant = "main" }: FooterProps) {
               className="inline-flex items-center gap-2.5 transition-opacity duration-150 hover:opacity-90 group cursor-pointer"
             >
               <Image
-                src="/images/brand-logo-white.png"
+                src={logoSrc}
                 alt="Coach Space"
                 width={36}
                 height={36}
+                unoptimized={logoSrc.toLowerCase().includes(".svg")}
+                onError={() => setLogoSrc("/images/brand-logo-white.png")}
                 className="w-auto h-7 sm:h-8 object-contain drop-shadow-sm group-hover:scale-105 transition-transform duration-200"
               />
               <span className="text-xl sm:text-2xl font-bold text-white tracking-tight leading-none">

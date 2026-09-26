@@ -20,7 +20,6 @@ import {
   ArrowUpDown,
   ChevronDown,
   Check,
-  MoreVertical,
   Plus,
   Trash2,
 } from "lucide-react";
@@ -29,6 +28,7 @@ import { DEFAULT_LANDING_SECTIONS } from "@/lib/cmsDefaults";
 import { SectionVisibilityCard } from "@/components/cms/SectionVisibilityCard";
 import { SectionReorderDrawer } from "@/components/cms/SectionReorderDrawer";
 import { AiCopywriteButton } from "@/components/cms/AiCopywriteButton";
+import { CmsImageUpload } from "@/components/cms/CmsImageUpload";
 
 type TabKey = "hero" | "top_categories" | "master_craft" | "why_stands_out" | "real_stories" | "faq" | "join_future";
 
@@ -46,17 +46,12 @@ export default function LandingEditorPage() {
   const [isPublishing, setIsPublishing] = useState(false);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [isReorderOpen, setIsReorderOpen] = useState(false);
-  const [isMoreMenuOpen, setIsMoreMenuOpen] = useState(false);
   const [isSectionDropdownOpen, setIsSectionDropdownOpen] = useState(false);
 
-  const moreMenuRef = React.useRef<HTMLDivElement>(null);
   const sectionDropdownRef = React.useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (moreMenuRef.current && !moreMenuRef.current.contains(event.target as Node)) {
-        setIsMoreMenuOpen(false);
-      }
       if (sectionDropdownRef.current && !sectionDropdownRef.current.contains(event.target as Node)) {
         setIsSectionDropdownOpen(false);
       }
@@ -185,61 +180,41 @@ export default function LandingEditorPage() {
           </p>
         </div>
 
-        {/* Action Buttons Toolbar with Dropdown */}
-        <div className="flex items-center gap-2.5">
-          {/* More Options Dropdown (حفظ كمسودة، معاينة المسودة، إعادة ترتيب الأقسام) */}
-          <div ref={moreMenuRef} className="relative">
-            <button
-              type="button"
-              onClick={() => setIsMoreMenuOpen((prev) => !prev)}
-              className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold border border-slate-200 shadow-2xs transition-all cursor-pointer"
-              title={isAr ? "خيارات إضافية" : "More Options"}
-            >
-              <MoreVertical className="w-4 h-4 text-slate-500" />
-              <span className="hidden sm:inline">{isAr ? "خيارات إضافية" : "More Options"}</span>
-            </button>
+        {/* Action Buttons Toolbar with prominent quick actions */}
+        <div className="flex flex-wrap items-center gap-2 sm:gap-2.5">
+          {/* Drag & Drop Reorder Button - Prominent */}
+          <button
+            type="button"
+            onClick={() => setIsReorderOpen(true)}
+            className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-[#0F5244] text-xs font-bold border border-emerald-200/90 shadow-2xs hover:shadow-xs transition-all cursor-pointer"
+            title={isAr ? "إعادة ترتيب الأقسام بالسحب والإفلات" : "Drag & Drop Section Reorder"}
+          >
+            <ArrowUpDown className="w-4 h-4 text-[#0F5244]" />
+            <span>{t("landing.reorderSections")}</span>
+          </button>
 
-            {isMoreMenuOpen && (
-              <div
-                className="absolute top-full mt-2 end-0 z-40 w-52 bg-white rounded-2xl border border-slate-200 shadow-xl p-1.5 space-y-1 animate-in fade-in zoom-in-95"
-              >
-                <button
-                  type="button"
-                  onClick={() => {
-                    handleSaveDraft();
-                    setIsMoreMenuOpen(false);
-                  }}
-                  disabled={isSaving}
-                  className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-slate-900 transition-colors text-start cursor-pointer disabled:opacity-50"
-                >
-                  {isSaving ? <Loader2 className="w-4 h-4 animate-spin text-[#0F5244]" /> : <Save className="w-4 h-4 text-slate-500" />}
-                  <span>{t("landing.saveDraft")}</span>
-                </button>
+          {/* Preview Draft Button */}
+          <Link
+            href={`/api/cms/preview?secret=coachspace_cms_preview_secret&locale=${locale}`}
+            target="_blank"
+            className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-white hover:bg-slate-50 text-slate-700 hover:text-slate-900 text-xs font-bold border border-slate-200 shadow-2xs transition-all cursor-pointer"
+            title={isAr ? "معاينة المسودة" : "Preview Draft"}
+          >
+            <Eye className="w-4 h-4 text-slate-500" />
+            <span>{t("landing.previewDraft")}</span>
+          </Link>
 
-                <Link
-                  href={`/api/cms/preview?secret=coachspace_cms_preview_secret&locale=${locale}`}
-                  target="_blank"
-                  onClick={() => setIsMoreMenuOpen(false)}
-                  className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-slate-900 transition-colors text-start cursor-pointer"
-                >
-                  <Eye className="w-4 h-4 text-slate-500" />
-                  <span>{t("landing.previewDraft")}</span>
-                </Link>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    setIsReorderOpen(true);
-                    setIsMoreMenuOpen(false);
-                  }}
-                  className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-slate-900 transition-colors text-start cursor-pointer"
-                >
-                  <ArrowUpDown className="w-4 h-4 text-slate-500" />
-                  <span>{t("landing.reorderSections")}</span>
-                </button>
-              </div>
-            )}
-          </div>
+          {/* Save Draft Button */}
+          <button
+            type="button"
+            onClick={handleSaveDraft}
+            disabled={isSaving}
+            className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-white hover:bg-slate-50 text-slate-700 hover:text-slate-900 text-xs font-bold border border-slate-200 shadow-2xs transition-all cursor-pointer disabled:opacity-50"
+            title={isAr ? "حفظ كمسودة" : "Save Draft"}
+          >
+            {isSaving ? <Loader2 className="w-4 h-4 animate-spin text-[#0F5244]" /> : <Save className="w-4 h-4 text-slate-500" />}
+            <span>{t("landing.saveDraft")}</span>
+          </button>
 
           {/* Primary Action Button (The ONLY solid filled green button, prominent) */}
           <button
@@ -261,8 +236,31 @@ export default function LandingEditorPage() {
         </div>
       )}
 
-      {/* Section Selector Dropdown */}
-      <div className="relative" ref={sectionDropdownRef}>
+      {/* Horizontal Tabs for Desktop / Tablets (All 7 Sections Visible at a Glance) */}
+      <div className="hidden lg:flex items-center gap-1.5 p-1.5 bg-slate-100/90 rounded-2xl border border-slate-200/80 overflow-x-auto shadow-2xs">
+        {tabs.map((tab) => {
+          const Icon = tab.icon;
+          const isSelected = activeTab === tab.key;
+          return (
+            <button
+              key={tab.key}
+              type="button"
+              onClick={() => setActiveTab(tab.key)}
+              className={`flex-1 flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
+                isSelected
+                  ? "bg-white text-[#0F5244] shadow-xs border border-slate-200/70"
+                  : "text-slate-600 hover:text-slate-900 hover:bg-white/60"
+              }`}
+            >
+              <Icon className={`w-3.5 h-3.5 shrink-0 ${isSelected ? "text-[#0F5244]" : "text-slate-400"}`} />
+              <span className="truncate">{tab.label}</span>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Section Selector Dropdown (Mobile & Tablet: lg:hidden) */}
+      <div className="lg:hidden relative" ref={sectionDropdownRef}>
         <div className="flex items-center justify-between gap-2 mb-1.5">
           <label className="text-xs font-bold text-slate-700">
             {isAr ? "القسم المراد تعديله:" : "Section to Edit:"}
@@ -538,19 +536,18 @@ export default function LandingEditorPage() {
                 </div>
               </div>
 
-              {/* Hero Image */}
-              <div className="space-y-1.5 text-right">
-                <label className="text-xs font-bold text-slate-800 block">
-                  {isAr ? "رابط صورة الهيرو (Hero Image URL)" : "Hero Image URL"}
-                </label>
-                <input
-                  type="text"
-                  dir="ltr"
-                  value={sections.hero.hero_image_url}
-                  onChange={(e) =>
-                    setSections({ ...sections, hero: { ...sections.hero, hero_image_url: e.target.value } })
+              {/* Hero Image (Cloudinary) */}
+              <div className="pt-2 border-t border-slate-100">
+                <CmsImageUpload
+                  label={isAr ? "صورة قسم البداية (Hero Banner Image)" : "Hero Banner Image"}
+                  value={sections.hero.hero_image_url || ""}
+                  onChange={(url) =>
+                    setSections({ ...sections, hero: { ...sections.hero, hero_image_url: url } })
                   }
-                  className="w-full bg-slate-50/70 hover:bg-slate-50 border border-slate-200/90 rounded-xl px-3.5 py-2.5 text-xs text-left font-mono text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:border-[#0F5244] focus:ring-1 focus:ring-[#0F5244]/20 transition-all"
+                  folder="coachspace/landing"
+                  aspectRatio="hero"
+                  description={isAr ? "الصورة التوضيحية أو صورة المدرب في قسم الهيرو الرئيسي" : "Main hero coach visual or illustration at top of homepage"}
+                  isAr={isAr}
                 />
               </div>
             </div>
