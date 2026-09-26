@@ -23,13 +23,6 @@ const WAYPOINTS = [
   { step: 4, x: 88, y: 10 }, // Over Milestone 4 (FINISH)
 ];
 
-const MOTIVATIONAL_PHRASES: Record<number, { ar: string; en: string }> = {
-  1: { ar: "لنبدأ رحلتك! 🚀", en: "Let's start your journey! 🚀" },
-  2: { ar: "أداء رائع، واصل! 🎯", en: "Great job, keep going! 🎯" },
-  3: { ar: "نقترب من الهدف! ⚡", en: "Almost there! ⚡" },
-  4: { ar: "وصلنا لخط النهاية! 🏆", en: "Reached the finish! 🏆" },
-};
-
 export function RobotJourneyBanner({
   currentStepIndex,
   isAr,
@@ -38,7 +31,6 @@ export function RobotJourneyBanner({
     WAYPOINTS.find((w) => w.step === currentStepIndex) || WAYPOINTS[0];
   const isFirstMount = useRef(true);
   const [soundOn, setSoundOn] = useState<boolean>(true);
-  const [showSpeechBubble, setShowSpeechBubble] = useState<boolean>(true);
 
   // Initialize sound state from localStorage on client
   useEffect(() => {
@@ -64,25 +56,14 @@ export function RobotJourneyBanner({
     }
   };
 
-  // Trigger playful robotic jet glide sound effect and speech bubble animation on milestone changes
+  // Trigger playful robotic jet glide sound effect on milestone changes
   useEffect(() => {
     if (isFirstMount.current) {
       isFirstMount.current = false;
       return;
     }
     soundFx.playRobotTravel(currentStepIndex);
-
-    // Refresh speech bubble on step change
-    setShowSpeechBubble(true);
-    const bubbleTimer = setTimeout(() => {
-      // Keep it visible or allow user to enjoy it
-    }, 4500);
-
-    return () => clearTimeout(bubbleTimer);
   }, [currentStepIndex]);
-
-  const currentPhrase =
-    MOTIVATIONAL_PHRASES[currentStepIndex] || MOTIVATIONAL_PHRASES[1];
 
   return (
     <div className="w-full h-44 sm:h-52 relative rounded-3xl overflow-hidden border border-emerald-200/70 shadow-xs select-none mb-4 bg-emerald-50/20">
@@ -265,27 +246,6 @@ export function RobotJourneyBanner({
         }}
         className="absolute z-30 flex flex-col items-center pointer-events-none"
       >
-        {/* Floating Speech Bubble with Friendly Motivational Message */}
-        <AnimatePresence mode="wait">
-          {showSpeechBubble && (
-            <motion.div
-              key={`speech-${currentStepIndex}`}
-              initial={{ opacity: 0, y: 6, scale: 0.85 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -4, scale: 0.85 }}
-              transition={{ duration: 0.3, ease: "easeOut" }}
-              className="mb-1.5 px-2.5 py-1 rounded-xl bg-white/95 backdrop-blur-md border border-emerald-300/80 shadow-md text-[11px] font-black text-[#0F5244] whitespace-nowrap relative flex items-center gap-1"
-            >
-              <span>{isAr ? currentPhrase.ar : currentPhrase.en}</span>
-              {/* Little bottom triangle pointer */}
-              <div
-                className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-white rotate-45 border-b border-r border-emerald-300/80"
-                aria-hidden="true"
-              />
-            </motion.div>
-          )}
-        </AnimatePresence>
-
         <AnimatedRobotCharacter size="sm" />
       </motion.div>
     </div>
