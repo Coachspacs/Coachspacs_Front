@@ -3,25 +3,42 @@
 import React from "react";
 import { motion } from "framer-motion";
 
-export function AnimatedRobotCharacter() {
+interface AnimatedRobotCharacterProps {
+  size?: "xs" | "sm" | "md" | "lg";
+  className?: string;
+  showCap?: boolean;
+}
+
+export function AnimatedRobotCharacter({
+  size = "lg",
+  className = "",
+  showCap = true,
+}: AnimatedRobotCharacterProps) {
+  const sizeClasses = {
+    xs: "w-8 h-11",
+    sm: "w-12 h-16",
+    md: "w-20 h-28",
+    lg: "w-32 h-44 sm:w-40 sm:h-52",
+  };
+
   return (
     <motion.div
       animate={{
-        y: [0, -14, 0],
-        rotate: [0, -2, 2, 0],
+        y: [0, size === "xs" ? -4 : -12, 0],
+        rotate: [0, -1.5, 1.5, 0],
       }}
       transition={{
-        duration: 3.2,
+        duration: 2.8,
         repeat: Infinity,
         ease: "easeInOut",
       }}
-      className="relative w-32 h-44 sm:w-40 sm:h-52 select-none pointer-events-auto cursor-pointer"
+      className={`relative ${sizeClasses[size]} select-none pointer-events-auto cursor-pointer ${className}`}
     >
       <svg
         viewBox="0 0 160 210"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
-        className="w-full h-full drop-shadow-[0_12px_24px_rgba(15,82,68,0.22)]"
+        className="w-full h-full drop-shadow-[0_8px_16px_rgba(15,82,68,0.18)]"
       >
         <defs>
           {/* Gradients for cute robot body & shading */}

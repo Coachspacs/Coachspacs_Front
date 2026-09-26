@@ -1,3 +1,7 @@
+export type LearningGoal = 'job' | 'skills' | 'exam' | 'growth' | 'other';
+
+export type PriorKnowledge = 'none' | 'basic' | 'intermediate' | 'advanced';
+
 export type LearningTrack =
   | 'frontend'
   | 'backend'
@@ -5,19 +9,25 @@ export type LearningTrack =
   | 'ai'
   | 'uiux'
   | 'data'
-  | 'business';
+  | 'mobile'
+  | 'cloud'
+  | 'business'
+  | string;
 
 export type SkillLevel = 'beginner' | 'intermediate' | 'advanced';
 
-export type WeeklyCommitment = '3' | '8' | '15';
+export type WeeklyCommitment = '1-2' | '3-5' | '6-10' | '10+' | '3' | '8' | '15';
 
 export type TargetDuration = '1' | '3' | '6';
 
 export interface MyPathPreferences {
+  goal?: LearningGoal;
+  priorKnowledge?: PriorKnowledge;
   track: LearningTrack;
+  customTrackName?: string;
   level: SkillLevel;
   hoursPerWeek: WeeklyCommitment;
-  targetMonths: TargetDuration;
+  targetMonths?: TargetDuration;
 }
 
 export interface RoadmapMilestoneCourse {

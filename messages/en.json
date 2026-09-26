@@ -1910,6 +1910,145 @@
     "back": "Back",
     "regenerate": "Regenerate Roadmap",
     "editGoals": "Modify My Goals",
+    "wizard": {
+      "step1Badge": "STEP 1 OF 4",
+      "step1Category": "Goal Assessment",
+      "step1Pill": "Goal Setting",
+      "step1Title": "What is your learning goal?",
+      "step1Subtitle": "Choose the primary milestone that fits your personal journey right now.",
+      "goals": {
+        "job": {
+          "title": "Get a new job / career change",
+          "desc": "Transition into high-demand roles with personalized roadmaps"
+        },
+        "skills": {
+          "title": "Improve my current skills",
+          "desc": "Deepen domain expertise and master contemporary frameworks"
+        },
+        "exam": {
+          "title": "Prepare for an exam",
+          "desc": "Structured mock tests, speed-quizzes, and accredited certifications"
+        },
+        "growth": {
+          "title": "Learn for personal growth",
+          "desc": "Explore creative passions and intellectually stimulating topics"
+        },
+        "other": {
+          "title": "Other",
+          "desc": "Customized pace or unique cross-disciplinary objectives"
+        }
+      },
+      "step2Badge": "Step 2 of 4",
+      "step2Category": "Skill Level",
+      "step2Pill": "Current Level",
+      "step2Estimated": "Estimated: 30 sec",
+      "step2Title": "What is your current level in this field?",
+      "step2Subtitle": "Select your level so we can customize your learning path and skip what you already know.",
+      "levels": {
+        "none": {
+          "title": "Beginner (From Scratch)",
+          "badge": "Starting from scratch",
+          "desc": "Starting from the beginning with no prior knowledge",
+          "pace": "Pace: Gentle Foundations",
+          "prereq": "No Prerequisites"
+        },
+        "basic": {
+          "title": "Basic Knowledge",
+          "badge": "Familiar with concepts",
+          "desc": "Familiar with general concepts, need hands-on practice",
+          "pace": "Pace: Steady",
+          "prereq": "Core Concepts"
+        },
+        "intermediate": {
+          "title": "Intermediate",
+          "badge": "Hands-on practice",
+          "recommendedBadge": "Recommended",
+          "desc": "Practical experience, looking to build solid projects",
+          "pace": "Pace: Accelerated",
+          "prereq": "Project-Based"
+        },
+        "advanced": {
+          "title": "Advanced",
+          "badge": "Deep specialization",
+          "desc": "Strong experience, looking to master complex topics",
+          "pace": "Pace: High Velocity",
+          "prereq": "Systems Architecture"
+        }
+      },
+      "diagnosticsNotice": "Not completely sure? You can recalibrate your level at any milestone.",
+      "exploreDiagnostics": "Explore Diagnostics",
+      "step3Badge": "Step 3 of 4",
+      "step3Category": "Weekly Time",
+      "step3CategoryAr": "Weekly Time",
+      "step3Pill": "Available Time",
+      "step3Title": "How many hours can you study per week?",
+      "step3Subtitle": "Choose a realistic commitment to set an achievable learning pace.",
+      "hours": {
+        "h1_2": {
+          "title": "1–2 hours / week",
+          "desc": "Gentle, flexible pace for busy schedules"
+        },
+        "h3_5": {
+          "title": "3–5 hours / week",
+          "recommendedBadge": "Recommended",
+          "desc": "Balanced pace for steady skill building"
+        },
+        "h6_10": {
+          "title": "6–10 hours / week",
+          "desc": "Fast-track path with intensive practical lessons"
+        },
+        "h10plus": {
+          "title": "More than 10 hours / week",
+          "desc": "Full immersion bootcamp pace for rapid mastery"
+        }
+      },
+      "step4Badge": "STEP 4 OF 4 • SKILL FOCUS",
+      "step4Title": "What skill do you want to learn?",
+      "step4Subtitle": "Select your primary focus skill or domain so our AI companion can curate tailored modules, practical capstones, and personalized learning milestones.",
+      "searchPlaceholder": "Search or type any skill (e.g. React, UI/UX, Python, Data Science)...",
+      "quickFilter": "Quick Filter",
+      "skills": {
+        "frontend": {
+          "title": "Frontend Web Development",
+          "badge": "POPULAR",
+          "desc": "Build interactive, high-performance user interfaces and responsive web apps.",
+          "tags": "React, Next.js, TypeScript"
+        },
+        "uiux": {
+          "title": "UI/UX & Product Design",
+          "badge": "High Demand",
+          "desc": "Design user-centric digital products, design systems, and rapid interactive prototypes.",
+          "tags": "Figma, Design Systems, User Research"
+        },
+        "data": {
+          "title": "Python & Data Science",
+          "desc": "Clean datasets, build predictive machine learning models, and uncover actionable insights.",
+          "tags": "Data Analysis, Machine Learning, Pandas"
+        },
+        "mobile": {
+          "title": "Mobile App Development",
+          "desc": "Craft fluid, native-feel applications deployable to iOS App Store and Google Play.",
+          "tags": "Flutter, React Native, iOS / Android"
+        },
+        "cloud": {
+          "title": "Cloud & DevOps Engineering",
+          "desc": "Scale modern cloud architectures with automated deployment pipelines and containers.",
+          "tags": "Docker, AWS, CI/CD"
+        },
+        "backend": {
+          "title": "Backend Engineering",
+          "desc": "Architect resilient databases, scalable server logic, and robust GraphQL/REST APIs.",
+          "tags": "Node.js, PostgreSQL, GraphQL"
+        }
+      },
+      "customSkillTitle": "Add custom skill or specialty",
+      "customSkillDesc": "Can't find your domain? Type a custom niche such as Solidity, Cybersecurity, or Go.",
+      "customSkillInputPlaceholder": "Enter custom skill name (e.g., Cybersecurity, Solidity)...",
+      "customSkillConfirm": "Apply Custom Skill",
+      "completedBadge": "Completed",
+      "generatingRoadmap": "Generate Roadmap",
+      "generateRoadmapBtn": "Generate Smart Roadmap"
+    },
     "step2": {
       "title": "Select your learning focus & skill level",
       "subtitle": "Tell us what field you want to master and where you're starting from.",
@@ -1922,6 +2061,8 @@
         "ai": "Artificial Intelligence & ML",
         "uiux": "UI/UX Design & Product",
         "data": "Data Analysis & Science",
+        "mobile": "Mobile App Development",
+        "cloud": "Cloud & DevOps Engineering",
         "business": "Product Leadership & Business"
       },
       "levels": {
@@ -1950,23 +2091,224 @@
       "stepMilestones": "Formulating milestone credentials..."
     },
     "roadmap": {
-      "headerTitle": "Your AI-Generated Learning Roadmap",
-      "headerSubtitle": "Sequential milestones engineered to take you from your current level to your goal.",
-      "estimatedWeeks": "Estimated Duration",
+      "headerBadge": "My Learning Path",
+      "activeCurriculumTag": "Active",
+      "mainTitle": "My Path",
+      "mainSubtitle": "A personalized learning plan to reach your goals step by step.",
+      "sharePath": "Share",
+      "resumeCurrentStep": "Continue Learning",
+      "careerTrajectory": "Current Track",
+      "editGoal": "Edit Goals",
+      "levelLabel": "Level",
+      "commitmentLabel": "Commitment",
+      "durationLabel": "Duration",
+      "hrsWk": "hrs/wk",
+      "months": "Months",
+      "roadmapProgress": "Path Progress",
+      "stepsCompleted": "of {total} milestones completed",
+      "onTrack": "On Track",
+      "done": "Done",
+      "currentVelocity": "Velocity",
+      "hrsThisWeek": "hrs this week",
+      "nextMilestoneIn": "Next milestone in {hours}h",
+      "started": "Started",
+      "target": "Target",
+      "whyThisPath": "Why this path?",
+      "aiRationale": "Smart Analysis",
+      "aiRationaleDesc": "Tailored to balance conceptual comprehension and practical projects.",
+      "skipStep": "Skip Step",
+      "reorderPath": "Reorder",
+      "regenerateMyPath": "Regenerate Path",
+      "learningRoadmapHeading": "Learning Milestones",
+      "modulesRemaining": "{count} milestones remaining",
+      "activeModule": "Active Module",
+      "upNext": "Next",
+      "locked": "Locked",
+      "course": "Course",
+      "capstoneProject": "Capstone Project",
+      "hours": "hours",
+      "finished": "Done",
+      "lessonOf": "Lesson {current} of {total}",
+      "continue": "Continue",
+      "start": "Start",
+      "completeStepToUnlock": "Complete step {step} to unlock",
+      "needTutoring": "Need Assistance?",
+      "tutoringDesc": "The AI assistant is available to help anytime.",
+      "askTutor": "Ask Assistant",
+      "resourceKit": "Extra Resources",
+      "resourceKitDesc": "Quick summaries and practice exercises.",
+      "explore": "Explore",
+      "headerTitle": "My Learning Path",
+      "headerSubtitle": "Sequential milestones designed to guide you step by step.",
+      "estimatedWeeks": "Duration",
       "weeks": "Weeks",
-      "hoursPerWeek": "Hours / Week",
+      "hoursPerWeek": "hrs / week",
       "totalMilestones": "Milestones",
       "milestone": "Milestone",
       "statusPlanned": "Planned",
       "statusInProgress": "In Progress",
       "statusCompleted": "Completed",
-      "enrollCourse": "Start Module",
-      "viewCourse": "View Details",
-      "markComplete": "Mark as Done",
-      "completedBadge": "Completed Milestone",
-      "recommendedCourses": "Curriculum Modules",
+      "enrollCourse": "Start",
+      "viewCourse": "View",
+      "markComplete": "Done",
+      "completedBadge": "Completed",
       "congratsTitle": "Ready to launch your journey!",
-      "congratsDesc": "Begin with Module 1 below. Each milestone unlocks verified portfolio projects and certificate preparation."
+      "congratsDesc": "Begin with Module 1 and build your skills step by step.",
+      "recommendedCourse": "Accredited Training Course",
+      "startCourseBtn": "Start Course Now",
+      "viewCourseBtn": "Course Details",
+      "practicalProject": "Hands-on Capstone Project",
+      "skillsLearned": "Skills Acquired",
+      "currentStepBadge": "Current Milestone",
+      "upcomingStepBadge": "Planned",
+      "markAsCompleted": "Mark Completed",
+      "instructor": "Instructor",
+      "totalProgress": "Progress",
+      "customCurriculumBadge": "Custom Path",
+      "editGoalSchedule": "Edit Path",
+      "mainSubtitleDetailed": "A clear, hands-on plan to master skills and build your portfolio.",
+      "totalPathProgress": "Total Progress",
+      "milestonesOverview": "{total} Learning Milestones",
+      "activeMilestoneBadge": "Milestone {step}",
+      "activeStepTag": "In Progress",
+      "upcomingStepTag": "Upcoming",
+      "capstoneProjectTag": "Capstone",
+      "trainingHours": "{count} hrs",
+      "practicalProjectNum": "Project {num}",
+      "resumeLessonBtn": "Continue",
+      "previewContentBtn": "Preview",
+      "lessonsCompletedCount": "{completed} of {total} completed",
+      "needReviewBannerTitle": "Need a mentor review or project consultation?",
+      "needReviewBannerDesc": "Book a 1-on-1 session with your mentor for actionable feedback.",
+      "request1on1Btn": "Book 1-on-1 Mentorship",
+      "goalLabel": "Goal",
+      "goalCertificatePortfolio": "Certificate & Portfolio",
+      "levelIntermediateAdvanced": "Intermediate"
+    }
+  },
+  "cms": {
+    "title": "Coach Space CMS",
+    "studioAdmin": "Studio Admin",
+    "headerTitle": "Central Marketing & Branding Management",
+    "activeEngine": "CMS Engine Active",
+    "activeShort": "Active",
+    "verifyingAccess": "Verifying admin access...",
+    "accessDenied": "Access Denied",
+    "accessDeniedDesc": "You require Django administrator privileges to access the content management system.",
+    "backToPlatform": "Back to Platform",
+    "nav": {
+      "overview": "Overview",
+      "branding": "Global Branding",
+      "landing": "Landing Page",
+      "pages": "Legal & Static Pages",
+      "previewSite": "Live Preview Site",
+      "backToApp": "Back to App"
+    },
+    "overview": {
+      "tag": "Unified CMS & Global Branding",
+      "heading": "Brand & Marketing Management",
+      "description": "Manage bilingual landing page content, legal policy pages, and global branding tokens with instant zero-deployment updates.",
+      "previewDraft": "Preview Draft",
+      "publishLive": "Publish Live",
+      "publishSuccess": "Published successfully! Public website cache revalidated.",
+      "publishFailed": "Failed to publish changes",
+      "draftPending": "Draft Changes Pending",
+      "published": "All Changes Published",
+      "activeColors": "Active Colors:",
+      "lastUpdated": "Last updated: ",
+      "recently": "Recently",
+      "brandingCard": {
+        "tag": "Design Tokens",
+        "title": "Global Branding & Colors",
+        "desc": "Modify primary & accent palette, brand logo, favicon, and button border radius globally.",
+        "btn": "Configure Branding"
+      },
+      "landingCard": {
+        "title": "Landing Page Sections",
+        "desc": "Bilingual editor for Hero, Value Props, FAQs, Testimonials, and Call to Actions.",
+        "btn": "Edit Sections"
+      },
+      "legalCard": {
+        "title": "Legal & Policy Pages",
+        "desc": "Bilingual editor for Privacy Policy, Terms of Service, user rights, and legal agreements.",
+        "btn": "Edit Legal Pages"
+      }
+    },
+    "branding": {
+      "designSystem": "Design System & Platform Branding",
+      "globalBranding": "Global Branding & Typography",
+      "resetDefaults": "Reset Defaults",
+      "saveApply": "Save & Apply",
+      "savedSuccess": "Branding, palette tokens, and typography successfully saved and applied platform-wide!",
+      "saveFailed": "Failed to save branding",
+      "resetSuccess": "Reset to default branding settings",
+      "presetSuccess": "Applied theme preset: {name}",
+      "harmonizeSuccess": "Theme colors auto-harmonized based on primary main color!",
+      "instantPresets": "Instant Curated Theme Presets",
+      "presetsSub": "Click to apply a cohesive designer palette",
+      "colorTokens": "Color Tokens & Palette",
+      "autoHarmonize": "Auto-Harmonize from Primary",
+      "primaryMain": "Primary Main Color",
+      "primaryDark": "Primary Dark Shade",
+      "primaryLight": "Primary Light Shade",
+      "accentMint": "Accent Mint",
+      "secondarySoft": "Secondary Soft Tint",
+      "logosAssets": "Brand Assets",
+      "logoUrl": "Main Logo URL",
+      "faviconUrl": "Favicon URL",
+      "buttonRadius": "Button & Card Radius",
+      "livePreview": "Real-time Live Preview",
+      "previewCardTitle": "Professional Web Development Masterclass",
+      "previewInstructor": "Dr. Ahmed Al-Mansouri",
+      "primaryAction": "Primary Action",
+      "secondaryAction": "Secondary",
+      "typographyStudio": "Global Typography Studio",
+      "arabicFont": "Primary Arabic Font",
+      "arabicFontDesc": "Applied to RTL Arabic interfaces",
+      "englishFont": "Primary English Font",
+      "englishFontDesc": "Applied to LTR English interfaces",
+      "customFontLabel": "Any Custom Google Font",
+      "optional": "Optional",
+      "customFontPlaceholder": "e.g. Amiri, Lemonada, Montserrat...",
+      "clearCustomFont": "Clear custom font",
+      "customFontDesc": "The font will be dynamically fetched from Google Fonts and applied instantly"
+    },
+    "landing": {
+      "bilingualStudio": "Bilingual Content Studio",
+      "sectionsTitle": "Landing Page Sections",
+      "reorderSections": "Reorder Sections",
+      "previewDraft": "Preview Draft",
+      "saveDraft": "Save Draft",
+      "publishLive": "Publish Live",
+      "orderUpdated": "Section sequence updated! Save draft to apply changes.",
+      "draftSaved": "Draft saved successfully! You can now preview it before publishing.",
+      "draftSaveFailed": "Error saving draft",
+      "publishSuccess": "Published successfully! Live on public website.",
+      "publishFailed": "Error publishing",
+      "tabs": {
+        "hero": "Hero Section",
+        "top_categories": "Top Categories",
+        "master_craft": "Master Your Craft",
+        "why_stands_out": "Why Platform Stands Out",
+        "real_stories": "Real Stories & Reviews",
+        "faq": "Frequently Asked Questions",
+        "join_future": "Join CTA"
+      }
+    },
+    "pages": {
+      "legalStudio": "Legal Content Studio",
+      "legalTitle": "Legal & Policy Pages",
+      "previewPage": "Preview Page",
+      "saveDraft": "Save Draft",
+      "publishLive": "Publish Live",
+      "draftSaved": "Draft saved successfully! You can preview it before publishing.",
+      "draftSaveFailed": "Error saving draft",
+      "publishSuccess": "Legal pages published successfully to the live platform!",
+      "publishFailed": "Error publishing",
+      "tabs": {
+        "privacy": "Privacy Policy",
+        "terms": "Terms of Service"
+      }
     }
   }
 }

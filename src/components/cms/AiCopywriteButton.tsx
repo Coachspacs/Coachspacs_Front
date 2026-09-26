@@ -109,10 +109,10 @@ export function AiCopywriteButton({
       <button
         type="button"
         onClick={handleOpen}
-        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-emerald-50 to-teal-50 hover:from-emerald-100 hover:to-teal-100 text-[#0F5244] border border-emerald-200/90 text-xs font-bold shadow-2xs hover:shadow-xs transition-all cursor-pointer group"
+        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-emerald-50 via-teal-50/80 to-emerald-50 hover:from-emerald-100 hover:to-teal-100 text-[#0F5244] border border-emerald-200/90 text-[11px] font-bold transition-all duration-200 cursor-pointer shadow-2xs hover:shadow-xs group hover:scale-[1.02] active:scale-95"
       >
-        <Sparkles className="w-3.5 h-3.5 text-emerald-600 group-hover:scale-110 transition-transform animate-pulse" />
-        <span>{isAr ? "اقترح صياغة احترافية" : "Suggest Professional Copy"}</span>
+        <Sparkles className="w-3.5 h-3.5 text-[#0F5244] group-hover:rotate-12 transition-transform duration-300" />
+        <span>{isAr ? "اقتراح صياغة بالذكاء الاصطناعي" : "AI Copy Suggestion"}</span>
       </button>
 
       {/* Modal Dialog */}
@@ -217,7 +217,7 @@ export function AiCopywriteButton({
               <div className="p-5 overflow-y-auto space-y-4 flex-1">
                 {isLoading ? (
                   <div className="py-12 flex flex-col items-center justify-center gap-3">
-                    <div className="w-8 h-8 rounded-full border-3 border-emerald-600 border-t-transparent animate-spin" />
+                    <div className="w-8 h-8 rounded-full border-3 border-[#0F5244] border-t-transparent animate-spin" />
                     <p className="text-xs font-bold text-slate-500">
                       {isAr ? "جاري صياغة مقترحات تسويقية مبتكرة..." : "Generating creative suggestions..."}
                     </p>
@@ -233,10 +233,10 @@ export function AiCopywriteButton({
                       initial={{ opacity: 0, y: 6 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: idx * 0.08 }}
-                      className="p-4 rounded-2xl border border-slate-200 bg-white hover:border-emerald-300 hover:shadow-xs transition-all group"
+                      className="p-4 rounded-2xl border border-slate-200 bg-white hover:border-[#0F5244]/40 hover:shadow-xs transition-all group"
                     >
                       <div className="flex items-center justify-between mb-3 border-b border-slate-100 pb-2">
-                        <span className="text-[11px] font-black text-emerald-800 bg-emerald-50 border border-emerald-200/70 px-2.5 py-0.5 rounded-lg">
+                        <span className="text-[11px] font-black text-[#0F5244] bg-emerald-50 border border-emerald-200/70 px-2.5 py-0.5 rounded-lg">
                           {isAr ? `الخيار #${idx + 1}` : `Option #${idx + 1}`}
                         </span>
 
@@ -248,7 +248,7 @@ export function AiCopywriteButton({
                           >
                             {copiedId === s.id ? (
                               <>
-                                <Check className="w-3 h-3 text-emerald-600" />
+                                <Check className="w-3 h-3 text-[#0F5244]" />
                                 <span>{isAr ? "تم النسخ" : "Copied"}</span>
                               </>
                             ) : (
@@ -264,7 +264,7 @@ export function AiCopywriteButton({
                             onClick={() => handleApply(s)}
                             className={`inline-flex items-center gap-1.5 px-3 py-1 text-xs font-black rounded-lg transition-all cursor-pointer ${
                               appliedId === s.id
-                                ? "bg-emerald-600 text-white"
+                                ? "bg-[#07382E] text-white"
                                 : "bg-[#0F5244] hover:bg-[#07382E] text-white shadow-xs"
                             }`}
                           >

@@ -2,9 +2,7 @@
 
 import React, { useRef } from "react";
 import Image from "next/image";
-import { useTranslations } from "next-intl";
 import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
-import { Sparkles, MessageCircle } from "lucide-react";
 import { AnimatedRobotCharacter } from "./AnimatedRobotCharacter";
 
 interface CleanHeroBannerProps {
@@ -12,7 +10,6 @@ interface CleanHeroBannerProps {
 }
 
 export function CleanHeroBanner({ isAr }: CleanHeroBannerProps) {
-  const t = useTranslations("myPath");
   const cardRef = useRef<HTMLDivElement>(null);
 
   // Smooth gentle 3D tilt on card hover
@@ -47,7 +44,7 @@ export function CleanHeroBanner({ isAr }: CleanHeroBannerProps) {
         }}
         className="w-full h-full relative group cursor-pointer"
       >
-        {/* Background Scenic Landscape (Daylight rolling green hills, white winding road, milestone flags) */}
+        {/* Background Scenic Landscape */}
         <Image
           src="/images/mypath/mypath-daylight-hero.jpg"
           alt="Coach Space Learning Journey Landscape"
@@ -56,42 +53,105 @@ export function CleanHeroBanner({ isAr }: CleanHeroBannerProps) {
           className="object-cover object-center"
         />
 
-        {/* ========================================================================= */}
-        {/* LIVE ANIMATED ROBOT (Floating, Waving Arm, Blinking LED Eyes) */}
-        {/* ========================================================================= */}
-        <div className="absolute top-[8%] left-[8%] sm:left-[12%] rtl:left-auto rtl:right-[8%] sm:rtl:right-[12%] z-20 flex flex-col items-center">
-          <AnimatedRobotCharacter />
-
-          {/* Interactive Speech Bubble from Robot */}
-          <motion.div
-            initial={{ opacity: 0, y: 6 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6 }}
-            className="absolute -top-2 left-24 rtl:left-auto rtl:right-24 bg-white/95 backdrop-blur-md border border-emerald-200 rounded-2xl px-3 py-1 shadow-sm whitespace-nowrap hidden sm:flex items-center gap-1.5"
+        {/* 4th Milestone Pillar & Flag (matching 1, 2, 3) */}
+        <div
+          style={{ left: "88%", top: "34%" }}
+          className="absolute -translate-x-1/2 -translate-y-1/2 z-20 flex flex-col items-center pointer-events-none"
+        >
+          <svg
+            width="48"
+            height="54"
+            viewBox="0 0 48 54"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            className="drop-shadow-xs select-none"
           >
-            <Sparkles className="w-3.5 h-3.5 text-emerald-600 animate-pulse" />
-            <span className="text-[11px] font-black text-[#0F5244]">
-              {t("robotGreeting")}
-            </span>
-          </motion.div>
+            <ellipse cx="20" cy="50" rx="14" ry="3.5" fill="rgba(15,82,68,0.24)" />
+            <path d="M10 50C9 45 7 40 4 38C7 43 8 47 10 50Z" fill="#10B981" />
+            <path d="M12 50C12 44 11 38 9 35C11 42 12 46 13 50Z" fill="#059669" />
+            <path d="M14 50C15 45 17 40 19 37C17 43 16 47 14 50Z" fill="#34D399" />
+
+            <polygon points="12,22 20,19 20,46 12,48" fill="#E6EFEA" />
+            <polygon points="20,19 34,22 34,49 20,46" fill="#FFFFFF" />
+            <polygon
+              points="12,22 20,19 34,22 26,25"
+              fill="#F8FAFC"
+              stroke="#CFDFD7"
+              strokeWidth="0.5"
+            />
+            <polyline
+              points="12,22 12,48 20,46 34,49 34,22"
+              stroke="#CFDFD7"
+              strokeWidth="0.75"
+              fill="none"
+            />
+            <line x1="20" y1="19" x2="20" y2="46" stroke="#CFDFD7" strokeWidth="0.75" />
+
+            <text
+              x="27"
+              y="35"
+              fontSize="12.5"
+              fontWeight="900"
+              fill="#0F5244"
+              textAnchor="middle"
+              dominantBaseline="middle"
+              fontFamily="system-ui, -apple-system, sans-serif"
+            >
+              4
+            </text>
+
+            <line
+              x1="20"
+              y1="8"
+              x2="20"
+              y2="20"
+              stroke="#FFFFFF"
+              strokeWidth="2"
+              strokeLinecap="round"
+            />
+            <circle cx="20" cy="8" r="1.2" fill="#FFFFFF" />
+
+            <path
+              d="M20 8.5C26 7 35 11 44 8.5L42 16C34 18 26 14.5 20 16V8.5Z"
+              fill="url(#flagGreenFinishGradHero)"
+            />
+            <text
+              x="31"
+              y="12.6"
+              fontSize="3.8"
+              fontWeight="900"
+              fill="#FFFFFF"
+              textAnchor="middle"
+              dominantBaseline="middle"
+              letterSpacing="0.4"
+              fontFamily="system-ui, -apple-system, sans-serif"
+            >
+              FINISH
+            </text>
+
+            <defs>
+              <linearGradient
+                id="flagGreenFinishGradHero"
+                x1="20"
+                y1="8.5"
+                x2="44"
+                y2="16"
+                gradientUnits="userSpaceOnUse"
+              >
+                <stop stopColor="#10B981" />
+                <stop offset="1" stopColor="#0B6B55" />
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+
+        {/* Live Animated Robot hovering above Start Point (Milestone 1) */}
+        <div className="absolute top-[36%] left-[17%] -translate-x-1/2 -translate-y-1/2 z-20 flex flex-col items-center pointer-events-none">
+          <AnimatedRobotCharacter size="md" />
         </div>
 
         {/* Soft Ambient Light Gradient on edge */}
         <div className="absolute inset-0 bg-gradient-to-t from-emerald-950/10 via-transparent to-transparent pointer-events-none" />
-
-        {/* Real HTML/CSS Translatable Floating Badge */}
-        <div className="absolute bottom-3 left-3.5 rtl:left-auto rtl:right-3.5 z-20">
-          <motion.div
-            animate={{ y: [0, -2, 0] }}
-            transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
-            className="inline-flex items-center gap-2 bg-white/95 backdrop-blur-md border border-emerald-200/90 rounded-xl px-3 py-1.5 shadow-sm text-start"
-          >
-            <div className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
-            <span className="text-[11px] font-black text-[#0F5244]">
-              {t("generatingBadge")}
-            </span>
-          </motion.div>
-        </div>
       </motion.div>
     </div>
   );
