@@ -32,6 +32,12 @@ import {
   Layers,
   Star,
   UserCheck,
+  Zap,
+  Target,
+  ArrowRight,
+  ArrowLeft,
+  CheckCircle2,
+  Sparkle,
 } from "lucide-react";
 import { GeneratedRoadmap, RoadmapMilestone, MyPathPreferences } from "@/types/mypath";
 import { soundFx } from "@/lib/soundEffects";
@@ -93,10 +99,10 @@ export function InteractiveCurriculumMap({
     try {
       soundFx.playCelebration();
       confetti({
-        particleCount: 100,
-        spread: 80,
+        particleCount: 120,
+        spread: 90,
         origin: { y: 0.6 },
-        colors: ["#0F5244", "#10B981", "#38E09D", "#F59E0B", "#D1FAE5"],
+        colors: ["#0F5244", "#10B981", "#34D399", "#6EE7B7", "#D1FAE5", "#FBBF24"],
       });
     } catch {}
   };
@@ -135,6 +141,8 @@ export function InteractiveCurriculumMap({
       return {
         title: preferences.customTrackName,
         icon: Sparkles,
+        accentColor: "from-emerald-500 to-teal-600",
+        badge: isAr ? "مسار مخصص" : "Custom Track",
       };
     }
     switch (preferences.track) {
@@ -142,46 +150,64 @@ export function InteractiveCurriculumMap({
         return {
           title: isAr ? "تصميم واجهات وتجربة المستخدم (UI/UX)" : "UI/UX Product Design",
           icon: Palette,
+          accentColor: "from-fuchsia-500 to-rose-500",
+          badge: isAr ? "تصميم وتجربة" : "Design & UX",
         };
       case "frontend":
         return {
           title: isAr ? "هندسة واجهات الويب (Frontend)" : "Frontend Web Engineering",
           icon: Code2,
+          accentColor: "from-emerald-600 to-teal-500",
+          badge: isAr ? "تطوير الواجهات" : "Frontend Track",
         };
       case "backend":
         return {
           title: isAr ? "البنية الخلفية والنظم السحابية (Backend)" : "Backend Architecture",
           icon: Database,
+          accentColor: "from-blue-600 to-indigo-600",
+          badge: isAr ? "الأنظمة وقواعد البيانات" : "Backend & Cloud",
         };
       case "fullstack":
         return {
           title: isAr ? "تطوير الويب الشامل (Full-Stack)" : "Full-Stack Web Development",
           icon: Layers,
+          accentColor: "from-indigo-600 to-violet-600",
+          badge: isAr ? "تطوير متكامل" : "Full-Stack Mastery",
         };
       case "ai":
         return {
           title: isAr ? "الذكاء الاصطناعي وتعلّم الآلة (AI & ML)" : "Artificial Intelligence & ML",
           icon: BrainCircuit,
+          accentColor: "from-purple-600 to-pink-500",
+          badge: isAr ? "الذكاء الاصطناعي" : "AI & GenAI",
         };
       case "data":
         return {
           title: isAr ? "علم وهندسة البيانات (Data Science)" : "Data Science & Analytics",
           icon: Database,
+          accentColor: "from-cyan-600 to-blue-600",
+          badge: isAr ? "علم البيانات" : "Data Science",
         };
       case "mobile":
         return {
           title: isAr ? "تطوير تطبيقات الموبايل (Mobile)" : "Cross-Platform Mobile Apps",
           icon: Smartphone,
+          accentColor: "from-amber-500 to-orange-600",
+          badge: isAr ? "تطبيقات الهواتف" : "Mobile Engineering",
         };
       case "cloud":
         return {
           title: isAr ? "الحوسبة السحابية وDevOps" : "Cloud Engineering & DevOps",
           icon: Cloud,
+          accentColor: "from-sky-500 to-cyan-600",
+          badge: isAr ? "السحابة وDevOps" : "Cloud & DevOps",
         };
       default:
         return {
           title: isAr ? "المسار التقني المتخصص" : "Specialized Tech Roadmap",
           icon: Compass,
+          accentColor: "from-emerald-600 to-teal-500",
+          badge: isAr ? "مسار احترافي" : "Pro Pathway",
         };
     }
   };
@@ -190,104 +216,126 @@ export function InteractiveCurriculumMap({
   const TrackIcon = trackInfo.icon;
 
   return (
-    <div dir={isAr ? "rtl" : "ltr"} className="space-y-6 relative z-10 text-start w-full max-w-4xl mx-auto pb-8 font-sans">
+    <div dir={isAr ? "rtl" : "ltr"} className="space-y-8 relative z-10 text-start w-full max-w-4xl mx-auto pb-12 font-sans">
       {/* ========================================================================= */}
-      {/* 1. SOFT & ELEGANT HEADER PASSPORT */}
+      {/* 1. SOFT, LUMINOUS & CREATIVE HERO PASSPORT */}
       {/* ========================================================================= */}
-      <div className="relative rounded-3xl bg-gradient-to-br from-[#0F5244] to-[#0A3D32] text-white p-5 sm:p-7 shadow-sm border border-emerald-700/30 overflow-hidden">
-        {/* Soft Ambient Light Glows */}
-        <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-400/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute bottom-0 left-0 w-64 h-64 bg-teal-300/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="relative rounded-[2.5rem] bg-gradient-to-br from-emerald-50/90 via-white to-teal-50/60 border border-emerald-200/70 p-6 sm:p-8 shadow-sm backdrop-blur-md overflow-hidden group">
+        {/* Soft Decorative Ambient Lights */}
+        <div className="absolute top-0 right-0 w-80 h-80 bg-emerald-300/15 rounded-full blur-3xl pointer-events-none -translate-y-12 translate-x-12" />
+        <div className="absolute bottom-0 left-0 w-72 h-72 bg-teal-200/20 rounded-full blur-3xl pointer-events-none translate-y-12 -translate-x-12" />
 
-        <div className="relative z-10 space-y-4">
-          {/* Top Row: Track Icon + Title + Stats Pill */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            {/* Title Details */}
-            <div className="flex items-center gap-3">
-              <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-white/10 backdrop-blur-md border border-white/15 flex items-center justify-center shrink-0 text-[#38E09D]">
-                <TrackIcon className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2.2]" />
+        <div className="relative z-10 space-y-6">
+          {/* Top Row: Track Icon + Main Title + Controls */}
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-5">
+            {/* Title & Icon Header */}
+            <div className="flex items-center gap-4">
+              <div className="relative shrink-0">
+                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#0F5244] to-[#0A3D32] text-white flex items-center justify-center shadow-md shadow-[#0F5244]/15 border border-emerald-400/30 group-hover:scale-105 transition-transform duration-300">
+                  <TrackIcon className="w-7 h-7 text-emerald-300 stroke-[2.2]" />
+                </div>
+                <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-emerald-500 border-2 border-white flex items-center justify-center text-[10px] text-white">
+                  <Sparkle className="w-2.5 h-2.5 fill-current" />
+                </div>
               </div>
-              <div className="space-y-0.5">
+
+              <div className="space-y-1">
                 <div className="flex items-center gap-2">
-                  <span className="text-[10px] sm:text-[11px] font-bold text-emerald-200 uppercase tracking-wider bg-white/10 px-2 py-0.5 rounded-md">
-                    {isAr ? "خطة التعلّم المخصصة" : "Personalized Learning Path"}
+                  <span className="text-[11px] font-extrabold px-3 py-0.5 rounded-full bg-emerald-100/80 text-[#0F5244] border border-emerald-300/60">
+                    {trackInfo.badge}
+                  </span>
+                  <span className="text-[11px] font-semibold text-slate-500">
+                    {isAr ? "مسار تعليمي تفاعلي ذكي" : "AI-Structured Learning Map"}
                   </span>
                 </div>
-                <h1 className="text-lg sm:text-xl font-black text-white tracking-tight">
+                <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
                   {trackInfo.title}
                 </h1>
               </div>
             </div>
 
-            {/* Quick Metrics */}
-            <div className="flex items-center gap-2 self-start sm:self-auto bg-black/20 backdrop-blur-md rounded-2xl px-3.5 py-1.5 border border-white/10 text-xs font-semibold">
-              <div className="flex items-center gap-1.5 text-emerald-100">
-                <Clock className="w-3.5 h-3.5 text-[#38E09D]" />
+            {/* Quick Metrics & Sound */}
+            <div className="flex items-center gap-2 self-start md:self-auto bg-white/90 backdrop-blur-md rounded-2xl p-1.5 px-3.5 border border-emerald-200/60 shadow-2xs text-xs font-bold text-slate-700">
+              <div className="flex items-center gap-1.5 text-emerald-800">
+                <Clock className="w-4 h-4 text-emerald-600" />
                 <span>{preferences.hoursPerWeek} {isAr ? "س/أسبوع" : "hrs/wk"}</span>
               </div>
 
-              <div className="w-px h-4 bg-white/20" />
+              <div className="w-px h-4 bg-slate-200" />
 
-              <div className="flex items-center gap-1.5 text-emerald-100">
-                <Calendar className="w-3.5 h-3.5 text-[#38E09D]" />
+              <div className="flex items-center gap-1.5 text-emerald-800">
+                <Calendar className="w-4 h-4 text-emerald-600" />
                 <span>{Math.max(1, Math.round(roadmap.estimatedWeeks / 4))} {isAr ? "أشهر" : "mos"}</span>
               </div>
 
-              <div className="w-px h-4 bg-white/20" />
+              <div className="w-px h-4 bg-slate-200" />
 
               {/* Sound Toggle */}
               <button
                 type="button"
                 onClick={toggleSound}
-                className="p-1 rounded-lg hover:bg-white/15 text-emerald-200 transition-colors cursor-pointer"
+                className="p-1 rounded-xl hover:bg-slate-100 text-slate-600 hover:text-emerald-700 transition-colors cursor-pointer"
                 title={soundOn ? (isAr ? "كتم الصوت" : "Mute Sound") : (isAr ? "تشغيل الصوت" : "Unmute Sound")}
               >
-                {soundOn ? <Volume2 className="w-3.5 h-3.5 text-[#38E09D]" /> : <VolumeX className="w-3.5 h-3.5 text-slate-400" />}
+                {soundOn ? <Volume2 className="w-4 h-4 text-emerald-600" /> : <VolumeX className="w-4 h-4 text-slate-400" />}
               </button>
             </div>
           </div>
 
-          {/* Progress Bar & Actions */}
-          <div className="space-y-2 pt-2 border-t border-white/10">
-            <div className="flex items-center justify-between text-[11px] font-bold text-emerald-200">
-              <span>{progressPercent}% {isAr ? "مكتمل" : "Completed"} ({completedCount} {isAr ? `من ${totalCount} محطات` : `of ${totalCount} stations`})</span>
-              
+          {/* Progress Bar & Actions Row */}
+          <div className="space-y-3 pt-3 border-t border-emerald-100/80">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              {/* Progress Count Badge */}
+              <div className="flex items-center gap-2">
+                <span className="inline-flex items-center justify-center w-7 h-7 rounded-xl bg-emerald-600 text-white font-black text-xs shadow-xs">
+                  {progressPercent}%
+                </span>
+                <span className="text-xs font-bold text-slate-700">
+                  {isAr ? "مستوى إنجاز المسار" : "Curriculum Completion"}
+                </span>
+                <span className="text-xs font-semibold text-slate-400">
+                  ({completedCount} {isAr ? `من ${totalCount} محطات` : `of ${totalCount} stations`})
+                </span>
+              </div>
+
+              {/* Action Buttons */}
               <div className="flex items-center gap-2">
                 <button
                   type="button"
                   onClick={handleShare}
-                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white/10 hover:bg-white/20 text-white text-[11px] font-bold transition-colors cursor-pointer"
+                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-white hover:bg-emerald-50 text-slate-700 hover:text-[#0F5244] text-xs font-bold transition-all border border-slate-200/80 hover:border-emerald-300 shadow-2xs cursor-pointer active:scale-95"
                 >
-                  <Share2 className="w-3 h-3 text-[#38E09D]" />
+                  <Share2 className="w-3.5 h-3.5 text-emerald-600" />
                   <span>{copiedToast ? (isAr ? "تم النسخ!" : "Copied!") : isAr ? "مشاركة" : "Share"}</span>
                 </button>
 
                 <button
                   type="button"
                   onClick={onRegenerate}
-                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white/10 hover:bg-white/20 text-white text-[11px] font-bold transition-colors cursor-pointer"
+                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-white hover:bg-emerald-50 text-slate-700 hover:text-[#0F5244] text-xs font-bold transition-all border border-slate-200/80 hover:border-emerald-300 shadow-2xs cursor-pointer active:scale-95"
                 >
-                  <RotateCcw className="w-3 h-3 text-[#38E09D]" />
+                  <RotateCcw className="w-3.5 h-3.5 text-emerald-600" />
                   <span>{isAr ? "إعادة البناء" : "Regenerate"}</span>
                 </button>
 
                 <button
                   type="button"
                   onClick={onEditPreferences}
-                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white/10 hover:bg-white/20 text-white text-[11px] font-bold transition-colors cursor-pointer"
+                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-[#07382E] text-white text-xs font-black transition-all shadow-xs cursor-pointer active:scale-95"
                 >
-                  <SlidersHorizontal className="w-3 h-3 text-[#38E09D]" />
-                  <span>{isAr ? "التفضيلات" : "Preferences"}</span>
+                  <SlidersHorizontal className="w-3.5 h-3.5" />
+                  <span>{isAr ? "تعديل التفضيلات" : "Preferences"}</span>
                 </button>
               </div>
             </div>
 
-            <div className="w-full h-2 bg-black/30 rounded-full overflow-hidden p-0.5 border border-white/10">
+            {/* Smooth Progress Track */}
+            <div className="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden p-0.5 border border-slate-200/60 shadow-inner">
               <motion.div
                 initial={{ width: 0 }}
                 animate={{ width: `${progressPercent}%` }}
-                transition={{ duration: 0.8, ease: "easeOut" }}
-                className="h-full bg-gradient-to-r from-emerald-400 to-[#38E09D] rounded-full"
+                transition={{ duration: 0.9, ease: "easeOut" }}
+                className="h-full bg-gradient-to-r from-emerald-500 via-teal-400 to-[#38E09D] rounded-full shadow-xs"
               />
             </div>
           </div>
@@ -295,18 +343,18 @@ export function InteractiveCurriculumMap({
       </div>
 
       {/* ========================================================================= */}
-      {/* 2. SOFT & CLEAN MODULAR STATIONS TIMELINE */}
+      {/* 2. THE SILK PATHWAY - SOFT & CREATIVE STATIONS TIMELINE */}
       {/* ========================================================================= */}
-      <div className="relative py-2">
-        {/* Soft Slender Vertical Timeline Spine */}
+      <div className="relative py-2 space-y-8">
+        {/* Soft Dynamic Spine */}
         <div
-          className={`absolute top-6 bottom-8 w-0.5 bg-emerald-200/80 rounded-full ${
+          className={`absolute top-8 bottom-12 w-1 rounded-full ${
             isAr ? "right-5 sm:right-7" : "left-5 sm:left-7"
-          }`}
+          } bg-gradient-to-b from-emerald-300 via-teal-200 to-slate-200`}
         />
 
-        {/* Station Cards */}
-        <div className="space-y-6">
+        {/* Stations Loop */}
+        <div className="space-y-7">
           {roadmap.milestones.map((milestone, idx) => {
             const isCompleted = milestone.status === "completed";
             const isActive = !isCompleted && idx === currentActiveIndex;
@@ -316,29 +364,39 @@ export function InteractiveCurriculumMap({
             return (
               <motion.div
                 key={milestone.id}
-                initial={{ opacity: 0, y: 15 }}
+                initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.35, delay: idx * 0.05 }}
-                className="relative flex items-start gap-3 sm:gap-6"
+                transition={{ duration: 0.4, delay: idx * 0.06 }}
+                className="relative flex items-start gap-4 sm:gap-7"
               >
-                {/* Milestone Node on Spine */}
-                <div className="relative shrink-0 z-20 pt-1.5">
+                {/* Creative Milestone Sphere Node */}
+                <div className="relative shrink-0 z-20 pt-2">
                   <motion.button
                     type="button"
-                    whileHover={{ scale: 1.08 }}
-                    whileTap={{ scale: 0.94 }}
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.92 }}
                     onClick={() => handleToggleCompleted(milestone.id)}
-                    className={`w-10 h-10 sm:w-14 sm:h-14 rounded-2xl flex flex-col items-center justify-center font-black transition-all cursor-pointer shadow-xs ${
+                    className={`w-11 h-11 sm:w-14 sm:h-14 rounded-full flex flex-col items-center justify-center font-black transition-all duration-300 cursor-pointer ${
                       isCompleted
-                        ? "bg-[#0F5244] text-white border-2 border-emerald-300"
+                        ? "bg-gradient-to-tr from-[#0F5244] to-emerald-500 text-white shadow-md shadow-emerald-700/25 border-2 border-emerald-300"
                         : isActive
-                        ? "bg-[#0F5244] text-[#38E09D] ring-4 ring-emerald-100 border-2 border-[#38E09D]"
-                        : "bg-white text-slate-500 border border-slate-200 hover:border-slate-300"
+                        ? "bg-gradient-to-tr from-[#0F5244] via-emerald-600 to-teal-500 text-white ring-4 ring-emerald-300/40 shadow-lg shadow-emerald-600/30 border-2 border-emerald-200 animate-pulse-gentle"
+                        : "bg-white text-slate-400 border-2 border-slate-200 hover:border-emerald-300 hover:text-emerald-700 shadow-2xs"
                     }`}
-                    title={isCompleted ? (isAr ? "مكتملة - انقر للتراجع" : "Completed - Click to undo") : (isAr ? "تحديد كمكتملة" : "Mark as completed")}
+                    title={
+                      isCompleted
+                        ? isAr
+                          ? "مكتملة - انقر للتراجع"
+                          : "Completed - Click to undo"
+                        : isAr
+                        ? "تحديد كمكتملة"
+                        : "Mark as completed"
+                    }
                   >
                     {isCompleted ? (
                       <Check className="w-5 h-5 sm:w-6 sm:h-6 stroke-[3]" />
+                    ) : isActive ? (
+                      <Zap className="w-5 h-5 sm:w-6 sm:h-6 fill-current text-emerald-200" />
                     ) : (
                       <span className="text-sm sm:text-base font-black font-mono">
                         {idx + 1}
@@ -347,65 +405,65 @@ export function InteractiveCurriculumMap({
                   </motion.button>
                 </div>
 
-                {/* Soft Station Card */}
+                {/* Soft & Creative Station Card */}
                 <div className="flex-1 min-w-0">
                   <div
-                    className={`rounded-2xl sm:rounded-3xl border transition-all duration-200 overflow-hidden ${
+                    className={`rounded-[2rem] border transition-all duration-300 overflow-hidden ${
                       isCompleted
-                        ? "bg-emerald-50/40 border-emerald-200/70"
+                        ? "bg-emerald-50/40 border-emerald-200/80 shadow-2xs"
                         : isActive
-                        ? "bg-white border-emerald-400 ring-2 ring-emerald-400/15 shadow-sm"
-                        : "bg-white border-slate-200/80 shadow-xs"
+                        ? "bg-white border-emerald-400 ring-4 ring-emerald-400/10 shadow-lg shadow-slate-200/60"
+                        : "bg-white border-slate-200/90 hover:border-slate-300 shadow-2xs hover:shadow-md hover:-translate-y-0.5"
                     }`}
                   >
-                    {/* Station Top Pill Header */}
-                    <div className="p-4 sm:p-5 pb-3 flex flex-wrap items-center justify-between gap-2 border-b border-slate-100">
+                    {/* Top Ribbon Header */}
+                    <div className="p-4 sm:p-6 pb-3.5 flex flex-wrap items-center justify-between gap-2 border-b border-slate-100/90">
                       <div className="flex items-center gap-2">
                         <span
-                          className={`text-[10px] sm:text-xs font-bold uppercase px-2.5 py-0.5 rounded-lg ${
+                          className={`text-[11px] font-black uppercase px-3 py-1 rounded-xl tracking-wider ${
                             isCompleted
-                              ? "bg-emerald-100 text-emerald-900"
+                              ? "bg-emerald-100 text-emerald-900 border border-emerald-300"
                               : isActive
-                              ? "bg-[#0F5244] text-white"
-                              : "bg-slate-100 text-slate-700"
+                              ? "bg-gradient-to-r from-[#0F5244] to-emerald-700 text-white shadow-2xs"
+                              : "bg-slate-100 text-slate-700 border border-slate-200"
                           }`}
                         >
                           {isAr ? `المحطة ${idx + 1}` : `Station ${idx + 1}`}
                         </span>
 
-                        <span className="text-[11px] text-slate-400 font-medium">
+                        <span className="text-xs text-slate-500 font-bold bg-slate-50 px-2.5 py-0.5 rounded-lg border border-slate-200/60">
                           {milestone.durationWeeks} {isAr ? "أسابيع" : "weeks"}
                         </span>
                       </div>
 
-                      {/* State Text */}
+                      {/* State Badge */}
                       <div>
                         {isCompleted ? (
-                          <span className="text-xs font-bold text-emerald-700 flex items-center gap-1">
-                            <Check className="w-3.5 h-3.5 stroke-[2.5]" />
-                            <span>{isAr ? "مكتملة" : "Completed"}</span>
+                          <span className="text-xs font-black text-emerald-700 flex items-center gap-1.5 bg-emerald-100/80 px-3 py-1 rounded-full border border-emerald-300">
+                            <CheckCircle2 className="w-3.5 h-3.5 stroke-[2.5]" />
+                            <span>{isAr ? "مكتملة بنجاح" : "Completed"}</span>
                           </span>
                         ) : isActive ? (
-                          <span className="text-xs font-bold text-[#0F5244] flex items-center gap-1">
-                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                            <span>{isAr ? "المحطة الحالية" : "Current"}</span>
+                          <span className="text-xs font-black text-emerald-900 bg-emerald-100 px-3 py-1 rounded-full border border-emerald-300 flex items-center gap-1.5 shadow-2xs">
+                            <span className="w-2 h-2 rounded-full bg-emerald-600 animate-ping" />
+                            <span>{isAr ? "المحطة الحالية (ابدأ هنا)" : "Current Focus"}</span>
                           </span>
                         ) : (
-                          <span className="text-xs font-medium text-slate-400 flex items-center gap-1">
+                          <span className="text-xs font-bold text-slate-400 bg-slate-100 px-2.5 py-1 rounded-full flex items-center gap-1">
                             <Lock className="w-3 h-3" />
-                            <span>{isAr ? "قادمة" : "Upcoming"}</span>
+                            <span>{isAr ? "المحطة القادمة" : "Upcoming"}</span>
                           </span>
                         )}
                       </div>
                     </div>
 
-                    {/* Station Content */}
-                    <div className="p-4 sm:p-5 space-y-3.5">
-                      {/* Title & Description */}
-                      <div className="space-y-1">
-                        <div className="flex items-start gap-2">
-                          <BookOpen className="w-4 h-4 text-[#0F5244] shrink-0 mt-0.5" />
-                          <h3 className="text-sm sm:text-base font-black text-slate-900 leading-snug">
+                    {/* Main Content Area */}
+                    <div className="p-5 sm:p-6 space-y-4">
+                      {/* Course Title & Description */}
+                      <div className="space-y-1.5">
+                        <div className="flex items-start gap-2.5">
+                          <BookOpen className="w-5 h-5 text-[#0F5244] shrink-0 mt-0.5" />
+                          <h3 className="text-base sm:text-lg font-black text-slate-900 leading-snug">
                             {firstCourse
                               ? isAr
                                 ? firstCourse.titleAr
@@ -415,18 +473,18 @@ export function InteractiveCurriculumMap({
                               : milestone.title}
                           </h3>
                         </div>
-                        <p className="text-xs text-slate-600 font-normal leading-relaxed">
+                        <p className="text-xs sm:text-sm text-slate-600 font-normal leading-relaxed ps-7">
                           {isAr ? milestone.descriptionAr : milestone.description}
                         </p>
                       </div>
 
                       {/* Skills Cloud */}
                       {milestone.skills && milestone.skills.length > 0 && (
-                        <div className="flex items-center gap-1.5 flex-wrap pt-0.5">
+                        <div className="flex items-center gap-1.5 flex-wrap ps-7">
                           {(isAr && milestone.skillsAr ? milestone.skillsAr : milestone.skills).map((skill) => (
                             <span
                               key={skill}
-                              className="text-[11px] font-semibold px-2 py-0.5 rounded-md bg-slate-50 text-slate-700 border border-slate-200/80"
+                              className="text-[11px] font-bold px-2.5 py-0.5 rounded-lg bg-emerald-50/70 text-[#0F5244] border border-emerald-200/70 hover:bg-emerald-100 transition-colors"
                             >
                               {skill}
                             </span>
@@ -434,31 +492,41 @@ export function InteractiveCurriculumMap({
                         </div>
                       )}
 
-                      {/* Soft Capstone Project Pill */}
+                      {/* Creative Station Project Card */}
                       {milestone.projectTitle && (
-                        <div className="rounded-xl bg-[#F7FCF9] border border-emerald-100 p-3 flex items-start gap-2.5">
-                          <FolderGit2 className="w-4 h-4 text-[#0F5244] shrink-0 mt-0.5" />
+                        <div className="rounded-2xl bg-gradient-to-r from-slate-50 via-emerald-50/30 to-slate-50 border border-emerald-100 p-4 flex items-start gap-3 shadow-2xs">
+                          <div className="w-8 h-8 rounded-xl bg-emerald-100 text-[#0F5244] flex items-center justify-center shrink-0 mt-0.5 border border-emerald-200">
+                            <FolderGit2 className="w-4 h-4" />
+                          </div>
                           <div className="space-y-0.5 min-w-0">
-                            <span className="text-[10px] font-bold uppercase text-emerald-800 tracking-wider block">
-                              {isAr ? "مشروع المحطة التطبيقي" : "Station Project"}
+                            <span className="text-[10px] font-black uppercase text-[#0F5244] tracking-wider block">
+                              {isAr ? "مشروع المحطة التطبيقي (Capstone Project)" : "Practical Station Project"}
                             </span>
-                            <h4 className="text-xs font-bold text-slate-900 truncate">
+                            <h4 className="text-xs sm:text-sm font-black text-slate-900 truncate">
                               {isAr ? milestone.projectTitleAr || milestone.projectTitle : milestone.projectTitle}
                             </h4>
                           </div>
                         </div>
                       )}
 
-                      {/* Collapsible Syllabus Detail */}
+                      {/* Collapsible Syllabus & Details */}
                       {firstCourse && (
-                        <div>
+                        <div className="ps-7">
                           <button
                             type="button"
                             onClick={() => toggleExpandMilestone(milestone.id)}
-                            className="text-[11px] font-bold text-emerald-700 hover:text-emerald-900 inline-flex items-center gap-1 cursor-pointer transition-colors"
+                            className="text-xs font-bold text-emerald-700 hover:text-emerald-900 inline-flex items-center gap-1.5 cursor-pointer transition-colors"
                           >
-                            <span>{isExpanded ? (isAr ? "إخفاء التفاصيل" : "Hide Details") : (isAr ? "عرض تفاصيل الدورة والمدرب" : "View Course Details")}</span>
-                            {isExpanded ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+                            <span>
+                              {isExpanded
+                                ? isAr
+                                  ? "إخفاء التفاصيل"
+                                  : "Hide Course Details"
+                                : isAr
+                                ? "عرض تفاصيل الدورة والمدرب"
+                                : "View Instructor & Details"}
+                            </span>
+                            {isExpanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
                           </button>
 
                           <AnimatePresence>
@@ -467,16 +535,23 @@ export function InteractiveCurriculumMap({
                                 initial={{ opacity: 0, height: 0 }}
                                 animate={{ opacity: 1, height: "auto" }}
                                 exit={{ opacity: 0, height: 0 }}
-                                className="overflow-hidden pt-2"
+                                className="overflow-hidden pt-2.5"
                               >
-                                <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/70 text-xs text-slate-600 flex items-center justify-between gap-2">
-                                  <span className="font-semibold text-slate-800 flex items-center gap-1.5">
-                                    <UserCheck className="w-3.5 h-3.5 text-[#0F5244]" />
+                                <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 text-xs text-slate-700 flex flex-wrap items-center justify-between gap-2 shadow-2xs">
+                                  <span className="font-bold text-slate-900 flex items-center gap-1.5">
+                                    <UserCheck className="w-4 h-4 text-[#0F5244]" />
                                     <span>{firstCourse.instructor}</span>
                                   </span>
-                                  <span className="text-slate-500 font-medium">
-                                    {firstCourse.durationHours} {isAr ? "ساعة" : "hours"}
-                                  </span>
+                                  <div className="flex items-center gap-3 text-slate-500 font-semibold text-[11px]">
+                                    <span>
+                                      {firstCourse.durationHours} {isAr ? "ساعة تدريبية" : "hours"}
+                                    </span>
+                                    {firstCourse.level && (
+                                      <span className="capitalize px-2 py-0.5 rounded-md bg-emerald-100/70 text-[#0F5244] font-bold text-[10.5px]">
+                                        {firstCourse.level}
+                                      </span>
+                                    )}
+                                  </div>
                                 </div>
                               </motion.div>
                             )}
@@ -485,26 +560,26 @@ export function InteractiveCurriculumMap({
                       )}
                     </div>
 
-                    {/* Bottom Action Row */}
-                    <div className="p-3 sm:p-4 bg-slate-50/50 border-t border-slate-100 flex items-center justify-between gap-2">
+                    {/* Bottom Action Footer */}
+                    <div className="p-4 sm:p-5 bg-slate-50/60 border-t border-slate-100 flex items-center justify-between gap-3">
                       {firstCourse ? (
                         <Link
                           href={`/${locale}/courses/${firstCourse.slug || firstCourse.id || "course"}`}
-                          className="px-3.5 py-1.5 rounded-xl bg-[#0F5244] hover:bg-[#07382E] text-white text-xs font-bold transition-colors inline-flex items-center gap-1.5 shadow-2xs group"
+                          className="px-5 py-2.5 rounded-2xl bg-[#0F5244] hover:bg-[#07382E] text-white text-xs font-black transition-all inline-flex items-center gap-2 shadow-md shadow-[#0F5244]/20 hover:shadow-lg active:scale-95 group cursor-pointer"
                         >
-                          <Play className="w-3 h-3 fill-current text-[#38E09D]" />
-                          <span>{isAr ? "فتح الدورة" : "Start Course"}</span>
-                          <ExternalLink className="w-3 h-3 opacity-80 group-hover:translate-x-0.5 rtl:group-hover:-translate-x-0.5 transition-transform" />
+                          <Play className="w-3.5 h-3.5 fill-current text-emerald-300" />
+                          <span>{isAr ? "بدء ودراسة الدورة" : "Start Course"}</span>
+                          <ExternalLink className="w-3.5 h-3.5 opacity-80 group-hover:translate-x-0.5 rtl:group-hover:-translate-x-0.5 transition-transform" />
                         </Link>
                       ) : <div />}
 
                       <button
                         type="button"
                         onClick={() => handleToggleCompleted(milestone.id)}
-                        className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-colors cursor-pointer ${
+                        className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer active:scale-95 border ${
                           isCompleted
-                            ? "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                            : "bg-emerald-50 hover:bg-emerald-100 text-[#0F5244]"
+                            ? "bg-slate-100 border-slate-200 text-slate-600 hover:bg-slate-200"
+                            : "bg-emerald-50 border-emerald-200/80 text-[#0F5244] hover:bg-emerald-100 shadow-2xs"
                         }`}
                       >
                         {isCompleted ? (isAr ? "إلغاء التحديد" : "Undo") : isAr ? "إنجاز المحطة ✓" : "Mark Done ✓"}
