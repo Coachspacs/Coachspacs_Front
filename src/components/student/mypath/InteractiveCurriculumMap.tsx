@@ -254,32 +254,7 @@ export function InteractiveCurriculumMap({
               </div>
             </div>
 
-            {/* Quick Metrics & Sound */}
-            <div className="flex items-center gap-2 self-start md:self-auto bg-white/90 backdrop-blur-md rounded-2xl p-1.5 px-3.5 border border-emerald-200/60 shadow-2xs text-xs font-bold text-slate-700">
-              <div className="flex items-center gap-1.5 text-emerald-800">
-                <Clock className="w-4 h-4 text-emerald-600" />
-                <span>{preferences.hoursPerWeek} {isAr ? "س/أسبوع" : "hrs/wk"}</span>
-              </div>
 
-              <div className="w-px h-4 bg-slate-200" />
-
-              <div className="flex items-center gap-1.5 text-emerald-800">
-                <Calendar className="w-4 h-4 text-emerald-600" />
-                <span>{Math.max(1, Math.round(roadmap.estimatedWeeks / 4))} {isAr ? "أشهر" : "mos"}</span>
-              </div>
-
-              <div className="w-px h-4 bg-slate-200" />
-
-              {/* Sound Toggle */}
-              <button
-                type="button"
-                onClick={toggleSound}
-                className="p-1 rounded-xl hover:bg-slate-100 text-slate-600 hover:text-emerald-700 transition-colors cursor-pointer"
-                title={soundOn ? (isAr ? "كتم الصوت" : "Mute Sound") : (isAr ? "تشغيل الصوت" : "Unmute Sound")}
-              >
-                {soundOn ? <Volume2 className="w-4 h-4 text-emerald-600" /> : <VolumeX className="w-4 h-4 text-slate-400" />}
-              </button>
-            </div>
           </div>
 
           {/* Progress Bar & Actions Row */}
