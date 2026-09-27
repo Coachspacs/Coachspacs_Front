@@ -426,12 +426,11 @@ export function InteractiveCurriculumMap({
                       </div>
                     </div>
 
-                    {/* Clean Action Buttons Row */}
-                    <div className="pt-3 border-t border-slate-100/90 flex flex-wrap items-center justify-between gap-3">
-                      {/* Primary CTA: Go to Course & Enroll / Buy */}
+                    {/* Clean Action CTA */}
+                    <div className="pt-3 border-t border-slate-100/90 flex items-center">
                       <Link
                         href={courseLink}
-                        className="px-5 py-2.5 rounded-2xl bg-[#0F5244] hover:bg-[#07382E] text-white text-xs font-black transition-all inline-flex items-center gap-2 shadow-md shadow-[#0F5244]/20 hover:shadow-lg active:scale-95 group cursor-pointer"
+                        className="w-full sm:w-auto px-6 py-2.5 rounded-2xl bg-[#0F5244] hover:bg-[#07382E] text-white text-xs font-black transition-all inline-flex items-center justify-center gap-2 shadow-md shadow-[#0F5244]/20 hover:shadow-lg active:scale-95 group cursor-pointer"
                       >
                         <ShoppingBag className="w-3.5 h-3.5 text-emerald-300" />
                         <span>
@@ -445,19 +444,6 @@ export function InteractiveCurriculumMap({
                         </span>
                         <ExternalLink className="w-3.5 h-3.5 opacity-80 group-hover:translate-x-0.5 rtl:group-hover:-translate-x-0.5 transition-transform" />
                       </Link>
-
-                      {/* Mark Completed Toggle */}
-                      <button
-                        type="button"
-                        onClick={() => handleToggleCompleted(milestone.id)}
-                        className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer active:scale-95 border ${
-                          isCompleted
-                            ? "bg-slate-100 border-slate-200 text-slate-600 hover:bg-slate-200"
-                            : "bg-emerald-50 border-emerald-200/80 text-[#0F5244] hover:bg-emerald-100 shadow-2xs"
-                        }`}
-                      >
-                        {isCompleted ? (isAr ? "إلغاء التحديد" : "Undo") : isAr ? "إنجاز الدورة ✓" : "Mark Done ✓"}
-                      </button>
                     </div>
                   </div>
                 </div>
