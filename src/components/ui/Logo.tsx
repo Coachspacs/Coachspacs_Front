@@ -28,24 +28,7 @@ export function Logo({
   const logoHeight = compact ? 36 : 46;
   const logoWidth = compact ? 34 : 44;
 
-  const [logoSrc, setLogoSrc] = useState<string>(() => {
-    if (typeof window !== "undefined") {
-      const globalBranding = (window as unknown as { __CMS_BRANDING__?: { logoUrl?: string } }).__CMS_BRANDING__;
-      if (globalBranding?.logoUrl && globalBranding.logoUrl.trim().length > 0) {
-        return globalBranding.logoUrl.trim();
-      }
-      try {
-        const cached = localStorage.getItem("coachspace_cms_branding");
-        if (cached) {
-          const parsed = JSON.parse(cached);
-          if (parsed?.logoUrl && parsed.logoUrl.trim().length > 0) {
-            return parsed.logoUrl.trim();
-          }
-        }
-      } catch {}
-    }
-    return "/images/brand-logo.png";
-  });
+  const [logoSrc, setLogoSrc] = useState<string>("/images/brand-logo.png");
 
   useEffect(() => {
     const readLogo = () => {

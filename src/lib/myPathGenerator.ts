@@ -19,7 +19,39 @@ export function generateRoadmapFromPreferences(
   const targetMonthsNum = parseInt(targetMonths || '3', 10) || 3;
   const totalWeeks = targetMonthsNum * 4;
 
-  const milestones = getMilestonesByTrack(track, level, totalWeeks, customTrackName);
+  let rawMilestones = getMilestonesByTrack(track, level, totalWeeks, customTrackName);
+
+  // Dynamically tailor the milestones count based on duration commitment:
+  // - 1 month sprint: 2 high-impact milestones (stations)
+  // - 3 months: 3 core milestones (stations)
+  // - 6 months: 4 comprehensive milestones (stations)
+  // - 9+ months / Mastery: 5 milestones (stations)
+  let targetCount = 3;
+  if (targetMonths === '1') {
+    targetCount = 2;
+  } else if (targetMonths === '3') {
+    targetCount = 3;
+  } else if (targetMonths === '6') {
+    targetCount = 4;
+  } else {
+    targetCount = Math.min(Math.max(2, rawMilestones.length), 5);
+  }
+
+  // Slice or wrap to requested dynamic count
+  if (targetCount <= rawMilestones.length) {
+    rawMilestones = rawMilestones.slice(0, targetCount);
+  } else {
+    // If more requested than raw, preserve all available
+    rawMilestones = rawMilestones.slice(0, Math.min(rawMilestones.length, 5));
+  }
+
+  const weeksPerMilestone = Math.max(1, Math.round(totalWeeks / Math.max(1, rawMilestones.length)));
+
+  const milestones: RoadmapMilestone[] = rawMilestones.map((m, idx) => ({
+    ...m,
+    stepNumber: idx + 1,
+    durationWeeks: weeksPerMilestone,
+  }));
 
   return {
     id: `roadmap-${track}-${Date.now()}`,

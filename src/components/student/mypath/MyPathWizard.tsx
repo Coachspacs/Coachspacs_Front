@@ -56,6 +56,8 @@ import {
 import { CleanHeroBanner } from "./CleanHeroBanner";
 import { AnimatedRobotCharacter } from "./AnimatedRobotCharacter";
 import { RobotJourneyBanner } from "./RobotJourneyBanner";
+import { AiArchitectGenerationScreen } from "./AiArchitectGenerationScreen";
+import { InteractiveCurriculumMap } from "./InteractiveCurriculumMap";
 import { soundFx } from "@/lib/soundEffects";
 import { generateRoadmapFromPreferences } from "@/lib/myPathGenerator";
 import {
@@ -186,30 +188,16 @@ export function MyPathWizard() {
     } catch {}
   };
 
-  // Step 6: AI Generation simulation
-  useEffect(() => {
-    if (step !== 6) return;
-    setGeneratingPhase(1);
-
-    const timer1 = setTimeout(() => setGeneratingPhase(2), 700);
-    const timer2 = setTimeout(() => setGeneratingPhase(3), 1400);
-    const timer3 = setTimeout(() => {
-      const generated = generateRoadmapFromPreferences(preferences);
-      setRoadmap(generated);
-      try {
-        localStorage.setItem("coachspace_student_roadmap", JSON.stringify(generated));
-      } catch {}
-      soundFx.playCelebration();
-      setStep(7);
-      triggerConfetti();
-    }, 2200);
-
-    return () => {
-      clearTimeout(timer1);
-      clearTimeout(timer2);
-      clearTimeout(timer3);
-    };
-  }, [step, preferences]);
+  const handleGenerationComplete = () => {
+    const generated = generateRoadmapFromPreferences(preferences);
+    setRoadmap(generated);
+    try {
+      localStorage.setItem("coachspace_student_roadmap", JSON.stringify(generated));
+    } catch {}
+    soundFx.playCelebration();
+    setStep(7);
+    triggerConfetti();
+  };
 
   const goToNextStep = (next: 1 | 2 | 3 | 4 | 5 | 6 | 7) => {
     if (next >= 2 && next <= 5) {
@@ -1076,349 +1064,30 @@ export function MyPathWizard() {
         )}
 
         {/* ========================================================================= */}
-        {/* STEP 6: AI GENERATING SIMULATION */}
+        {/* STEP 6: AI GENERATING SIMULATION (AI ARCHITECT SCREEN) */}
         {/* ========================================================================= */}
         {step === 6 && (
-          <div className="py-12 flex flex-col items-center justify-center text-center relative z-10 space-y-6">
-            <div className="relative">
-              <AnimatedRobotCharacter />
-            </div>
-
-            <div className="max-w-md space-y-2">
-              <h2 className="text-xl font-black text-slate-900">
-                {t("step4.generatingTitle")}
-              </h2>
-              <p className="text-xs text-slate-500 font-medium">
-                {t("step4.generatingDesc")}
-              </p>
-            </div>
-
-            {/* Progress indicators */}
-            <div className="w-full max-w-sm space-y-2 text-start">
-              <div
-                className={`p-3 rounded-xl border text-xs font-bold flex items-center gap-2.5 transition-all ${
-                  generatingPhase >= 1
-                    ? "bg-emerald-50 border-emerald-300 text-[#0F5244]"
-                    : "bg-slate-50 text-slate-400 border-slate-200"
-                }`}
-              >
-                <CheckCircle2 className={`w-4 h-4 ${generatingPhase >= 1 ? "text-emerald-600" : "text-slate-400"}`} />
-                <span>{t("step4.stepAnalyzing")}</span>
-              </div>
-
-              <div
-                className={`p-3 rounded-xl border text-xs font-bold flex items-center gap-2.5 transition-all ${
-                  generatingPhase >= 2
-                    ? "bg-emerald-50 border-emerald-300 text-[#0F5244]"
-                    : "bg-slate-50 text-slate-400 border-slate-200"
-                }`}
-              >
-                <CheckCircle2 className={`w-4 h-4 ${generatingPhase >= 2 ? "text-emerald-600" : "text-slate-400"}`} />
-                <span>{t("step4.stepSequencing")}</span>
-              </div>
-
-              <div
-                className={`p-3 rounded-xl border text-xs font-bold flex items-center gap-2.5 transition-all ${
-                  generatingPhase >= 3
-                    ? "bg-emerald-50 border-emerald-300 text-[#0F5244]"
-                    : "bg-slate-50 text-slate-400 border-slate-200"
-                }`}
-              >
-                <CheckCircle2 className={`w-4 h-4 ${generatingPhase >= 3 ? "text-emerald-600" : "text-slate-400"}`} />
-                <span>{t("step4.stepMilestones")}</span>
-              </div>
-            </div>
-          </div>
+          <AiArchitectGenerationScreen
+            preferences={preferences}
+            isAr={isAr}
+            onComplete={handleGenerationComplete}
+            onAdjustPreferences={() => goToPrevStep(5)}
+          />
         )}
 
         {/* ========================================================================= */}
-        {/* STEP 7: CLEAN, CALM, SOFT & ELEGANT ROADMAP MATCHING USER DESIGN */}
+        {/* STEP 7: CREATIVE INTERACTIVE VISUAL CURRICULUM ROADMAP */}
         {/* ========================================================================= */}
         {step === 7 && roadmap && (
-          <div className="space-y-6 relative z-10 text-start">
-            {/* Top Soft Green Container Card */}
-            <div className="bg-[#F0FAF6] border border-emerald-200/70 rounded-3xl p-5 sm:p-7 space-y-5 relative overflow-hidden">
-              {/* Top Bar inside Container: Back Button + Badge + Edit Button */}
-              <div className="flex items-center justify-between gap-3 flex-wrap">
-                <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() => goToPrevStep(5)}
-                    className="px-3.5 py-1.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs hover:shadow-xs"
-                    title={t("back")}
-                  >
-                    {isAr ? <ArrowRight className="w-3.5 h-3.5 text-slate-600" /> : <ArrowLeft className="w-3.5 h-3.5 text-slate-600" />}
-                    <span>{t("back")}</span>
-                  </button>
-
-                  <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs font-black text-emerald-800 bg-emerald-100/90 border border-emerald-200/80">
-                    <Target className="w-3.5 h-3.5 text-emerald-700" />
-                    <span>{t("roadmap.customCurriculumBadge")}</span>
-                  </div>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() => goToPrevStep(2)}
-                  className="px-3.5 py-1.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs hover:shadow-xs"
-                >
-                  <Sliders className="w-3.5 h-3.5 text-slate-500" />
-                  <span>{t("roadmap.editGoalSchedule")}</span>
-                </button>
-              </div>
-
-              {/* Title & Detailed Subtitle */}
-              <div className="space-y-1.5 max-w-3xl">
-                <h1 className="text-2xl sm:text-3xl font-black text-[#0F5244] tracking-tight">
-                  {preferences.customTrackName ||
-                    t(`wizard.skills.${preferences.track || "uiux"}.title`)}
-                </h1>
-                <p className="text-xs sm:text-sm text-slate-600 font-medium leading-relaxed">
-                  {t("roadmap.mainSubtitleDetailed")}
-                </p>
-              </div>
-
-              {/* White Nested Progress Box */}
-              <div className="bg-white rounded-2xl p-4 sm:p-5 border border-emerald-100 shadow-2xs space-y-3.5">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                  <div className="space-y-0.5 text-start">
-                    <span className="text-[11px] font-bold text-slate-400 block">
-                      {t("roadmap.totalPathProgress")}
-                    </span>
-                    <span className="text-base sm:text-lg font-black text-slate-900">
-                      {progressPercent}%{" "}
-                      <span className="text-xs sm:text-sm font-bold text-emerald-700 font-sans">
-                        {completedMilestonesCount > 0
-                          ? t("roadmap.stepsCompleted", { total: roadmap.milestones.length })
-                          : `(0 من ${roadmap.milestones.length} مكتملة)`}
-                      </span>
-                    </span>
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const firstIncomplete = roadmap.milestones.find((m) => m.status !== "completed");
-                      if (firstIncomplete) handleMilestoneToggle(firstIncomplete.id);
-                    }}
-                    className="inline-flex items-center gap-2 bg-[#0F5244] hover:bg-[#07382E] text-white px-5 py-2.5 rounded-xl font-black text-xs sm:text-sm shadow-xs transition-all cursor-pointer shrink-0 self-start sm:self-center"
-                  >
-                    <Play className="w-3.5 h-3.5 fill-current" />
-                    <span>{t("roadmap.resumeCurrentStep")}</span>
-                  </button>
-                </div>
-
-                {/* Progress Bar */}
-                <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-gradient-to-r from-[#0F5244] to-[#10B981] rounded-full transition-all duration-500"
-                    style={{ width: `${progressPercent}%` }}
-                  />
-                </div>
-
-                {/* Bottom Row Metadata */}
-                <div className="flex items-center gap-3 sm:gap-5 text-xs font-medium text-slate-500 flex-wrap pt-2 border-t border-slate-100">
-                  <span className="inline-flex items-center gap-1.5">
-                    <Clock className="w-3.5 h-3.5 text-emerald-600" />
-                    <span>{preferences.hoursPerWeek} {t("roadmap.hrsWk")}</span>
-                  </span>
-                  <span className="text-slate-300">•</span>
-                  <span className="inline-flex items-center gap-1.5">
-                    <TrendingUp className="w-3.5 h-3.5 text-emerald-600" />
-                    <span>{t("roadmap.levelIntermediateAdvanced")}</span>
-                  </span>
-                  <span className="text-slate-300">•</span>
-                  <span className="inline-flex items-center gap-1.5">
-                    <Calendar className="w-3.5 h-3.5 text-emerald-600" />
-                    <span>{Math.max(1, Math.round(roadmap.estimatedWeeks / 4))} {t("roadmap.months")}</span>
-                  </span>
-                  <span className="text-slate-300">•</span>
-                  <span className="inline-flex items-center gap-1.5">
-                    <Award className="w-3.5 h-3.5 text-emerald-600" />
-                    <span>{t("roadmap.goalCertificatePortfolio")}</span>
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* Section Heading: محطات المسار التعليمي */}
-            <div className="flex items-center justify-between gap-3 pt-2 text-start">
-              <div>
-                <h2 className="text-base sm:text-lg font-black text-slate-900">
-                  {t("roadmap.learningRoadmapHeading")}
-                </h2>
-                <p className="text-xs text-slate-400 font-medium mt-0.5">
-                  {t("roadmap.milestonesOverview", { total: roadmap.milestones.length })}
-                </p>
-              </div>
-
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold text-emerald-800 bg-emerald-50 border border-emerald-200/80 shrink-0">
-                <span className="w-2 h-2 rounded-full bg-emerald-600 animate-pulse" />
-                <span>{t("roadmap.activeMilestoneBadge", { step: 1 })}</span>
-              </div>
-            </div>
-
-            {/* Learning Milestones Vertical List */}
-            <div className="space-y-4 pt-1 relative">
-              {roadmap.milestones.map((milestone, index) => {
-                const isCompleted = milestone.status === "completed";
-                const isActive = !isCompleted && index === 0;
-                const isCapstone = index === roadmap.milestones.length - 1;
-                const firstCourse = milestone.courses && milestone.courses.length > 0 ? milestone.courses[0] : null;
-
-                return (
-                  <motion.div
-                    key={milestone.id}
-                    initial={{ opacity: 0, y: 6 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.04 }}
-                    className={`rounded-2xl transition-all p-4 sm:p-5 space-y-3.5 relative ${
-                      isCompleted
-                        ? "bg-emerald-50/20 border-2 border-emerald-300/80 shadow-2xs"
-                        : isActive
-                        ? "bg-white border-2 border-emerald-500 shadow-xs ring-2 ring-emerald-500/10"
-                        : "bg-white border border-slate-200 hover:border-slate-300 shadow-2xs"
-                    }`}
-                  >
-                    {/* Top Row: Number + Content Column + Action Button */}
-                    <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
-                      {/* Right Side: Step Number + Title + Meta */}
-                      <div className="flex items-start gap-3.5 min-w-0 flex-1">
-                        {/* Step Number Circle */}
-                        <div
-                          className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center font-black text-sm shrink-0 transition-colors ${
-                            isCompleted
-                              ? "bg-emerald-600 text-white shadow-xs"
-                              : isActive
-                              ? "bg-[#0F5244] text-white shadow-xs"
-                              : "bg-slate-100 text-slate-500"
-                          }`}
-                        >
-                          {isCompleted ? <Check className="w-5 h-5 stroke-[3]" /> : milestone.stepNumber}
-                        </div>
-
-                        {/* Title, Status Meta & Description */}
-                        <div className="min-w-0 flex-1 space-y-1 text-start">
-                          {/* Status Pill & Hours */}
-                          <div className="flex items-center gap-2 flex-wrap">
-                            {isCompleted ? (
-                              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">
-                                <Check className="w-3 h-3 stroke-[3]" />
-                                <span>{t("roadmap.completedBadge")}</span>
-                              </span>
-                            ) : isActive ? (
-                              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-[#0F5244] border border-emerald-200">
-                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse" />
-                                <span>{t("roadmap.activeStepTag")}</span>
-                              </span>
-                            ) : isCapstone ? (
-                              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-200">
-                                <Award className="w-3 h-3 text-amber-600" />
-                                <span>{t("roadmap.capstoneProjectTag")}</span>
-                              </span>
-                            ) : (
-                              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-slate-100 text-slate-500">
-                                {t("roadmap.upcomingStepTag")}
-                              </span>
-                            )}
-
-                            <span className="text-[11px] font-semibold text-slate-400">
-                              • {t("roadmap.trainingHours", { count: milestone.durationWeeks * 3 })}
-                            </span>
-                          </div>
-
-                          {/* Milestone Title */}
-                          <h3 className="text-sm sm:text-base font-black text-slate-900 leading-snug">
-                            {isAr ? milestone.titleAr : milestone.title}
-                          </h3>
-
-                          {/* Milestone Description */}
-                          <p className="text-xs text-slate-500 font-normal leading-relaxed">
-                            {isAr ? milestone.descriptionAr : milestone.description}
-                          </p>
-                        </div>
-                      </div>
-
-                      {/* Left Side (in RTL): Action Button & Sub-caption */}
-                      <div className="flex flex-col items-start sm:items-end gap-1.5 shrink-0 self-start sm:self-center">
-                        {isActive ? (
-                          <>
-                            <Link
-                              href={`/${locale}/courses/${firstCourse?.slug || firstCourse?.id || "ux-research-foundations"}`}
-                              className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-[#0F5244] hover:bg-[#07382E] text-white text-xs font-bold transition-all shadow-xs hover:shadow-md cursor-pointer"
-                            >
-                              <Play className="w-3.5 h-3.5 fill-current" />
-                              <span>{t("roadmap.resumeLessonBtn")}</span>
-                            </Link>
-                            <span className="text-[10px] font-semibold text-slate-400">
-                              {t("roadmap.lessonsCompletedCount", { completed: 0, total: 6 })}
-                            </span>
-                          </>
-                        ) : isCompleted ? (
-                          <button
-                            type="button"
-                            onClick={() => handleMilestoneToggle(milestone.id)}
-                            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 text-xs font-bold transition-all cursor-pointer"
-                          >
-                            <Check className="w-3.5 h-3.5 stroke-[2.5]" />
-                            <span>{t("roadmap.completedBadge")}</span>
-                          </button>
-                        ) : (
-                          <button
-                            type="button"
-                            onClick={() => handleMilestoneToggle(milestone.id)}
-                            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-bold transition-colors cursor-pointer"
-                          >
-                            <span>{t("roadmap.previewContentBtn")}</span>
-                          </button>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Bottom Row: Project Tag + Skills Chips */}
-                    <div className="flex items-center gap-2 flex-wrap pt-1 border-t border-slate-100/90 text-xs">
-                      {/* Practical Project Pill */}
-                      {milestone.projectTitle && (
-                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-bold bg-teal-50 text-teal-800 border border-teal-200/70">
-                          <Sparkles className="w-3 h-3 text-teal-600" />
-                          <span>{t("roadmap.practicalProjectNum", { num: milestone.stepNumber })}</span>
-                        </span>
-                      )}
-
-                      {/* Skills Chips */}
-                      {(isAr ? milestone.skillsAr : milestone.skills).map((skill) => (
-                        <span
-                          key={skill}
-                          className="px-2.5 py-0.5 rounded-lg text-[11px] font-semibold bg-slate-100/90 text-slate-600 border border-slate-200/60"
-                        >
-                          {skill}
-                        </span>
-                      ))}
-                    </div>
-                  </motion.div>
-                );
-              })}
-            </div>
-
-            {/* Bottom Mentorship Assistance Banner */}
-            <div className="bg-[#0F5244] text-white rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm text-start">
-              <div className="space-y-1">
-                <h3 className="font-black text-sm sm:text-base text-white">
-                  {t("roadmap.needReviewBannerTitle")}
-                </h3>
-                <p className="text-xs text-emerald-100/90 font-medium">
-                  {t("roadmap.needReviewBannerDesc")}
-                </p>
-              </div>
-
-              <Link
-                href={`/${locale}/contact`}
-                className="inline-flex items-center justify-center px-5 py-2.5 rounded-xl bg-white hover:bg-emerald-50 text-[#0F5244] font-black text-xs sm:text-sm transition-all shadow-xs shrink-0 cursor-pointer"
-              >
-                {t("roadmap.request1on1Btn")}
-              </Link>
-            </div>
-          </div>
+          <InteractiveCurriculumMap
+            roadmap={roadmap}
+            preferences={preferences}
+            isAr={isAr}
+            locale={locale}
+            onMilestoneToggle={handleMilestoneToggle}
+            onRegenerate={handleRegenerate}
+            onEditPreferences={() => goToPrevStep(5)}
+          />
         )}
       </div>
     </motion.section>

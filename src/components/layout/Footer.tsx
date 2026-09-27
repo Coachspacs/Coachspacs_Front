@@ -55,26 +55,34 @@ export function Footer({ lang, variant = "main" }: FooterProps) {
   const currentLocale = useLocale() || (lang ? lang.toLowerCase() : "en");
   const isAr = currentLocale === "ar";
 
-  const [logoSrc, setLogoSrc] = React.useState<string>(() => {
-    if (typeof window !== "undefined") {
-      const globalBranding = (window as unknown as { __CMS_BRANDING__?: { logoUrl?: string; footerLogoUrl?: string } }).__CMS_BRANDING__;
-      if (globalBranding?.footerLogoUrl && globalBranding.footerLogoUrl.trim().length > 0) {
-        return globalBranding.footerLogoUrl.trim();
-      }
+  const [logoSrc, setLogoSrc] = React.useState<string>("/images/brand-logo-white.png");
+
+  React.useEffect(() => {
+    const readLogo = () => {
       try {
+        const globalBranding = (window as unknown as { __CMS_BRANDING__?: { logoUrl?: string; footerLogoUrl?: string } }).__CMS_BRANDING__;
+        if (globalBranding?.footerLogoUrl && globalBranding.footerLogoUrl.trim().length > 0) {
+          setLogoSrc(globalBranding.footerLogoUrl.trim());
+          return;
+        } else if (globalBranding?.logoUrl && globalBranding.logoUrl.trim().length > 0) {
+          setLogoSrc(globalBranding.logoUrl.trim());
+          return;
+        }
+
         const cached = localStorage.getItem("coachspace_cms_branding");
         if (cached) {
           const parsed = JSON.parse(cached);
           if (parsed?.footerLogoUrl && parsed.footerLogoUrl.trim().length > 0) {
-            return parsed.footerLogoUrl.trim();
+            setLogoSrc(parsed.footerLogoUrl.trim());
+          } else if (parsed?.logoUrl && parsed.logoUrl.trim().length > 0) {
+            setLogoSrc(parsed.logoUrl.trim());
           }
         }
       } catch {}
-    }
-    return "/images/brand-logo-white.png";
-  });
+    };
 
-  React.useEffect(() => {
+    readLogo();
+
     const handleBranding = (e: Event) => {
       const customEvent = e as CustomEvent<{ logoUrl?: string; footerLogoUrl?: string }>;
       if (customEvent?.detail?.footerLogoUrl && customEvent.detail.footerLogoUrl.trim().length > 0) {
