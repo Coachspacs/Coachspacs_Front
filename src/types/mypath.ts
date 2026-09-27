@@ -41,6 +41,9 @@ export interface RoadmapMilestoneCourse {
   level: SkillLevel;
   slug?: string;
   image?: string;
+  price?: number;
+  isFree?: boolean;
+  currency?: string;
 }
 
 export interface RoadmapMilestone {
