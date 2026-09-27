@@ -65,6 +65,15 @@ export async function POST(req: NextRequest) {
       });
     }
 
+    if (action === 'save_branding_draft') {
+      const draftBranding = await CmsServerService.saveBrandingDraft(data, userEmail);
+      return NextResponse.json({
+        success: true,
+        message: 'Draft branding saved for preview',
+        branding: draftBranding,
+      });
+    }
+
     if (action === 'save_branding') {
       const updatedBranding = await CmsServerService.saveBranding(data, userEmail);
       // Trigger instant revalidation for layout styles

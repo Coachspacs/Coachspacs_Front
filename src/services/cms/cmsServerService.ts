@@ -25,9 +25,23 @@ let inMemoryLandingDoc: LandingPageDoc | null = null;
 let inMemoryLegalDoc: LegalPagesDoc | null = null;
 
 
+const BRANDING_DRAFT_DOC_ID = 'branding_draft';
+let inMemoryBrandingDraft: GlobalBrandingConfig | null = null;
+
 export class CmsServerService {
   /**
-   * Fetch Global Branding configuration
+   * Fetch Branding configuration (supports isPreview flag for draft preview)
+   */
+  static async getBranding(isPreview = false): Promise<GlobalBrandingConfig> {
+    if (isPreview) {
+      const draft = await this.getDraftBranding();
+      if (draft) return draft;
+    }
+    return this.getPublishedBranding();
+  }
+
+  /**
+   * Fetch Global Published Branding configuration
    */
   static async getPublishedBranding(): Promise<GlobalBrandingConfig> {
     const db = getFirestoreDb();
@@ -58,7 +72,71 @@ export class CmsServerService {
   }
 
   /**
-   * Save Branding configuration
+   * Fetch Draft Branding configuration
+   */
+  static async getDraftBranding(): Promise<GlobalBrandingConfig | null> {
+    const db = getFirestoreDb();
+    if (!db) {
+      return inMemoryBrandingDraft || inMemoryBranding || DEFAULT_BRANDING;
+    }
+
+    try {
+      const doc = await db.collection(SETTINGS_COLLECTION).doc(BRANDING_DRAFT_DOC_ID).get();
+      if (!doc.exists) {
+        return inMemoryBrandingDraft;
+      }
+      const data = doc.data() as Partial<GlobalBrandingConfig>;
+      const resolved: GlobalBrandingConfig = {
+        ...DEFAULT_BRANDING,
+        ...data,
+        colors: {
+          ...DEFAULT_BRANDING.colors,
+          ...(data.colors || {}),
+        },
+      };
+      inMemoryBrandingDraft = resolved;
+      return resolved;
+    } catch (err) {
+      console.warn('[CmsServerService] Error fetching draft branding:', err);
+      return inMemoryBrandingDraft;
+    }
+  }
+
+  /**
+   * Save Branding Draft (for preview without publishing)
+   */
+  static async saveBrandingDraft(
+    branding: Partial<GlobalBrandingConfig>,
+    updatedBy: string
+  ): Promise<GlobalBrandingConfig> {
+    const db = getFirestoreDb();
+    const current = (await this.getDraftBranding()) || (await this.getPublishedBranding());
+    const merged: GlobalBrandingConfig = {
+      ...current,
+      ...branding,
+      colors: {
+        ...current.colors,
+        ...(branding.colors || {}),
+      },
+      updatedAt: new Date().toISOString(),
+      updatedBy,
+    };
+
+    inMemoryBrandingDraft = merged;
+
+    if (db) {
+      try {
+        await db.collection(SETTINGS_COLLECTION).doc(BRANDING_DRAFT_DOC_ID).set(merged, { merge: true });
+      } catch (err) {
+        console.error('[CmsServerService] Failed to save draft branding to Firestore:', err);
+      }
+    }
+
+    return merged;
+  }
+
+  /**
+   * Save & Publish Branding configuration (live on production)
    */
   static async saveBranding(
     branding: Partial<GlobalBrandingConfig>,
@@ -78,16 +156,17 @@ export class CmsServerService {
     };
 
     inMemoryBranding = merged;
+    inMemoryBrandingDraft = null;
 
-    if (!db) {
-      return merged;
-    }
-
-    try {
-      await db.collection(SETTINGS_COLLECTION).doc(BRANDING_DOC_ID).set(merged, { merge: true });
-    } catch (err) {
-      console.error('[CmsServerService] Failed to save branding to Firestore:', err);
-      throw new Error('Failed to save branding to database');
+    if (db) {
+      try {
+        await db.collection(SETTINGS_COLLECTION).doc(BRANDING_DOC_ID).set(merged, { merge: true });
+        // Clean up draft doc once published
+        await db.collection(SETTINGS_COLLECTION).doc(BRANDING_DRAFT_DOC_ID).delete().catch(() => {});
+      } catch (err) {
+        console.error('[CmsServerService] Failed to save branding to Firestore:', err);
+        throw new Error('Failed to save branding to database');
+      }
     }
 
     return merged;

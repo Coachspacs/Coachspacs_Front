@@ -122,6 +122,36 @@ export default function CmsAdminLayout({ children }: { children: React.ReactNode
 
   const switchLocaleHref = pathname.replace(`/${locale}`, `/${otherLocale}`);
 
+  const handleLivePreviewClick = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    try {
+      if (typeof window !== "undefined") {
+        const previewCached = localStorage.getItem("coachspace_cms_preview_branding");
+        if (previewCached) {
+          const parsed = JSON.parse(previewCached);
+          fetch("/api/cms/content", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              action: "save_branding_draft",
+              data: parsed,
+            }),
+          }).catch(() => {});
+
+          try {
+            if (typeof BroadcastChannel !== "undefined") {
+              const bc = new BroadcastChannel("coachspace_cms_preview");
+              bc.postMessage({ type: "PREVIEW_BRANDING_UPDATE", branding: parsed });
+              bc.close();
+            }
+          } catch {}
+        }
+      }
+    } catch {}
+
+    window.open(`/api/cms/preview?secret=coachspace_cms_preview_secret&locale=${locale}`, "_blank");
+  };
+
   const sidebarContent = (
     <div className="flex flex-col h-full bg-white text-slate-800 font-sans">
       {/* Brand Header */}
@@ -185,14 +215,14 @@ export default function CmsAdminLayout({ children }: { children: React.ReactNode
 
       {/* Quick Actions & Exit Footer */}
       <div className="p-4 border-t border-slate-200/80 space-y-2 shrink-0">
-        <Link
-          href={`/api/cms/preview?secret=coachspace_cms_preview_secret&locale=${locale}`}
-          target="_blank"
+        <button
+          type="button"
+          onClick={handleLivePreviewClick}
           className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-[#0F5244] hover:bg-emerald-50 text-xs font-bold transition-all cursor-pointer"
         >
           <Eye className="w-4 h-4 shrink-0 text-[#0F5244]" />
           <span className="truncate">{t("nav.previewSite")}</span>
-        </Link>
+        </button>
 
         <Link
           href={`/${locale}`}

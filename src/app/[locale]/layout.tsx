@@ -26,7 +26,7 @@ export default async function LocaleLayout({
 
   return (
     <div dir={dir} lang={locale} className="min-h-screen flex flex-col antialiased font-sans w-full">
-      <DynamicBrandingInjector />
+      <DynamicBrandingInjector isPreview={isDraftMode} />
       {isDraftMode && <PreviewModeBanner locale={locale} />}
       <StoreProvider>
         <NextIntlClientProvider messages={messages} locale={locale}>
