@@ -78,18 +78,15 @@ export function Logo({
         width={logoWidth}
         height={logoHeight}
         priority
-        unoptimized={isSvg}
+        unoptimized={isSvg || isDefaultLogo}
         onError={() => setLogoSrc("/images/brand-logo.png")}
-        className={`w-auto shrink-0 object-contain ${
+        className={`object-contain shrink-0 ${
           isDefaultLogo ? "brand-logo-img" : ""
-        } ${
-          imageClassName
-            ? imageClassName
-            : compact
-            ? "h-8 sm:h-9"
-            : "h-10 sm:h-11"
-        }`}
-        style={{ height: `${logoHeight}px`, width: "auto" }}
+        } ${imageClassName || ""}`}
+        style={{
+          height: `${logoHeight}px`,
+          width: "auto",
+        }}
       />
 
       {showText && (
