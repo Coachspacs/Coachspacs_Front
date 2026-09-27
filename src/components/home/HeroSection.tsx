@@ -231,7 +231,7 @@ export function HeroSection({ data }: HeroSectionProps = {}) {
                   width={640}
                   height={640}
                   priority
-                  quality={100}
+                  quality={90}
                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 640px"
                   className="w-full h-full object-cover object-center group-hover/heroimg:scale-105 transition-transform duration-700 ease-out"
                 />

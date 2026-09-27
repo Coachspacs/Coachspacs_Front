@@ -7,14 +7,10 @@ import {
   Palette,
   Save,
   CheckCircle2,
-  ArrowRight,
-  ArrowLeft,
   Loader2,
-  Sparkles,
-  RefreshCw,
   Wand2,
-  HelpCircle,
   Type,
+  Eye,
 } from "lucide-react";
 import { GlobalBrandingConfig } from "@/types/cms";
 import { DEFAULT_BRANDING } from "@/lib/cmsDefaults";
@@ -30,26 +26,17 @@ export default function BrandingSettingsPage() {
   const locale = (params?.locale as string) || "ar";
   const isAr = locale === "ar";
 
+  // State: holds the current temporary/preview branding configuration in the UI
   const [branding, setBranding] = useState<GlobalBrandingConfig>(DEFAULT_BRANDING);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [isPreviewing, setIsPreviewing] = useState(false);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
 
+  // 1. Initial Load: Fetch published branding from backend
   useEffect(() => {
     async function loadBranding() {
       try {
-        if (typeof window !== "undefined") {
-          const cached = localStorage.getItem("coachspace_cms_branding");
-          if (cached) {
-            try {
-              const parsed = JSON.parse(cached);
-              if (parsed?.colors?.primaryMain) {
-                setBranding(parsed);
-              }
-            } catch {}
-          }
-        }
-
         const res = await fetch("/api/cms/content");
         const json = await res.json();
         if (json.success && json.branding) {
@@ -69,6 +56,69 @@ export default function BrandingSettingsPage() {
     loadBranding();
   }, []);
 
+  // 2. Real-time Temporary Preview State Sync (Without persisting to live database)
+  useEffect(() => {
+    if (!isLoading && typeof window !== "undefined") {
+      try {
+        // Update local preview state for preview tabs
+        localStorage.setItem("coachspace_cms_preview_branding", JSON.stringify(branding));
+        window.dispatchEvent(
+          new CustomEvent("cms-preview-branding-updated", { detail: branding })
+        );
+
+        // Broadcast to open preview windows
+        if (typeof BroadcastChannel !== "undefined") {
+          const bc = new BroadcastChannel("coachspace_cms_preview");
+          bc.postMessage({ type: "PREVIEW_BRANDING_UPDATE", branding });
+          bc.close();
+        }
+      } catch {}
+
+      // Auto-save draft branding for the preview session (debounced 400ms)
+      const timer = setTimeout(() => {
+        fetch("/api/cms/content", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: "save_branding_draft",
+            data: branding,
+          }),
+        }).catch(() => {});
+      }, 400);
+
+      return () => clearTimeout(timer);
+    }
+  }, [branding, isLoading]);
+
+  // 3. Live Preview Action: Opens the site preview with temporary draft colors
+  const handlePreview = async () => {
+    setIsPreviewing(true);
+    setStatusMessage(null);
+    try {
+      if (typeof window !== "undefined") {
+        localStorage.setItem("coachspace_cms_preview_branding", JSON.stringify(branding));
+      }
+
+      await fetch("/api/cms/content", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "save_branding_draft",
+          data: branding,
+        }),
+      });
+
+      if (typeof window !== "undefined") {
+        window.open(`/api/cms/preview?secret=coachspace_cms_preview_secret&locale=${locale}`, "_blank");
+      }
+    } catch (e) {
+      setStatusMessage(isAr ? "تعذر فتح وضع المعاينة" : "Failed to open preview mode");
+    } finally {
+      setIsPreviewing(false);
+    }
+  };
+
+  // 4. Save & Apply Action: Permanently persists the colors to backend & live platform
   const handleSave = async () => {
     setIsSaving(true);
     setStatusMessage(null);
@@ -83,19 +133,28 @@ export default function BrandingSettingsPage() {
       });
       const json = await res.json();
       if (json.success) {
+        const savedData = json.branding || branding;
+        // Dynamically update state with saved data
+        setBranding(savedData);
+
         if (typeof window !== "undefined") {
           try {
-            localStorage.setItem("coachspace_cms_branding", JSON.stringify(branding));
+            sessionStorage.removeItem("coachspace_cms_preview_branding");
+            localStorage.removeItem("coachspace_cms_preview_branding");
+            localStorage.setItem("coachspace_cms_branding", JSON.stringify(savedData));
             window.dispatchEvent(
-              new CustomEvent("cms-branding-updated", { detail: branding })
+              new CustomEvent("cms-branding-updated", { detail: savedData })
             );
           } catch {}
         }
+
         setStatusMessage(
           isAr
-            ? "تم حفظ الهوية البصرية ولوحة الألوان بنجاح وتطبيقها على كامل المنصة!"
-            : "Branding and color palette tokens successfully saved and applied platform-wide!"
+            ? "تم حفظ وتطبيق الهوية ولوحة الألوان بنجاح على كامل المنصة للجميع!"
+            : "Branding and color palette successfully saved and applied platform-wide!"
         );
+      } else {
+        setStatusMessage(isAr ? "حدث خطأ أثناء الحفظ" : "Failed to save branding");
       }
     } catch (e) {
       setStatusMessage(isAr ? "حدث خطأ أثناء الحفظ" : "Failed to save branding");
@@ -104,21 +163,17 @@ export default function BrandingSettingsPage() {
     }
   };
 
+  // 5. Reset to Default: Reverts local state to defaults
   const handleResetToDefault = () => {
     setBranding(DEFAULT_BRANDING);
-    if (typeof window !== "undefined") {
-      try {
-        localStorage.removeItem("coachspace_cms_branding");
-        window.dispatchEvent(
-          new CustomEvent("cms-branding-updated", { detail: DEFAULT_BRANDING })
-        );
-      } catch {}
-    }
     setStatusMessage(
-      isAr ? "تمت استعادة إعدادات الهوية والألوان الافتراضية" : "Reset to default branding settings"
+      isAr
+        ? "تمت استعادة الإعدادات الافتراضية محلياً. اضغط 'حفظ وتطبيق' لتنفيذها للعامة."
+        : "Reset to defaults locally. Click 'Save & Apply' to publish live."
     );
   };
 
+  // 6. Auto-Harmonize: Intelligently calculates harmonious colors from Primary Main
   const handleAutoHarmonize = () => {
     const harmonizedColors = autoHarmonizePalette(branding.colors.primaryMain);
     setBranding((prev) => ({
@@ -155,6 +210,7 @@ export default function BrandingSettingsPage() {
         </div>
 
         <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+          {/* Reset Defaults Button */}
           <button
             onClick={handleResetToDefault}
             type="button"
@@ -163,6 +219,23 @@ export default function BrandingSettingsPage() {
             {isAr ? "استعادة الافتراضي" : "Reset Defaults"}
           </button>
 
+          {/* Live Preview Button (Temporary State) */}
+          <button
+            onClick={handlePreview}
+            disabled={isPreviewing}
+            type="button"
+            className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-white hover:bg-slate-50 text-slate-700 hover:text-slate-900 text-xs font-bold border border-slate-200 shadow-2xs transition-all cursor-pointer disabled:opacity-50"
+            title={isAr ? "معاينة بالألوان الجديدة بدون حفظها للعامة" : "Preview draft colors without saving to live"}
+          >
+            {isPreviewing ? (
+              <Loader2 className="w-4 h-4 animate-spin text-[#0F5244]" />
+            ) : (
+              <Eye className="w-4 h-4 text-slate-500" />
+            )}
+            <span>{isAr ? "معاينة الموقع" : "Live Preview Site"}</span>
+          </button>
+
+          {/* Save & Apply Button (Persistent State) */}
           <button
             onClick={handleSave}
             disabled={isSaving}
@@ -176,7 +249,7 @@ export default function BrandingSettingsPage() {
       </div>
 
       {statusMessage && (
-        <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-[#0F5244] text-xs font-bold flex items-center gap-2">
+        <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-[#0F5244] text-xs font-bold flex items-center gap-2 animate-fade-in shadow-xs">
           <CheckCircle2 className="w-4 h-4 shrink-0 text-[#0F5244]" />
           <span>{statusMessage}</span>
         </div>
@@ -218,7 +291,7 @@ export default function BrandingSettingsPage() {
                     onChange={(e) =>
                       setBranding({
                         ...branding,
-                        colors: { ...branding.colors, primaryMain: e.target.value },
+                        colors: { ...branding.colors, primaryMain: e.target.value.toUpperCase() },
                       })
                     }
                     className="w-12 h-10 rounded-xl bg-transparent border border-slate-300 cursor-pointer p-0.5 shrink-0"
@@ -229,10 +302,10 @@ export default function BrandingSettingsPage() {
                     onChange={(e) =>
                       setBranding({
                         ...branding,
-                        colors: { ...branding.colors, primaryMain: e.target.value },
+                        colors: { ...branding.colors, primaryMain: e.target.value.toUpperCase() },
                       })
                     }
-                    className="flex-1 bg-slate-50 hover:bg-white border border-slate-200/90 rounded-xl px-4 py-2 text-xs font-mono text-slate-900 focus:outline-none focus:border-[#0F5244] focus:bg-white"
+                    className="flex-1 bg-slate-50 hover:bg-white border border-slate-200/90 rounded-xl px-4 py-2 text-xs font-mono text-slate-900 focus:outline-none focus:border-[#0F5244] focus:bg-white uppercase"
                   />
                 </div>
               </div>
@@ -250,7 +323,7 @@ export default function BrandingSettingsPage() {
                     onChange={(e) =>
                       setBranding({
                         ...branding,
-                        colors: { ...branding.colors, primaryDark: e.target.value },
+                        colors: { ...branding.colors, primaryDark: e.target.value.toUpperCase() },
                       })
                     }
                     className="w-12 h-10 rounded-xl bg-transparent border border-slate-300 cursor-pointer p-0.5 shrink-0"
@@ -261,10 +334,10 @@ export default function BrandingSettingsPage() {
                     onChange={(e) =>
                       setBranding({
                         ...branding,
-                        colors: { ...branding.colors, primaryDark: e.target.value },
+                        colors: { ...branding.colors, primaryDark: e.target.value.toUpperCase() },
                       })
                     }
-                    className="flex-1 bg-slate-50 hover:bg-white border border-slate-200/90 rounded-xl px-4 py-2 text-xs font-mono text-slate-900 focus:outline-none focus:border-[#0F5244] focus:bg-white"
+                    className="flex-1 bg-slate-50 hover:bg-white border border-slate-200/90 rounded-xl px-4 py-2 text-xs font-mono text-slate-900 focus:outline-none focus:border-[#0F5244] focus:bg-white uppercase"
                   />
                 </div>
               </div>
@@ -282,7 +355,7 @@ export default function BrandingSettingsPage() {
                     onChange={(e) =>
                       setBranding({
                         ...branding,
-                        colors: { ...branding.colors, primaryLight: e.target.value },
+                        colors: { ...branding.colors, primaryLight: e.target.value.toUpperCase() },
                       })
                     }
                     className="w-12 h-10 rounded-xl bg-transparent border border-slate-300 cursor-pointer p-0.5 shrink-0"
@@ -293,10 +366,10 @@ export default function BrandingSettingsPage() {
                     onChange={(e) =>
                       setBranding({
                         ...branding,
-                        colors: { ...branding.colors, primaryLight: e.target.value },
+                        colors: { ...branding.colors, primaryLight: e.target.value.toUpperCase() },
                       })
                     }
-                    className="flex-1 bg-slate-50 hover:bg-white border border-slate-200/90 rounded-xl px-4 py-2 text-xs font-mono text-slate-900 focus:outline-none focus:border-[#0F5244] focus:bg-white"
+                    className="flex-1 bg-slate-50 hover:bg-white border border-slate-200/90 rounded-xl px-4 py-2 text-xs font-mono text-slate-900 focus:outline-none focus:border-[#0F5244] focus:bg-white uppercase"
                   />
                 </div>
               </div>
@@ -314,7 +387,7 @@ export default function BrandingSettingsPage() {
                     onChange={(e) =>
                       setBranding({
                         ...branding,
-                        colors: { ...branding.colors, accentMint: e.target.value },
+                        colors: { ...branding.colors, accentMint: e.target.value.toUpperCase() },
                       })
                     }
                     className="w-12 h-10 rounded-xl bg-transparent border border-slate-300 cursor-pointer p-0.5 shrink-0"
@@ -325,10 +398,10 @@ export default function BrandingSettingsPage() {
                     onChange={(e) =>
                       setBranding({
                         ...branding,
-                        colors: { ...branding.colors, accentMint: e.target.value },
+                        colors: { ...branding.colors, accentMint: e.target.value.toUpperCase() },
                       })
                     }
-                    className="flex-1 bg-slate-50 hover:bg-white border border-slate-200/90 rounded-xl px-4 py-2 text-xs font-mono text-slate-900 focus:outline-none focus:border-[#0F5244] focus:bg-white"
+                    className="flex-1 bg-slate-50 hover:bg-white border border-slate-200/90 rounded-xl px-4 py-2 text-xs font-mono text-slate-900 focus:outline-none focus:border-[#0F5244] focus:bg-white uppercase"
                   />
                 </div>
               </div>
@@ -346,7 +419,7 @@ export default function BrandingSettingsPage() {
                     onChange={(e) =>
                       setBranding({
                         ...branding,
-                        colors: { ...branding.colors, secondaryLight: e.target.value },
+                        colors: { ...branding.colors, secondaryLight: e.target.value.toUpperCase() },
                       })
                     }
                     className="w-12 h-10 rounded-xl bg-transparent border border-slate-300 cursor-pointer p-0.5 shrink-0"
@@ -357,10 +430,10 @@ export default function BrandingSettingsPage() {
                     onChange={(e) =>
                       setBranding({
                         ...branding,
-                        colors: { ...branding.colors, secondaryLight: e.target.value },
+                        colors: { ...branding.colors, secondaryLight: e.target.value.toUpperCase() },
                       })
                     }
-                    className="flex-1 bg-slate-50 hover:bg-white border border-slate-200/90 rounded-xl px-4 py-2 text-xs font-mono text-slate-900 focus:outline-none focus:border-[#0F5244] focus:bg-white"
+                    className="flex-1 bg-slate-50 hover:bg-white border border-slate-200/90 rounded-xl px-4 py-2 text-xs font-mono text-slate-900 focus:outline-none focus:border-[#0F5244] focus:bg-white uppercase"
                   />
                 </div>
               </div>

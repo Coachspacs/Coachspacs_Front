@@ -1,32 +1,49 @@
-import React from 'react';
-import Link from 'next/link';
-import { Eye, X } from 'lucide-react';
+"use client";
+
+import React, { useState } from 'react';
+import { Eye, X, Loader2 } from 'lucide-react';
 
 interface PreviewModeBannerProps {
   locale: string;
 }
 
 export function PreviewModeBanner({ locale }: PreviewModeBannerProps) {
+  const [isExiting, setIsExiting] = useState(false);
   const isAr = locale === 'ar';
+
+  const handleExitPreview = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsExiting(true);
+    // Hard navigate to trigger route handler and clear cookies cleanly
+    window.location.href = `/api/cms/preview/exit?locale=${locale}`;
+  };
 
   return (
     <div
       dir={isAr ? 'rtl' : 'ltr'}
-      className="fixed bottom-4 left-1/2 -translate-x-1/2 z-[9999] flex items-center gap-3 bg-[#0F5244] text-white px-5 py-2.5 rounded-full shadow-2xl font-sans text-xs font-bold border border-emerald-400/40 backdrop-blur-md animate-bounce"
+      className="fixed bottom-4 left-1/2 -translate-x-1/2 z-[9999] flex items-center gap-3 bg-[#0F5244] text-white px-5 py-2.5 rounded-full shadow-2xl font-sans text-xs font-bold border border-emerald-400/40 backdrop-blur-md"
     >
-      <Eye className="w-4 h-4 text-emerald-300" />
-      <span>
+      <Eye className="w-4 h-4 text-emerald-300 shrink-0" />
+      <span className="truncate">
         {isAr
           ? 'أنت في وضع المعاينة المباشرة (Preview Mode) — هذه مسودة غير منشورة للعامة'
           : 'You are in Live Preview Mode — Viewing unpublished draft content'}
       </span>
-      <Link
-        href={`/api/cms/preview/exit?locale=${locale}`}
-        className="inline-flex items-center gap-1 bg-white hover:bg-slate-100 text-[#0F5244] px-2.5 py-1 rounded-full text-[11px] font-black transition-colors cursor-pointer"
+      <button
+        type="button"
+        onClick={handleExitPreview}
+        disabled={isExiting}
+        className="inline-flex items-center gap-1.5 bg-white hover:bg-slate-100 text-[#0F5244] px-3 py-1 rounded-full text-[11px] font-black transition-all cursor-pointer shadow-sm shrink-0 disabled:opacity-70"
       >
-        <X className="w-3 h-3" />
+        {isExiting ? (
+          <Loader2 className="w-3 h-3 animate-spin text-[#0F5244]" />
+        ) : (
+          <X className="w-3.5 h-3.5" />
+        )}
         <span>{isAr ? 'إنهاء المعاينة' : 'Exit Preview'}</span>
-      </Link>
+      </button>
     </div>
   );
 }
+
+export default PreviewModeBanner;

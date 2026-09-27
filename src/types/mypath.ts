@@ -28,6 +28,8 @@ export interface MyPathPreferences {
   level: SkillLevel;
   hoursPerWeek: WeeklyCommitment;
   targetMonths?: TargetDuration;
+  targetProjectOutcome?: string;
+  learningChallenges?: string;
 }
 
 export interface RoadmapMilestoneCourse {
@@ -41,6 +43,8 @@ export interface RoadmapMilestoneCourse {
   image?: string;
   price?: number;
   isEnrolled?: boolean;
+  isFree?: boolean;
+  currency?: string;
 }
 
 export interface RoadmapMilestone {

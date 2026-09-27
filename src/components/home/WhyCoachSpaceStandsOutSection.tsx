@@ -114,7 +114,15 @@ export function WhyCoachSpaceStandsOutSection({ data }: WhyCoachSpaceStandsOutPr
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: "-40px" }}
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 w-full"
+          className={`grid gap-6 w-full justify-center ${
+            features.length === 1
+              ? "grid-cols-1 max-w-md mx-auto"
+              : features.length === 2
+              ? "grid-cols-1 sm:grid-cols-2 max-w-2xl mx-auto"
+              : features.length === 3
+              ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 max-w-5xl mx-auto"
+              : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 max-w-7xl mx-auto"
+          }`}
         >
           {features.map((feature) => {
             const Icon = feature.icon;

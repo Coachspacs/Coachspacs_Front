@@ -21,8 +21,8 @@ function buildGoogleFontsUrl(fonts: string[]): string | null {
   return `https://fonts.googleapis.com/css2?${familyParams}&display=swap`;
 }
 
-export async function DynamicBrandingInjector() {
-  const branding = await CmsServerService.getPublishedBranding();
+export async function DynamicBrandingInjector({ isPreview = false }: { isPreview?: boolean }) {
+  const branding = await CmsServerService.getBranding(isPreview);
   const css = generateBrandingCss(branding);
 
   const fontAr = branding?.fontFamilyAr || 'Cairo';
@@ -35,11 +35,16 @@ export async function DynamicBrandingInjector() {
   const scriptContent = `
 (function() {
   window.__CMS_BRANDING__ = ${JSON.stringify(branding)};
-  try {
-    if (window.__CMS_BRANDING__) {
-      localStorage.setItem('coachspace_cms_branding', JSON.stringify(window.__CMS_BRANDING__));
-    }
-  } catch(e) {}
+  window.__CMS_IS_PREVIEW__ = ${isPreview ? 'true' : 'false'};
+
+  function isCurrentPreviewMode() {
+    if (window.__CMS_IS_PREVIEW__) return true;
+    try {
+      if (window.location.search.indexOf('preview=true') !== -1) return true;
+      if (document.cookie.indexOf('__prerender_bypass') !== -1) return true;
+    } catch(e) {}
+    return false;
+  }
 
   function getHueDiff(hex) {
     var cleanHex = (hex || '').replace('#', '');
@@ -81,6 +86,7 @@ export async function DynamicBrandingInjector() {
   function applyBranding(data) {
     if (!data) return;
     var root = document.documentElement;
+    if (!root) return;
 
     if (data.colors) {
       var colors = data.colors;
@@ -125,26 +131,63 @@ export async function DynamicBrandingInjector() {
 
   function syncFromStorage() {
     try {
+      var inPreview = isCurrentPreviewMode();
+      if (inPreview) {
+        var previewCached = localStorage.getItem('coachspace_cms_preview_branding') || sessionStorage.getItem('coachspace_cms_preview_branding');
+        if (previewCached) {
+          applyBranding(JSON.parse(previewCached));
+          return;
+        }
+      }
       var cached = localStorage.getItem('coachspace_cms_branding');
-      if (cached) {
+      if (cached && !inPreview) {
         var parsed = JSON.parse(cached);
         applyBranding(parsed);
       }
     } catch(e) {}
   }
 
+  // Initial immediate application
   syncFromStorage();
 
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', syncFromStorage);
+  }
+
+  // Real-time BroadcastChannel sync across tabs
+  try {
+    if (typeof BroadcastChannel !== 'undefined') {
+      var bc = new BroadcastChannel('coachspace_cms_preview');
+      bc.onmessage = function(event) {
+        if (event && event.data && event.data.type === 'PREVIEW_BRANDING_UPDATE' && event.data.branding) {
+          if (isCurrentPreviewMode()) {
+            applyBranding(event.data.branding);
+          }
+        }
+      };
+    }
+  } catch(e) {}
+
   window.addEventListener('cms-branding-updated', function(e) {
-    if (e && e.detail) {
+    if (e && e.detail && !isCurrentPreviewMode()) {
       applyBranding(e.detail);
     } else {
       syncFromStorage();
     }
   });
 
+  window.addEventListener('cms-preview-branding-updated', function(e) {
+    if (isCurrentPreviewMode() && e && e.detail) {
+      applyBranding(e.detail);
+    }
+  });
+
   window.addEventListener('storage', function(e) {
-    if (e.key === 'coachspace_cms_branding' && e.newValue) {
+    if (isCurrentPreviewMode() && e.key === 'coachspace_cms_preview_branding' && e.newValue) {
+      try {
+        applyBranding(JSON.parse(e.newValue));
+      } catch(err) {}
+    } else if (!isCurrentPreviewMode() && e.key === 'coachspace_cms_branding' && e.newValue) {
       try {
         applyBranding(JSON.parse(e.newValue));
       } catch(err) {}
