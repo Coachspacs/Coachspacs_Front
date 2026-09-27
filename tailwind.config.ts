@@ -44,9 +44,9 @@ const config: Config = {
         line: "var(--color-border)",
       },
       fontFamily: {
-        sans: ['Cairo', 'Plus Jakarta Sans', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
-        cairo: ['Cairo', 'sans-serif'],
-        jakarta: ['Plus Jakarta Sans', 'sans-serif'],
+        sans: ['var(--font-jakarta)', 'var(--font-cairo)', 'Plus Jakarta Sans', 'Cairo', 'system-ui', '-apple-system', 'sans-serif'],
+        cairo: ['var(--font-cairo)', 'Cairo', 'sans-serif'],
+        jakarta: ['var(--font-jakarta)', 'Plus Jakarta Sans', 'sans-serif'],
       },
       boxShadow: {
         card: "var(--shadow-card)",

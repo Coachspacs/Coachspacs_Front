@@ -2,14 +2,13 @@
 
 import React, { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import confetti from "canvas-confetti";
 import {
   Sparkles,
   Play,
   Award,
   Clock,
-  Calendar,
   RotateCcw,
   SlidersHorizontal,
   Share2,
@@ -21,8 +20,21 @@ import {
   Volume2,
   VolumeX,
   ExternalLink,
+  ArrowUp,
+  ArrowDown,
+  SkipForward,
+  ShoppingCart,
+  ChevronDown,
+  ChevronUp,
+  ListOrdered,
+  Layers,
+  HelpCircle,
 } from "lucide-react";
-import { GeneratedRoadmap, RoadmapMilestone, MyPathPreferences } from "@/types/mypath";
+import {
+  GeneratedRoadmap,
+  RoadmapMilestone,
+  MyPathPreferences,
+} from "@/types/mypath";
 import { soundFx } from "@/lib/soundEffects";
 import { AnimatedRobotCharacter } from "./AnimatedRobotCharacter";
 
@@ -53,6 +65,34 @@ export function InteractiveCurriculumMap({
 }: InteractiveCurriculumMapProps) {
   const [soundOn, setSoundOn] = useState<boolean>(true);
   const [copiedToast, setCopiedToast] = useState(false);
+  const [reorderMode, setReorderMode] = useState(false);
+
+  // Local milestones state to support real-time reordering & skipping (US-18 Scenario 5)
+  const [milestonesState, setMilestonesState] = useState<RoadmapMilestone[]>(
+    roadmap.milestones,
+  );
+
+  useEffect(() => {
+    setMilestonesState(roadmap.milestones);
+  }, [roadmap.milestones]);
+
+  // Enrolled courses detection from storage/session (Purchase requirement)
+  const [enrolledCourseIds, setEnrolledCourseIds] = useState<string[]>([]);
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem("coachspace_enrolled_courses");
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed)) {
+          const ids = parsed.map((c: any) =>
+            String(c.id || c.course_id || c.slug || "").toLowerCase(),
+          );
+          setEnrolledCourseIds(ids);
+        }
+      }
+    } catch {}
+  }, []);
 
   // Initialize sound preferences
   useEffect(() => {
@@ -76,28 +116,74 @@ export function InteractiveCurriculumMap({
     if (nextVal) soundFx.playOptionSelect();
   };
 
-  const totalCount = roadmap.milestones.length;
-  const completedCount = roadmap.milestones.filter((m) => m.status === "completed").length;
-  const progressPercent = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
-  const allCompleted = completedCount === totalCount && totalCount > 0;
+  const totalCount = milestonesState.length;
+  const completedCount = milestonesState.filter(
+    (m) => m.status === "completed",
+  ).length;
+  const progressPercent =
+    totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
 
-  // Active milestone index (first non-completed milestone)
-  const activeMilestoneIndex = roadmap.milestones.findIndex((m) => m.status !== "completed");
-  const currentActiveIndex = activeMilestoneIndex === -1 ? totalCount - 1 : activeMilestoneIndex;
+  // Active milestone index (first non-completed and non-skipped milestone)
+  const activeMilestoneIndex = milestonesState.findIndex(
+    (m) => m.status !== "completed" && m.status !== "skipped",
+  );
+  const currentActiveIndex =
+    activeMilestoneIndex === -1 ? totalCount - 1 : activeMilestoneIndex;
 
-  // Dynamic Waypoint coordinates generation (Handles 2, 3, 4, 5, etc. milestones smoothly)
+  // Accordion state: ONLY the active lesson is expanded by default, others collapsed
+  const [expandedMilestoneId, setExpandedMilestoneId] = useState<string | null>(
+    () => {
+      const activeM = milestonesState[currentActiveIndex];
+      return activeM ? activeM.id : milestonesState[0]?.id || null;
+    },
+  );
+
+  // Reordering handlers (US-18 Scenario 5)
+  const handleMoveMilestone = (index: number, direction: "up" | "down") => {
+    const targetIndex = direction === "up" ? index - 1 : index + 1;
+    if (targetIndex < 0 || targetIndex >= milestonesState.length) return;
+
+    const updated = [...milestonesState];
+    const item = updated[index];
+    updated[index] = updated[targetIndex];
+    updated[targetIndex] = item;
+
+    const reindexed = updated.map((m, idx) => ({ ...m, stepNumber: idx + 1 }));
+    setMilestonesState(reindexed);
+    if (soundOn) soundFx.playOptionSelect();
+  };
+
+  // Skip milestone handler (US-18 Scenario 5)
+  const handleToggleSkip = (milestoneId: string) => {
+    const updated = milestonesState.map((m) => {
+      if (m.id === milestoneId) {
+        const newStatus = m.status === "skipped" ? "planned" : "skipped";
+        return { ...m, status: newStatus as any };
+      }
+      return m;
+    });
+    setMilestonesState(updated);
+    if (soundOn) soundFx.playOptionSelect();
+  };
+
+  // Dynamic Waypoint coordinates generation with generous top and bottom margins
   const waypoints: WaypointNode[] = useMemo(() => {
     if (totalCount === 0) return [];
     if (totalCount === 1) {
       return [{ milestoneIndex: 0, xPercent: 50, yPercent: 50 }];
     }
 
-    return roadmap.milestones.map((_, idx) => {
-      // Alternate left (~26%) and right (~74%)
+    const startY = 27; // Generous 27% clearance below Roadmap Start Line
+    const endY = 73; // Generous 27% clearance above Goal Marker
+
+    return milestonesState.map((_, idx) => {
+      // Alternate left (~25%) and right (~75%)
       const isEven = idx % 2 === 0;
-      const xPercent = isEven ? 26 : 74;
-      // Even vertical distribution between 14% and 86%
-      const yPercent = 14 + (idx / (totalCount - 1)) * 72;
+      const xPercent = isEven ? 25 : 75;
+      const yPercent =
+        totalCount <= 1
+          ? 50
+          : startY + (idx / (totalCount - 1)) * (endY - startY);
 
       return {
         milestoneIndex: idx,
@@ -105,23 +191,36 @@ export function InteractiveCurriculumMap({
         yPercent,
       };
     });
-  }, [roadmap.milestones, totalCount]);
+  }, [milestonesState, totalCount]);
 
-  // Dynamic smooth S-Curve SVG road path connecting all waypoints
+  // Dynamic ultra-smooth S-Curve SVG road path connecting start pin, all waypoints, and end goal
   const svgRoadPath = useMemo(() => {
-    if (waypoints.length < 2) return "";
+    if (waypoints.length === 0) return "";
 
     const points = waypoints.map((wp) => ({
       x: (wp.xPercent / 100) * 800,
       y: (wp.yPercent / 100) * 1000,
     }));
 
-    let d = `M ${points[0].x} ${points[0].y}`;
-    for (let i = 0; i < points.length - 1; i++) {
-      const p1 = points[i];
-      const p2 = points[i + 1];
-      const midY = (p1.y + p2.y) / 2;
-      d += ` C ${p1.x} ${midY}, ${p2.x} ${midY}, ${p2.x} ${p2.y}`;
+    // Start line origin coordinate in SVG viewBox (center top)
+    const startOrigin = { x: 400, y: 45 };
+    // End goal coordinate in SVG viewBox (center bottom)
+    const endTarget = { x: 400, y: 955 };
+
+    // Full sequence from Start Line -> all Checkpoint waypoints -> Finish Goal
+    const allNodes = [startOrigin, ...points, endTarget];
+
+    let d = `M ${allNodes[0].x} ${allNodes[0].y}`;
+    for (let i = 0; i < allNodes.length - 1; i++) {
+      const p1 = allNodes[i];
+      const p2 = allNodes[i + 1];
+      const dy = p2.y - p1.y;
+      // Smooth natural cubic bezier S-curve with vertical departure and arrival tangents
+      const cp1x = p1.x;
+      const cp1y = p1.y + dy * 0.5;
+      const cp2x = p2.x;
+      const cp2y = p2.y - dy * 0.5;
+      d += ` C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${p2.x} ${p2.y}`;
     }
     return d;
   }, [waypoints]);
@@ -141,7 +240,7 @@ export function InteractiveCurriculumMap({
   };
 
   const handleToggleCompleted = (milestoneId: string) => {
-    const target = roadmap.milestones.find((m) => m.id === milestoneId);
+    const target = milestonesState.find((m) => m.id === milestoneId);
     if (target && target.status !== "completed") {
       triggerCelebration();
     } else {
@@ -165,19 +264,33 @@ export function InteractiveCurriculumMap({
     if (preferences.customTrackName) return preferences.customTrackName;
     switch (preferences.track) {
       case "uiux":
-        return isAr ? "تصميم واجهات وتجربة المستخدم (UI/UX)" : "UI/UX Product Design";
+        return isAr
+          ? "تصميم واجهات وتجربة المستخدم (UI/UX)"
+          : "UI/UX Product Design";
       case "frontend":
-        return isAr ? "تطوير واجهات المستخدم (Frontend Development)" : "Frontend Web Engineering";
+        return isAr
+          ? "تطوير واجهات المستخدم (Frontend Development)"
+          : "Frontend Web Engineering";
       case "backend":
-        return isAr ? "تطوير البنية الخلفية والسحابية (Backend)" : "Backend & Cloud Architecture";
+        return isAr
+          ? "تطوير البنية الخلفية والسحابية (Backend)"
+          : "Backend & Cloud Architecture";
       case "fullstack":
-        return isAr ? "التطوير الشامل المتكامل (Full-Stack)" : "Full-Stack Web Development";
+        return isAr
+          ? "التطوير الشامل المتكامل (Full-Stack)"
+          : "Full-Stack Web Development";
       case "ai":
-        return isAr ? "الذكاء الاصطناعي وتعلّم الآلة (AI & ML)" : "Artificial Intelligence & ML";
+        return isAr
+          ? "الذكاء الاصطناعي وتعلّم الآلة (AI & ML)"
+          : "Artificial Intelligence & ML";
       case "data":
-        return isAr ? "علم وهندسة البيانات (Data Science)" : "Data Science & Analytics";
+        return isAr
+          ? "علم وهندسة البيانات (Data Science)"
+          : "Data Science & Analytics";
       case "mobile":
-        return isAr ? "تطوير تطبيقات الموبايل (Mobile Apps)" : "Cross-Platform Mobile Apps";
+        return isAr
+          ? "تطوير تطبيقات الموبايل (Mobile Apps)"
+          : "Cross-Platform Mobile Apps";
       case "cloud":
         return isAr ? "الحوسبة السحابية وDevOps" : "Cloud Engineering & DevOps";
       default:
@@ -185,47 +298,80 @@ export function InteractiveCurriculumMap({
     }
   };
 
-  // Dynamic proportional height calculated from number of milestones
-  const dynamicMinHeight = Math.max(420, totalCount * 190);
+  // Dynamic responsive height: adapts cleanly when cards are collapsed vs expanded
+  const isAnyExpanded = Boolean(expandedMilestoneId);
+  const dynamicMinHeight = Math.max(
+    1200,
+    totalCount * (isAnyExpanded ? 250 : 170),
+  );
 
   return (
-    <div dir={isAr ? "rtl" : "ltr"} className="space-y-4 relative z-10 text-start w-full max-w-6xl mx-auto pb-10">
+    <div
+      dir={isAr ? "rtl" : "ltr"}
+      className="space-y-6 relative z-10 text-start w-full max-w-6xl mx-auto pb-4"
+    >
       {/* ========================================================================= */}
-      {/* 1. COMPACT & SLEEK HEADER PASSPORT (WIDE & LOW-PROFILE) */}
+      {/* 1. PATH HEADER (RICH GRADIENT + PATTERN + PROMINENT REGENERATE & REORDER) */}
       {/* ========================================================================= */}
-      <div className="bg-gradient-to-r from-[#0F5244] via-[#0D4438] to-[#073027] text-white rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 shadow-lg border border-emerald-600/40 relative overflow-hidden">
-        {/* Glow ambient background */}
-        <div className="absolute top-0 right-0 w-48 h-48 bg-emerald-400/10 rounded-full blur-2xl pointer-events-none" />
-        <div className="absolute bottom-0 left-0 w-48 h-48 bg-amber-400/10 rounded-full blur-2xl pointer-events-none" />
+      <div className="bg-gradient-to-br from-[#0c473a] via-[#0F5244] to-[#072a22] text-white rounded-3xl p-4 sm:p-6 shadow-[0_14px_36px_-6px_rgba(15,82,68,0.35)] border border-emerald-500/30 relative overflow-hidden">
+        {/* Subtle geometric dot pattern overlay */}
+        <div
+          className="absolute inset-0 opacity-[0.08] pointer-events-none"
+          style={{
+            backgroundImage:
+              "radial-gradient(circle at 1.5px 1.5px, #38E09D 1.5px, transparent 0)",
+            backgroundSize: "22px 22px",
+          }}
+          aria-hidden="true"
+        />
 
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 relative z-10">
-          {/* Left / Title & Info */}
-          <div className="space-y-1 min-w-0 flex-1">
+        {/* Ambient atmospheric glow orbs */}
+        <div className="absolute -top-12 -right-12 w-64 h-64 bg-emerald-400/15 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-12 -left-12 w-64 h-64 bg-teal-300/10 rounded-full blur-3xl pointer-events-none" />
+
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative z-10">
+          {/* Left / Title & Info Badges */}
+          <div className="space-y-1.5 min-w-0 flex-1">
             <div className="flex items-center gap-2 flex-wrap">
-              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-[11px] font-bold text-emerald-200">
-                <Compass className="w-3 h-3 text-[#38E09D]" />
-                <span>{isAr ? "خريطة المسار الذكية" : "Dynamic Curriculum Map"}</span>
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-xs font-bold text-emerald-100 shadow-xs">
+                <Compass className="w-3.5 h-3.5 text-[#38E09D]" />
+                <span>
+                  {isAr ? "خريطة المسار الذكية" : "Dynamic Curriculum Map"}
+                </span>
               </span>
 
-              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-[#38E09D] border border-emerald-400/30 text-[11px] font-bold">
-                <Sparkles className="w-3 h-3 text-[#38E09D]" />
-                <span>{isAr ? `${totalCount} محطات مخصصة` : `${totalCount} Milestones`}</span>
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 text-[#38E09D] border border-emerald-400/35 text-xs font-bold shadow-xs">
+                <Sparkles className="w-3.5 h-3.5 text-[#38E09D]" />
+                <span>
+                  {isAr
+                    ? `${totalCount} محطات دراسية`
+                    : `${totalCount} Milestones`}
+                </span>
               </span>
+
+              {reorderMode && (
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-400/20 text-amber-200 border border-amber-300/30 text-[11px] font-black animate-pulse">
+                  <ListOrdered className="w-3 h-3" />
+                  <span>
+                    {isAr ? "وضع إعادة الترتيب نشط" : "Reorder Mode Active"}
+                  </span>
+                </span>
+              )}
             </div>
 
-            <h1 className="text-base sm:text-lg md:text-xl font-black text-white tracking-tight">
+            <h1 className="text-lg sm:text-xl md:text-2xl font-black text-white tracking-tight leading-snug">
               {getTrackName()}
             </h1>
           </div>
 
           {/* Right / Hours, Duration Stats & Sound Toggle */}
           <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-            <div className="bg-black/20 backdrop-blur-md rounded-xl px-3 py-1.5 border border-white/15 flex items-center gap-3 sm:gap-4">
+            <div className="bg-black/25 backdrop-blur-md rounded-2xl px-3.5 py-2 border border-white/15 flex items-center gap-3.5 sm:gap-4 shadow-xs">
               <div className="text-start">
-                <span className="text-[9px] font-bold text-emerald-300 block leading-tight">
+                <span className="text-[10px] font-bold text-emerald-300 block leading-tight">
                   {isAr ? "الالتزام" : "Hours"}
                 </span>
-                <span className="text-[11px] font-black text-white">
+                <span className="text-xs sm:text-[13px] font-black text-white">
                   {preferences.hoursPerWeek} {isAr ? "س/أسب" : "h/w"}
                 </span>
               </div>
@@ -233,11 +379,12 @@ export function InteractiveCurriculumMap({
               <div className="w-px h-6 bg-white/15" />
 
               <div className="text-start">
-                <span className="text-[9px] font-bold text-emerald-300 block leading-tight">
+                <span className="text-[10px] font-bold text-emerald-300 block leading-tight">
                   {isAr ? "المدة" : "Duration"}
                 </span>
-                <span className="text-[11px] font-black text-white">
-                  {Math.max(1, Math.round(roadmap.estimatedWeeks / 4))} {isAr ? "أشهر" : "mos"}
+                <span className="text-xs sm:text-[13px] font-black text-white">
+                  {Math.max(1, Math.round(roadmap.estimatedWeeks / 4))}{" "}
+                  {isAr ? "أشهر" : "mos"}
                 </span>
               </div>
 
@@ -247,80 +394,146 @@ export function InteractiveCurriculumMap({
               <button
                 type="button"
                 onClick={toggleSound}
-                className="p-1 rounded-lg bg-white/10 hover:bg-white/20 text-emerald-200 transition-all cursor-pointer border border-white/10"
-                title={soundOn ? (isAr ? "كتم الصوت" : "Mute") : (isAr ? "تشغيل الصوت" : "Unmute")}
+                className="p-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-emerald-200 transition-all cursor-pointer border border-white/15"
+                title={
+                  soundOn
+                    ? isAr
+                      ? "كتم المؤثرات الصوتية"
+                      : "Mute Sound Effects"
+                    : isAr
+                      ? "تشغيل المؤثرات الصوتية"
+                      : "Enable Sound Effects"
+                }
               >
-                {soundOn ? <Volume2 className="w-3.5 h-3.5 text-[#38E09D]" /> : <VolumeX className="w-3.5 h-3.5 text-slate-400" />}
+                {soundOn ? (
+                  <Volume2 className="w-3.5 h-3.5 text-[#38E09D]" />
+                ) : (
+                  <VolumeX className="w-3.5 h-3.5 text-slate-400" />
+                )}
               </button>
             </div>
           </div>
         </div>
 
-        {/* Action Controls & Progress Bar */}
-        <div className="pt-2.5 mt-2.5 border-t border-white/10 space-y-1.5">
-          <div className="flex items-center justify-between gap-2 flex-wrap text-[11px]">
-            <div className="flex items-center gap-1.5 font-medium text-emerald-200/90">
-              <span className="font-black text-white">{progressPercent}%</span>
-              <span>•</span>
-              <span>{isAr ? `${completedCount} من أصل ${totalCount} محطات مكتملة` : `${completedCount}/${totalCount} completed`}</span>
+        {/* Action Controls & Prominent Glowing Progress Bar */}
+        <div className="pt-3.5 mt-3.5 border-t border-white/15 space-y-2.5 relative z-10">
+          <div className="flex items-center justify-between gap-3 flex-wrap text-xs">
+            {/* Progress Counter */}
+            <div className="flex items-center gap-2 font-medium text-emerald-100">
+              <span className="font-black text-white text-sm">
+                {progressPercent}%
+              </span>
+              <span className="text-white/40">•</span>
+              <span className="font-semibold text-emerald-200/90">
+                {isAr
+                  ? `${completedCount} من أصل ${totalCount} محطات مكتملة`
+                  : `${completedCount}/${totalCount} milestones completed`}
+              </span>
             </div>
 
-            <div className="flex items-center gap-1.5">
+            {/* Hierarchical Action Buttons with Reorder & Regenerate (US-18) */}
+            <div className="flex items-center gap-2 flex-wrap">
+              {/* Toggle Reorder Mode Button (US-18 Scenario 5) */}
               <button
                 type="button"
-                onClick={handleShare}
-                className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg bg-white/10 hover:bg-white/20 font-bold text-white transition-all cursor-pointer text-[11px]"
+                onClick={() => setReorderMode(!reorderMode)}
+                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-bold text-xs transition-all active:scale-95 cursor-pointer ${
+                  reorderMode
+                    ? "bg-amber-400 text-slate-900 shadow-md font-black"
+                    : "bg-white/[0.07] hover:bg-white/[0.15] border border-white/20 text-white backdrop-blur-xs"
+                }`}
               >
-                <Share2 className="w-3 h-3 text-[#38E09D]" />
-                <span>{copiedToast ? (isAr ? "تم!" : "Copied!") : isAr ? "مشاركة" : "Share"}</span>
+                <ListOrdered className="w-3.5 h-3.5 text-current" />
+                <span>
+                  {reorderMode
+                    ? isAr
+                      ? "إنهاء الترتيب"
+                      : "Done Reordering"
+                    : isAr
+                      ? "إعادة ترتيب الخطة"
+                      : "Reorder Steps"}
+                </span>
               </button>
-              <button
-                type="button"
-                onClick={onRegenerate}
-                className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg bg-white/10 hover:bg-white/20 font-bold text-white transition-all cursor-pointer text-[11px]"
-              >
-                <RotateCcw className="w-3 h-3 text-[#38E09D]" />
-                <span>{isAr ? "إعادة بناء" : "Regenerate"}</span>
-              </button>
+
+              {/* Preferences Button */}
               <button
                 type="button"
                 onClick={onEditPreferences}
-                className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg bg-white/10 hover:bg-white/20 font-bold text-white transition-all cursor-pointer text-[11px]"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/[0.07] hover:bg-white/[0.15] border border-white/20 font-bold text-white transition-all active:scale-95 cursor-pointer text-xs backdrop-blur-xs"
               >
-                <SlidersHorizontal className="w-3 h-3 text-[#38E09D]" />
-                <span>{isAr ? "التفضيلات" : "Preferences"}</span>
+                <SlidersHorizontal className="w-3.5 h-3.5 text-[#38E09D]" />
+                <span>{isAr ? "تعديل الهدف" : "Preferences"}</span>
+              </button>
+
+              {/* Share Button */}
+              <button
+                type="button"
+                onClick={handleShare}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/[0.07] hover:bg-white/[0.15] border border-white/20 font-bold text-white transition-all active:scale-95 cursor-pointer text-xs backdrop-blur-xs"
+              >
+                <Share2 className="w-3.5 h-3.5 text-[#38E09D]" />
+                <span>
+                  {copiedToast
+                    ? isAr
+                      ? "تم النسخ!"
+                      : "Copied!"
+                    : isAr
+                      ? "مشاركة"
+                      : "Share"}
+                </span>
+              </button>
+
+              {/* PRIMARY ACTION BUTTON: Regenerate (US-18 Scenario 6) */}
+              <button
+                type="button"
+                onClick={onRegenerate}
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-white hover:bg-emerald-50 text-[#0F5244] font-black transition-all shadow-[0_2px_10px_rgba(255,255,255,0.2)] hover:shadow-md active:scale-95 cursor-pointer text-xs"
+              >
+                <RotateCcw className="w-3.5 h-3.5 text-[#0F5244]" />
+                <span>{isAr ? "إعادة توليد المسار" : "Regenerate Path"}</span>
               </button>
             </div>
           </div>
 
-          <div className="w-full h-1.5 bg-black/25 rounded-full overflow-hidden p-0.5 border border-white/10">
+          {/* Prominent, Bold Gradient Progress Bar with Glow */}
+          <div className="w-full h-2.5 sm:h-3 bg-black/35 rounded-full overflow-hidden p-0.5 border border-white/15 shadow-inner">
             <motion.div
               initial={{ width: 0 }}
               animate={{ width: `${progressPercent}%` }}
               transition={{ duration: 0.8, ease: "easeOut" }}
-              className="h-full bg-gradient-to-r from-emerald-400 to-[#38E09D] rounded-full shadow-md"
-            />
+              className="h-full bg-gradient-to-r from-emerald-500 via-[#38E09D] to-[#45D1B4] rounded-full shadow-[0_0_14px_rgba(56,224,157,0.65)] relative overflow-hidden"
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/35 to-transparent animate-pulse" />
+            </motion.div>
           </div>
         </div>
       </div>
 
       {/* ========================================================================= */}
-      {/* 2. DYNAMIC ROADMAP CANVAS (HANDLES 2, 3, 4, 5+ MILESTONES DYNAMICALLY) */}
+      {/* 2. DYNAMIC ROADMAP CANVAS (TALL BREATHING SPACE + ANIMATED ROBOT) */}
       {/* ========================================================================= */}
       <div
-        className="relative rounded-3xl bg-gradient-to-b from-[#E8F8F2] via-[#F0FAF6] to-[#E6F5EF] border-2 border-emerald-300/80 shadow-lg overflow-hidden select-none"
+        className="relative rounded-3xl bg-gradient-to-b from-[#EBF7F2] via-[#F2FAF6] to-[#E5F5EE] border-2 border-emerald-300/80 shadow-[0_12px_36px_-6px_rgba(15,82,68,0.12)] overflow-hidden select-none py-6"
         style={{ minHeight: `${dynamicMinHeight}px` }}
       >
-        {/* Terrain Pattern Background */}
+        {/* Subtle Roadmap Origin Pin */}
+        <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10 flex items-center gap-1.5 px-4 py-1 rounded-full bg-white/90 border border-emerald-600/25 text-emerald-800 text-[11px] font-bold shadow-xs backdrop-blur-xs">
+          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+          <span>
+            {isAr ? "نقطة انطلاق المسار 🏁" : "Roadmap Start Line 🏁"}
+          </span>
+        </div>
+        {/* Soft Grid Terrain Background */}
         <div
-          className="absolute inset-0 opacity-[0.25] pointer-events-none"
+          className="absolute inset-0 opacity-[0.28] pointer-events-none"
           style={{
-            backgroundImage: "radial-gradient(#0F5244 1px, transparent 1px)",
+            backgroundImage:
+              "radial-gradient(#0F5244 1.2px, transparent 1.2px)",
             backgroundSize: "28px 28px",
           }}
         />
 
-        {/* Dynamic SVG Winding Road Path */}
+        {/* Dynamic Luminous SVG Winding Road Path */}
         {svgRoadPath && (
           <svg
             className="absolute inset-0 w-full h-full pointer-events-none"
@@ -330,62 +543,128 @@ export function InteractiveCurriculumMap({
             xmlns="http://www.w3.org/2000/svg"
           >
             <defs>
-              <linearGradient id="questRoadGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-                <stop offset="0%" stopColor="#10B981" />
-                <stop offset="35%" stopColor="#0F5244" />
-                <stop offset="70%" stopColor="#059669" />
-                <stop offset="100%" stopColor="#0F5244" />
+              <linearGradient
+                id="questRoadGrad"
+                x1="0%"
+                y1="0%"
+                x2="0%"
+                y2="100%"
+              >
+                <stop offset="0%" stopColor="#38E09D" />
+                <stop offset="30%" stopColor="#10B981" />
+                <stop offset="65%" stopColor="#0F5244" />
+                <stop offset="100%" stopColor="#38E09D" />
               </linearGradient>
-              <filter id="roadGlow" x="-20%" y="-20%" width="140%" height="140%">
+              <linearGradient
+                id="trackBedGrad"
+                x1="0%"
+                y1="0%"
+                x2="0%"
+                y2="100%"
+              >
+                <stop offset="0%" stopColor="#C8EFE0" />
+                <stop offset="50%" stopColor="#B3EAD6" />
+                <stop offset="100%" stopColor="#C8EFE0" />
+              </linearGradient>
+              <filter
+                id="neonRoadGlow"
+                x="-30%"
+                y="-30%"
+                width="160%"
+                height="160%"
+              >
                 <feGaussianBlur stdDeviation="5" result="blur" />
-                <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                <feMerge>
+                  <feMergeNode in="blur" />
+                  <feMergeNode in="SourceGraphic" />
+                </feMerge>
               </filter>
             </defs>
 
-            {/* Road Base Underlayer */}
+            {/* Ambient River Underlayer */}
             <path
               d={svgRoadPath}
-              stroke="#C6EBDC"
-              strokeWidth="38"
+              stroke="rgba(16, 185, 129, 0.18)"
+              strokeWidth="52"
               strokeLinecap="round"
               fill="none"
             />
 
-            {/* Stepping Path Border */}
+            {/* Road Foundation Bed */}
             <path
               d={svgRoadPath}
-              stroke="#95DBC0"
-              strokeWidth="24"
+              stroke="url(#trackBedGrad)"
+              strokeWidth="36"
               strokeLinecap="round"
               fill="none"
             />
 
-            {/* Center Glowing Pulse Line */}
+            {/* Inner Stepping Guide Track */}
+            <path
+              d={svgRoadPath}
+              stroke="#8CE4C3"
+              strokeWidth="20"
+              strokeLinecap="round"
+              fill="none"
+            />
+
+            {/* High-Tech Glowing Centerline Pulse */}
             <path
               d={svgRoadPath}
               stroke="url(#questRoadGrad)"
               strokeWidth="6"
-              strokeDasharray="10 8"
+              strokeDasharray="12 10"
               strokeLinecap="round"
               fill="none"
-              filter="url(#roadGlow)"
+              filter="url(#neonRoadGlow)"
               className="animate-pulse"
             />
           </svg>
         )}
 
         {/* ========================================================================= */}
-        {/* DYNAMIC CHECKPOINTS WITH DIRECTLY ATTACHED COMPACT COURSE BOXES */}
+        {/* CHECKPOINTS WITH ACCORDION CARDS (ACTIVE EXPANDED, OTHERS COMPACT) */}
         {/* ========================================================================= */}
         {waypoints.map((wp, idx) => {
-          const milestone = roadmap.milestones[wp.milestoneIndex];
+          const milestone = milestonesState[wp.milestoneIndex];
           if (!milestone) return null;
 
           const isCompleted = milestone.status === "completed";
-          const isActive = !isCompleted && wp.milestoneIndex === currentActiveIndex;
+          const isSkipped = milestone.status === "skipped";
+          const isActive =
+            !isCompleted &&
+            !isSkipped &&
+            wp.milestoneIndex === currentActiveIndex;
           const isCapstone = idx === waypoints.length - 1;
-          const firstCourse = milestone.courses && milestone.courses.length > 0 ? milestone.courses[0] : null;
+          const firstCourse =
+            milestone.courses && milestone.courses.length > 0
+              ? milestone.courses[0]
+              : null;
           const isLeft = wp.xPercent < 50;
+
+          // Check enrollment status (per user requirement: courses need purchase/enrollment)
+          const isEnrolled =
+            firstCourse?.isEnrolled ||
+            (firstCourse &&
+              enrolledCourseIds.some(
+                (enrolledId) =>
+                  enrolledId === String(firstCourse.id).toLowerCase() ||
+                  enrolledId === String(firstCourse.slug || "").toLowerCase(),
+              ));
+
+          const isExpanded = expandedMilestoneId === milestone.id;
+
+          const courseTitle = firstCourse
+            ? isAr
+              ? firstCourse.titleAr
+              : firstCourse.title
+            : isAr
+              ? milestone.titleAr
+              : milestone.title;
+
+          const courseDesc = isAr
+            ? milestone.descriptionAr
+            : milestone.description;
 
           return (
             <div
@@ -397,191 +676,323 @@ export function InteractiveCurriculumMap({
                 transform: "translate(-50%, -50%)",
               }}
             >
-              {/* Checkpoint Node + Attached Compact Course Box (facing inward toward map center) */}
+              {/* Checkpoint Node + Attached Card (Facing inward) */}
               <div
-                className={`relative flex items-center gap-2.5 sm:gap-4 ${
+                className={`relative flex items-center gap-3 sm:gap-4 ${
                   isLeft ? "flex-row" : "flex-row-reverse"
                 }`}
               >
-                {/* 1. The 3D Checkpoint Stone Button */}
+                {/* 1. Checkpoint Stone Button */}
                 <div className="flex flex-col items-center shrink-0">
                   <motion.button
                     type="button"
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.92 }}
-                    onClick={() => handleToggleCompleted(milestone.id)}
-                    className={`w-14 h-14 sm:w-18 sm:h-18 rounded-2xl sm:rounded-3xl flex flex-col items-center justify-center font-black shadow-lg transition-all cursor-pointer relative ${
+                    whileHover={{ scale: 1.08 }}
+                    whileTap={{ scale: 0.94 }}
+                    onClick={() => {
+                      // Toggle expansion or complete
+                      setExpandedMilestoneId(isExpanded ? null : milestone.id);
+                    }}
+                    className={`w-14 h-14 sm:w-16 sm:h-16 rounded-2xl sm:rounded-3xl flex flex-col items-center justify-center font-black transition-all cursor-pointer relative shadow-lg ${
                       isCompleted
-                        ? "bg-gradient-to-tr from-emerald-600 to-emerald-400 text-white border-3 border-emerald-200 shadow-emerald-700/30"
-                        : isActive
-                        ? "bg-gradient-to-tr from-[#0F5244] to-[#1a7763] text-white border-3 border-[#38E09D] shadow-emerald-950/40 ring-4 ring-emerald-300/40"
-                        : isCapstone
-                        ? "bg-gradient-to-tr from-[#0F5244] to-[#1a7763] text-white border-3 border-emerald-300 shadow-emerald-700/30"
-                        : "bg-white text-slate-700 border-3 border-slate-200 shadow-slate-300"
+                        ? "bg-gradient-to-tr from-emerald-600 to-[#0F5244] text-white border-2 border-emerald-200 shadow-[0_8px_22px_rgba(16,185,129,0.38)] ring-4 ring-emerald-300/30"
+                        : isSkipped
+                          ? "bg-slate-200 text-slate-500 border-2 border-slate-300"
+                          : isActive
+                            ? "bg-gradient-to-tr from-[#0F5244] via-[#146654] to-[#1E8A73] text-white border-2 border-[#38E09D] shadow-[0_10px_28px_rgba(15,82,68,0.48)] ring-4 ring-emerald-400/40"
+                            : isCapstone
+                              ? "bg-gradient-to-tr from-[#0F5244] to-[#1a7763] text-[#38E09D] border-2 border-[#38E09D] shadow-[0_8px_24px_rgba(56,224,157,0.35)] ring-4 ring-emerald-300/30"
+                              : "bg-gradient-to-br from-[#E6F7F0] via-[#D1FAE5] to-[#B8F0DA] text-[#0F5244] border-2 border-emerald-400/70 shadow-[0_8px_20px_rgba(15,82,68,0.12)] hover:border-emerald-500"
                     }`}
                   >
                     {isCompleted ? (
-                      <Check className="w-7 h-7 sm:w-8 sm:h-8 stroke-[3]" />
+                      <Check className="w-7 h-7 sm:w-8 sm:h-8 stroke-[3] text-white drop-shadow-xs" />
+                    ) : isSkipped ? (
+                      <SkipForward className="w-5 h-5 text-slate-400" />
                     ) : isCapstone ? (
-                      <Trophy className="w-7 h-7 sm:w-8 sm:h-8 text-[#38E09D]" />
+                      <Trophy className="w-7 h-7 sm:w-8 sm:h-8 text-[#38E09D] drop-shadow-xs" />
+                    ) : isActive ? (
+                      <>
+                        <span className="text-base sm:text-lg font-mono font-black leading-none">
+                          0{idx + 1}
+                        </span>
+                        <span className="text-[9px] font-black uppercase text-[#38E09D] tracking-wider mt-0.5">
+                          {isAr ? "نشطة" : "LIVE"}
+                        </span>
+                      </>
                     ) : (
                       <>
-                        <span className="text-base sm:text-xl font-mono leading-none">{idx + 1}</span>
-                        <span className="text-[9px] font-bold opacity-80 mt-0.5">{isAr ? "محطة" : "LVL"}</span>
+                        <span className="text-base sm:text-lg font-mono font-black leading-none text-[#0F5244]">
+                          0{idx + 1}
+                        </span>
+                        <span className="text-[9px] font-bold text-emerald-800/80 uppercase tracking-wider mt-0.5">
+                          {isAr ? "محطة" : "LVL"}
+                        </span>
                       </>
                     )}
                   </motion.button>
                 </div>
 
-                {/* 2. The Attached Compact Course Card */}
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  whileHover={{ y: -2 }}
-                  className={`w-52 sm:w-64 rounded-2xl p-3 sm:p-3.5 border transition-all duration-200 shadow-md ${
-                    isCompleted
-                      ? "bg-emerald-50/95 border-emerald-300 text-emerald-950"
-                      : isActive
-                      ? "bg-white border-emerald-500 ring-2 ring-emerald-500/20 text-slate-900 shadow-lg"
-                      : "bg-white/95 border-slate-200/90 text-slate-800"
-                  }`}
-                >
-                  {/* Top Station Badge & Status */}
-                  <div className="flex items-center justify-between gap-2 pb-1.5 border-b border-slate-100">
-                    <span className="text-[10px] font-black uppercase text-emerald-800 bg-emerald-100/90 px-2 py-0.5 rounded-md">
-                      {isAr ? `المحطة ${idx + 1}` : `Stage ${idx + 1}`}
-                    </span>
-
-                    {isCompleted ? (
-                      <span className="text-[10px] font-black text-emerald-700 flex items-center gap-1">
-                        <Check className="w-3 h-3 stroke-[3]" />
-                        <span>{isAr ? "مكتملة" : "Done"}</span>
-                      </span>
-                    ) : isActive ? (
-                      <span className="text-[10px] font-bold text-[#0F5244] flex items-center gap-1">
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse" />
-                        <span>{isAr ? "الحالية" : "Active"}</span>
-                      </span>
-                    ) : (
-                      <span className="text-[10px] font-medium text-slate-400 flex items-center gap-1">
-                        <Lock className="w-2.5 h-2.5" />
-                        <span>{isAr ? "قادمة" : "Next"}</span>
-                      </span>
-                    )}
-                  </div>
-
-                  {/* Course Name & Brief 2-Line Summary */}
-                  <div className="pt-2 space-y-1 text-start">
-                    <div className="flex items-start gap-1.5">
-                      <BookOpen className="w-3.5 h-3.5 text-[#0F5244] shrink-0 mt-0.5" />
-                      <h4 className="text-xs sm:text-sm font-black text-slate-900 leading-snug line-clamp-1">
-                        {firstCourse
-                          ? isAr
-                            ? firstCourse.titleAr
-                            : firstCourse.title
-                          : isAr
-                          ? milestone.titleAr
-                          : milestone.title}
-                      </h4>
-                    </div>
-
-                    <p className="text-[11px] text-slate-500 font-normal leading-relaxed line-clamp-2">
-                      {isAr ? milestone.descriptionAr : milestone.description}
-                    </p>
-                  </div>
-
-                  {/* Bottom Actions: Start Button + Done Toggle */}
-                  <div className="pt-2.5 mt-2 border-t border-slate-100 flex items-center justify-between gap-2">
-                    {firstCourse ? (
-                      <Link
-                        href={`/${locale}/courses/${firstCourse.slug || firstCourse.id || "uiux-design"}`}
-                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#0F5244] hover:bg-[#07382E] text-white text-[10px] font-bold transition-colors cursor-pointer shadow-2xs group"
-                      >
-                        <Play className="w-2.5 h-2.5 fill-current text-[#38E09D]" />
-                        <span>{isAr ? "فتح الدورة" : "Start"}</span>
-                        <ExternalLink className="w-2.5 h-2.5 group-hover:translate-x-0.5 rtl:group-hover:-translate-x-0.5 transition-transform" />
-                      </Link>
-                    ) : (
-                      <span className="text-[10px] text-slate-400">
-                        {milestone.durationWeeks * 3} {isAr ? "ساعة" : "hrs"}
-                      </span>
-                    )}
-
-                    <button
-                      type="button"
-                      onClick={() => handleToggleCompleted(milestone.id)}
-                      className={`text-[10px] font-bold px-2.5 py-1 rounded-lg transition-colors cursor-pointer ${
+                {/* 2. THE ATTACHED CARD: ACTIVE IS FULLY EXPANDED, OTHERS COMPACT & EXPANDABLE */}
+                <AnimatePresence mode="wait">
+                  {isExpanded ? (
+                    /* ------------------------------------------------------------- */
+                    /* A) EXPANDED STATE (Detailed View with AI Reason & Purchase) */
+                    /* ------------------------------------------------------------- */
+                    <motion.div
+                      key={`expanded-${milestone.id}`}
+                      initial={{ opacity: 0, scale: 0.94 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.94 }}
+                      transition={{ duration: 0.2 }}
+                      className={`w-64 sm:w-80 rounded-3xl p-4 sm:p-5 border transition-all duration-200 ${
                         isCompleted
-                          ? "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                          : "bg-emerald-50 hover:bg-emerald-100 text-[#0F5244]"
+                          ? "bg-emerald-50/95 border-emerald-300/80 text-emerald-950 shadow-[0_12px_32px_-4px_rgba(16,185,129,0.18)]"
+                          : isActive
+                            ? "bg-white border-emerald-500/90 ring-2 ring-emerald-500/25 text-slate-900 shadow-[0_18px_42px_-6px_rgba(15,82,68,0.22),0_6px_16px_-3px_rgba(16,185,129,0.15)]"
+                            : "bg-white/95 border-slate-200/90 text-slate-800 shadow-[0_12px_32px_-4px_rgba(15,82,68,0.10),0_4px_12px_-2px_rgba(0,0,0,0.04)]"
                       }`}
                     >
-                      {isCompleted ? (isAr ? "تراجع" : "Undo") : isAr ? "إنجاز ✓" : "Done ✓"}
-                    </button>
-                  </div>
-                </motion.div>
+                      {/* Top Bar: Station Badge + Status Badge + Collapse Action */}
+                      <div className="flex items-center justify-between gap-2 pb-2.5 border-b border-slate-100">
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-[11px] font-black uppercase text-emerald-800 bg-emerald-100/90 px-2.5 py-0.5 rounded-full border border-emerald-200/60 shadow-2xs">
+                            {isAr ? `المحطة ${idx + 1}` : `Stage ${idx + 1}`}
+                          </span>
+
+                          {/* Enrollment status badge */}
+                          {isEnrolled ? (
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold">
+                              <Check className="w-2.5 h-2.5" />
+                              <span>{isAr ? "مسجل" : "Enrolled"}</span>
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 text-[10px] font-extrabold border border-amber-200/70">
+                              <Lock className="w-2.5 h-2.5 text-amber-700" />
+                              <span>
+                                {isAr ? "متاحة للشراء" : "Purchase Req."}
+                              </span>
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Status / Collapse button */}
+                        <button
+                          type="button"
+                          onClick={() => setExpandedMilestoneId(null)}
+                          className="p-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer"
+                          title={isAr ? "طي التفاصيل" : "Collapse"}
+                        >
+                          <ChevronUp className="w-4 h-4" />
+                        </button>
+                      </div>
+
+                      {/* Course Title & Description */}
+                      <div className="pt-2.5 space-y-1.5 text-start">
+                        <div className="flex items-start gap-2">
+                          <BookOpen className="w-4 h-4 text-[#0F5244] shrink-0 mt-0.5" />
+                          <h4 className="text-xs sm:text-sm font-black text-slate-900 leading-snug">
+                            {courseTitle}
+                          </h4>
+                        </div>
+
+                        <p className="text-xs text-slate-600 font-medium leading-relaxed">
+                          {courseDesc}
+                        </p>
+                      </div>
+
+                      {/* Bottom Actions: Play/Buy CTA + Done Toggle + Reorder Arrows (US-18) */}
+                      <div className="pt-3 mt-2.5 border-t border-slate-100 space-y-2">
+                        <div className="flex items-center justify-between gap-2">
+                          {firstCourse &&
+                            (isEnrolled ? (
+                              <Link
+                                href={`/${locale}/student/learn/${firstCourse.id}`}
+                                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-[#0F5244] to-[#146654] hover:from-[#09352C] hover:to-[#0F5244] text-white text-xs font-black shadow-[0_4px_12px_rgba(15,82,68,0.25)] active:scale-95 transition-all group cursor-pointer"
+                              >
+                                <Play className="w-3 h-3 fill-current text-[#38E09D] group-hover:scale-110 transition-transform" />
+                                <span>
+                                  {isAr ? "ابدأ التعلّم" : "Start Learning"}
+                                </span>
+                              </Link>
+                            ) : (
+                              <Link
+                                href={`/${locale}/courses/${firstCourse.slug || firstCourse.id}`}
+                                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-[#0F5244] to-[#146654] hover:from-[#09352C] hover:to-[#0F5244] text-white text-xs font-black shadow-[0_4px_12px_rgba(15,82,68,0.25)] active:scale-95 transition-all group cursor-pointer"
+                              >
+                                <ShoppingCart className="w-3 h-3 text-[#38E09D]" />
+                                <span>
+                                  {isAr
+                                    ? "شراء الدورة والتسجيل"
+                                    : "Enroll & Purchase"}
+                                </span>
+                              </Link>
+                            ))}
+
+                          <button
+                            type="button"
+                            onClick={() => handleToggleCompleted(milestone.id)}
+                            className={`text-xs font-bold px-3 py-1.5 rounded-xl transition-all cursor-pointer active:scale-95 ${
+                              isCompleted
+                                ? "bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200/80"
+                                : "bg-emerald-50 hover:bg-emerald-100 text-[#0F5244] border border-emerald-200/60"
+                            }`}
+                          >
+                            {isCompleted
+                              ? isAr
+                                ? "تراجع"
+                                : "Undo"
+                              : isAr
+                                ? "إنجاز ✓"
+                                : "Done ✓"}
+                          </button>
+                        </div>
+
+                        {/* Reorder and Skip Controls (US-18 Scenario 5) */}
+                        <div className="flex items-center justify-between pt-1 border-t border-slate-100/80 text-[10px] text-slate-500">
+                          <button
+                            type="button"
+                            onClick={() => handleToggleSkip(milestone.id)}
+                            className="inline-flex items-center gap-1 hover:text-amber-700 font-bold transition-colors cursor-pointer"
+                          >
+                            <SkipForward className="w-3 h-3" />
+                            <span>
+                              {isSkipped
+                                ? isAr
+                                  ? "إلغاء التخطي"
+                                  : "Unskip"
+                                : isAr
+                                  ? "تخطي هذه المحطة"
+                                  : "Skip Step"}
+                            </span>
+                          </button>
+
+                          <div className="flex items-center gap-1">
+                            <span className="text-[10px] text-slate-400 font-medium">
+                              {isAr ? "ترتيب:" : "Reorder:"}
+                            </span>
+                            <button
+                              type="button"
+                              disabled={idx === 0}
+                              onClick={() => handleMoveMilestone(idx, "up")}
+                              className="p-1 rounded bg-slate-100 hover:bg-slate-200 disabled:opacity-30 disabled:cursor-not-allowed transition-all cursor-pointer"
+                              title={isAr ? "تقديم المحطة لأعلى" : "Move Up"}
+                            >
+                              <ArrowUp className="w-3 h-3" />
+                            </button>
+                            <button
+                              type="button"
+                              disabled={idx === milestonesState.length - 1}
+                              onClick={() => handleMoveMilestone(idx, "down")}
+                              className="p-1 rounded bg-slate-100 hover:bg-slate-200 disabled:opacity-30 disabled:cursor-not-allowed transition-all cursor-pointer"
+                              title={isAr ? "تأخير المحطة لأسفل" : "Move Down"}
+                            >
+                              <ArrowDown className="w-3 h-3" />
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </motion.div>
+                  ) : (
+                    /* ------------------------------------------------------------- */
+                    /* B) COMPACT / COLLAPSED STATE (Clean, balanced and elegant)   */
+                    /* ------------------------------------------------------------- */
+                    <motion.div
+                      key={`compact-${milestone.id}`}
+                      initial={{ opacity: 0, scale: 0.94 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.94 }}
+                      transition={{ duration: 0.2 }}
+                      whileHover={{ scale: 1.02 }}
+                      onClick={() => setExpandedMilestoneId(milestone.id)}
+                      className={`w-56 sm:w-68 rounded-2xl px-4 py-3 border transition-all duration-200 shadow-sm hover:shadow-md cursor-pointer group/compact ${
+                        isCompleted
+                          ? "bg-emerald-50/90 border-emerald-200/80 text-emerald-950"
+                          : isSkipped
+                            ? "bg-slate-100/90 border-slate-200 text-slate-500 opacity-75"
+                            : isActive
+                              ? "bg-white border-emerald-500/80 ring-2 ring-emerald-500/20 text-slate-900 shadow-md"
+                              : "bg-white/95 border-slate-200/90 hover:border-emerald-300 text-slate-800"
+                      }`}
+                    >
+                      <div className="flex items-center justify-between gap-1.5 pb-1 border-b border-slate-100/70">
+                        <span className="text-[10px] font-black uppercase text-emerald-800 bg-emerald-100/80 px-2 py-0.5 rounded-md">
+                          {isAr ? `المحطة ${idx + 1}` : `Stage ${idx + 1}`}
+                        </span>
+
+                        {isCompleted ? (
+                          <span className="text-[10px] font-black text-emerald-700 flex items-center gap-0.5">
+                            <Check className="w-3 h-3" />
+                            <span>{isAr ? "مكتملة" : "Done"}</span>
+                          </span>
+                        ) : isSkipped ? (
+                          <span className="text-[10px] font-bold text-slate-400">
+                            {isAr ? "تم التخطي" : "Skipped"}
+                          </span>
+                        ) : isActive ? (
+                          <span className="text-[10px] font-bold text-[#0F5244] flex items-center gap-1">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse" />
+                            <span>{isAr ? "الحالية" : "Active"}</span>
+                          </span>
+                        ) : (
+                          <span className="text-[10px] font-medium text-slate-400 flex items-center gap-1">
+                            <Lock className="w-2.5 h-2.5" />
+                            <span>{isAr ? "قادمة" : "Next"}</span>
+                          </span>
+                        )}
+                      </div>
+
+                      <div className="pt-2 flex items-center justify-between gap-2">
+                        <div className="min-w-0 flex-1">
+                          <h4 className="text-xs font-bold text-slate-800 line-clamp-1 group-hover/compact:text-[#0F5244] transition-colors">
+                            {courseTitle}
+                          </h4>
+                          <p className="text-[10px] text-slate-400 font-medium mt-0.5">
+                            {milestone.durationWeeks}{" "}
+                            {isAr ? "أسابيع دراسية" : "weeks of study"}
+                          </p>
+                        </div>
+                        <div className="p-1 rounded-lg bg-slate-100 group-hover/compact:bg-emerald-100 group-hover/compact:text-emerald-800 text-slate-400 transition-colors shrink-0">
+                          <ChevronDown className="w-3.5 h-3.5" />
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
             </div>
           );
         })}
 
-        {/* Animated Robot Navigator Floating above Current Active Waypoint */}
+        {/* 3. Sleek Floating Animated Robot Mascot with Speech Bubble */}
         {activeWaypoint && (
           <motion.div
             animate={{
               x: `${activeWaypoint.xPercent}%`,
               y: `${activeWaypoint.yPercent}%`,
             }}
-            transition={{ duration: 1.2, ease: "easeInOut" }}
-            className="absolute z-30 pointer-events-none -translate-x-1/2 -translate-y-[150%]"
+            transition={{ duration: 1.1, ease: "easeInOut" }}
+            className="absolute z-30 pointer-events-none -translate-x-1/2 -translate-y-[145%]"
             style={{ top: 0, left: 0 }}
           >
             <div className="relative flex flex-col items-center">
-              <div className="bg-[#0F5244] text-white px-2.5 py-1 rounded-xl text-[10px] font-black shadow-lg mb-1 whitespace-nowrap border border-[#38E09D]/40">
-                {isAr ? "المحطة التالية هنا! 🚀" : "Next Quest Here! 🚀"}
+              {/* Animated Floating Robot Character with Cap */}
+              <div className="drop-shadow-[0_10px_18px_rgba(15,82,68,0.25)]">
+                <AnimatedRobotCharacter size="sm" showCap={true} />
               </div>
-              <div className="w-12 h-3.5 bg-emerald-500/25 rounded-full blur-sm absolute bottom-0" />
-              <AnimatedRobotCharacter size="sm" />
             </div>
           </motion.div>
         )}
-      </div>
 
-      {/* ========================================================================= */}
-      {/* 3. CAPSTONE GRADUATION CERTIFICATE BANNER */}
-      {/* ========================================================================= */}
-      <motion.div
-        initial={{ opacity: 0, scale: 0.98 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="rounded-3xl bg-gradient-to-r from-emerald-50 via-teal-50 to-emerald-100 border-2 border-emerald-300 p-6 sm:p-7 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-sm text-start"
-      >
-        <div className="flex items-center gap-4">
-          <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-[#0F5244] text-[#38E09D] flex items-center justify-center shrink-0 shadow-md">
-            <Trophy className="w-7 h-7 sm:w-8 sm:h-8" />
-          </div>
-          <div className="space-y-1">
-            <span className="px-2 py-0.5 rounded-md text-[10px] font-extrabold uppercase bg-emerald-100 text-emerald-800">
-              {isAr ? "الاعتماد المهني وشهادة التخرج" : "Verified Credential"}
-            </span>
-            <h3 className="text-base sm:text-lg font-black text-slate-900">
-              {isAr ? "شهادة إتمام المسار المعتمدة رسمياً" : "Certified Track Completion Credential"}
-            </h3>
-            <p className="text-xs text-slate-600 font-normal leading-relaxed max-w-xl">
-              {isAr
-                ? "تتضمن شهادتك رمز QR مشفر للتحقق الفوري مع اعتماد جميع المشاريع المنجزة لسيرتك الذاتية."
-                : "Earn a shareable, verifiable certificate with unique QR verification and accredited portfolio projects."}
-            </p>
-          </div>
+        {/* 4. Subtle Roadmap Capstone Goal Marker at the bottom */}
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10 flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-[#0F5244]/95 text-white text-[11px] font-black shadow-md border border-[#38E09D]/40 backdrop-blur-xs">
+          <Trophy className="w-3.5 h-3.5 text-[#38E09D]" />
+          <span>
+            {isAr
+              ? "هدف المسار: الإتقان والجاهزية الوظيفية 🎯"
+              : "Goal: Mastery & Career Readiness 🎯"}
+          </span>
         </div>
-
-        <Link
-          href={`/${locale}/certificates/verify`}
-          className="px-5 py-3 rounded-xl bg-[#0F5244] hover:bg-[#07382E] text-white font-bold text-xs sm:text-sm transition-all shadow-md shrink-0 flex items-center gap-2 cursor-pointer hover:shadow-lg"
-        >
-          <Award className="w-4 h-4 text-[#38E09D]" />
-          <span>{isAr ? "معاينة نموذج الشهادة" : "Preview Certificate"}</span>
-        </Link>
-      </motion.div>
+      </div>
     </div>
   );
 }

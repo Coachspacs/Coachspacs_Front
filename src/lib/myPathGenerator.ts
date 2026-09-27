@@ -51,6 +51,20 @@ export function generateRoadmapFromPreferences(
     ...m,
     stepNumber: idx + 1,
     durationWeeks: weeksPerMilestone,
+    aiReason:
+      m.aiReason ||
+      (idx === 0
+        ? `Essential foundation required to master core fundamentals and practical concepts before advancing.`
+        : idx === rawMilestones.length - 1
+        ? `Culminating capstone milestone to synthesize all previous skills into portfolio-ready architecture.`
+        : `Progressive bridge applying previous knowledge to advanced industry architectural patterns.`),
+    aiReasonAr:
+      m.aiReasonAr ||
+      (idx === 0
+        ? `ركيزة أساسية لا غنى عنها لبناء المعارف التقنية الجوهرية قبل الانتقال للتطبيقات المتقدمة.`
+        : idx === rawMilestones.length - 1
+        ? `المحطة الختامية لدمج وتتويج كافة الخبرات المكتسبة وبناء مشروع تخرج متكامل يؤهلك لسوق العمل.`
+        : `محطة تطويرية تطبيقية لربط المهارات السابقة بنماذج المعمارية الاحترافية المعتمدة عالمياً.`),
   }));
 
   return {

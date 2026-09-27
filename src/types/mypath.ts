@@ -39,6 +39,8 @@ export interface RoadmapMilestoneCourse {
   level: SkillLevel;
   slug?: string;
   image?: string;
+  price?: number;
+  isEnrolled?: boolean;
 }
 
 export interface RoadmapMilestone {
@@ -49,12 +51,14 @@ export interface RoadmapMilestone {
   description: string;
   descriptionAr: string;
   durationWeeks: number;
-  status: 'planned' | 'in_progress' | 'completed';
+  status: 'planned' | 'in_progress' | 'completed' | 'skipped';
   skills: string[];
   skillsAr: string[];
   courses: RoadmapMilestoneCourse[];
   projectTitle: string;
   projectTitleAr: string;
+  aiReason?: string;
+  aiReasonAr?: string;
 }
 
 export interface GeneratedRoadmap {
