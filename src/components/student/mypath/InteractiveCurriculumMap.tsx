@@ -18,6 +18,14 @@ import {
   ChevronDown,
   ChevronUp,
   Flag,
+  ArrowUp,
+  ArrowDown,
+  ArrowUpDown,
+  SlidersHorizontal,
+  Share2,
+  Volume2,
+  VolumeX,
+  X,
 } from "lucide-react";
 import {
   GeneratedRoadmap,
@@ -59,6 +67,10 @@ interface MilestoneCardViewProps {
   onToggleExpand: () => void;
   onToggleCompleted: () => void;
   onToggleSkip: () => void;
+  onMoveUp?: () => void;
+  onMoveDown?: () => void;
+  canMoveUp?: boolean;
+  canMoveDown?: boolean;
   isMobile?: boolean;
 }
 
@@ -78,6 +90,10 @@ function MilestoneCardView({
   onToggleExpand,
   onToggleCompleted,
   onToggleSkip,
+  onMoveUp,
+  onMoveDown,
+  canMoveUp = false,
+  canMoveDown = false,
   isMobile = false,
 }: MilestoneCardViewProps) {
   return (
@@ -191,8 +207,8 @@ function MilestoneCardView({
               </button>
             </div>
 
-            {/* Skip Control */}
-            <div className="flex items-center justify-start pt-1 border-t border-slate-100/80 text-[10px] text-slate-500">
+            {/* Skip & Reorder Controls */}
+            <div className="flex items-center justify-between pt-1.5 border-t border-slate-100/80 text-[10px] text-slate-500">
               <button
                 type="button"
                 onClick={onToggleSkip}
@@ -209,6 +225,45 @@ function MilestoneCardView({
                       : "Skip Step"}
                 </span>
               </button>
+
+              {/* Step Reorder Controls (Up / Down) */}
+              <div className="flex items-center gap-1">
+                <span className="text-[9px] font-bold text-slate-400">
+                  {isAr ? "الترتيب:" : "Reorder:"}
+                </span>
+                <button
+                  type="button"
+                  disabled={!canMoveUp}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onMoveUp?.();
+                  }}
+                  title={isAr ? "تقديم المحطة للأعلى" : "Move stage up"}
+                  className={`p-1 rounded-md border text-xs font-bold transition-all ${
+                    canMoveUp
+                      ? "bg-slate-50 hover:bg-emerald-50 hover:text-emerald-800 text-slate-600 border-slate-200 cursor-pointer"
+                      : "opacity-30 border-transparent text-slate-300 cursor-not-allowed"
+                  }`}
+                >
+                  <ArrowUp className="w-2.5 h-2.5" />
+                </button>
+                <button
+                  type="button"
+                  disabled={!canMoveDown}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onMoveDown?.();
+                  }}
+                  title={isAr ? "تأخير المحطة للأسفل" : "Move stage down"}
+                  className={`p-1 rounded-md border text-xs font-bold transition-all ${
+                    canMoveDown
+                      ? "bg-slate-50 hover:bg-emerald-50 hover:text-emerald-800 text-slate-600 border-slate-200 cursor-pointer"
+                      : "opacity-30 border-transparent text-slate-300 cursor-not-allowed"
+                  }`}
+                >
+                  <ArrowDown className="w-2.5 h-2.5" />
+                </button>
+              </div>
             </div>
           </div>
         </motion.div>
@@ -290,10 +345,13 @@ export function InteractiveCurriculumMap({
   locale,
   onMilestoneToggle,
   onRegenerate,
+  onEditPreferences,
 }: InteractiveCurriculumMapProps) {
   const [soundOn, setSoundOn] = useState<boolean>(true);
+  const [isReorderModalOpen, setIsReorderModalOpen] = useState(false);
+  const [isShareCopied, setIsShareCopied] = useState(false);
 
-  // Local milestones state to support real-time skipping & completion
+  // Local milestones state to support real-time skipping, completion & reordering
   const [milestonesState, setMilestonesState] = useState<RoadmapMilestone[]>(
     roadmap.milestones,
   );
@@ -301,6 +359,36 @@ export function InteractiveCurriculumMap({
   useEffect(() => {
     setMilestonesState(roadmap.milestones);
   }, [roadmap.milestones]);
+
+  // Reordering milestone logic
+  const handleMoveMilestone = (index: number, direction: "up" | "down") => {
+    if (direction === "up" && index > 0) {
+      const updated = [...milestonesState];
+      const temp = updated[index];
+      updated[index] = updated[index - 1];
+      updated[index - 1] = temp;
+      setMilestonesState(updated);
+      if (soundOn) soundFx.playOptionSelect();
+    } else if (direction === "down" && index < milestonesState.length - 1) {
+      const updated = [...milestonesState];
+      const temp = updated[index];
+      updated[index] = updated[index + 1];
+      updated[index + 1] = temp;
+      setMilestonesState(updated);
+      if (soundOn) soundFx.playOptionSelect();
+    }
+  };
+
+  const handleSharePath = () => {
+    try {
+      if (typeof window !== "undefined") {
+        navigator.clipboard.writeText(window.location.href);
+        setIsShareCopied(true);
+        if (soundOn) soundFx.playOptionSelect();
+        setTimeout(() => setIsShareCopied(false), 2500);
+      }
+    } catch {}
+  };
 
   // Enrolled courses detection from storage/session (Purchase requirement)
   const [enrolledCourseIds, setEnrolledCourseIds] = useState<string[]>([]);
@@ -384,8 +472,8 @@ export function InteractiveCurriculumMap({
       return [{ milestoneIndex: 0, xPercent: 50, yPercent: 50 }];
     }
 
-    const startY = 27; // Generous 27% clearance below Roadmap Start Line
-    const endY = 73; // Generous 27% clearance above Goal Marker
+    const startY = 22; // Well-spaced clearance below Roadmap Start Line
+    const endY = 80; // Well-spaced clearance above Goal Marker
 
     return milestonesState.map((_, idx) => {
       // Alternate left (~25%) and right (~75%)
@@ -502,8 +590,8 @@ export function InteractiveCurriculumMap({
   // Dynamic responsive height: adapts cleanly when cards are collapsed vs expanded
   const isAnyExpanded = Boolean(expandedMilestoneId);
   const dynamicMinHeight = Math.max(
-    1200,
-    totalCount * (isAnyExpanded ? 250 : 170),
+    800,
+    totalCount * (isAnyExpanded ? 270 : 190),
   );
 
   return (
@@ -512,7 +600,7 @@ export function InteractiveCurriculumMap({
       className="space-y-6 relative z-10 text-start w-full max-w-6xl mx-auto pb-4"
     >
       {/* ========================================================================= */}
-      {/* 1. PATH HEADER (RICH GRADIENT + PATTERN + PROMINENT REGENERATE) */}
+      {/* 1. PATH HEADER (RICH GRADIENT + PATTERN + FULL ACTION CONTROLS)           */}
       {/* ========================================================================= */}
       <div className="bg-gradient-to-br from-[#0c473a] via-[#0F5244] to-[#072a22] text-white rounded-3xl p-4 sm:p-6 shadow-[0_14px_36px_-6px_rgba(15,82,68,0.35)] border border-emerald-500/30 relative overflow-hidden">
         {/* Subtle geometric dot pattern overlay */}
@@ -556,10 +644,50 @@ export function InteractiveCurriculumMap({
             </h1>
           </div>
 
+          {/* Right / Header Meta Badges & Sound Toggle */}
+          <div className="flex items-center gap-2 self-start sm:self-center flex-wrap">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/10 backdrop-blur-md border border-white/15 text-xs text-emerald-100">
+              <span className="font-bold">
+                {preferences.hoursPerWeek || "3-5"}{" "}
+                {isAr ? "س/أسبوع" : "hrs/week"}
+              </span>
+              <span className="text-white/30">•</span>
+              <span className="font-bold">
+                {roadmap.estimatedWeeks
+                  ? `${Math.ceil(roadmap.estimatedWeeks / 4)} ${
+                      isAr ? "أشهر" : "mos"
+                    }`
+                  : isAr
+                    ? "3 أشهر"
+                    : "3 mos"}
+              </span>
+            </div>
+
+            <button
+              type="button"
+              onClick={toggleSound}
+              title={
+                soundOn
+                  ? isAr
+                    ? "كتم المؤثرات الصوتية"
+                    : "Mute sound"
+                  : isAr
+                    ? "تشغيل المؤثرات الصوتية"
+                    : "Unmute sound"
+              }
+              className="p-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-emerald-100 transition-colors cursor-pointer"
+            >
+              {soundOn ? (
+                <Volume2 className="w-4 h-4 text-[#38E09D]" />
+              ) : (
+                <VolumeX className="w-4 h-4 text-white/60" />
+              )}
+            </button>
+          </div>
         </div>
 
         {/* Action Controls & Prominent Glowing Progress Bar */}
-        <div className="pt-3.5 mt-3.5 border-t border-white/15 space-y-2.5 relative z-10">
+        <div className="pt-3.5 mt-3.5 border-t border-white/15 space-y-3 relative z-10">
           <div className="flex items-center justify-between gap-3 flex-wrap text-xs">
             {/* Progress Counter */}
             <div className="flex items-center gap-2 font-medium text-emerald-100">
@@ -574,15 +702,61 @@ export function InteractiveCurriculumMap({
               </span>
             </div>
 
-            {/* PRIMARY ACTION BUTTON: Regenerate (US-18 Scenario 6) */}
-            <button
-              type="button"
-              onClick={onRegenerate}
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-white hover:bg-emerald-50 text-[#0F5244] font-black transition-all shadow-[0_2px_10px_rgba(255,255,255,0.2)] hover:shadow-md active:scale-95 cursor-pointer text-xs"
-            >
-              <RotateCcw className="w-3.5 h-3.5 text-[#0F5244]" />
-              <span>{isAr ? "إعادة توليد المسار" : "Regenerate Path"}</span>
-            </button>
+            {/* ACTION BUTTONS GROUP */}
+            <div className="flex items-center gap-2 flex-wrap">
+              {/* Reorder Steps Modal Button */}
+              <button
+                type="button"
+                onClick={() => {
+                  setIsReorderModalOpen(true);
+                  if (soundOn) soundFx.playOptionSelect();
+                }}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold transition-all border border-white/20 hover:border-white/40 active:scale-95 cursor-pointer text-xs"
+              >
+                <ArrowUpDown className="w-3.5 h-3.5 text-[#38E09D]" />
+                <span>{isAr ? "إعادة ترتيب الخطوات" : "Reorder Steps"}</span>
+              </button>
+
+              {/* Preferences Button */}
+              {onEditPreferences && (
+                <button
+                  type="button"
+                  onClick={onEditPreferences}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold transition-all border border-white/20 hover:border-white/40 active:scale-95 cursor-pointer text-xs"
+                >
+                  <SlidersHorizontal className="w-3.5 h-3.5 text-[#38E09D]" />
+                  <span>{isAr ? "تعديل التفضيلات" : "Preferences"}</span>
+                </button>
+              )}
+
+              {/* Share Button */}
+              <button
+                type="button"
+                onClick={handleSharePath}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold transition-all border border-white/20 hover:border-white/40 active:scale-95 cursor-pointer text-xs"
+              >
+                <Share2 className="w-3.5 h-3.5 text-[#38E09D]" />
+                <span>
+                  {isShareCopied
+                    ? isAr
+                      ? "تم نسخ الرابط!"
+                      : "Link Copied!"
+                    : isAr
+                      ? "مشاركة المسار"
+                      : "Share"}
+                </span>
+              </button>
+
+              {/* PRIMARY ACTION BUTTON: Regenerate */}
+              <button
+                type="button"
+                onClick={onRegenerate}
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-white hover:bg-emerald-50 text-[#0F5244] font-black transition-all shadow-[0_2px_10px_rgba(255,255,255,0.2)] hover:shadow-md active:scale-95 cursor-pointer text-xs"
+              >
+                <RotateCcw className="w-3.5 h-3.5 text-[#0F5244]" />
+                <span>{isAr ? "إعادة توليد المسار" : "Regenerate Path"}</span>
+              </button>
+            </div>
           </div>
 
           {/* Prominent, Bold Gradient Progress Bar with Glow */}
@@ -755,6 +929,10 @@ export function InteractiveCurriculumMap({
                     }
                     onToggleCompleted={() => handleToggleCompleted(milestone.id)}
                     onToggleSkip={() => handleToggleSkip(milestone.id)}
+                    onMoveUp={() => handleMoveMilestone(idx, "up")}
+                    onMoveDown={() => handleMoveMilestone(idx, "down")}
+                    canMoveUp={idx > 0}
+                    canMoveDown={idx < totalCount - 1}
                     isMobile={true}
                   />
                 </div>
@@ -947,7 +1125,12 @@ export function InteractiveCurriculumMap({
                 }`}
               >
                 {/* 1. Checkpoint Stone Button */}
-                <div className="flex flex-col items-center shrink-0">
+                <div className="flex flex-col items-center shrink-0 relative">
+                  {idx === 0 && (
+                    <div className="absolute -top-16 left-1/2 -translate-x-1/2 pointer-events-none z-30 flex flex-col items-center">
+                      <AnimatedRobotCharacter size="xs" showCap={true} />
+                    </div>
+                  )}
                   <motion.button
                     type="button"
                     whileHover={{ scale: 1.08 }}
@@ -1014,32 +1197,16 @@ export function InteractiveCurriculumMap({
                   }
                   onToggleCompleted={() => handleToggleCompleted(milestone.id)}
                   onToggleSkip={() => handleToggleSkip(milestone.id)}
+                  onMoveUp={() => handleMoveMilestone(idx, "up")}
+                  onMoveDown={() => handleMoveMilestone(idx, "down")}
+                  canMoveUp={idx > 0}
+                  canMoveDown={idx < totalCount - 1}
                   isMobile={false}
                 />
               </div>
             </div>
           );
         })}
-
-        {/* 3. Sleek Floating Animated Robot Mascot with Speech Bubble */}
-        {activeWaypoint && (
-          <motion.div
-            animate={{
-              x: `${activeWaypoint.xPercent}%`,
-              y: `${activeWaypoint.yPercent}%`,
-            }}
-            transition={{ duration: 1.1, ease: "easeInOut" }}
-            className="absolute z-30 pointer-events-none -translate-x-1/2 -translate-y-[145%]"
-            style={{ top: 0, left: 0 }}
-          >
-            <div className="relative flex flex-col items-center">
-              {/* Animated Floating Robot Character with Cap */}
-              <div className="drop-shadow-[0_10px_18px_rgba(15,82,68,0.25)]">
-                <AnimatedRobotCharacter size="sm" showCap={true} />
-              </div>
-            </div>
-          </motion.div>
-        )}
 
         {/* 4. Subtle Roadmap Capstone Goal Marker at the bottom */}
         <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10 flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-[#0F5244]/95 text-white text-[11px] font-black shadow-md border border-[#38E09D]/40 backdrop-blur-xs">
@@ -1051,8 +1218,180 @@ export function InteractiveCurriculumMap({
           </span>
         </div>
       </div>
+
+      {/* ========================================================================= */}
+      {/* 3. REORDER STEPS INTERACTIVE MODAL DIALOG                                  */}
+      {/* ========================================================================= */}
+      <AnimatePresence>
+        {isReorderModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsReorderModalOpen(false)}
+              className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
+            />
+
+            {/* Modal Dialog Card */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 12 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 12 }}
+              transition={{ duration: 0.2 }}
+              className="relative z-10 w-full max-w-xl bg-white rounded-3xl shadow-2xl border border-slate-200/90 overflow-hidden flex flex-col max-h-[85vh]"
+            >
+              {/* Modal Header */}
+              <div className="bg-gradient-to-r from-[#0F5244] to-[#166353] p-5 sm:p-6 text-white flex items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-2.5 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 text-[#38E09D]">
+                    <ArrowUpDown className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-base sm:text-lg font-black text-white">
+                      {isAr ? "إعادة ترتيب محطات المسار" : "Reorder Roadmap Stages"}
+                    </h3>
+                    <p className="text-xs text-emerald-100/80 font-medium mt-0.5">
+                      {isAr
+                        ? "استخدم الأسهم لتخصيص ترتيب المحطات بما يناسب جدولك"
+                        : "Use arrows to reorder stages according to your schedule"}
+                    </p>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setIsReorderModalOpen(false)}
+                  className="p-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white/80 hover:text-white transition-colors cursor-pointer"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Modal Content: Milestone List */}
+              <div className="p-4 sm:p-6 overflow-y-auto space-y-3 flex-1">
+                {milestonesState.map((milestone, idx) => {
+                  const firstCourse =
+                    milestone.courses && milestone.courses.length > 0
+                      ? milestone.courses[0]
+                      : null;
+                  const courseTitle = firstCourse
+                    ? isAr
+                      ? firstCourse.titleAr
+                      : firstCourse.title
+                    : isAr
+                      ? milestone.titleAr
+                      : milestone.title;
+
+                  const isCompleted = milestone.status === "completed";
+                  const isSkipped = milestone.status === "skipped";
+                  const isActive =
+                    !isCompleted &&
+                    !isSkipped &&
+                    idx === currentActiveIndex;
+
+                  return (
+                    <motion.div
+                      key={milestone.id}
+                      layout
+                      className={`flex items-center justify-between gap-3 p-3.5 rounded-2xl border transition-all ${
+                        isActive
+                          ? "bg-emerald-50/80 border-emerald-400/80 shadow-xs"
+                          : isCompleted
+                            ? "bg-slate-50 border-emerald-200/60 opacity-90"
+                            : "bg-white border-slate-200 hover:border-slate-300"
+                      }`}
+                    >
+                      {/* Left / Title & Order badge */}
+                      <div className="flex items-center gap-3 min-w-0 flex-1">
+                        <span className="w-8 h-8 rounded-xl bg-[#0F5244] text-white flex items-center justify-center font-mono font-black text-xs shrink-0 shadow-2xs">
+                          0{idx + 1}
+                        </span>
+
+                        <div className="min-w-0 flex-1">
+                          <h4 className="text-xs sm:text-sm font-black text-slate-800 line-clamp-1">
+                            {courseTitle}
+                          </h4>
+                          <div className="flex items-center gap-2 mt-0.5 text-[10px] text-slate-500 font-semibold">
+                            <span>
+                              {milestone.durationWeeks}{" "}
+                              {isAr ? "أسابيع" : "weeks"}
+                            </span>
+                            {isCompleted && (
+                              <span className="text-emerald-700 font-bold">
+                                • {isAr ? "مكتملة" : "Completed"}
+                              </span>
+                            )}
+                            {isSkipped && (
+                              <span className="text-slate-400 font-bold">
+                                • {isAr ? "متخطاة" : "Skipped"}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Right / Up and Down Arrow Controls */}
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        <button
+                          type="button"
+                          disabled={idx === 0}
+                          onClick={() => handleMoveMilestone(idx, "up")}
+                          title={isAr ? "تقديم للأعلى" : "Move up"}
+                          className={`p-2 rounded-xl border font-bold transition-all ${
+                            idx > 0
+                              ? "bg-slate-50 hover:bg-emerald-50 hover:border-emerald-300 text-slate-700 hover:text-emerald-800 border-slate-200 active:scale-95 cursor-pointer shadow-2xs"
+                              : "opacity-25 border-transparent text-slate-300 cursor-not-allowed"
+                          }`}
+                        >
+                          <ArrowUp className="w-4 h-4" />
+                        </button>
+                        <button
+                          type="button"
+                          disabled={idx === totalCount - 1}
+                          onClick={() => handleMoveMilestone(idx, "down")}
+                          title={isAr ? "تأخير للأسفل" : "Move down"}
+                          className={`p-2 rounded-xl border font-bold transition-all ${
+                            idx < totalCount - 1
+                              ? "bg-slate-50 hover:bg-emerald-50 hover:border-emerald-300 text-slate-700 hover:text-emerald-800 border-slate-200 active:scale-95 cursor-pointer shadow-2xs"
+                              : "opacity-25 border-transparent text-slate-300 cursor-not-allowed"
+                          }`}
+                        >
+                          <ArrowDown className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </motion.div>
+                  );
+                })}
+              </div>
+
+              {/* Modal Footer */}
+              <div className="p-4 sm:p-5 bg-slate-50 border-t border-slate-100 flex items-center justify-between gap-3">
+                <span className="text-xs text-slate-500 font-medium">
+                  {isAr
+                    ? "يتم تحديث مسار الخريطة فوراً عند التحريك"
+                    : "Map path updates instantly upon reordering"}
+                </span>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsReorderModalOpen(false);
+                    if (soundOn) soundFx.playOptionSelect();
+                  }}
+                  className="px-5 py-2 rounded-xl bg-gradient-to-r from-[#0F5244] to-[#146654] hover:from-[#09352C] hover:to-[#0F5244] text-white text-xs font-black shadow-md active:scale-95 transition-all cursor-pointer"
+                >
+                  {isAr ? "تم وحفظ الترتيب" : "Done / Save Order"}
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
 
 export default InteractiveCurriculumMap;
+

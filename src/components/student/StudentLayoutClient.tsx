@@ -137,51 +137,15 @@ export function StudentLayoutClient({ children }: { children: React.ReactNode })
       </div>
       <main className="flex-grow py-6 sm:py-10 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full print:p-0 print:m-0 print:max-w-none print:w-full">
         
-        {/* Top Profile Banner Card */}
-        <div className="w-full bg-white rounded-3xl border border-slate-200/80 p-5 sm:p-6 mb-6 lg:mb-8 shadow-xs print:hidden">
-          <div className="flex flex-col sm:flex-row items-center sm:items-start justify-between gap-4">
-            
-            {/* User Details (Avatar + Name + Localized Bio + Email) */}
-            <div className="flex items-center gap-4 text-center sm:text-start flex-col sm:flex-row">
-              <div className="relative shrink-0">
-                <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-slate-50 border-2 border-emerald-300 overflow-hidden shadow-xs flex items-center justify-center">
-                  {avatarPreview ? (
-                    <Image
-                      src={avatarPreview}
-                      alt={fullName}
-                      width={64}
-                      height={64}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <span className="font-black text-xl sm:text-2xl text-emerald-700">
-                      {fullName.charAt(0).toUpperCase()}
-                    </span>
-                  )}
-                </div>
-                <span className="absolute bottom-0 right-0 rtl:right-auto rtl:left-0 w-3.5 h-3.5 bg-emerald-500 border-2 border-white rounded-full" />
-              </div>
-
-              <div className="space-y-1">
-                <div className="flex items-center justify-center sm:justify-start gap-2 flex-wrap">
-                  <h1 className="text-base sm:text-xl font-black text-slate-900">{fullName}</h1>
-                </div>
-                <p className="text-xs sm:text-sm text-slate-600 font-semibold">{displayHeadline}</p>
-                <p className="text-[11px] text-slate-400 font-medium">{email}</p>
-              </div>
-            </div>
-
-          </div>
-        </div>
-
         {/* Modern Portal Grid Layout */}
         <div className="flex flex-col md:flex-row gap-6 lg:gap-8 items-start print:block print:p-0 print:m-0 print:w-full">
           <aside className="w-full md:w-64 lg:w-72 shrink-0 md:sticky md:top-24 print:hidden">
             <Sidebar
               user={{
                 name: fullName,
-                role: isInstructor ? (isAr ? "مدرب" : "Instructor") : tStudent("roleStudent"),
+                role: displayHeadline,
                 avatarUrl: avatarPreview,
+                email: email,
               }}
             />
           </aside>

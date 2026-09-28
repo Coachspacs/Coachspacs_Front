@@ -296,34 +296,77 @@ export function MyPathWizard() {
     },
   ];
 
-  // Deep Personalization quick suggestion prompts
-  const quickObjectiveIdeas = isAr
+  // Experience assessment quick suggestion prompts
+  const quickExperienceIdeas = isAr
     ? [
-        { id: "capstone", text: "+ مشروع تخرج متكامل" },
-        { id: "startup", text: "+ إطلاق تطبيق شركة ناشئة" },
-        { id: "career", text: "+ تغيير المسار الوظيفي" },
-        { id: "fullstack", text: "+ بناء منصة ويب كاملة" },
+        { id: "beginner", text: "+ مبتدئ بالكامل بدون مشاريع سابقة" },
+        { id: "practice", text: "+ قمت ببناء مشاريع وتطبيقات تدريبية" },
+        { id: "exp1", text: "+ خبرة عملية وتطبيقية من 1 إلى 2 سنة" },
+        { id: "production", text: "+ عملت على تطبيقات ومشاريع حقيقية للعملاء" },
       ]
     : [
-        { id: "capstone", text: "+ Capstone Project" },
-        { id: "startup", text: "+ Startup MVP" },
-        { id: "career", text: "+ Career Transition" },
-        { id: "fullstack", text: "+ Full-Stack App" },
+        { id: "beginner", text: "+ Total beginner (No prior projects)" },
+        { id: "practice", text: "+ Built tutorial & practice projects" },
+        { id: "exp1", text: "+ 1-2 years hands-on experience" },
+        { id: "production", text: "+ Shipped real client/production apps" },
       ];
 
-  const suggestedChallengePrompts = isAr
+  const quickToolsIdeas = isAr
     ? [
-        { id: "tutorial", text: "+ كثرة الدورات دون تطبيق عملي" },
-        { id: "practice", text: "+ قلة المشاريع الواقعية" },
-        { id: "time", text: "+ تنظيم وقت الدراسة" },
-        { id: "mentor", text: "+ الحاجة لإرشاد تقني متخصص" },
+        { id: "none", text: "+ لم أستخدم أدوات برمجية بعد" },
+        { id: "html_css", text: "+ HTML & CSS" },
+        { id: "js_ts", text: "+ JavaScript / TypeScript" },
+        { id: "react_next", text: "+ React / Next.js" },
+        { id: "python", text: "+ Python" },
+        { id: "sql_db", text: "+ SQL / قواعد بيانات" },
+        { id: "figma", text: "+ Figma / تصميم واجهات" },
+        { id: "git", text: "+ Git & GitHub" },
       ]
     : [
-        { id: "tutorial", text: "+ Tutorial Hell / Overload" },
-        { id: "practice", text: "+ Hands-on Practice Gap" },
-        { id: "time", text: "+ Time Management" },
-        { id: "mentor", text: "+ Lack of Mentorship" },
+        { id: "none", text: "+ No prior coding tools yet" },
+        { id: "html_css", text: "+ HTML & CSS" },
+        { id: "js_ts", text: "+ JavaScript / TypeScript" },
+        { id: "react_next", text: "+ React / Next.js" },
+        { id: "python", text: "+ Python" },
+        { id: "sql_db", text: "+ SQL & Databases" },
+        { id: "figma", text: "+ Figma / UI Tools" },
+        { id: "git", text: "+ Git & GitHub" },
       ];
+
+  // Hours per week options
+  const hoursOptions: {
+    id: WeeklyCommitment;
+    title: string;
+    desc: string;
+    icon: LucideIcon;
+    badge?: string;
+  }[] = [
+    {
+      id: "1-2",
+      title: isAr ? "1–2 ساعة / أسبوعياً" : "1–2 Hours / Week",
+      desc: isAr ? "وتيرة هادئة تناسب الأوقات المزدحمة" : "Light pace for busy schedules",
+      icon: Clock,
+    },
+    {
+      id: "3-5",
+      title: isAr ? "3–5 ساعات / أسبوعياً" : "3–5 Hours / Week",
+      desc: isAr ? "وتيرة متوازنة لاكتساب المهارات بانتظام" : "Balanced pace for steady learning",
+      icon: Flame,
+      badge: isAr ? "موصى به" : "Recommended",
+    },
+    {
+      id: "6-10",
+      title: isAr ? "6–10 ساعات / أسبوعياً" : "6–10 Hours / Week",
+      desc: isAr ? "مسار سريع وتطبيقات مكثفة" : "Fast-track with intense practice",
+      icon: Rocket,
+    },
+    {
+      id: "10+",
+      title: isAr ? "أكثر من 10 ساعات" : "10+ Hours / Week",
+      desc: isAr ? "انغماس كامل واحتراف في أسرع وقت" : "Full immersion for rapid mastery",
+      icon: Zap,
+    },
+  ];
 
   // Skill Focus options
   const skillTracks: {
@@ -519,10 +562,6 @@ export function MyPathWizard() {
 
             {/* Step Header (Centered) */}
             <div className="text-center max-w-xl mx-auto pt-4 sm:pt-6 pb-1 space-y-2.5">
-              <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-200/60 shadow-2xs">
-                <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
-                <span>{t("wizard.step1Pill")}</span>
-              </div>
               <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
                 {t("wizard.step1Title")}
               </h2>
@@ -619,7 +658,7 @@ export function MyPathWizard() {
         )}
 
         {/* ========================================================================= */}
-        {/* STEP 3 (WIZARD 2 OF 4): PRIOR KNOWLEDGE & LEVEL ASSESSMENT */}
+        {/* STEP 3 (WIZARD 2 OF 4): SKILL FOCUS & TRACK SELECTION */}
         {/* ========================================================================= */}
         {step === 3 && (
           <div className="space-y-6 relative z-10">
@@ -627,388 +666,20 @@ export function MyPathWizard() {
             <RobotJourneyBanner
               currentStepIndex={2}
               totalSteps={4}
-              stepBadge={t("wizard.step2Badge")}
-              stepCategory={t("wizard.step2Pill")}
-              isAr={isAr}
-            />
-
-            {/* Step Header (Centered) */}
-            <div className="text-center max-w-xl mx-auto pt-4 sm:pt-6 pb-1 space-y-2.5">
-              <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-200/60 shadow-2xs">
-                <BrainCircuit className="w-3.5 h-3.5 text-emerald-600" />
-                <span>{t("wizard.step2Pill")}</span>
-              </div>
-              <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-                {t("wizard.step2Title")}
-              </h2>
-              <p className="text-xs sm:text-sm text-slate-500 font-normal leading-relaxed">
-                {t("wizard.step2Subtitle")}
-              </p>
-            </div>
-
-            {/* Options List */}
-            <div className="space-y-3 pt-2 max-w-2xl mx-auto" role="radiogroup">
-              {levelOptions.map((opt, idx) => {
-                const Icon = opt.icon;
-                const isSelected = preferences.priorKnowledge === opt.id;
-                return (
-                  <motion.button
-                    key={opt.id}
-                    type="button"
-                    role="radio"
-                    aria-checked={isSelected}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.25, delay: idx * 0.04 }}
-                    whileHover={{ scale: 1.01 }}
-                    whileTap={{ scale: 0.99 }}
-                    onClick={() => {
-                      soundFx.playOptionSelect();
-                      setPreferences({
-                        ...preferences,
-                        priorKnowledge: opt.id,
-                        level: opt.skillLevel,
-                      });
-                    }}
-                    className={`w-full p-3.5 sm:p-4 rounded-2xl border text-start transition-all cursor-pointer flex items-center justify-between gap-4 ${
-                      isSelected
-                        ? "bg-white border-2 border-emerald-400 shadow-xs"
-                        : "bg-white border border-slate-200/90 hover:border-slate-300 hover:bg-slate-50/40"
-                    }`}
-                  >
-                    {/* Start Side: Icon + Text */}
-                    <div className="flex items-center gap-3.5 min-w-0 flex-1">
-                      <div
-                        className={`w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
-                          isSelected
-                            ? "bg-[#0F5244] text-white shadow-xs"
-                            : "bg-slate-100 text-slate-500"
-                        }`}
-                      >
-                        <Icon className="w-5 h-5 sm:w-5.5 sm:h-5.5" />
-                      </div>
-
-                      <div className="min-w-0 flex-1 text-start">
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm sm:text-base font-bold text-slate-900 block truncate">
-                            {t(`wizard.levels.${opt.id}.title`)}
-                          </span>
-                          {opt.hasRecommended && (
-                            <span className="px-2 py-0.5 rounded text-[10px] font-extrabold uppercase bg-emerald-600 text-white tracking-wider">
-                              {t("wizard.levels.intermediate.recommendedBadge")}
-                            </span>
-                          )}
-                        </div>
-                        <p className="text-xs text-slate-400 sm:text-slate-500 font-normal line-clamp-1 mt-0.5">
-                          {t(`wizard.levels.${opt.id}.desc`)}
-                        </p>
-                      </div>
-                    </div>
-
-                    {/* End Side: Radio Checkmark */}
-                    <div className="shrink-0 flex items-center ps-2">
-                      {isSelected ? (
-                        <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-emerald-600 text-white flex items-center justify-center shadow-xs">
-                          <Check className="w-3.5 h-3.5 stroke-[3]" />
-                        </div>
-                      ) : (
-                        <div className="w-5 h-5 sm:w-5.5 sm:h-5.5 rounded-full border-2 border-slate-200 bg-white" />
-                      )}
-                    </div>
-                  </motion.button>
-                );
-              })}
-            </div>
-
-            {/* Navigation Buttons */}
-            <div
-              className={`flex items-center justify-between pt-8 max-w-2xl mx-auto ${
-                isAr ? "flex-row-reverse" : ""
-              }`}
-            >
-              <button
-                type="button"
-                onClick={() => goToPrevStep(2)}
-                className="text-xs sm:text-sm font-bold text-slate-500 hover:text-slate-800 transition-colors cursor-pointer px-3 py-2 rounded-xl hover:bg-slate-100"
-              >
-                {t("back")}
-              </button>
-              <button
-                type="button"
-                onClick={() => goToNextStep(4)}
-                className="inline-flex items-center gap-2 bg-[#0F5244] hover:bg-[#07382E] text-white text-xs sm:text-sm font-bold px-7 py-2.5 sm:py-3 rounded-xl transition-all shadow-xs hover:shadow-md cursor-pointer"
-              >
-                <span>{t("continue")}</span>
-                {isAr ? <ArrowLeft className="w-4 h-4" /> : <ArrowRight className="w-4 h-4" />}
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* ========================================================================= */}
-        {/* STEP 4 (WIZARD 3 OF 4): DEEP PERSONALIZATION (GOALS & CHALLENGES) */}
-        {/* ========================================================================= */}
-        {step === 4 && (
-          <div className="space-y-6 relative z-10">
-            {/* Animated Interactive Scenic Journey Banner with Moving Robot */}
-            <RobotJourneyBanner
-              currentStepIndex={3}
-              totalSteps={4}
-              stepBadge={isAr ? "المرحلة ٣ من ٤" : "Step 3 of 4"}
-              stepCategory={isAr ? "أهدافك وتحدياتك" : "Deep Personalization"}
-              isAr={isAr}
-            />
-
-            {/* Step Header */}
-            <div className="text-center max-w-xl mx-auto pt-3 sm:pt-5 pb-1 space-y-2">
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-black text-emerald-800 bg-gradient-to-r from-emerald-100/90 to-teal-100/80 border border-emerald-300/60 shadow-xs">
-                <Sparkles className="w-3.5 h-3.5 text-emerald-600 animate-pulse" />
-                <span>{isAr ? "تخصيص دقيق للمسار • مدعوم بالذكاء الاصطناعي" : "DEEP PERSONALIZATION • AI-POWERED"}</span>
-              </div>
-              <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight leading-snug">
-                {isAr ? "شاركنا المزيد من التفاصيل حول أهدافك" : "Share more details about your goals"}
-              </h2>
-              <p className="text-xs sm:text-sm text-slate-600 font-medium leading-relaxed">
-                {isAr
-                  ? "اكتب بحرية لكي يتمكن الذكاء الاصطناعي من تصميم مسار تعليمي دقيق يتوافق مع أهدافك ومشاريعك التقديرية."
-                  : "Write freely in your own words so our AI can curate a learning roadmap that matches your current background, dream projects, and schedule."}
-              </p>
-            </div>
-
-            {/* Question 1 & Question 2 Cards */}
-            <div className="space-y-5 pt-1 max-w-2xl mx-auto">
-              {/* Question 1 Card: Practical Objective */}
-              <motion.div
-                initial={{ opacity: 0, y: 14 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.35 }}
-                className="bg-white rounded-3xl border border-slate-200/90 hover:border-emerald-300/90 shadow-[0_6px_24px_-4px_rgba(15,82,68,0.06)] hover:shadow-[0_12px_32px_-6px_rgba(15,82,68,0.12)] p-5 sm:p-6 space-y-4 transition-all duration-300 text-start group"
-              >
-                <div className="flex items-baseline gap-2 text-start">
-                  <h3 className="text-sm sm:text-base font-black text-slate-900 leading-snug">
-                    <span className="text-emerald-700 font-black me-2 text-base sm:text-lg inline-block">1.</span>
-                    {isAr
-                      ? "ما هو المشروع أو الإنجاز العملي المحدد الذي تطمح لبنائه وتحقيقه؟"
-                      : "What specific project or real-world outcome do you aim to achieve?"}
-                  </h3>
-                </div>
-
-                {/* Textarea */}
-                <div className="relative group/input">
-                  <textarea
-                    rows={3}
-                    maxLength={500}
-                    value={preferences.targetProjectOutcome || ""}
-                    onChange={(e) =>
-                      setPreferences({
-                        ...preferences,
-                        targetProjectOutcome: e.target.value,
-                      })
-                    }
-                    placeholder={
-                      isAr
-                        ? "مثال: بناء منصة ويب متكاملة (SaaS) مع بوابات دفع، أو تطوير تطبيق ذكاء اصطناعي..."
-                        : "e.g., Build a full-stack SaaS platform with payment integration, or develop an AI automated customer support app..."
-                    }
-                    className="w-full bg-slate-50/50 hover:bg-white focus:bg-white border border-slate-200/90 focus:border-emerald-600 rounded-2xl p-3.5 sm:p-4 text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-emerald-600 transition-all resize-none font-medium leading-relaxed shadow-2xs"
-                  />
-                  <div className="flex items-center justify-between pt-1.5 px-1">
-                    <span className="text-[10px] text-slate-400 font-medium">
-                      {isAr ? "كلما كان وصفك دقيقاً، كانت مخرجات الخريطة أكثر تخصيصاً" : "Detailed inputs help AI craft precise curriculum steps"}
-                    </span>
-                    <span className="text-[10px] font-black text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200/50">
-                      {(preferences.targetProjectOutcome || "").length} / 500
-                    </span>
-                  </div>
-                </div>
-
-                {/* Quick Ideas Chips */}
-                <div className="pt-1 space-y-2">
-                  <div className="flex items-center gap-1.5 text-[11px] font-black text-slate-500">
-                    <Lightbulb className="w-3.5 h-3.5 text-amber-500" />
-                    <span>{isAr ? "أفكار سريعة ومقترحات شائعة:" : "Quick Ideas & Suggestions:"}</span>
-                  </div>
-                  <div className="flex items-center gap-2 flex-wrap">
-                    {quickObjectiveIdeas.map((idea) => {
-                      const cleanText = idea.text.replace("+ ", "");
-                      const isAlreadyAdded = (preferences.targetProjectOutcome || "").includes(cleanText);
-                      return (
-                        <button
-                          key={idea.id}
-                          type="button"
-                          onClick={() => {
-                            soundFx.playOptionSelect();
-                            const current = preferences.targetProjectOutcome || "";
-                            if (isAlreadyAdded) return;
-                            const newText = current ? `${current}, ${cleanText}` : cleanText;
-                            setPreferences({
-                              ...preferences,
-                              targetProjectOutcome: newText.slice(0, 500),
-                            });
-                          }}
-                          className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all active:scale-95 cursor-pointer flex items-center gap-1.5 shadow-2xs ${
-                            isAlreadyAdded
-                              ? "bg-emerald-100 text-emerald-900 border border-emerald-300 font-black cursor-default"
-                              : "bg-white hover:bg-emerald-50 text-slate-700 hover:text-[#0F5244] border border-slate-200 hover:border-emerald-300"
-                          }`}
-                        >
-                          <span>+</span>
-                          <span>{cleanText}</span>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-              </motion.div>
-
-              {/* Question 2 Card: Individual Challenges */}
-              <motion.div
-                initial={{ opacity: 0, y: 14 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.35, delay: 0.05 }}
-                className="bg-white rounded-3xl border border-slate-200/90 hover:border-emerald-300/90 shadow-[0_6px_24px_-4px_rgba(15,82,68,0.06)] hover:shadow-[0_12px_32px_-6px_rgba(15,82,68,0.12)] p-5 sm:p-6 space-y-4 transition-all duration-300 text-start group"
-              >
-                <div className="flex items-baseline gap-2 text-start">
-                  <h3 className="text-sm sm:text-base font-black text-slate-900 leading-snug">
-                    <span className="text-emerald-700 font-black me-2 text-base sm:text-lg inline-block">2.</span>
-                    {isAr
-                      ? "ما هو أكبر تحدٍ أو عقبة تواجهك في رحلة التعلّم حالياً؟"
-                      : "What is the biggest challenge or roadblock in your learning journey right now?"}
-                  </h3>
-                </div>
-
-                {/* Textarea */}
-                <div className="relative group/input">
-                  <textarea
-                    rows={3}
-                    maxLength={500}
-                    value={preferences.learningChallenges || ""}
-                    onChange={(e) =>
-                      setPreferences({
-                        ...preferences,
-                        learningChallenges: e.target.value,
-                      })
-                    }
-                    placeholder={
-                      isAr
-                        ? "مثال: كثرة الدورات النظرية دون تطبيق عملي، صعوبة في إدارة الوقت، أو الحاجة لتوجيه برمجي..."
-                        : "e.g., Struggling with state management architectures, getting stuck in tutorial hell, or finding time for deep work..."
-                    }
-                    className="w-full bg-slate-50/50 hover:bg-white focus:bg-white border border-slate-200/90 focus:border-emerald-600 rounded-2xl p-3.5 sm:p-4 text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-emerald-600 transition-all resize-none font-medium leading-relaxed shadow-2xs"
-                  />
-                  <div className="flex items-center justify-between pt-1.5 px-1">
-                    <span className="text-[10px] text-slate-400 font-medium">
-                      {isAr ? "يساعدنا في تصميم حلول تدريبية مباشرة لهذه العقبات" : "Helps AI tailor resources to overcome these hurdles"}
-                    </span>
-                    <span className="text-[10px] font-black text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200/50">
-                      {(preferences.learningChallenges || "").length} / 500
-                    </span>
-                  </div>
-                </div>
-
-                {/* Suggested Prompts Chips */}
-                <div className="pt-1 space-y-2">
-                  <div className="flex items-center gap-1.5 text-[11px] font-black text-slate-500">
-                    <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
-                    <span>{isAr ? "مقترحات شائعة:" : "Suggested Prompts:"}</span>
-                  </div>
-                  <div className="flex items-center gap-2 flex-wrap">
-                    {suggestedChallengePrompts.map((prompt) => {
-                      const cleanText = prompt.text.replace("+ ", "");
-                      const isAlreadyAdded = (preferences.learningChallenges || "").includes(cleanText);
-                      return (
-                        <button
-                          key={prompt.id}
-                          type="button"
-                          onClick={() => {
-                            soundFx.playOptionSelect();
-                            const current = preferences.learningChallenges || "";
-                            if (isAlreadyAdded) return;
-                            const newText = current ? `${current}, ${cleanText}` : cleanText;
-                            setPreferences({
-                              ...preferences,
-                              learningChallenges: newText.slice(0, 500),
-                            });
-                          }}
-                          className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all active:scale-95 cursor-pointer flex items-center gap-1.5 shadow-2xs ${
-                            isAlreadyAdded
-                              ? "bg-emerald-100 text-emerald-900 border border-emerald-300 font-black cursor-default"
-                              : "bg-white hover:bg-emerald-50 text-slate-700 hover:text-[#0F5244] border border-slate-200 hover:border-emerald-300"
-                          }`}
-                        >
-                          <span>+</span>
-                          <span>{cleanText}</span>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-              </motion.div>
-
-              {/* Security & Privacy AI Guarantee Note */}
-              <div className="rounded-2xl bg-gradient-to-r from-emerald-50 via-teal-50/70 to-emerald-50 border border-emerald-200/80 p-3.5 sm:p-4 flex items-center gap-3.5 shadow-xs text-start">
-                <div className="w-9 h-9 rounded-xl bg-white border border-emerald-200/80 text-[#0F5244] flex items-center justify-center shrink-0 shadow-xs">
-                  <ShieldCheck className="w-5 h-5 stroke-[2.5]" />
-                </div>
-                <p className="text-xs text-emerald-950 font-bold leading-relaxed">
-                  {isAr
-                    ? "كافة إجاباتك وأهدافك مشفرة ومحمية بالكامل، وتُستخدم حصرياً بواسطة نماذج الذكاء الاصطناعي لبناء مسارك المخصص."
-                    : "Your goals and responses are strictly encrypted and used exclusively by AI models to configure your personalized roadmap."}
-                </p>
-              </div>
-            </div>
-
-            {/* Navigation Buttons */}
-            <div
-              className={`flex items-center justify-between pt-6 max-w-2xl mx-auto ${
-                isAr ? "flex-row-reverse" : ""
-              }`}
-            >
-              <button
-                type="button"
-                onClick={() => goToPrevStep(3)}
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 font-bold text-xs sm:text-sm transition-all cursor-pointer border border-transparent hover:border-slate-200"
-              >
-                {isAr ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
-                <span>{t("back")}</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => goToNextStep(5)}
-                className="inline-flex items-center gap-2 bg-gradient-to-r from-[#0F5244] via-[#125B4C] to-[#187562] hover:from-[#09352C] hover:to-[#0F5244] text-white text-xs sm:text-sm font-black px-7 sm:px-8 py-3 rounded-xl transition-all shadow-[0_6px_20px_rgba(15,82,68,0.28)] hover:shadow-xl active:scale-95 cursor-pointer"
-              >
-                <span>{isAr ? "حفظ والمتابعة للتخصص" : "Next • Save & Continue"}</span>
-                {isAr ? <ArrowLeft className="w-4 h-4" /> : <ArrowRight className="w-4 h-4" />}
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* ========================================================================= */}
-        {/* STEP 5 (WIZARD 4 OF 4): SKILL FOCUS & DOMAIN SELECTION */}
-        {/* ========================================================================= */}
-        {step === 5 && (
-          <div className="space-y-6 relative z-10">
-            {/* Animated Interactive Scenic Journey Banner with Moving Robot */}
-            <RobotJourneyBanner
-              currentStepIndex={4}
-              totalSteps={4}
-              stepBadge={t("wizard.step4Badge")}
+              stepBadge={isAr ? "الخطوة 2 من 4 • اختيار المسار" : "Step 2 of 4 • Select Track"}
               stepCategory={isAr ? "التخصص والمسار" : "Track & Domain"}
               isAr={isAr}
             />
 
             {/* Step Header (Centered) */}
             <div className="text-center max-w-xl mx-auto pt-4 sm:pt-6 pb-1 space-y-2.5">
-              <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-200/60 shadow-2xs">
-                <Compass className="w-3.5 h-3.5 text-emerald-600" />
-                <span>{t("wizard.step4Badge")}</span>
-              </div>
               <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
                 {t("wizard.step4Title")}
               </h2>
               <p className="text-xs sm:text-sm text-slate-500 font-normal leading-relaxed">
-                {t("wizard.step4Subtitle")}
+                {isAr
+                  ? "حدد التخصص أو المجال الذي ترغب بتعلمه لنقوم بطرح أسئلة الخبرة وبناء محطات التعلم المناسبة له."
+                  : "Select your desired track so AI can calibrate your experience assessment and custom milestones."}
               </p>
             </div>
 
@@ -1174,6 +845,291 @@ export function MyPathWizard() {
                   </button>
                 </div>
               )}
+            </div>
+
+            {/* Navigation Buttons */}
+            <div
+              className={`flex items-center justify-between pt-8 max-w-2xl mx-auto ${
+                isAr ? "flex-row-reverse" : ""
+              }`}
+            >
+              <button
+                type="button"
+                onClick={() => goToPrevStep(2)}
+                className="text-xs sm:text-sm font-bold text-slate-500 hover:text-slate-800 transition-colors cursor-pointer px-3 py-2 rounded-xl hover:bg-slate-100"
+              >
+                {t("back")}
+              </button>
+              <button
+                type="button"
+                onClick={() => goToNextStep(4)}
+                className="inline-flex items-center gap-2 bg-[#0F5244] hover:bg-[#07382E] text-white text-xs sm:text-sm font-bold px-7 py-2.5 sm:py-3 rounded-xl transition-all shadow-xs hover:shadow-md cursor-pointer"
+              >
+                <span>{t("continue")}</span>
+                {isAr ? <ArrowLeft className="w-4 h-4" /> : <ArrowRight className="w-4 h-4" />}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* ========================================================================= */}
+        {/* STEP 4 (WIZARD 3 OF 4): KNOWLEDGE LEVEL ASSESSMENT */}
+        {/* ========================================================================= */}
+        {step === 4 && (
+          <div className="space-y-6 relative z-10">
+            {/* Animated Interactive Scenic Journey Banner with Moving Robot */}
+            <RobotJourneyBanner
+              currentStepIndex={3}
+              totalSteps={4}
+              stepBadge={isAr ? "الخطوة 3 من 4 • تقييم المستوى" : "Step 3 of 4 • Skill Level"}
+              stepCategory={isAr ? "المستوى الحالي" : "Current Level"}
+              isAr={isAr}
+            />
+
+            {/* Step Header (Centered) */}
+            <div className="text-center max-w-xl mx-auto pt-4 sm:pt-6 pb-1 space-y-2.5">
+              <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+                {t("wizard.step2Title")}
+              </h2>
+              <p className="text-xs sm:text-sm text-slate-500 font-normal leading-relaxed">
+                {t("wizard.step2Subtitle")}
+              </p>
+            </div>
+
+            {/* Level Options List */}
+            <div className="space-y-3 pt-2 max-w-2xl mx-auto" role="radiogroup">
+              {levelOptions.map((opt, idx) => {
+                const Icon = opt.icon;
+                const isSelected = preferences.priorKnowledge === opt.id;
+                return (
+                  <motion.button
+                    key={opt.id}
+                    type="button"
+                    role="radio"
+                    aria-checked={isSelected}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.25, delay: idx * 0.04 }}
+                    whileHover={{ scale: 1.01 }}
+                    whileTap={{ scale: 0.99 }}
+                    onClick={() => {
+                      soundFx.playOptionSelect();
+                      setPreferences({
+                        ...preferences,
+                        priorKnowledge: opt.id,
+                        level: opt.skillLevel,
+                      });
+                    }}
+                    className={`w-full p-3.5 sm:p-4 rounded-2xl border text-start transition-all cursor-pointer flex items-center justify-between gap-4 ${
+                      isSelected
+                        ? "bg-white border-2 border-emerald-400 shadow-xs"
+                        : "bg-white border border-slate-200/90 hover:border-slate-300 hover:bg-slate-50/40"
+                    }`}
+                  >
+                    {/* Start Side: Icon + Text */}
+                    <div className="flex items-center gap-3.5 min-w-0 flex-1">
+                      <div
+                        className={`w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
+                          isSelected
+                            ? "bg-[#0F5244] text-white shadow-xs"
+                            : "bg-slate-100 text-slate-500"
+                        }`}
+                      >
+                        <Icon className="w-5 h-5 sm:w-5.5 sm:h-5.5" />
+                      </div>
+
+                      <div className="min-w-0 flex-1 text-start">
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm sm:text-base font-bold text-slate-900 block truncate">
+                            {t(`wizard.levels.${opt.id}.title`)}
+                          </span>
+                          {opt.hasRecommended && (
+                            <span className="px-2 py-0.5 rounded text-[10px] font-extrabold uppercase bg-emerald-600 text-white tracking-wider">
+                              {t("wizard.levels.intermediate.recommendedBadge")}
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-xs text-slate-400 sm:text-slate-500 font-normal line-clamp-1 mt-0.5">
+                          {t(`wizard.levels.${opt.id}.desc`)}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* End Side: Radio Checkmark */}
+                    <div className="shrink-0 flex items-center ps-2">
+                      {isSelected ? (
+                        <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-emerald-600 text-white flex items-center justify-center shadow-xs">
+                          <Check className="w-3.5 h-3.5 stroke-[3]" />
+                        </div>
+                      ) : (
+                        <div className="w-5 h-5.5 sm:w-5.5 sm:h-5.5 rounded-full border-2 border-slate-200 bg-white" />
+                      )}
+                    </div>
+                  </motion.button>
+                );
+              })}
+            </div>
+
+            {/* Navigation Buttons */}
+            <div
+              className={`flex items-center justify-between pt-8 max-w-2xl mx-auto ${
+                isAr ? "flex-row-reverse" : ""
+              }`}
+            >
+              <button
+                type="button"
+                onClick={() => goToPrevStep(3)}
+                className="text-xs sm:text-sm font-bold text-slate-500 hover:text-slate-800 transition-colors cursor-pointer px-3 py-2 rounded-xl hover:bg-slate-100"
+              >
+                {t("back")}
+              </button>
+              <button
+                type="button"
+                onClick={() => goToNextStep(5)}
+                className="inline-flex items-center gap-2 bg-[#0F5244] hover:bg-[#07382E] text-white text-xs sm:text-sm font-bold px-7 py-2.5 sm:py-3 rounded-xl transition-all shadow-xs hover:shadow-md cursor-pointer"
+              >
+                <span>{t("continue")}</span>
+                {isAr ? <ArrowLeft className="w-4 h-4" /> : <ArrowRight className="w-4 h-4" />}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* ========================================================================= */}
+        {/* STEP 5 (WIZARD 4 OF 4): PRACTICAL EXPERIENCE & TECH STACK (FINAL STEP) */}
+        {/* ========================================================================= */}
+        {step === 5 && (
+          <div className="space-y-6 relative z-10">
+            {/* Animated Interactive Scenic Journey Banner with Moving Robot */}
+            <RobotJourneyBanner
+              currentStepIndex={4}
+              totalSteps={4}
+              stepBadge={isAr ? "الخطوة 4 من 4 • تقييم الخبرة" : "Step 4 of 4 • Experience Assessment"}
+              stepCategory={isAr ? "الخبرة السابقة" : "Prior Experience"}
+              isAr={isAr}
+            />
+
+            {/* Step Header */}
+            <div className="text-center max-w-xl mx-auto pt-3 sm:pt-5 pb-1 space-y-2">
+              <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight leading-snug">
+                {isAr ? "أخبرنا عن خبرتك العملية ومشاريعك السابقة" : "Tell us about your prior experience and background"}
+              </h2>
+              <p className="text-xs sm:text-sm text-slate-600 font-medium leading-relaxed">
+                {isAr
+                  ? "تساعدنا هذه الإجابات في تحديد نقطة انطلاقك الدقيقة وتخطي المواضيع التي تتقنها مسبقاً لتوفير وقتك."
+                  : "These details allow the AI to pinpoint your exact starting point and bypass concepts you already know."}
+              </p>
+            </div>
+
+            {/* Question 1 & Question 2 Cards (Without Quick Suggestions) */}
+            <div className="space-y-5 pt-1 max-w-2xl mx-auto">
+              {/* Question 1 Card: Previous Experience & Projects */}
+              <motion.div
+                initial={{ opacity: 0, y: 14 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.35 }}
+                className="bg-white rounded-3xl border border-slate-200/90 hover:border-emerald-300/90 shadow-[0_6px_24px_-4px_rgba(15,82,68,0.06)] hover:shadow-[0_12px_32px_-6px_rgba(15,82,68,0.12)] p-5 sm:p-6 space-y-4 transition-all duration-300 text-start group"
+              >
+                <div className="flex items-baseline gap-2 text-start">
+                  <h3 className="text-sm sm:text-base font-black text-slate-900 leading-snug">
+                    <span className="text-emerald-700 font-black me-2 text-base sm:text-lg inline-block">1.</span>
+                    {isAr
+                      ? "ما هي خبرتك السابقة أو المشاريع التي قمت ببنائها في هذا التخصص؟"
+                      : "What is your prior experience or projects built in this field?"}
+                  </h3>
+                </div>
+
+                {/* Textarea */}
+                <div className="relative group/input">
+                  <textarea
+                    rows={3}
+                    maxLength={500}
+                    value={preferences.previousExperience || preferences.targetProjectOutcome || ""}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setPreferences({
+                        ...preferences,
+                        previousExperience: val,
+                        targetProjectOutcome: val,
+                      });
+                    }}
+                    placeholder={
+                      isAr
+                        ? "مثال: بنيت مواقع شخصية بسيطة، طبّقت مشاريع دورات تدريبية، أو ليس لدي أي خبرة أو مشاريع سابقة بعد..."
+                        : "e.g., Built personal landing pages, completed tutorial practice projects, or no prior projects yet..."
+                    }
+                    className="w-full bg-slate-50/50 hover:bg-white focus:bg-white border border-slate-200/90 focus:border-emerald-600 rounded-2xl p-3.5 sm:p-4 text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-emerald-600 transition-all resize-none font-medium leading-relaxed shadow-2xs"
+                  />
+                  <div className="flex items-center justify-between pt-1.5 px-1">
+                    <span className="text-[10px] text-slate-400 font-medium">
+                      {isAr ? "كلما كان وصفك واضحاً، كانت نقطة البداية أكثر ملاءمة" : "Precise answers help AI set your exact starting milestone"}
+                    </span>
+                    <span className="text-[10px] font-black text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200/50">
+                      {(preferences.previousExperience || preferences.targetProjectOutcome || "").length} / 500
+                    </span>
+                  </div>
+                </div>
+              </motion.div>
+
+              {/* Question 2 Card: Tech Stack & Tools Used */}
+              <motion.div
+                initial={{ opacity: 0, y: 14 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.35, delay: 0.05 }}
+                className="bg-white rounded-3xl border border-slate-200/90 hover:border-emerald-300/90 shadow-[0_6px_24px_-4px_rgba(15,82,68,0.06)] hover:shadow-[0_12px_32px_-6px_rgba(15,82,68,0.12)] p-5 sm:p-6 space-y-4 transition-all duration-300 text-start group"
+              >
+                <div className="flex items-baseline gap-2 text-start">
+                  <h3 className="text-sm sm:text-base font-black text-slate-900 leading-snug">
+                    <span className="text-emerald-700 font-black me-2 text-base sm:text-lg inline-block">2.</span>
+                    {isAr
+                      ? "ما هي الأدوات، اللغات، أو التقنيات (Tech Stack) التي تجيدها أو استخدمتها سابقاً؟"
+                      : "What tools, programming languages, or tech stacks have you used?"}
+                  </h3>
+                </div>
+
+                {/* Textarea */}
+                <div className="relative group/input">
+                  <textarea
+                    rows={3}
+                    maxLength={500}
+                    value={preferences.toolsAndTechStack || preferences.learningChallenges || ""}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setPreferences({
+                        ...preferences,
+                        toolsAndTechStack: val,
+                        learningChallenges: val,
+                      });
+                    }}
+                    placeholder={
+                      isAr
+                        ? "مثال: أساسيات HTML/CSS، لغة JavaScript، تصاميم Figma، مكتبة React، أو لا توجد أدوات سابقة..."
+                        : "e.g., HTML/CSS basics, JavaScript, React, Figma UI, Git, or Python..."
+                    }
+                    className="w-full bg-slate-50/50 hover:bg-white focus:bg-white border border-slate-200/90 focus:border-emerald-600 rounded-2xl p-3.5 sm:p-4 text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-emerald-600 transition-all resize-none font-medium leading-relaxed shadow-2xs"
+                  />
+                  <div className="flex items-center justify-between pt-1.5 px-1">
+                    <span className="text-[10px] text-slate-400 font-medium">
+                      {isAr ? "يساعد الذكاء الاصطناعي على بناء تطبيقات ومشاريع تناسب خبرتك التقنية" : "Helps AI recommend appropriate toolchains and exercises"}
+                    </span>
+                    <span className="text-[10px] font-black text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200/50">
+                      {(preferences.toolsAndTechStack || preferences.learningChallenges || "").length} / 500
+                    </span>
+                  </div>
+                </div>
+              </motion.div>
+
+              {/* Security & Privacy AI Guarantee Note */}
+              <div className="rounded-2xl bg-gradient-to-r from-emerald-50 via-teal-50/70 to-emerald-50 border border-emerald-200/80 p-3.5 sm:p-4 flex items-center gap-3.5 shadow-xs text-start">
+                <div className="w-9 h-9 rounded-xl bg-white border border-emerald-200/80 text-[#0F5244] flex items-center justify-center shrink-0 shadow-xs">
+                  <ShieldCheck className="w-5 h-5 stroke-[2.5]" />
+                </div>
+                <p className="text-xs text-emerald-950 font-bold leading-relaxed">
+                  {isAr
+                    ? "كافة بياناتك وخبرتك السابقة تُستخدم حصرياً لمعايرة مسارك التعليمي الذكي وتخطي الأساسيات المكررة."
+                    : "Your experience inputs are strictly encrypted and used exclusively by AI to calibrate your custom curriculum."}
+                </p>
+              </div>
             </div>
 
             {/* Navigation Buttons */}

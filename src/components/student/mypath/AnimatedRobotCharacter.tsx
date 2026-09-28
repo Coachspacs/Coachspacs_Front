@@ -10,14 +10,14 @@ interface AnimatedRobotCharacterProps {
 }
 
 export function AnimatedRobotCharacter({
-  size = "lg",
+  size = "md",
   className = "",
   showCap = true,
 }: AnimatedRobotCharacterProps) {
   const sizeClasses = {
     xs: "w-8 h-11",
-    sm: "w-12 h-16",
-    md: "w-20 h-28",
+    sm: "w-12 h-16 sm:w-14 sm:h-18",
+    md: "w-20 h-28 sm:w-24 sm:h-32",
     lg: "w-32 h-44 sm:w-40 sm:h-52",
   };
 
@@ -32,40 +32,20 @@ export function AnimatedRobotCharacter({
         repeat: Infinity,
         ease: "easeInOut",
       }}
-      className={`relative ${sizeClasses[size]} select-none pointer-events-auto cursor-pointer ${className}`}
+      className={`relative ${sizeClasses[size]} select-none pointer-events-auto cursor-pointer filter drop-shadow-[0_10px_20px_rgba(15,82,68,0.22)] ${className}`}
     >
       <svg
         viewBox="0 0 160 210"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
-        className="w-full h-full drop-shadow-[0_8px_16px_rgba(15,82,68,0.18)]"
+        className="w-full h-full"
       >
-        <defs>
-          {/* Gradients for cute robot body & shading */}
-          <linearGradient id="robotBodyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#FFFFFF" />
-            <stop offset="70%" stopColor="#F0FAF6" />
-            <stop offset="100%" stopColor="#D8EFE7" />
-          </linearGradient>
-
-          <linearGradient id="robotVisorGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" stopColor="#1E293B" />
-            <stop offset="100%" stopColor="#0F172A" />
-          </linearGradient>
-
-          <linearGradient id="thrusterFlameGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" stopColor="#38E09D" stopOpacity="0.95" />
-            <stop offset="70%" stopColor="#10B981" stopOpacity="0.6" />
-            <stop offset="100%" stopColor="#059669" stopOpacity="0" />
-          </linearGradient>
-        </defs>
-
-        {/* 1. JET PROPULSION FLAME (Animated pulse underneath) */}
+        {/* 1. JET PROPULSION FLAME */}
         <motion.g
           animate={{
             scaleY: [0.8, 1.3, 0.8],
             scaleX: [0.9, 1.1, 0.9],
-            opacity: [0.7, 1, 0.7],
+            opacity: [0.75, 1, 0.75],
           }}
           transition={{
             duration: 0.8,
@@ -76,14 +56,23 @@ export function AnimatedRobotCharacter({
         >
           <path
             d="M 68 175 C 68 175 74 205 80 208 C 86 205 92 175 92 175 Z"
-            fill="url(#thrusterFlameGrad)"
+            fill="#38E09D"
+            opacity="0.9"
           />
-          <ellipse cx="80" cy="188" rx="5" ry="8" fill="#A7F3D0" opacity="0.9" />
+          <ellipse cx="80" cy="188" rx="5" ry="8" fill="#A7F3D0" />
         </motion.g>
 
-        {/* 2. ROBOT LOWER BODY / TORSO */}
-        <ellipse cx="80" cy="148" rx="28" ry="26" fill="url(#robotBodyGrad)" stroke="#E2E8F0" strokeWidth="2" />
-        
+        {/* 2. ROBOT LOWER BODY / TORSO (Solid Opaque Pure White) */}
+        <ellipse
+          cx="80"
+          cy="148"
+          rx="28"
+          ry="26"
+          fill="#FFFFFF"
+          stroke="#E2E8F0"
+          strokeWidth="2"
+        />
+
         {/* Torso Center AI Core Light */}
         <circle cx="80" cy="145" r="9" fill="#E6F7F1" stroke="#38E09D" strokeWidth="2.5" />
         <motion.circle
@@ -91,19 +80,19 @@ export function AnimatedRobotCharacter({
           cy="145"
           r="4.5"
           fill="#38E09D"
-          animate={{ scale: [0.85, 1.25, 0.85], opacity: [0.6, 1, 0.6] }}
+          animate={{ scale: [0.85, 1.25, 0.85], opacity: [0.7, 1, 0.7] }}
           transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
         />
 
-        {/* Left Arm (Resting on side) */}
+        {/* Left Arm (Resting on side - Solid White) */}
         <path
           d="M 52 135 C 44 142 42 155 46 164 C 48 168 53 167 55 163 C 58 155 57 143 55 137 Z"
-          fill="url(#robotBodyGrad)"
+          fill="#FFFFFF"
           stroke="#CBD5E1"
           strokeWidth="1.5"
         />
 
-        {/* 3. WAVING RIGHT ARM (Actively Waving in Real Time!) */}
+        {/* 3. WAVING RIGHT ARM (Active Wave - Solid White) */}
         <motion.g
           animate={{
             rotate: [0, 24, -4, 20, 0],
@@ -118,7 +107,7 @@ export function AnimatedRobotCharacter({
           {/* Upper & Forearm */}
           <path
             d="M 106 136 C 118 132 132 122 138 108 C 141 102 147 104 146 110 C 142 124 126 142 112 145 Z"
-            fill="url(#robotBodyGrad)"
+            fill="#FFFFFF"
             stroke="#CBD5E1"
             strokeWidth="1.5"
           />
@@ -129,24 +118,24 @@ export function AnimatedRobotCharacter({
 
         {/* 4. ROBOT HEAD */}
         <g>
-          {/* Head Shape */}
+          {/* Head Shape (Solid Opaque Pure White) */}
           <rect
             x="42"
             y="62"
             width="76"
             height="62"
             rx="28"
-            fill="url(#robotBodyGrad)"
+            fill="#FFFFFF"
             stroke="#E2E8F0"
             strokeWidth="2.5"
           />
 
-          {/* Ears / Head Antennas */}
-          <rect x="36" y="80" width="8" height="24" rx="4" fill="#38E09D" opacity="0.9" />
-          <rect x="116" y="80" width="8" height="24" rx="4" fill="#38E09D" opacity="0.9" />
+          {/* Ears / Head Antennas (Solid Mint/Cyan) */}
+          <rect x="36" y="80" width="8" height="24" rx="4" fill="#38E09D" />
+          <rect x="116" y="80" width="8" height="24" rx="4" fill="#38E09D" />
 
-          {/* Dark Glass Visor Screen */}
-          <rect x="50" y="72" width="60" height="42" rx="16" fill="url(#robotVisorGrad)" />
+          {/* Dark Glass Visor Screen (Solid Deep Dark Screen) */}
+          <rect x="50" y="72" width="60" height="42" rx="16" fill="#1E293B" stroke="#0F172A" strokeWidth="1" />
 
           {/* BLINKING GLOWING MINT LED EYES */}
           <motion.g
@@ -185,44 +174,47 @@ export function AnimatedRobotCharacter({
           />
         </g>
 
-        {/* 5. GRADUATION CAP (Academic Mastery) */}
-        <g transform="translate(80, 58)">
-          {/* Cap Diamond Top */}
-          <polygon
-            points="0,-22 46,-8 0,6 -46,-8"
-            fill="#0F172A"
-            stroke="#334155"
-            strokeWidth="1.5"
-          />
-          {/* Cap Skull Base */}
-          <path
-            d="M -22 -6 C -22 6 22 6 22 -6"
-            fill="#1E293B"
-          />
-          {/* Cap Button */}
-          <circle cx="0" cy="-8" r="3" fill="#38E09D" />
-          
-          {/* Swinging Tassel */}
-          <motion.g
-            animate={{
-              rotate: [-5, 8, -5],
-            }}
-            transition={{
-              duration: 2,
-              repeat: Infinity,
-              ease: "easeInOut",
-            }}
-            style={{ transformOrigin: "0px -8px" }}
-          >
-            <path
-              d="M 0 -8 C 12 -4 28 4 32 16"
-              stroke="#38E09D"
-              strokeWidth="2"
-              fill="none"
+        {/* 5. GRADUATION CAP (Academic Mastery - Solid Dark Slate) */}
+        {showCap && (
+          <g transform="translate(80, 58)">
+            {/* Cap Diamond Top */}
+            <polygon
+              points="0,-22 46,-8 0,6 -46,-8"
+              fill="#0F172A"
+              stroke="#334155"
+              strokeWidth="1.5"
             />
-            <circle cx="32" cy="18" r="3.5" fill="#38E09D" />
-          </motion.g>
-        </g>
+            {/* Cap Skull Base */}
+            <path
+              d="M -22 -6 C -22 6 22 6 22 -6"
+              fill="#1E293B"
+            />
+            {/* Cap Button */}
+            <circle cx="0" cy="-8" r="3" fill="#38E09D" />
+
+            {/* Swinging Tassel */}
+            <motion.g
+              animate={{
+                rotate: [-5, 8, -5],
+              }}
+              transition={{
+                duration: 2,
+                repeat: Infinity,
+                ease: "easeInOut",
+              }}
+              style={{ transformOrigin: "0px -8px" }}
+            >
+              <path
+                d="M 0 -8 C 12 -4 28 4 32 16"
+                stroke="#38E09D"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                fill="none"
+              />
+              <circle cx="32" cy="18" r="3.5" fill="#38E09D" />
+            </motion.g>
+          </g>
+        )}
       </svg>
     </motion.div>
   );

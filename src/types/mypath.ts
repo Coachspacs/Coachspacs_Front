@@ -30,6 +30,8 @@ export interface MyPathPreferences {
   targetMonths?: TargetDuration;
   targetProjectOutcome?: string;
   learningChallenges?: string;
+  previousExperience?: string;
+  toolsAndTechStack?: string;
 }
 
 export interface RoadmapMilestoneCourse {

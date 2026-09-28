@@ -180,7 +180,6 @@ export function RobotJourneyBanner({
         animate={{
           left: `${activeWaypoint.x}%`,
           top: `${activeWaypoint.y}%`,
-          transform: "translateX(-50%)",
         }}
         transition={{
           type: "spring",
@@ -188,9 +187,9 @@ export function RobotJourneyBanner({
           damping: 14,
           mass: 0.6,
         }}
-        className="absolute z-30 flex flex-col items-center pointer-events-none"
+        className="absolute z-30 flex flex-col items-center pointer-events-none -translate-x-1/2 -translate-y-1/2"
       >
-        <AnimatedRobotCharacter size="sm" />
+        <AnimatedRobotCharacter size="md" />
       </motion.div>
     </div>
   );
