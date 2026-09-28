@@ -5,16 +5,8 @@ import Link from "next/link";
 import { motion, Variants } from "framer-motion";
 import { useTranslations, useLocale } from "next-intl";
 import {
-  Code,
-  BarChart3,
-  Target,
-  Brain,
   ArrowRight,
   Sparkles,
-  Layers,
-  Palette,
-  Briefcase,
-  GraduationCap,
 } from "lucide-react";
 import { categoryService } from "@/services/categoryService";
 import { TopCategoriesSectionData } from "@/types/cms";
@@ -28,7 +20,6 @@ export function TopCategoriesSection({ data }: TopCategoriesSectionProps = {}) {
   const locale = useLocale() || "en";
   const isAr = locale === "ar";
 
-
   const titleText = (isAr ? data?.title_ar : data?.title_en) || t("topCategoriesTitle");
   const subtitleText = (isAr ? data?.subtitle_ar : data?.subtitle_en) || t("topCategoriesSubtitle");
 
@@ -36,50 +27,34 @@ export function TopCategoriesSection({ data }: TopCategoriesSectionProps = {}) {
     {
       id: "business-coaching",
       title: t("catBusiness"),
-      icon: BarChart3,
       href: `/${locale}/courses?category=Business%20Coaching`,
     },
     {
       id: "career-coaching",
       title: t("catCareer"),
-      icon: Target,
       href: `/${locale}/courses?category=Career%20Coaching`,
     },
     {
       id: "fitness-coaching",
       title: t("catFitness"),
-      icon: Layers,
       href: `/${locale}/courses?category=Fitness%20Coaching`,
     },
     {
       id: "life-mindfulness",
       title: t("catLife"),
-      icon: Brain,
       href: `/${locale}/courses?category=Life%20%26%20Mindfulness`,
     },
     {
       id: "programming",
       title: t("catProgramming"),
-      icon: Code,
       href: `/${locale}/courses?category=Programming`,
     },
   ];
 
-  const [categories, setCategories] = useState<{ id: string | number; title: string; icon: any; href: string }[]>(defaultCategories);
+  const [categories, setCategories] = useState<{ id: string | number; title: string; href: string }[]>(defaultCategories);
 
   useEffect(() => {
     let isSubscribed = true;
-
-    const getCategoryIcon = (nameOrIcon: string) => {
-      const lower = (nameOrIcon || "").toLowerCase();
-      if (lower.includes("code") || lower.includes("program") || lower.includes("dev") || lower.includes("برمج")) return Code;
-      if (lower.includes("business") || lower.includes("chart") || lower.includes("manage") || lower.includes("أعمال")) return BarChart3;
-      if (lower.includes("career") || lower.includes("target") || lower.includes("goal") || lower.includes("مهن")) return Target;
-      if (lower.includes("mind") || lower.includes("life") || lower.includes("brain") || lower.includes("حياة") || lower.includes("وعي")) return Brain;
-      if (lower.includes("design") || lower.includes("pen") || lower.includes("art") || lower.includes("تصميم")) return Palette;
-      if (lower.includes("work") || lower.includes("lead") || lower.includes("قياد")) return Briefcase;
-      return Layers;
-    };
 
     categoryService
       .getCategories(locale)
@@ -89,7 +64,6 @@ export function TopCategoriesSection({ data }: TopCategoriesSectionProps = {}) {
           const mapped = data.slice(0, 5).map((item) => ({
             id: item.id,
             title: item.name,
-            icon: getCategoryIcon(item.icon || item.name),
             href: `/${locale}/courses?category=${item.id}`,
           }));
           setCategories(mapped);
@@ -175,7 +149,6 @@ export function TopCategoriesSection({ data }: TopCategoriesSectionProps = {}) {
           className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 sm:gap-5 lg:gap-6"
         >
           {categories.map((cat, idx) => {
-            const Icon = cat.icon;
             const isLastOnMobile = idx === categories.length - 1;
             return (
               <motion.div
@@ -189,13 +162,10 @@ export function TopCategoriesSection({ data }: TopCategoriesSectionProps = {}) {
               >
                 <Link
                   href={cat.href}
-                  className="group relative bg-white hover:bg-emerald-50/40 rounded-3xl p-6 sm:p-7 min-h-[155px] sm:min-h-[175px] flex flex-col items-center justify-center text-center gap-3 sm:gap-4 border border-slate-200/90 hover:border-[#0F5244]/40 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-[#0F5244]/12 overflow-hidden w-full h-full block"
+                  className="group relative bg-white hover:bg-emerald-50/40 rounded-3xl p-5 sm:p-6 min-h-[110px] sm:min-h-[125px] flex items-center justify-center text-center border border-slate-200/90 hover:border-[#0F5244]/40 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-[#0F5244]/12 overflow-hidden w-full h-full block"
                 >
                   {/* Ambient Soft Glow on Hover */}
                   <div className="pointer-events-none absolute -bottom-10 -right-10 w-32 h-32 bg-[#34D399]/20 blur-2xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-
-                  {/* Standalone Centered Icon */}
-                  <Icon className="w-9 h-9 sm:w-10 sm:h-10 text-[#0F5244] group-hover:scale-115 group-hover:-translate-y-1 transition-all duration-300 ease-out" />
 
                   {/* Centered Category Title */}
                   <h3 className="text-slate-900 font-extrabold text-base sm:text-lg group-hover:text-[#0F5244] transition-colors leading-snug">

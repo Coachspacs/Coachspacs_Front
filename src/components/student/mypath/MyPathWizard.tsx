@@ -250,13 +250,7 @@ export function MyPathWizard() {
   };
 
   const handleRegenerate = () => {
-    const generated = generateRoadmapFromPreferences(preferences);
-    setRoadmap(generated);
-    try {
-      localStorage.setItem("coachspace_student_roadmap", JSON.stringify(generated));
-    } catch {}
-    soundFx.playCelebration();
-    triggerConfetti();
+    goToPrevStep(2);
   };
 
   const toggleBookmark = (id: string) => {
@@ -767,14 +761,14 @@ export function MyPathWizard() {
 
             {/* Step Header */}
             <div className="text-center max-w-xl mx-auto pt-3 sm:pt-5 pb-1 space-y-2">
-              <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-200/60 shadow-2xs">
-                <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-black text-emerald-800 bg-gradient-to-r from-emerald-100/90 to-teal-100/80 border border-emerald-300/60 shadow-xs">
+                <Sparkles className="w-3.5 h-3.5 text-emerald-600 animate-pulse" />
                 <span>{isAr ? "تخصيص دقيق للمسار • مدعوم بالذكاء الاصطناعي" : "DEEP PERSONALIZATION • AI-POWERED"}</span>
               </div>
-              <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+              <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight leading-snug">
                 {isAr ? "شاركنا المزيد من التفاصيل حول أهدافك" : "Share more details about your goals"}
               </h2>
-              <p className="text-xs sm:text-sm text-slate-500 font-normal leading-relaxed">
+              <p className="text-xs sm:text-sm text-slate-600 font-medium leading-relaxed">
                 {isAr
                   ? "اكتب بحرية لكي يتمكن الذكاء الاصطناعي من تصميم مسار تعليمي دقيق يتوافق مع أهدافك ومشاريعك التقديرية."
                   : "Write freely in your own words so our AI can curate a learning roadmap that matches your current background, dream projects, and schedule."}
@@ -782,24 +776,17 @@ export function MyPathWizard() {
             </div>
 
             {/* Question 1 & Question 2 Cards */}
-            <div className="space-y-4 pt-1 max-w-2xl mx-auto">
+            <div className="space-y-5 pt-1 max-w-2xl mx-auto">
               {/* Question 1 Card: Practical Objective */}
               <motion.div
-                initial={{ opacity: 0, y: 12 }}
+                initial={{ opacity: 0, y: 14 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3 }}
-                className="bg-white rounded-2xl sm:rounded-3xl border border-slate-200/90 p-4 sm:p-5 space-y-3 shadow-xs"
+                transition={{ duration: 0.35 }}
+                className="bg-white rounded-3xl border border-slate-200/90 hover:border-emerald-300/90 shadow-[0_6px_24px_-4px_rgba(15,82,68,0.06)] hover:shadow-[0_12px_32px_-6px_rgba(15,82,68,0.12)] p-5 sm:p-6 space-y-4 transition-all duration-300 text-start group"
               >
-                <div className="space-y-1 text-start">
-                  <div className="flex items-center gap-2">
-                    <div className="w-6.5 h-6.5 rounded-lg bg-emerald-100 text-[#0F5244] flex items-center justify-center font-black text-xs">
-                      Q1
-                    </div>
-                    <span className="text-[10px] sm:text-[11px] font-black uppercase text-emerald-800 tracking-wider">
-                      {isAr ? "السؤال الأول • الهدف العملي والمشروع" : "QUESTION 1 • PRACTICAL OBJECTIVE"}
-                    </span>
-                  </div>
-                  <h3 className="text-sm sm:text-base font-black text-slate-900 pt-0.5">
+                <div className="flex items-baseline gap-2 text-start">
+                  <h3 className="text-sm sm:text-base font-black text-slate-900 leading-snug">
+                    <span className="text-emerald-700 font-black me-2 text-base sm:text-lg inline-block">1.</span>
                     {isAr
                       ? "ما هو المشروع أو الإنجاز العملي المحدد الذي تطمح لبنائه وتحقيقه؟"
                       : "What specific project or real-world outcome do you aim to achieve?"}
@@ -807,7 +794,7 @@ export function MyPathWizard() {
                 </div>
 
                 {/* Textarea */}
-                <div className="relative">
+                <div className="relative group/input">
                   <textarea
                     rows={3}
                     maxLength={500}
@@ -823,61 +810,67 @@ export function MyPathWizard() {
                         ? "مثال: بناء منصة ويب متكاملة (SaaS) مع بوابات دفع، أو تطوير تطبيق ذكاء اصطناعي..."
                         : "e.g., Build a full-stack SaaS platform with payment integration, or develop an AI automated customer support app..."
                     }
-                    className="w-full bg-[#EAF7F2]/50 focus:bg-white border border-emerald-200/80 focus:border-[#0F5244] rounded-2xl p-3.5 text-xs sm:text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0F5244]/10 transition-all resize-none font-medium leading-relaxed"
+                    className="w-full bg-slate-50/50 hover:bg-white focus:bg-white border border-slate-200/90 focus:border-emerald-600 rounded-2xl p-3.5 sm:p-4 text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-emerald-600 transition-all resize-none font-medium leading-relaxed shadow-2xs"
                   />
-                  <div className="flex justify-end pt-1">
-                    <span className="text-[10px] font-bold text-slate-400">
-                      {(preferences.targetProjectOutcome || "").length} / 500 {isAr ? "حرف" : "chars"}
+                  <div className="flex items-center justify-between pt-1.5 px-1">
+                    <span className="text-[10px] text-slate-400 font-medium">
+                      {isAr ? "كلما كان وصفك دقيقاً، كانت مخرجات الخريطة أكثر تخصيصاً" : "Detailed inputs help AI craft precise curriculum steps"}
+                    </span>
+                    <span className="text-[10px] font-black text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200/50">
+                      {(preferences.targetProjectOutcome || "").length} / 500
                     </span>
                   </div>
                 </div>
 
                 {/* Quick Ideas Chips */}
-                <div className="pt-0.5 flex items-center gap-1.5 flex-wrap text-start">
-                  <span className="text-[10px] sm:text-[11px] font-bold text-slate-400 flex items-center gap-1 me-1">
-                    <Lightbulb className="w-3 h-3 text-amber-500" />
-                    <span>{isAr ? "أفكار سريعة:" : "Quick Ideas:"}</span>
-                  </span>
-                  {quickObjectiveIdeas.map((idea) => (
-                    <button
-                      key={idea.id}
-                      type="button"
-                      onClick={() => {
-                        soundFx.playOptionSelect();
-                        const current = preferences.targetProjectOutcome || "";
-                        const newText = current
-                          ? `${current}, ${idea.text.replace("+ ", "")}`
-                          : idea.text.replace("+ ", "");
-                        setPreferences({
-                          ...preferences,
-                          targetProjectOutcome: newText.slice(0, 500),
-                        });
-                      }}
-                      className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-emerald-50 hover:text-[#0F5244] border border-slate-200/80 text-[11px] font-bold text-slate-600 transition-colors cursor-pointer"
-                    >
-                      {idea.text}
-                    </button>
-                  ))}
+                <div className="pt-1 space-y-2">
+                  <div className="flex items-center gap-1.5 text-[11px] font-black text-slate-500">
+                    <Lightbulb className="w-3.5 h-3.5 text-amber-500" />
+                    <span>{isAr ? "أفكار سريعة ومقترحات شائعة:" : "Quick Ideas & Suggestions:"}</span>
+                  </div>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    {quickObjectiveIdeas.map((idea) => {
+                      const cleanText = idea.text.replace("+ ", "");
+                      const isAlreadyAdded = (preferences.targetProjectOutcome || "").includes(cleanText);
+                      return (
+                        <button
+                          key={idea.id}
+                          type="button"
+                          onClick={() => {
+                            soundFx.playOptionSelect();
+                            const current = preferences.targetProjectOutcome || "";
+                            if (isAlreadyAdded) return;
+                            const newText = current ? `${current}, ${cleanText}` : cleanText;
+                            setPreferences({
+                              ...preferences,
+                              targetProjectOutcome: newText.slice(0, 500),
+                            });
+                          }}
+                          className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all active:scale-95 cursor-pointer flex items-center gap-1.5 shadow-2xs ${
+                            isAlreadyAdded
+                              ? "bg-emerald-100 text-emerald-900 border border-emerald-300 font-black cursor-default"
+                              : "bg-white hover:bg-emerald-50 text-slate-700 hover:text-[#0F5244] border border-slate-200 hover:border-emerald-300"
+                          }`}
+                        >
+                          <span>+</span>
+                          <span>{cleanText}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
               </motion.div>
 
               {/* Question 2 Card: Individual Challenges */}
               <motion.div
-                initial={{ opacity: 0, y: 12 }}
+                initial={{ opacity: 0, y: 14 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3, delay: 0.04 }}
-                className="bg-white rounded-2xl sm:rounded-3xl border border-slate-200/90 p-4 sm:p-5 space-y-3 shadow-xs"
+                transition={{ duration: 0.35, delay: 0.05 }}
+                className="bg-white rounded-3xl border border-slate-200/90 hover:border-emerald-300/90 shadow-[0_6px_24px_-4px_rgba(15,82,68,0.06)] hover:shadow-[0_12px_32px_-6px_rgba(15,82,68,0.12)] p-5 sm:p-6 space-y-4 transition-all duration-300 text-start group"
               >
-                <div className="space-y-1 text-start">
-                  <div className="flex items-center gap-2">
-                    <div className="w-6.5 h-6.5 rounded-lg bg-emerald-100 text-[#0F5244] flex items-center justify-center font-black text-xs">
-                      Q2
-                    </div>
-                    <span className="text-[10px] sm:text-[11px] font-black uppercase text-emerald-800 tracking-wider">
-                      {isAr ? "السؤال الثاني • التحديات والعقبات" : "QUESTION 2 • INDIVIDUAL CHALLENGES"}
-                    </span>
-                  </div>
-                  <h3 className="text-sm sm:text-base font-black text-slate-900 pt-0.5">
+                <div className="flex items-baseline gap-2 text-start">
+                  <h3 className="text-sm sm:text-base font-black text-slate-900 leading-snug">
+                    <span className="text-emerald-700 font-black me-2 text-base sm:text-lg inline-block">2.</span>
                     {isAr
                       ? "ما هو أكبر تحدٍ أو عقبة تواجهك في رحلة التعلّم حالياً؟"
                       : "What is the biggest challenge or roadblock in your learning journey right now?"}
@@ -885,7 +878,7 @@ export function MyPathWizard() {
                 </div>
 
                 {/* Textarea */}
-                <div className="relative">
+                <div className="relative group/input">
                   <textarea
                     rows={3}
                     maxLength={500}
@@ -901,50 +894,65 @@ export function MyPathWizard() {
                         ? "مثال: كثرة الدورات النظرية دون تطبيق عملي، صعوبة في إدارة الوقت، أو الحاجة لتوجيه برمجي..."
                         : "e.g., Struggling with state management architectures, getting stuck in tutorial hell, or finding time for deep work..."
                     }
-                    className="w-full bg-[#EAF7F2]/50 focus:bg-white border border-emerald-200/80 focus:border-[#0F5244] rounded-2xl p-3.5 text-xs sm:text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0F5244]/10 transition-all resize-none font-medium leading-relaxed"
+                    className="w-full bg-slate-50/50 hover:bg-white focus:bg-white border border-slate-200/90 focus:border-emerald-600 rounded-2xl p-3.5 sm:p-4 text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-emerald-600 transition-all resize-none font-medium leading-relaxed shadow-2xs"
                   />
-                  <div className="flex justify-end pt-1">
-                    <span className="text-[10px] font-bold text-slate-400">
-                      {(preferences.learningChallenges || "").length} / 500 {isAr ? "حرف" : "chars"}
+                  <div className="flex items-center justify-between pt-1.5 px-1">
+                    <span className="text-[10px] text-slate-400 font-medium">
+                      {isAr ? "يساعدنا في تصميم حلول تدريبية مباشرة لهذه العقبات" : "Helps AI tailor resources to overcome these hurdles"}
+                    </span>
+                    <span className="text-[10px] font-black text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200/50">
+                      {(preferences.learningChallenges || "").length} / 500
                     </span>
                   </div>
                 </div>
 
                 {/* Suggested Prompts Chips */}
-                <div className="pt-0.5 flex items-center gap-1.5 flex-wrap text-start">
-                  <span className="text-[10px] sm:text-[11px] font-bold text-slate-400 flex items-center gap-1 me-1">
-                    <Sparkles className="w-3 h-3 text-emerald-600" />
+                <div className="pt-1 space-y-2">
+                  <div className="flex items-center gap-1.5 text-[11px] font-black text-slate-500">
+                    <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
                     <span>{isAr ? "مقترحات شائعة:" : "Suggested Prompts:"}</span>
-                  </span>
-                  {suggestedChallengePrompts.map((prompt) => (
-                    <button
-                      key={prompt.id}
-                      type="button"
-                      onClick={() => {
-                        soundFx.playOptionSelect();
-                        const current = preferences.learningChallenges || "";
-                        const newText = current
-                          ? `${current}, ${prompt.text.replace("+ ", "")}`
-                          : prompt.text.replace("+ ", "");
-                        setPreferences({
-                          ...preferences,
-                          learningChallenges: newText.slice(0, 500),
-                        });
-                      }}
-                      className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-emerald-50 hover:text-[#0F5244] border border-slate-200/80 text-[11px] font-bold text-slate-600 transition-colors cursor-pointer"
-                    >
-                      {prompt.text}
-                    </button>
-                  ))}
+                  </div>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    {suggestedChallengePrompts.map((prompt) => {
+                      const cleanText = prompt.text.replace("+ ", "");
+                      const isAlreadyAdded = (preferences.learningChallenges || "").includes(cleanText);
+                      return (
+                        <button
+                          key={prompt.id}
+                          type="button"
+                          onClick={() => {
+                            soundFx.playOptionSelect();
+                            const current = preferences.learningChallenges || "";
+                            if (isAlreadyAdded) return;
+                            const newText = current ? `${current}, ${cleanText}` : cleanText;
+                            setPreferences({
+                              ...preferences,
+                              learningChallenges: newText.slice(0, 500),
+                            });
+                          }}
+                          className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all active:scale-95 cursor-pointer flex items-center gap-1.5 shadow-2xs ${
+                            isAlreadyAdded
+                              ? "bg-emerald-100 text-emerald-900 border border-emerald-300 font-black cursor-default"
+                              : "bg-white hover:bg-emerald-50 text-slate-700 hover:text-[#0F5244] border border-slate-200 hover:border-emerald-300"
+                          }`}
+                        >
+                          <span>+</span>
+                          <span>{cleanText}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
               </motion.div>
 
               {/* Security & Privacy AI Guarantee Note */}
-              <div className="rounded-2xl bg-emerald-50/70 border border-emerald-200/80 p-3 sm:p-3.5 flex items-center gap-2.5 text-start">
-                <ShieldCheck className="w-4 h-4 text-emerald-700 shrink-0" />
-                <p className="text-[11px] text-emerald-900 font-medium">
+              <div className="rounded-2xl bg-gradient-to-r from-emerald-50 via-teal-50/70 to-emerald-50 border border-emerald-200/80 p-3.5 sm:p-4 flex items-center gap-3.5 shadow-xs text-start">
+                <div className="w-9 h-9 rounded-xl bg-white border border-emerald-200/80 text-[#0F5244] flex items-center justify-center shrink-0 shadow-xs">
+                  <ShieldCheck className="w-5 h-5 stroke-[2.5]" />
+                </div>
+                <p className="text-xs text-emerald-950 font-bold leading-relaxed">
                   {isAr
-                    ? "كافة إجاباتك وأهدافك مشفرة وتُستخدم حصرياً بواسطة نماذج الذكاء الاصطناعي لتخصيص مسارك التعليمي."
+                    ? "كافة إجاباتك وأهدافك مشفرة ومحمية بالكامل، وتُستخدم حصرياً بواسطة نماذج الذكاء الاصطناعي لبناء مسارك المخصص."
                     : "Your goals and responses are strictly encrypted and used exclusively by AI models to configure your personalized roadmap."}
                 </p>
               </div>
@@ -959,16 +967,17 @@ export function MyPathWizard() {
               <button
                 type="button"
                 onClick={() => goToPrevStep(3)}
-                className="text-xs sm:text-sm font-bold text-slate-500 hover:text-slate-800 transition-colors cursor-pointer px-3 py-2 rounded-xl hover:bg-slate-100"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 font-bold text-xs sm:text-sm transition-all cursor-pointer border border-transparent hover:border-slate-200"
               >
-                {t("back")}
+                {isAr ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
+                <span>{t("back")}</span>
               </button>
               <button
                 type="button"
                 onClick={() => goToNextStep(5)}
-                className="inline-flex items-center gap-2 bg-[#0F5244] hover:bg-[#07382E] text-white text-xs sm:text-sm font-bold px-7 py-2.5 sm:py-3 rounded-xl transition-all shadow-xs hover:shadow-md cursor-pointer"
+                className="inline-flex items-center gap-2 bg-gradient-to-r from-[#0F5244] via-[#125B4C] to-[#187562] hover:from-[#09352C] hover:to-[#0F5244] text-white text-xs sm:text-sm font-black px-7 sm:px-8 py-3 rounded-xl transition-all shadow-[0_6px_20px_rgba(15,82,68,0.28)] hover:shadow-xl active:scale-95 cursor-pointer"
               >
-                <span>{isAr ? "التالي • حفظ ومتابعة" : "Next • Save & Continue"}</span>
+                <span>{isAr ? "حفظ والمتابعة للتخصص" : "Next • Save & Continue"}</span>
                 {isAr ? <ArrowLeft className="w-4 h-4" /> : <ArrowRight className="w-4 h-4" />}
               </button>
             </div>
@@ -1013,7 +1022,7 @@ export function MyPathWizard() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder={t("wizard.searchPlaceholder")}
-                className="w-full bg-slate-50 hover:bg-white focus:bg-white border border-slate-200/90 rounded-2xl py-3 ps-10 pe-24 text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#0F5244] focus:ring-2 focus:ring-[#0F5244]/10 transition-all font-medium"
+                className="w-full bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200/90 focus:border-emerald-600 rounded-2xl py-3 ps-10 pe-24 text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-emerald-600 transition-all font-medium"
               />
               <div className="absolute inset-y-0 end-0 pe-3 flex items-center pointer-events-none">
                 <span className="px-2 py-0.5 rounded-lg text-[10px] font-extrabold bg-slate-200/70 text-slate-600 uppercase tracking-wider">
@@ -1151,7 +1160,7 @@ export function MyPathWizard() {
                     value={customSkillInput}
                     onChange={(e) => setCustomSkillInput(e.target.value)}
                     placeholder={t("wizard.customSkillInputPlaceholder")}
-                    className="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-900 focus:outline-none focus:border-[#0F5244] font-medium"
+                    className="flex-1 bg-slate-50 focus:bg-white border border-slate-200 focus:border-emerald-600 rounded-xl px-3.5 py-2 text-xs text-slate-900 focus:outline-none focus:ring-1 focus:ring-emerald-600 transition-all font-medium"
                     onKeyDown={(e) => {
                       if (e.key === "Enter") handleSelectCustomSkill();
                     }}

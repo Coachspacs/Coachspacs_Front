@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import { Volume2, VolumeX, Sparkles } from "lucide-react";
+import { Sparkles } from "lucide-react";
 import { AnimatedRobotCharacter } from "./AnimatedRobotCharacter";
 import { soundFx } from "@/lib/soundEffects";
 
@@ -30,31 +30,6 @@ export function RobotJourneyBanner({
   const activeWaypoint =
     WAYPOINTS.find((w) => w.step === currentStepIndex) || WAYPOINTS[0];
   const isFirstMount = useRef(true);
-  const [soundOn, setSoundOn] = useState<boolean>(true);
-
-  // Initialize sound state from localStorage on client
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem("coachspace_mypath_sound_enabled");
-      if (saved !== null) {
-        const val = saved === "true";
-        setSoundOn(val);
-        soundFx.setEnabled(val);
-      }
-    } catch {}
-  }, []);
-
-  const toggleSound = () => {
-    const nextVal = !soundOn;
-    setSoundOn(nextVal);
-    soundFx.setEnabled(nextVal);
-    try {
-      localStorage.setItem("coachspace_mypath_sound_enabled", String(nextVal));
-    } catch {}
-    if (nextVal) {
-      soundFx.playOptionSelect();
-    }
-  };
 
   // Trigger playful robotic jet glide sound effect on milestone changes
   useEffect(() => {
@@ -75,37 +50,6 @@ export function RobotJourneyBanner({
         priority
         className="object-cover object-center"
       />
-
-      {/* Floating Sound Toggle Pill (Glassmorphic) */}
-      <div
-        className={`absolute top-3 ${
-          isAr ? "left-3" : "right-3"
-        } z-30 flex items-center gap-1.5`}
-      >
-        <button
-          type="button"
-          onClick={toggleSound}
-          aria-label={soundOn ? (isAr ? "كتم الصوت" : "Mute Sound") : (isAr ? "تفعيل الصوت" : "Unmute Sound")}
-          title={soundOn ? (isAr ? "كتم الصوت" : "Mute Sound") : (isAr ? "تفعيل الصوت" : "Unmute Sound")}
-          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full bg-white/85 hover:bg-white text-slate-700 backdrop-blur-md border border-slate-200/80 shadow-xs hover:shadow-sm transition-all cursor-pointer group"
-        >
-          {soundOn ? (
-            <>
-              <Volume2 className="w-3.5 h-3.5 text-emerald-600 group-hover:scale-110 transition-transform" />
-              <span className="text-[10px] font-extrabold text-slate-700 hidden sm:inline">
-                {isAr ? "الصوت مفعل" : "Sound On"}
-              </span>
-            </>
-          ) : (
-            <>
-              <VolumeX className="w-3.5 h-3.5 text-slate-400 group-hover:scale-110 transition-transform" />
-              <span className="text-[10px] font-extrabold text-slate-500 hidden sm:inline">
-                {isAr ? "الصوت مكتوم" : "Muted"}
-              </span>
-            </>
-          )}
-        </button>
-      </div>
 
       {/* ========================================================================= */}
       {/* 4TH MILESTONE PILLAR & FLAG (Exact Match to Posts 1, 2, 3) */}
