@@ -318,16 +318,11 @@ export function StudentWorkspace({
             };
           });
 
-          // Filter out courses that have NO certificate currently (as requested by user)
-          const validCourses = mapped.filter(
-            (item) => item.hasCertificate || item.certificateId
-          );
-
-          setCourses(validCourses);
+          setCourses(mapped);
           if (typeof window !== "undefined") {
             localStorage.setItem(
               "coachspace_enrolled_courses",
-              JSON.stringify(validCourses),
+              JSON.stringify(mapped),
             );
           }
           setIsLoadingCourses(false);
@@ -341,22 +336,14 @@ export function StudentWorkspace({
         );
       }
 
-      // If user is authenticated, do not show unverified mock courses
+      // Fallback to local storage if network request fails
       if (typeof window !== "undefined") {
         try {
           const saved = localStorage.getItem("coachspace_enrolled_courses");
           if (saved) {
             const list = JSON.parse(saved);
             if (Array.isArray(list)) {
-              // Only keep genuine items with real backend enrollmentId and valid certificate
-              const validOnly = list.filter(
-                (item: any) =>
-                  item &&
-                  item.enrollmentId &&
-                  (item.hasCertificate || item.certificateId) &&
-                  !String(item.certificateId || "").startsWith("CERT-")
-              );
-              setCourses(validOnly);
+              setCourses(list);
               setIsLoadingCourses(false);
               return;
             }
@@ -370,32 +357,21 @@ export function StudentWorkspace({
     }
 
     fetchLiveEnrollments();
-  }, [isAr]);
 
+    const handleEnrolledUpdated = () => {
+      fetchLiveEnrollments();
+    };
 
-  // Clean up any stale mock courses or synthesized fake certificates from localStorage
-  useEffect(() => {
     if (typeof window !== "undefined") {
-      try {
-        const saved = localStorage.getItem("coachspace_enrolled_courses");
-        if (saved) {
-          const list = JSON.parse(saved);
-          if (Array.isArray(list)) {
-            const cleaned = list.filter(
-              (item: any) =>
-                item &&
-                item.enrollmentId &&
-                (item.hasCertificate || item.certificateId) &&
-                !String(item.certificateId || "").startsWith("CERT-")
-            );
-            if (cleaned.length !== list.length) {
-              localStorage.setItem("coachspace_enrolled_courses", JSON.stringify(cleaned));
-            }
-          }
-        }
-      } catch {}
+      window.addEventListener("coachspace:enrolled-updated", handleEnrolledUpdated);
     }
-  }, []);
+
+    return () => {
+      if (typeof window !== "undefined") {
+        window.removeEventListener("coachspace:enrolled-updated", handleEnrolledUpdated);
+      }
+    };
+  }, [isAr]);
 
   // Order History Data
   const [orders] = useState<any[]>([]);

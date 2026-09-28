@@ -281,6 +281,7 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
       } catch (e) {
         console.warn("Failed to save enrollment:", e);
       }
+      window.dispatchEvent(new CustomEvent("coachspace:enrolled-updated"));
     }
 
     setIsEnrolled(true);

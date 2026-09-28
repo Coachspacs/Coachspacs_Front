@@ -267,7 +267,23 @@ export function CourseCard({
           const list = enrolledRaw ? JSON.parse(enrolledRaw) : [];
           if (Array.isArray(list)) {
             if (!list.some((item: any) => String(item.id || item) === String(course.id))) {
-              list.push({ id: course.id, slug: course.slug, title: course.title });
+              list.unshift({
+                id: String(course.id),
+                enrollmentId: String(course.id),
+                title: displayTitle,
+                instructor: instructorName,
+                image: imgSrc,
+                coverImage: imgSrc,
+                cover_image: imgSrc,
+                thumbnail: imgSrc,
+                progress: 0,
+                totalLessons: course.totalLessons || 10,
+                completedLessons: 0,
+                isCompleted: false,
+                isEnrolled: true,
+                enrolledAt: new Date().toISOString(),
+                slug: course.slug,
+              });
               localStorage.setItem("coachspace_enrolled_courses", JSON.stringify(list));
             }
           }
