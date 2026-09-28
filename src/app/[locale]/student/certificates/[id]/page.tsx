@@ -45,6 +45,36 @@ export default function CertificatePage() {
   } | null>(null);
 
   const certificateCardRef = useRef<HTMLDivElement>(null);
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  const [scale, setScale] = useState(1);
+
+  // Dynamic responsive scaling for mobile screens to preserve perfect landscape ratio
+  useEffect(() => {
+    const updateScale = () => {
+      if (wrapperRef.current) {
+        const availableWidth = wrapperRef.current.offsetWidth;
+        const targetWidth = 842;
+        if (availableWidth < targetWidth && availableWidth > 0) {
+          setScale(Math.min(1, availableWidth / targetWidth));
+        } else {
+          setScale(1);
+        }
+      }
+    };
+
+    updateScale();
+    const resizeObserver = new ResizeObserver(() => {
+      updateScale();
+    });
+    if (wrapperRef.current) {
+      resizeObserver.observe(wrapperRef.current);
+    }
+    window.addEventListener('resize', updateScale);
+    return () => {
+      resizeObserver.disconnect();
+      window.removeEventListener('resize', updateScale);
+    };
+  }, [isLoading, certificateData]);
 
   useEffect(() => {
     let isSubscribed = true;
@@ -587,12 +617,43 @@ export default function CertificatePage() {
         </div>
       </div>
 
-      {/* Luxury Redesigned Certificate Card */}
-      <div ref={certificateCardRef} className="print-certificate-card w-full">
-        <CertificateTemplate
-          data={certificateData}
-          locale={locale}
-        />
+      {/* Luxury Redesigned Certificate Card with Guaranteed Landscape Mobile Scaling */}
+      <div className="w-full flex flex-col items-center">
+        {/* Subtle rotate hint visible on narrow mobile screens */}
+        {scale < 0.85 && (
+          <div className="mb-2 text-center print:hidden">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100/90 text-[11px] font-medium text-slate-600 border border-slate-200/60 shadow-2xs">
+              <span>{isAr ? '💡 يتم عرض الشهادة بالوضع الأفقي الكامل' : '💡 Displaying in full landscape mode'}</span>
+            </span>
+          </div>
+        )}
+
+        <div
+          ref={wrapperRef}
+          className="w-full flex justify-center items-start overflow-hidden py-1"
+          style={{
+            minHeight: scale < 1 ? `${Math.ceil(595 * scale)}px` : undefined,
+            height: scale < 1 ? `${Math.ceil(595 * scale)}px` : undefined,
+          }}
+        >
+          <div
+            style={{
+              width: '842px',
+              height: '595px',
+              transform: `scale(${scale})`,
+              transformOrigin: isAr ? 'top center' : 'top center',
+              flexShrink: 0,
+            }}
+            className="transition-transform duration-150 ease-out origin-top"
+          >
+            <div ref={certificateCardRef} className="print-certificate-card w-[842px] h-[595px]">
+              <CertificateTemplate
+                data={certificateData}
+                locale={locale}
+              />
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Print Specific CSS */}
@@ -644,8 +705,11 @@ export default function CertificatePage() {
             box-shadow: none !important;
             page-break-inside: avoid !important;
             break-inside: avoid !important;
-            width: 100% !important;
-            max-width: 100% !important;
+            width: 842px !important;
+            height: 595px !important;
+            min-width: 842px !important;
+            min-height: 595px !important;
+            transform: none !important;
             margin: 0 auto !important;
           }
         }
