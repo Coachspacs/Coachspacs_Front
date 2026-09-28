@@ -110,20 +110,21 @@ export default function CertificatePage() {
               name = u.fullName || u.name || u.email?.split('@')[0];
             } catch (_) {}
           }
-          return name || t('defaultStudentName');
+          return name || 'Distinguished Student';
         };
 
-        // Helper to resolve real course title with deep fallback chain
+        // Helper to resolve real course title in English
         const resolveCourseTitle = async (candidateObj: any, courseIdCandidate?: any) => {
           const title =
-            (isAr
-              ? candidateObj?.course?.title_ar || candidateObj?.course?.title || candidateObj?.title_ar
-              : candidateObj?.course?.title_en || candidateObj?.course?.title || candidateObj?.title_en) ||
+            candidateObj?.course?.title_en ||
             candidateObj?.course?.title ||
+            candidateObj?.title_en ||
+            candidateObj?.title ||
             candidateObj?.course?.name ||
             candidateObj?.course_title ||
             candidateObj?.course_name ||
-            candidateObj?.title;
+            candidateObj?.course?.title_ar ||
+            candidateObj?.title_ar;
 
           if (title && typeof title === 'string' && title.trim() && !title.toLowerCase().includes('coach space course')) {
             return title.trim();
@@ -142,12 +143,13 @@ export default function CertificatePage() {
             );
             if (matchedEnrCourse) {
               const enrTitle =
-                (isAr
-                  ? matchedEnrCourse.course?.title_ar || matchedEnrCourse.course?.title || matchedEnrCourse.title_ar
-                  : matchedEnrCourse.course?.title_en || matchedEnrCourse.course?.title || matchedEnrCourse.title_en) ||
+                matchedEnrCourse.course?.title_en ||
                 matchedEnrCourse.course?.title ||
+                matchedEnrCourse.title_en ||
+                matchedEnrCourse.title ||
                 matchedEnrCourse.course?.name ||
-                matchedEnrCourse.course_title;
+                matchedEnrCourse.course_title ||
+                matchedEnrCourse.course?.title_ar;
               if (enrTitle && !enrTitle.toLowerCase().includes('coach space course')) return enrTitle.trim();
             }
           }
@@ -165,9 +167,7 @@ export default function CertificatePage() {
                     String(c.id) === normalizedNumId
                 );
                 if (localMatch) {
-                  const lTitle =
-                    (isAr ? localMatch.title_ar || localMatch.title : localMatch.title_en || localMatch.title) ||
-                    localMatch.title;
+                  const lTitle = localMatch.title_en || localMatch.title || localMatch.title_ar;
                   if (lTitle) return lTitle.trim();
                 }
               }
@@ -182,21 +182,18 @@ export default function CertificatePage() {
             }
           } catch (_) {}
 
-          // Try fetching course details by ID directly
+          // Try fetching course details by ID directly (English)
           if (targetCourseId) {
             try {
-              const fetchedCourse = await courseService.getCourseById(targetCourseId, locale);
+              const fetchedCourse = await courseService.getCourseById(targetCourseId, 'en');
               if (fetchedCourse) {
-                const fTitle =
-                  (isAr
-                    ? fetchedCourse.title_ar || fetchedCourse.title
-                    : fetchedCourse.title_en || fetchedCourse.title) || fetchedCourse.title;
+                const fTitle = fetchedCourse.title_en || fetchedCourse.title || fetchedCourse.title_ar;
                 if (fTitle) return fTitle.trim();
               }
             } catch (_) {}
           }
 
-          return t('defaultCourseTitle');
+          return 'Specialized Professional Course';
         };
 
         // Helper to resolve instructor name
@@ -213,7 +210,7 @@ export default function CertificatePage() {
           if (inst && typeof inst === 'string' && inst.trim() && !inst.toLowerCase().includes('coach space instructor')) {
             return inst.trim();
           }
-          return t('defaultInstructor');
+          return 'Sarah Whitfield';
         };
 
         // 1. First priority: match in live certificates list
@@ -234,12 +231,12 @@ export default function CertificatePage() {
           const studentName = resolveStudentName(matchedCert.student_name || matchedCert.student_full_name);
           const instName = resolveInstructorName(matchedCert);
           const issueDate = matchedCert.issued_at
-            ? new Date(matchedCert.issued_at).toLocaleDateString(isAr ? 'ar-EG' : 'en-US', {
+            ? new Date(matchedCert.issued_at).toLocaleDateString('en-US', {
                 year: 'numeric',
                 month: 'long',
                 day: 'numeric',
               })
-            : new Date().toLocaleDateString(isAr ? 'ar-EG' : 'en-US', {
+            : new Date().toLocaleDateString('en-US', {
                 year: 'numeric',
                 month: 'long',
                 day: 'numeric',
@@ -280,10 +277,10 @@ export default function CertificatePage() {
 
           const issueDate = matchedEnrollment.completed_at || matchedEnrollment.certificate?.issued_at
             ? new Date(matchedEnrollment.completed_at || matchedEnrollment.certificate?.issued_at).toLocaleDateString(
-                isAr ? 'ar-EG' : 'en-US',
+                'en-US',
                 { year: 'numeric', month: 'long', day: 'numeric' }
               )
-            : new Date().toLocaleDateString(isAr ? 'ar-EG' : 'en-US', {
+            : new Date().toLocaleDateString('en-US', {
                 year: 'numeric',
                 month: 'long',
                 day: 'numeric',
@@ -306,12 +303,12 @@ export default function CertificatePage() {
           if (verifyData && (verifyData.course_title || verifyData.student_full_name)) {
             const studentName = resolveStudentName(verifyData.student_full_name);
             const issueDate = verifyData.issued_at
-              ? new Date(verifyData.issued_at).toLocaleDateString(isAr ? 'ar-EG' : 'en-US', {
+              ? new Date(verifyData.issued_at).toLocaleDateString('en-US', {
                   year: 'numeric',
                   month: 'long',
                   day: 'numeric',
                 })
-              : new Date().toLocaleDateString(isAr ? 'ar-EG' : 'en-US', {
+              : new Date().toLocaleDateString('en-US', {
                   year: 'numeric',
                   month: 'long',
                   day: 'numeric',
@@ -320,8 +317,8 @@ export default function CertificatePage() {
             setCertificateData({
               id: rawParam,
               studentName,
-              courseTitle: verifyData.course_title || t('defaultCourseTitle'),
-              instructorName: t('defaultInstructor'),
+              courseTitle: verifyData.course_title || 'Specialized Professional Course',
+              instructorName: 'Sarah Whitfield',
               issueDate,
               certificateCode: verifyData.certificate_code || rawParam,
             });
@@ -342,14 +339,13 @@ export default function CertificatePage() {
                   String(c.certificate_code || '').toLowerCase() === targetLower
               );
               if (found) {
-                const title =
-                  (isAr ? found.title_ar || found.title : found.title_en || found.title) || found.title;
+                const title = found.title_en || found.title || found.title_ar;
                 setCertificateData({
                   id: found.id,
                   studentName: resolveStudentName(),
-                  courseTitle: title || t('defaultCourseTitle'),
+                  courseTitle: title || 'Specialized Professional Course',
                   instructorName: resolveInstructorName(found),
-                  issueDate: new Date().toLocaleDateString(isAr ? 'ar-EG' : 'en-US', {
+                  issueDate: new Date().toLocaleDateString('en-US', {
                     year: 'numeric',
                     month: 'long',
                     day: 'numeric',

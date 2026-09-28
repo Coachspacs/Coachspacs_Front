@@ -41,14 +41,9 @@ function SubtleCorner({ className = "" }: { className?: string }) {
 
 export function CertificateTemplate({
   data,
-  locale,
   className = "",
   id = "coachspace-certificate-card",
 }: CertificateTemplateProps) {
-  const t = useTranslations("certificate");
-  const currentLocale = useLocale() || (locale ? locale.toLowerCase() : "en");
-  const isAr = currentLocale === "ar";
-
   const {
     studentName,
     courseTitle,
@@ -57,19 +52,32 @@ export function CertificateTemplate({
     certificateCode,
   } = data;
 
-  // Resolve actual instructor name from props or translation JSON files
+  // Resolve actual instructor name (default to English Sarah Whitfield)
   const resolvedInstructor =
     instructorName &&
     instructorName !== "Certified Instructor" &&
     instructorName !== "المدرب المعتمد" &&
     !instructorName.toLowerCase().includes("certified instructor")
       ? instructorName
-      : t("defaultInstructor");
+      : "Sarah Whitfield";
+
+  // Ensure English-formatted date if valid date string provided
+  let formattedEnglishDate = issueDate;
+  try {
+    const parsedDate = new Date(issueDate);
+    if (!isNaN(parsedDate.getTime()) && !issueDate.includes(" ")) {
+      formattedEnglishDate = parsedDate.toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      });
+    }
+  } catch (_) {}
 
   return (
     <div
       id={id}
-      dir={isAr ? "rtl" : "ltr"}
+      dir="ltr"
       style={{ width: "842px", height: "595px" }}
       className={`relative w-[842px] h-[595px] min-w-[842px] min-h-[595px] max-w-[842px] max-h-[595px] rounded-3xl bg-[#FAF9F6] text-slate-800 shadow-2xl shadow-slate-900/10 border-2 border-[#0F5244]/25 p-6 select-none box-border flex flex-col justify-between overflow-hidden ${className}`}
     >
@@ -97,7 +105,7 @@ export function CertificateTemplate({
         </div>
 
         {/* ========================================================
-            1. HEADER: Brand Emblem & Refined Academic Title
+            1. HEADER: Brand Emblem & Refined Academic Title (English)
            ======================================================== */}
         <div className="relative z-10 w-full pt-1 space-y-2">
           {/* Subtle Brand Lockup */}
@@ -110,17 +118,17 @@ export function CertificateTemplate({
               className="w-auto h-4 object-contain"
             />
             <span className="text-[11px] font-bold text-[#0F5244] tracking-wider font-sans">
-              {t("brandTag")}
+              COACH SPACE
             </span>
           </div>
 
-          {/* Certificate Main Title & Darkened High-Contrast Gold Subtitle */}
+          {/* Certificate Main Title & High-Contrast Gold Subtitle */}
           <div className="space-y-1">
             <h1 className="font-serif-luxury text-3xl font-bold tracking-[0.18em] text-[#0F5244]">
-              {t("achievementTitle")}
+              CERTIFICATE OF ACHIEVEMENT
             </h1>
             <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-[#7E5B10]">
-              {t("presentedTo")}
+              THIS CERTIFICATE IS PROUDLY PRESENTED TO
             </p>
           </div>
         </div>
@@ -130,7 +138,7 @@ export function CertificateTemplate({
            ======================================================== */}
         <div className="relative z-10 my-2 w-full max-w-xl px-2">
           <h2 className="font-serif-luxury text-[32px] font-bold text-slate-900 tracking-tight leading-tight truncate">
-            {studentName || t("defaultStudentName")}
+            {studentName || "Distinguished Student"}
           </h2>
           {/* Darkened Gold Accent Underline */}
           <div className="mx-auto mt-2 flex items-center justify-center gap-1.5">
@@ -141,24 +149,24 @@ export function CertificateTemplate({
         </div>
 
         {/* ========================================================
-            3. COURSE DETAILS & CITATION
+            3. COURSE DETAILS & CITATION (English)
            ======================================================== */}
         <div className="relative z-10 w-full max-w-xl space-y-1.5 px-4">
           <p className="text-[13px] text-slate-600 font-normal leading-relaxed">
-            {t("recognitionText")}
+            In recognition of successfully fulfilling all curriculum requirements and practical coursework for:
           </p>
 
           <h3 className="font-serif-luxury text-[22px] font-bold text-[#0F5244] leading-snug tracking-tight truncate">
-            « {courseTitle || t("defaultCourseTitle")} »
+            « {courseTitle || "Specialized Professional Course"} »
           </h3>
 
           <p className="text-[11px] text-slate-500 font-medium">
-            {t("commitmentNotice")}
+            Demonstrating high proficiency and certified academic commitment.
           </p>
         </div>
 
         {/* ========================================================
-            4. FOOTER: Balanced Two-Column Details & Instructor Signature
+            4. FOOTER: Balanced Two-Column Details & Instructor Signature (English)
            ======================================================== */}
         <div className="relative z-10 w-full pt-4 mt-2 border-t border-slate-200/80">
           <div className="flex flex-row items-end justify-between px-2">
@@ -167,10 +175,10 @@ export function CertificateTemplate({
             <div className="text-start space-y-1">
               <div>
                 <span className="block text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
-                  {t("issueDate")}
+                  ISSUE DATE
                 </span>
                 <span className="block text-[13px] font-bold text-slate-800">
-                  {issueDate}
+                  {formattedEnglishDate}
                 </span>
               </div>
 
@@ -193,7 +201,7 @@ export function CertificateTemplate({
               </span>
               {/* Official Subtitle */}
               <span className="block text-[10px] font-medium text-slate-500">
-                {t("leadInstructorSubtitle")}
+                Lead Instructor & Academic Mentor
               </span>
             </div>
 
