@@ -235,17 +235,23 @@ export function StudentWorkspace({
   const [isLoadingCourses, setIsLoadingCourses] = useState(true);
   const [certificatesCount, setCertificatesCount] = useState<number | null>(null);
 
-  // Load enrolled courses from API with strictly verified courses (only courses with certificates)
+  // Load enrolled courses from API (Live Enrollments Sync)
   useEffect(() => {
+    let isSubscribed = true;
+
     async function fetchLiveEnrollments() {
       setIsLoadingCourses(true);
-      const defaultCover = "/images/courses/course-leadership.png";
 
       try {
-        const [enrollments, certs] = await Promise.all([
-          enrollmentService.getMyEnrollments().catch(() => []),
-          certificateService.getMyCertificates().catch(() => []),
+        const [enrollmentsRes, certsRes] = await Promise.allSettled([
+          enrollmentService.getMyEnrollments(),
+          certificateService.getMyCertificates(),
         ]);
+
+        if (!isSubscribed) return;
+
+        const certs = certsRes.status === "fulfilled" && Array.isArray(certsRes.value) ? certsRes.value : [];
+        const enrollments = enrollmentsRes.status === "fulfilled" && Array.isArray(enrollmentsRes.value) ? enrollmentsRes.value : null;
 
         if (Array.isArray(certs)) {
           setCertificatesCount(certs.length);
@@ -257,33 +263,39 @@ export function StudentWorkspace({
         const certCodeMap = new Map<string, string>();
         const certTitleMap = new Map<string, string>();
 
-        if (Array.isArray(certs)) {
-          certs.forEach((item) => {
-            const cid = item.course?.id || item.course_id;
-            const code = item.certificate_code || (item.id ? `CS-${item.id}` : "");
-            if (cid) {
-              certCourseIds.add(String(cid));
-              if (code) certCodeMap.set(String(cid), code);
-            }
-            const cTitle = (item.course?.title || item.course_title || "").trim().toLowerCase();
-            if (cTitle) {
-              certTitleMap.set(cTitle, code);
-            }
-          });
-        }
+        certs.forEach((item) => {
+          const cid = item.course?.id || item.course_id;
+          const code = item.certificate_code || (item.id ? `CS-${item.id}` : "");
+          if (cid) {
+            certCourseIds.add(String(cid));
+            if (code) certCodeMap.set(String(cid), code);
+          }
+          const cTitle = (item.course?.title || item.course_title || "").trim().toLowerCase();
+          if (cTitle) {
+            certTitleMap.set(cTitle, code);
+          }
+        });
 
+        // Only process and update state if enrollments request succeeded
         if (Array.isArray(enrollments)) {
-          const mapped = enrollments.map((enr: any) => {
-            const c = enr.course || {};
-            const total = c.total_lessons || enr.total_lessons || 10;
-            const progress = enr.progress_percent ?? 0;
+          const mapped: EnrolledCourse[] = enrollments.map((enr: any) => {
+            const c = typeof enr.course === "object" && enr.course !== null ? enr.course : enr;
+            const total = c.total_lessons || enr.total_lessons || enr.lessons_count || c.lessons_count || 10;
+            const progress = enr.progress_percent ?? enr.progress ?? 0;
             const validImg = getSafeCourseImage(c);
 
             const courseId = String(c.id || enr.course_id || enr.id);
-            const courseTitle = String(c.title || c.title_en || c.title_ar || "").trim().toLowerCase();
+            const courseTitle = String(
+              (isAr ? c.title_ar || c.title || enr.course_title : c.title_en || c.title || enr.course_title) ||
+              c.title ||
+              enr.course_title ||
+              enr.title ||
+              (isAr ? "دورة تدريبية" : "Course")
+            ).trim();
+
             const matchedCode =
               certCodeMap.get(courseId) ||
-              certTitleMap.get(courseTitle) ||
+              certTitleMap.get(courseTitle.toLowerCase()) ||
               enr.certificate?.certificate_code ||
               (enr.certificate?.id ? String(enr.certificate.id) : null);
 
@@ -293,14 +305,18 @@ export function StudentWorkspace({
               enr.certificate
             );
 
+            const instructorName =
+              typeof c.instructor === "object" && c.instructor !== null
+                ? c.instructor?.full_name || c.instructor?.name
+                : typeof c.instructor === "string" && c.instructor.trim()
+                ? c.instructor.trim()
+                : enr.instructor_name || enr.instructor || "CoachSpace Instructor";
+
             return {
               id: c.id || enr.course_id || enr.id,
               enrollmentId: enr.id,
-              title: isAr ? c.title_ar || c.title : c.title_en || c.title,
-              instructor:
-                typeof c.instructor === "object"
-                  ? c.instructor?.name || c.instructor?.full_name
-                  : c.instructor || "CoachSpace Instructor",
+              title: courseTitle,
+              instructor: instructorName,
               instructorId:
                 typeof c.instructor === "object" ? c.instructor?.id : undefined,
               image: validImg,
@@ -336,13 +352,13 @@ export function StudentWorkspace({
         );
       }
 
-      // Fallback to local storage if network request fails
+      // Fallback to local storage ONLY if network request completely failed
       if (typeof window !== "undefined") {
         try {
           const saved = localStorage.getItem("coachspace_enrolled_courses");
           if (saved) {
             const list = JSON.parse(saved);
-            if (Array.isArray(list)) {
+            if (Array.isArray(list) && list.length > 0) {
               setCourses(list);
               setIsLoadingCourses(false);
               return;
@@ -367,11 +383,12 @@ export function StudentWorkspace({
     }
 
     return () => {
+      isSubscribed = false;
       if (typeof window !== "undefined") {
         window.removeEventListener("coachspace:enrolled-updated", handleEnrolledUpdated);
       }
     };
-  }, [isAr]);
+  }, [isAr, user?.id, user?.email, activeTab]);
 
   // Order History Data
   const [orders] = useState<any[]>([]);
