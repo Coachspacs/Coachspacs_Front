@@ -249,6 +249,15 @@ export function MyPathWizard() {
     }
   };
 
+  const handleReorderMilestones = (newMilestones: RoadmapMilestone[]) => {
+    if (!roadmap) return;
+    const updatedRoadmap = { ...roadmap, milestones: newMilestones };
+    setRoadmap(updatedRoadmap);
+    try {
+      localStorage.setItem("coachspace_student_roadmap", JSON.stringify(updatedRoadmap));
+    } catch {}
+  };
+
   const handleRegenerate = () => {
     goToPrevStep(2);
   };
@@ -1179,6 +1188,7 @@ export function MyPathWizard() {
             isAr={isAr}
             locale={locale}
             onMilestoneToggle={handleMilestoneToggle}
+            onReorderMilestones={handleReorderMilestones}
             onRegenerate={handleRegenerate}
             onEditPreferences={() => goToPrevStep(5)}
           />
