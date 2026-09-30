@@ -626,10 +626,9 @@ export default function CertificatePage() {
 
         <div
           ref={wrapperRef}
-          className="w-full flex justify-center items-start overflow-hidden py-1"
+          className="w-full flex justify-center items-start py-2"
           style={{
-            minHeight: scale < 1 ? `${Math.ceil(595 * scale)}px` : undefined,
-            height: scale < 1 ? `${Math.ceil(595 * scale)}px` : undefined,
+            minHeight: scale < 1 ? `${Math.ceil(595 * scale) + 8}px` : undefined,
           }}
         >
           <div
