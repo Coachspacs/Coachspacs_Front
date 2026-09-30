@@ -18,7 +18,8 @@ function setCookie(name: string, value: string, days: number = 7) {
 
 function removeCookie(name: string) {
   if (typeof document === 'undefined') return;
-  document.cookie = `${name}=; path=/; max-age=0; SameSite=Lax`;
+  document.cookie = `${name}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; max-age=0; SameSite=Lax`;
+  document.cookie = `${name}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; max-age=0`;
 }
 
 function getCookie(name: string): string | null {

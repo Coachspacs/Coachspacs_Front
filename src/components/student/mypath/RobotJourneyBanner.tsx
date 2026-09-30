@@ -17,10 +17,10 @@ interface RobotJourneyBannerProps {
 
 // Exact Waypoint coordinates matching the 4 milestone posts on the S-curve trail
 const WAYPOINTS = [
-  { step: 1, x: 17, y: 36 }, // Over Milestone 1 (START)
-  { step: 2, x: 68, y: 44 }, // Over Milestone 2 (MILESTONE)
-  { step: 3, x: 43, y: 15 }, // Over Milestone 3 (PROGRESS)
-  { step: 4, x: 88, y: 10 }, // Over Milestone 4 (FINISH)
+  { step: 1, x: 17, y: 40 }, // Over Milestone 1 (START)
+  { step: 2, x: 68, y: 50 }, // Over Milestone 2 (MILESTONE)
+  { step: 3, x: 43, y: 24 }, // Over Milestone 3 (PROGRESS)
+  { step: 4, x: 88, y: 22 }, // Over Milestone 4 (FINISH - comfortably below top edge)
 ];
 
 export function RobotJourneyBanner({
@@ -156,7 +156,7 @@ export function RobotJourneyBanner({
         </svg>
       </div>
 
-      {/* Active Milestone Glowing Radar Wave */}
+      {/* Centered Glowing Radar Wave behind Robot */}
       <motion.div
         key={`radar-${currentStepIndex}`}
         initial={{ scale: 0.8, opacity: 0.8 }}
@@ -164,9 +164,26 @@ export function RobotJourneyBanner({
         transition={{ repeat: Infinity, duration: 2.2, ease: "easeOut" }}
         style={{
           left: `${activeWaypoint.x}%`,
-          top: `${activeWaypoint.y + 14}%`,
+          top: `${activeWaypoint.y}%`,
         }}
-        className="absolute w-12 h-12 rounded-full border-2 border-emerald-400 bg-emerald-400/20 -translate-x-1/2 -translate-y-1/2 pointer-events-none z-10"
+        className="absolute w-12 h-12 rounded-full border-2 border-emerald-400 bg-emerald-400/25 -translate-x-1/2 -translate-y-1/2 pointer-events-none z-10"
+      />
+
+      {/* Centered Soft Emerald Ambient Halo behind Robot */}
+      <motion.div
+        key={`halo-${currentStepIndex}`}
+        initial={false}
+        animate={{
+          left: `${activeWaypoint.x}%`,
+          top: `${activeWaypoint.y}%`,
+        }}
+        transition={{
+          type: "spring",
+          stiffness: 85,
+          damping: 14,
+          mass: 0.6,
+        }}
+        className="absolute w-16 h-16 rounded-full bg-emerald-400/35 blur-md -translate-x-1/2 -translate-y-1/2 pointer-events-none z-20"
       />
 
       {/* Soft Ambient Light Gradient on edge */}
@@ -189,7 +206,7 @@ export function RobotJourneyBanner({
         }}
         className="absolute z-30 flex flex-col items-center pointer-events-none -translate-x-1/2 -translate-y-1/2"
       >
-        <AnimatedRobotCharacter size="md" />
+        <AnimatedRobotCharacter size="sm" showCap={true} />
       </motion.div>
     </div>
   );

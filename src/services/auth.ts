@@ -261,9 +261,11 @@ export async function logout(refresh?: string): Promise<AuthApiResponse> {
   try {
     const tokenToBlacklist = refresh || tokenManager.getRefreshToken();
     if (tokenToBlacklist) {
-      await axiosInstance.post<AuthApiResponse>('/auth/logout', {
-        refresh: tokenToBlacklist,
-      });
+      await axiosInstance.post<AuthApiResponse>(
+        '/auth/logout',
+        { refresh: tokenToBlacklist },
+        { timeout: 3000 }
+      );
     }
   } catch (err: any) {
     // Silent catch so client-side logout completes cleanly even if token expired

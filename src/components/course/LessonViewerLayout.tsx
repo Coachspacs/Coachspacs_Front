@@ -60,6 +60,7 @@ import {
   Download,
   Paperclip,
   Loader2,
+  ShieldCheck,
 } from "lucide-react";
 import { AttachmentItem } from "@/types/course";
 import { courseAttachmentService } from "@/services/courseAttachmentService";
@@ -68,6 +69,7 @@ import {
   getFileCategory,
   formatFileSize,
 } from "@/components/shared/AttachmentIcon";
+import { LessonSummaryCard } from "./LessonSummaryCard";
 
 export interface LessonItem {
   id: string | number;
@@ -171,6 +173,17 @@ export function LessonViewerLayout({
   const isAr = isArProp !== undefined ? isArProp : locale === "ar";
   const { user, isAuthenticated } = useSelector((state: RootState) => state.auth);
   const cartItems = useSelector((state: RootState) => state.cart?.items || []);
+
+  const userRole = (user?.role || "").toLowerCase();
+  const isAdmin = Boolean(
+    isAuthenticated && (
+      userRole === "admin" ||
+      userRole === "superuser" ||
+      userRole === "superadmin" ||
+      user?.is_superuser === true ||
+      (user as any)?.isSuperuser === true
+    )
+  );
 
   // UI States
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -639,10 +652,11 @@ export function LessonViewerLayout({
   };
 
   const handleLogout = () => {
-    authService.logout().catch(() => {});
+    tokenManager.clearTokens();
     dispatch(logout());
     setUserDropdownOpen(false);
-    router.push(`/${locale}/login`);
+    authService.logout().catch(() => {});
+    window.location.href = `/${locale}/login`;
   };
 
   // Polish/Sanitize Titles & Descriptions for Executive Academy Appearance
@@ -740,35 +754,47 @@ export function LessonViewerLayout({
               {tNav("courses")}
             </Link>
 
-            {/* My Learning (Active in learning viewer) */}
-            <Link
-              href={`/${locale}/student/courses`}
-              className="px-3.5 py-2 rounded-xl text-xs lg:text-sm font-extrabold bg-emerald-50 text-[#0F5244] border border-emerald-200/60 shadow-2xs inline-flex items-center gap-1.5 transition-all"
-            >
-              <BookOpen className="h-4 w-4 text-[#0F5244] shrink-0" />
-              <span>{tNav("myLearning")}</span>
-            </Link>
+            {/* Role Link */}
+            {isAdmin ? (
+              <Link
+                href={`/${locale}/admin/cms`}
+                className="px-3.5 py-2 rounded-xl text-xs lg:text-sm font-bold text-purple-900 bg-purple-50 border border-purple-200/80 shadow-2xs inline-flex items-center gap-1.5 transition-all"
+              >
+                <ShieldCheck className="h-4 w-4 text-purple-700 shrink-0" />
+                <span>{isAr ? "لوحة الإدارة" : "Admin Portal"}</span>
+              </Link>
+            ) : (
+              <Link
+                href={`/${locale}/student/courses`}
+                className="px-3.5 py-2 rounded-xl text-xs lg:text-sm font-extrabold bg-emerald-50 text-[#0F5244] border border-emerald-200/60 shadow-2xs inline-flex items-center gap-1.5 transition-all"
+              >
+                <BookOpen className="h-4 w-4 text-[#0F5244] shrink-0" />
+                <span>{tNav("myLearning")}</span>
+              </Link>
+            )}
           </nav>
 
           {/* Right Actions: Shopping Cart, Language Switcher, User Dropdown */}
           <div className="flex items-center gap-2.5 sm:gap-3">
-            {/* Shopping Cart Button */}
-            <button
-              type="button"
-              onClick={() => dispatch(openCartDrawer())}
-              className="p-2 text-slate-700 hover:text-[#0F5244] transition-colors cursor-pointer inline-flex items-center justify-center"
-              title={tNav("cart")}
-              aria-label={tNav("cart")}
-            >
-              <span className="relative inline-flex items-center justify-center">
-                <ShoppingCart className="h-5 w-5" />
-                {mounted && cartItems.length > 0 && (
-                  <span className="absolute -top-2 -end-2 flex h-4.5 min-w-[18px] items-center justify-center rounded-full bg-[#0F5244] px-1 text-[10px] font-black leading-none text-white border-2 border-white shadow-xs pointer-events-none">
-                    {cartItems.length}
-                  </span>
-                )}
-              </span>
-            </button>
+            {/* Shopping Cart Button (Hidden for Admins) */}
+            {!isAdmin && (
+              <button
+                type="button"
+                onClick={() => dispatch(openCartDrawer())}
+                className="p-2 text-slate-700 hover:text-[#0F5244] transition-colors cursor-pointer inline-flex items-center justify-center"
+                title={tNav("cart")}
+                aria-label={tNav("cart")}
+              >
+                <span className="relative inline-flex items-center justify-center">
+                  <ShoppingCart className="h-5 w-5" />
+                  {mounted && cartItems.length > 0 && (
+                    <span className="absolute -top-2 -end-2 flex h-4.5 min-w-[18px] items-center justify-center rounded-full bg-[#0F5244] px-1 text-[10px] font-black leading-none text-white border-2 border-white shadow-xs pointer-events-none">
+                      {cartItems.length}
+                    </span>
+                  )}
+                </span>
+              </button>
+            )}
 
             {/* Language Switcher Button */}
             <button
@@ -814,28 +840,53 @@ export function LessonViewerLayout({
                       {user?.name || user?.fullName || t("registeredStudent")}
                     </p>
                     <p className="text-[11px] text-slate-400 font-medium truncate">{user?.email}</p>
-                    <span className="inline-block mt-1 px-2 py-0.5 rounded-md bg-emerald-50 text-[10px] font-bold text-emerald-700">
-                      {tHeader("studentRole")}
+                    <span className={`inline-block mt-1 px-2 py-0.5 rounded-md text-[10px] font-bold ${
+                      isAdmin ? "bg-purple-100 text-purple-800 border border-purple-200/80 font-black" : "bg-emerald-50 text-emerald-700"
+                    }`}>
+                      {isAdmin ? (isAr ? "مسؤول النظام" : "Admin") : tHeader("studentRole")}
                     </span>
                   </div>
 
                   <div className="py-1">
-                    <Link
-                      href={`/${locale}/student/courses`}
-                      onClick={() => setUserDropdownOpen(false)}
-                      className="flex items-center gap-2 px-4 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 hover:text-[#0F5244]"
-                    >
-                      <BookOpen className="w-3.5 h-3.5 text-slate-400" />
-                      <span>{tNav("myCourses")}</span>
-                    </Link>
-                    <Link
-                      href={`/${locale}/student/settings`}
-                      onClick={() => setUserDropdownOpen(false)}
-                      className="flex items-center gap-2 px-4 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 hover:text-[#0F5244]"
-                    >
-                      <User className="w-3.5 h-3.5 text-slate-400" />
-                      <span>{tNav("accountSettings")}</span>
-                    </Link>
+                    {isAdmin ? (
+                      <>
+                        <Link
+                          href={`/${locale}/admin/cms`}
+                          onClick={() => setUserDropdownOpen(false)}
+                          className="flex items-center gap-2 px-4 py-2 text-xs font-bold text-purple-900 hover:bg-purple-50"
+                        >
+                          <ShieldCheck className="w-3.5 h-3.5 text-purple-700" />
+                          <span>{isAr ? "لوحة الإدارة (CMS)" : "Admin Portal"}</span>
+                        </Link>
+                        <Link
+                          href={`/${locale}/admin/cms/landing`}
+                          onClick={() => setUserDropdownOpen(false)}
+                          className="flex items-center gap-2 px-4 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 hover:text-[#0F5244]"
+                        >
+                          <Settings className="w-3.5 h-3.5 text-slate-400" />
+                          <span>{isAr ? "إدارة الصفحة الرئيسية" : "Landing CMS"}</span>
+                        </Link>
+                      </>
+                    ) : (
+                      <>
+                        <Link
+                          href={`/${locale}/student/courses`}
+                          onClick={() => setUserDropdownOpen(false)}
+                          className="flex items-center gap-2 px-4 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 hover:text-[#0F5244]"
+                        >
+                          <BookOpen className="w-3.5 h-3.5 text-slate-400" />
+                          <span>{tNav("myCourses")}</span>
+                        </Link>
+                        <Link
+                          href={`/${locale}/student/settings`}
+                          onClick={() => setUserDropdownOpen(false)}
+                          className="flex items-center gap-2 px-4 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 hover:text-[#0F5244]"
+                        >
+                          <User className="w-3.5 h-3.5 text-slate-400" />
+                          <span>{tNav("accountSettings")}</span>
+                        </Link>
+                      </>
+                    )}
                   </div>
 
                   <div className="border-t border-slate-100 pt-1">
@@ -1636,6 +1687,25 @@ export function LessonViewerLayout({
               </div>
             </div>
           </div>
+
+          {/* ========================================================================= */}
+          {/* 4b. AI LESSON SUMMARIZATION (US-19 SPRINT 11 / PHASE 1)                    */}
+          {/* ========================================================================= */}
+          {activeLesson?.id && (
+            <LessonSummaryCard
+              key={`lesson-summary-${activeLesson.id}`}
+              lessonId={activeLesson.id}
+              lessonTitle={displayLessonTitle}
+              isEnrolled={!activeLesson?.is_locked || Boolean(activeLesson?.is_preview)}
+              hasResources={Boolean(
+                (activeLesson?.attachments && activeLesson.attachments.length > 0) ||
+                (activeLesson?.resources && activeLesson.resources.length > 0) ||
+                Boolean((activeLesson as any)?.notes) ||
+                Boolean((activeLesson as any)?.content)
+              )}
+              locale={locale}
+            />
+          )}
 
           {/* ========================================================================= */}
           {/* 5. LESSON & COURSE ATTACHMENTS (US-21 SPRINT 11)                           */}

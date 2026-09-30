@@ -9,3 +9,6 @@ export * from './enrollmentService';
 export * from './cartService';
 export * from './orderService';
 export * from './certificateService';
+export * from './courseAttachmentService';
+export * from './lessonSummaryService';
+
