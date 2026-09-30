@@ -74,8 +74,7 @@ export interface UnifiedCourseCardProps {
  * Helper to safely resolve course cover image
  */
 function getSafeImage(course: any): string {
-  const defaultCover =
-    "https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=800&q=80";
+  const defaultCover = "/images/courses/course-react.png";
   if (!course) return defaultCover;
 
   const candidates = [
@@ -164,6 +163,14 @@ export function CourseCard({
   const [enrolledState, setEnrolledState] = useState<boolean>(
     Boolean(isEnrolledProp || course?.isEnrolled || course?.is_enrolled || course?.enrolled)
   );
+
+  const handleImageError = () => {
+    if (imgSrc !== "/images/courses/course-react.png" && !imgError) {
+      setImgSrc("/images/courses/course-react.png");
+    } else {
+      setImgError(true);
+    }
+  };
 
   useEffect(() => {
     setImgSrc(getSafeImage(course));
@@ -341,9 +348,7 @@ export function CourseCard({
                 alt={displayTitle || "Course"}
                 fill
                 sizes="(max-width: 768px) 50vw, 240px"
-                onError={() => {
-                  setImgError(true);
-                }}
+                onError={handleImageError}
                 className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"
               />
             ) : (
@@ -522,7 +527,7 @@ export function CourseCard({
                 alt={displayTitle || "Course Cover"}
                 fill
                 sizes="(max-width: 768px) 100vw, 400px"
-                onError={() => setImgError(true)}
+                onError={handleImageError}
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
               />
             ) : (
@@ -654,7 +659,7 @@ export function CourseCard({
                 alt={displayTitle || "Course"}
                 fill
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                onError={() => setImgError(true)}
+                onError={handleImageError}
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
               />
             ) : (
@@ -747,7 +752,7 @@ export function CourseCard({
                   alt={displayTitle || "Course"}
                   fill
                   sizes="128px"
-                  onError={() => setImgError(true)}
+                  onError={handleImageError}
                   className="object-cover group-hover:scale-105 transition-transform duration-300"
                 />
               ) : (
@@ -1009,9 +1014,7 @@ export function CourseCard({
               alt={displayTitle || "Course"}
               fill
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-              onError={() => {
-                setImgError(true);
-              }}
+              onError={handleImageError}
               className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"
             />
           ) : (

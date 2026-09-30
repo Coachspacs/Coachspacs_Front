@@ -90,6 +90,24 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
       (course.slug && String(item.course?.slug || item.slug) === String(course.slug))
   );
 
+  const [coverSrc, setCoverSrc] = useState<string>(
+    course.coverImage || "/images/courses/course-react.png"
+  );
+  const [coverError, setCoverError] = useState(false);
+  const [avatarError, setAvatarError] = useState(false);
+
+  useEffect(() => {
+    setCoverSrc(course.coverImage || "/images/courses/course-react.png");
+    setCoverError(false);
+  }, [course.coverImage]);
+
+  const handleCoverError = () => {
+    if (coverSrc !== "/images/courses/course-react.png" && !coverError) {
+      setCoverError(true);
+      setCoverSrc("/images/courses/course-react.png");
+    }
+  };
+
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   // Sync cart state from storage on mount
@@ -360,11 +378,12 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
             {/* Main Video / Banner Preview Container */}
             <div className="relative w-full aspect-[16/9] rounded-2xl sm:rounded-3xl overflow-hidden bg-slate-900 shadow-xl border border-slate-200/80 group">
               <Image
-                src={course.coverImage || "https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1200&q=80"}
+                src={coverSrc}
                 alt={(isAr ? course.titleAr || course.title : course.title) || "Course Cover"}
                 width={1200}
                 height={675}
                 priority
+                onError={handleCoverError}
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-90"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-slate-950/20 to-transparent" />
@@ -431,12 +450,13 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
                   title={t("viewInstructorProfile")}
                 >
                   <div className="w-9 h-9 rounded-full bg-emerald-50 overflow-hidden relative border border-emerald-200/80 group-hover/inst:ring-2 group-hover/inst:ring-[#0F5244] group-hover/inst:scale-105 transition-all flex items-center justify-center text-xs font-black text-[#0F5244]">
-                    {instructorObj?.avatar || course.instructorAvatar ? (
+                    {!avatarError && (instructorObj?.avatar || course.instructorAvatar) ? (
                       <Image
                         src={instructorObj?.avatar || course.instructorAvatar || ""}
                         alt={isAr ? (instructorObj?.nameAr || course.instructorNameAr || course.instructorName || "") : (instructorObj?.name || course.instructorName || "")}
                         width={36}
                         height={36}
+                        onError={() => setAvatarError(true)}
                         className="w-full h-full object-cover"
                       />
                     ) : (
@@ -693,12 +713,13 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
                     title={t("viewInstructorProfile")}
                   >
                     <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-white p-1 overflow-hidden relative border-2 border-emerald-500/30 shadow-md shrink-0 ring-4 ring-emerald-500/10 group-hover/tabinst:ring-emerald-500/30 group-hover/tabinst:scale-105 transition-all duration-300 flex items-center justify-center">
-                      {instructorObj?.avatar || course.instructorAvatar ? (
+                      {!avatarError && (instructorObj?.avatar || course.instructorAvatar) ? (
                         <Image
                           src={instructorObj?.avatar || course.instructorAvatar || ""}
                           alt={isAr ? (instructorObj?.nameAr || course.instructorNameAr || course.instructorName || "") : (instructorObj?.name || course.instructorName || "")}
                           width={80}
                           height={80}
+                          onError={() => setAvatarError(true)}
                           className="w-full h-full object-cover rounded-xl"
                         />
                       ) : (

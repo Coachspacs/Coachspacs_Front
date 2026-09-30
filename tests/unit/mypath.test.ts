@@ -8,13 +8,13 @@ describe("Student My Path (AI Learning Roadmap) Unit Tests", () => {
       track: "ai",
       level: "beginner",
       hoursPerWeek: "8",
-      targetMonths: "3",
+      targetMonths: "6",
     };
 
     const roadmap = generateRoadmapFromPreferences(preferences);
 
     expect(roadmap).toBeDefined();
-    expect(roadmap.estimatedWeeks).toBe(12);
+    expect(roadmap.estimatedWeeks).toBe(24);
     expect(roadmap.hoursPerWeek).toBe(8);
     expect(roadmap.milestones.length).toBe(4);
 

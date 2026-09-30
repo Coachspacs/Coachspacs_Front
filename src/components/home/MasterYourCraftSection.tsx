@@ -57,7 +57,7 @@ export function MasterYourCraftSection({ data }: MasterYourCraftSectionProps = {
               rating: Number(c.rating || 0),
               reviewsCount: Number(c.reviews_count || c.reviewsCount || 0),
               reviewsCountFormatted: String(Number(c.reviews_count || c.reviewsCount || 0)),
-              coverImage: c.cover_image || c.coverImage || c.image || "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&auto=format&fit=crop&q=80",
+              coverImage: c.cover_image || c.coverImage || c.image || "/images/courses/course-react.png",
               badge: c.is_bestseller ? "Bestseller" : undefined,
             };
           });

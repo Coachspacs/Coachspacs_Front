@@ -1,0 +1,69 @@
+name: Frontend CD - Staging
+
+on:
+  push:
+    branches:
+      - staging
+  workflow_dispatch:
+
+concurrency:
+  group: cd-staging
+  cancel-in-progress: false
+
+jobs:
+  build-and-test:
+    name: Verify Build & Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run Tests
+        run: pnpm run test
+
+      - name: Build Project
+        run: pnpm run build
+        env:
+          NEXT_PUBLIC_API_URL: ${{ secrets.STAGING_NEXT_PUBLIC_API_URL || 'https://staging-api.coachspace.com' }}
+          NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME: ${{ secrets.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || 'coachspace' }}
+
+  deploy:
+    name: Deploy to Staging Server
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Deploy via SSH to Staging Server (PM2 / Docker / Service)
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        if: ${{ secrets.STAGING_HOST != '' && secrets.STAGING_SSH_KEY != '' }}
+        with:
+          host: ${{ secrets.STAGING_HOST }}
+          username: ${{ secrets.STAGING_USER || 'ubuntu' }}
+          key: ${{ secrets.STAGING_SSH_KEY }}
+          port: ${{ secrets.STAGING_PORT || 22 }}
+          script: |
+            echo "🚀 Deploying to Staging..."
+            cd ${{ secrets.STAGING_PATH || '/var/www/coach-space-web' }}
+            git fetch origin staging
+            git reset --hard origin/staging
+            pnpm install --frozen-lockfile
+            pnpm run build
+            pm2 reload coach-space-web --update-env || pm2 start npm --name "coach-space-web" -- start
+            echo "✅ Staging Deployment Complete!"

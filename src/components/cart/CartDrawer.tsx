@@ -24,6 +24,28 @@ import {
   Loader2,
 } from "lucide-react";
 
+function CartDrawerItemThumbnail({ src, alt }: { src?: string; alt: string }) {
+  const [imgSrc, setImgSrc] = useState(src || "/images/courses/course-react.png");
+  useEffect(() => {
+    setImgSrc(src || "/images/courses/course-react.png");
+  }, [src]);
+
+  return (
+    <Image
+      src={imgSrc}
+      alt={alt}
+      fill
+      sizes="88px"
+      onError={() => {
+        if (imgSrc !== "/images/courses/course-react.png") {
+          setImgSrc("/images/courses/course-react.png");
+        }
+      }}
+      className="object-cover group-hover:scale-108 transition-transform duration-500 ease-out"
+    />
+  );
+}
+
 export function CartDrawer() {
   const t = useTranslations("cart");
   const locale = useLocale() || "en";
@@ -405,12 +427,9 @@ export function CartDrawer() {
                         >
                           {/* Course Thumbnail */}
                           <div className="relative w-20 h-16 sm:w-22 sm:h-18 rounded-xl overflow-hidden bg-slate-100 shrink-0 border border-slate-100 shadow-2xs">
-                            <Image
+                            <CartDrawerItemThumbnail
                               src={item.image}
                               alt={item.title}
-                              fill
-                              sizes="88px"
-                              className="object-cover group-hover:scale-108 transition-transform duration-500 ease-out"
                             />
                           </div>
 

@@ -383,7 +383,7 @@ export function MyPathWizard() {
     icon: LucideIcon;
     badge?: string;
     badgeColor?: string;
-  }[] = [
+  }[] = useMemo(() => [
     {
       id: "frontend",
       icon: Code2,
@@ -412,7 +412,7 @@ export function MyPathWizard() {
       id: "backend",
       icon: Database,
     },
-  ];
+  ], [t]);
 
   const filteredSkills = useMemo(() => {
     if (!searchQuery.trim()) return skillTracks;
