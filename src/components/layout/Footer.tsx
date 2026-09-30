@@ -55,6 +55,46 @@ export function Footer({ lang, variant = "main" }: FooterProps) {
   const currentLocale = useLocale() || (lang ? lang.toLowerCase() : "en");
   const isAr = currentLocale === "ar";
 
+  const [logoSrc, setLogoSrc] = React.useState<string>("/images/brand-logo-white.png");
+
+  React.useEffect(() => {
+    const readLogo = () => {
+      try {
+        const globalBranding = (window as unknown as { __CMS_BRANDING__?: { logoUrl?: string; footerLogoUrl?: string } }).__CMS_BRANDING__;
+        if (globalBranding?.footerLogoUrl && globalBranding.footerLogoUrl.trim().length > 0) {
+          setLogoSrc(globalBranding.footerLogoUrl.trim());
+          return;
+        } else if (globalBranding?.logoUrl && globalBranding.logoUrl.trim().length > 0) {
+          setLogoSrc(globalBranding.logoUrl.trim());
+          return;
+        }
+
+        const cached = localStorage.getItem("coachspace_cms_branding");
+        if (cached) {
+          const parsed = JSON.parse(cached);
+          if (parsed?.footerLogoUrl && parsed.footerLogoUrl.trim().length > 0) {
+            setLogoSrc(parsed.footerLogoUrl.trim());
+          } else if (parsed?.logoUrl && parsed.logoUrl.trim().length > 0) {
+            setLogoSrc(parsed.logoUrl.trim());
+          }
+        }
+      } catch {}
+    };
+
+    readLogo();
+
+    const handleBranding = (e: Event) => {
+      const customEvent = e as CustomEvent<{ logoUrl?: string; footerLogoUrl?: string }>;
+      if (customEvent?.detail?.footerLogoUrl && customEvent.detail.footerLogoUrl.trim().length > 0) {
+        setLogoSrc(customEvent.detail.footerLogoUrl.trim());
+      } else if (customEvent?.detail?.logoUrl && customEvent.detail.logoUrl.trim().length > 0) {
+        setLogoSrc(customEvent.detail.logoUrl.trim());
+      }
+    };
+    window.addEventListener("cms-branding-updated", handleBranding);
+    return () => window.removeEventListener("cms-branding-updated", handleBranding);
+  }, []);
+
   if (variant === "auth") {
     return (
       <footer
@@ -145,10 +185,12 @@ export function Footer({ lang, variant = "main" }: FooterProps) {
               className="inline-flex items-center gap-2.5 transition-opacity duration-150 hover:opacity-90 group cursor-pointer"
             >
               <Image
-                src="/images/brand-logo-white.png"
+                src={logoSrc}
                 alt="Coach Space"
                 width={36}
                 height={36}
+                unoptimized={logoSrc.toLowerCase().includes(".svg")}
+                onError={() => setLogoSrc("/images/brand-logo-white.png")}
                 className="w-auto h-7 sm:h-8 object-contain drop-shadow-sm group-hover:scale-105 transition-transform duration-200"
               />
               <span className="text-xl sm:text-2xl font-bold text-white tracking-tight leading-none">
@@ -233,16 +275,16 @@ export function Footer({ lang, variant = "main" }: FooterProps) {
                     href={item.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className={`flex items-center justify-between px-3 py-2.5 rounded-xl bg-white/[0.05] border border-white/[0.08] text-emerald-100 transition-all duration-200 cursor-pointer ${item.cardClass}`}
+                    className={`flex items-center justify-between px-3.5 py-2.5 rounded-2xl bg-white/[0.05] border border-white/[0.08] text-emerald-100 transition-all duration-200 cursor-pointer ${item.cardClass}`}
                   >
-                    <div className="flex items-center gap-2.5">
+                    <div className="flex items-center gap-3">
                       <div
-                        className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${item.iconBoxClass}`}
+                        className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${item.iconBoxClass}`}
                       >
                         <Icon className="w-4 h-4" />
                       </div>
                       <div className="text-start">
-                        <p className="text-xs font-semibold text-white leading-tight">
+                        <p className="text-xs font-bold text-white leading-tight">
                           {item.name}
                         </p>
                         <p

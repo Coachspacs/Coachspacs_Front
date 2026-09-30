@@ -42,7 +42,7 @@ export function InstructorCoursesPreview() {
         return {
           id: String(c.id),
           title: (locale === "ar" ? (c.title_ar || c.title) : (c.title_en || c.title)) || c.title || t("untitledCourse"),
-          image: c.cover_image || c.coverImage || c.image || "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&auto=format&fit=crop&q=80",
+          image: c.cover_image || c.coverImage || c.image || "/images/courses/course-react.png",
           studentsCount: Number(c.students_count) || 0,
           rating: Number(c.rating || 0),
           reviewsCount: Number(c.reviews_count) || 0,

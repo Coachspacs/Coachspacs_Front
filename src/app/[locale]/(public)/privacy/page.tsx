@@ -1,7 +1,7 @@
 "use client";
 
-import React from "react";
-import { useParams } from "next/navigation";
+import React, { useState, useEffect } from "react";
+import { useParams, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import {
   Shield,
@@ -11,142 +11,153 @@ import {
   Eye,
   FileText,
   Sparkles,
+  CheckCircle2,
+  BookOpen,
+  Award,
+  ShieldAlert,
 } from "lucide-react";
 import {
   LegalPageLayout,
   LegalSectionItem,
 } from "@/components/legal/LegalPageLayout";
+import { DEFAULT_LEGAL_PAGES } from "@/lib/cmsDefaults";
+import { LegalPageData } from "@/types/cms";
 
-export default function PrivacyPolicyPage() {
-  const params = useParams();
-  const locale = (params?.locale as string) || "en";
-  const t = useTranslations("legal");
-  const tPrivacy = useTranslations("legal.privacy");
+const ICON_MAP: Record<string, any> = {
+  Shield,
+  Database,
+  UserCheck,
+  Lock,
+  Eye,
+  FileText,
+  CheckCircle2,
+  BookOpen,
+  Award,
+  ShieldAlert,
+  Sparkles,
+};
 
-  const sections: LegalSectionItem[] = [
-    {
-      id: "introduction",
-      icon: Shield,
-      title: tPrivacy("intro.title"),
-      content: (
-        <div className="space-y-2">
-          <p className="leading-relaxed">{tPrivacy("intro.p1")}</p>
-          <p className="leading-relaxed">{tPrivacy("intro.p2")}</p>
-        </div>
-      ),
-    },
-    {
-      id: "collection",
-      icon: Database,
-      title: tPrivacy("collection.title"),
-      content: (
-        <div className="space-y-3">
-          <p className="leading-relaxed">{tPrivacy("collection.intro")}</p>
-          <ul className="space-y-2 list-disc list-inside text-slate-600 ps-2">
-            <li>
-              <strong className="text-slate-900">
-                {tPrivacy("collection.accountLabel")}{" "}
-              </strong>
-              {tPrivacy("collection.accountValue")}
-            </li>
-            <li>
-              <strong className="text-slate-900">
-                {tPrivacy("collection.learningLabel")}{" "}
-              </strong>
-              {tPrivacy("collection.learningValue")}
-            </li>
-            <li>
-              <strong className="text-slate-900">
-                {tPrivacy("collection.instructorLabel")}{" "}
-              </strong>
-              {tPrivacy("collection.instructorValue")}
-            </li>
-            <li>
-              <strong className="text-slate-900">
-                {tPrivacy("collection.techLabel")}{" "}
-              </strong>
-              {tPrivacy("collection.techValue")}
-            </li>
-          </ul>
-        </div>
-      ),
-    },
-    {
-      id: "usage",
-      icon: UserCheck,
-      title: tPrivacy("usage.title"),
-      content: (
-        <div className="space-y-3">
-          <p className="leading-relaxed">{tPrivacy("usage.intro")}</p>
-          <ul className="space-y-2 list-disc list-inside text-slate-600 ps-2">
-            <li>{tPrivacy("usage.point1")}</li>
-            <li>{tPrivacy("usage.point2")}</li>
-            <li>{tPrivacy("usage.point3")}</li>
-            <li>{tPrivacy("usage.point4")}</li>
-            <li>{tPrivacy("usage.point5")}</li>
-          </ul>
-        </div>
-      ),
-    },
-    {
-      id: "payments",
-      icon: Lock,
-      title: tPrivacy("payments.title"),
-      content: (
-        <div className="space-y-3">
-          <div className="p-4 rounded-xl bg-emerald-50/70 border border-emerald-200/60 text-emerald-950 text-xs sm:text-sm leading-relaxed flex items-start gap-3">
-            <Lock className="w-5 h-5 text-[#0F5244] shrink-0 mt-0.5" />
-            <div>
-              <strong className="font-extrabold text-[#0F5244]">
-                {tPrivacy("payments.badgeStrong")}{" "}
-              </strong>
-              {tPrivacy("payments.badgeText")}
+function renderLegalContent(text: string) {
+  if (!text) return null;
+  const paragraphs = text.split("\n\n").filter(Boolean);
+  return (
+    <div className="space-y-3">
+      {paragraphs.map((p, pIdx) => {
+        const lines = p.split("\n").filter(Boolean);
+        const hasBullets = lines.some(
+          (l) =>
+            l.trim().startsWith("•") ||
+            l.trim().startsWith("- ") ||
+            l.trim().startsWith("* ")
+        );
+        if (hasBullets) {
+          const hasIntro =
+            !lines[0].trim().startsWith("•") &&
+            !lines[0].trim().startsWith("- ") &&
+            !lines[0].trim().startsWith("* ");
+          const intro = hasIntro ? lines[0] : null;
+          const bulletLines = hasIntro ? lines.slice(1) : lines;
+
+          return (
+            <div key={pIdx} className="space-y-2">
+              {intro && <p className="leading-relaxed">{intro}</p>}
+              <ul className="space-y-1.5 list-disc list-inside text-slate-600 ps-2">
+                {bulletLines.map((b, bIdx) => {
+                  const cleaned = b.replace(/^[•\-\*]\s*/, "");
+                  const parts = cleaned.split(":");
+                  if (parts.length > 1 && parts[0].length < 35) {
+                    return (
+                      <li key={bIdx}>
+                        <strong className="text-slate-900">{parts[0]}: </strong>
+                        {parts.slice(1).join(":")}
+                      </li>
+                    );
+                  }
+                  return <li key={bIdx}>{cleaned}</li>;
+                })}
+              </ul>
             </div>
-          </div>
-          <p className="leading-relaxed">{tPrivacy("payments.description")}</p>
-        </div>
-      ),
-    },
-    {
-      id: "cookies",
-      icon: Eye,
-      title: tPrivacy("cookies.title"),
-      content: (
-        <p className="leading-relaxed">{tPrivacy("cookies.content")}</p>
-      ),
-    },
-    {
-      id: "rights",
-      icon: FileText,
-      title: tPrivacy("rights.title"),
-      content: (
-        <div className="space-y-2">
-          <p className="leading-relaxed">{tPrivacy("rights.intro")}</p>
-          <ul className="space-y-1.5 list-disc list-inside text-slate-600 ps-2">
-            <li>{tPrivacy("rights.point1")}</li>
-            <li>{tPrivacy("rights.point2")}</li>
-            <li>{tPrivacy("rights.point3")}</li>
-          </ul>
-        </div>
-      ),
-    },
-  ];
+          );
+        }
+        return (
+          <p key={pIdx} className="leading-relaxed">
+            {p}
+          </p>
+        );
+      })}
+    </div>
+  );
+}
+
+function PrivacyPolicyContent() {
+  const params = useParams();
+  const searchParams = useSearchParams();
+  const locale = (params?.locale as string) || "ar";
+  const isAr = locale === "ar";
+  const isPreview = searchParams?.get("preview") === "true";
+
+  const t = useTranslations("legal");
+  const [pageData, setPageData] = useState<LegalPageData>(DEFAULT_LEGAL_PAGES.privacy);
+
+  useEffect(() => {
+    async function loadCmsLegal() {
+      try {
+        const res = await fetch("/api/cms/content");
+        const json = await res.json();
+        if (json.success && json.legal) {
+          const data =
+            isPreview && json.legal.draft?.privacy
+              ? json.legal.draft.privacy
+              : json.legal.published?.privacy || DEFAULT_LEGAL_PAGES.privacy;
+          setPageData(data);
+        }
+      } catch (err) {
+        console.warn("Failed to load CMS privacy policy data, using fallback:", err);
+      }
+    }
+    loadCmsLegal();
+  }, [isPreview]);
+
+  const sections: LegalSectionItem[] = (pageData.sections || []).map((sec, idx) => {
+    const IconComponent = (sec.icon && ICON_MAP[sec.icon]) || Shield;
+    const title = isAr ? sec.title_ar : sec.title_en;
+    const contentText = isAr ? sec.content_ar : sec.content_en;
+
+    return {
+      id: sec.id || `sec-${idx}`,
+      icon: IconComponent,
+      title,
+      content: renderLegalContent(contentText),
+    };
+  });
 
   return (
     <LegalPageLayout
       locale={locale}
       backToHomeText={t("backToHome")}
-      badgeText={tPrivacy("badge")}
+      badgeText={isAr ? pageData.badge_ar : pageData.badge_en}
       badgeIcon={Sparkles}
-      title={tPrivacy("title")}
+      title={isAr ? pageData.title_ar : pageData.title_en}
       lastUpdatedText={t("lastUpdated", {
-        date: tPrivacy("lastUpdatedDate"),
+        date: isAr ? pageData.lastUpdatedDate_ar : pageData.lastUpdatedDate_en,
       })}
-      subtitle={tPrivacy("subtitle")}
+      subtitle={isAr ? pageData.subtitle_ar : pageData.subtitle_en}
       sections={sections}
-      contactTitle={tPrivacy("contact.title")}
-      contactDescription={tPrivacy("contact.description")}
-      contactEmail={t("supportEmail")}
+      contactTitle={isAr ? pageData.contactTitle_ar : pageData.contactTitle_en}
+      contactDescription={
+        isAr ? pageData.contactDescription_ar : pageData.contactDescription_en
+      }
+      contactEmail={pageData.contactEmail || t("supportEmail")}
     />
   );
 }
+
+export default function PrivacyPolicyPage() {
+  return (
+    <React.Suspense fallback={<div className="min-h-screen bg-slate-50/70" />}>
+      <PrivacyPolicyContent />
+    </React.Suspense>
+  );
+}
+
+

@@ -27,6 +27,28 @@ export interface CartViewProps {
   onCheckout?: () => void;
 }
 
+function CartItemThumbnail({ src, alt }: { src?: string; alt: string }) {
+  const [imgSrc, setImgSrc] = useState(src || "/images/courses/course-react.png");
+  useEffect(() => {
+    setImgSrc(src || "/images/courses/course-react.png");
+  }, [src]);
+
+  return (
+    <Image
+      src={imgSrc}
+      alt={alt}
+      width={128}
+      height={80}
+      onError={() => {
+        if (imgSrc !== "/images/courses/course-react.png") {
+          setImgSrc("/images/courses/course-react.png");
+        }
+      }}
+      className="w-24 h-16 sm:w-32 sm:h-20 rounded-2xl object-cover border border-slate-100 shrink-0 shadow-2xs"
+    />
+  );
+}
+
 export function CartView({ items, onRemoveItem, onCheckout }: CartViewProps) {
   const t = useTranslations("cart");
   const locale = useLocale() || "en";
@@ -234,12 +256,9 @@ export function CartView({ items, onRemoveItem, onCheckout }: CartViewProps) {
               >
                 {/* Course Image & Metadata */}
                 <div className="flex items-center gap-4 sm:gap-5 w-full sm:w-auto">
-                  <Image
+                  <CartItemThumbnail
                     src={item.image}
                     alt={item.title}
-                    width={128}
-                    height={80}
-                    className="w-24 h-16 sm:w-32 sm:h-20 rounded-2xl object-cover border border-slate-100 shrink-0 shadow-2xs"
                   />
                   <div className="space-y-1 min-w-0">
                     <h3 className="text-base sm:text-lg font-black text-slate-900 line-clamp-1 tracking-tight group-hover:text-[#0F5244] transition-colors">

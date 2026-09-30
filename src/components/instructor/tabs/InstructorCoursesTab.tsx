@@ -2,6 +2,7 @@
 
 import React, { useState, useMemo } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useTranslations, useLocale } from "next-intl";
 import {
   Plus,
@@ -435,9 +436,12 @@ export function InstructorCoursesTab({
                           >
                             <div className="w-9 h-9 rounded-full bg-[#0B4F3A]/10 text-[#0B4F3A] font-black text-xs flex items-center justify-center shrink-0 border border-[#0B4F3A]/20">
                               {st.avatar ? (
-                                <img
+                                <Image
                                   src={st.avatar}
                                   alt={st.name}
+                                  width={36}
+                                  height={36}
+                                  unoptimized
                                   className="w-full h-full rounded-full object-cover"
                                 />
                               ) : (

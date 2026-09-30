@@ -1,15 +1,22 @@
 "use client";
 
 import React, { useState } from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { ChevronDown } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { FaqSectionData } from "@/types/cms";
 
-export function FaqSection() {
+interface FaqSectionProps {
+  data?: FaqSectionData;
+}
+
+export function FaqSection({ data }: FaqSectionProps = {}) {
   const t = useTranslations("home");
+  const locale = useLocale();
+  const isAr = locale === "ar";
   const [openIndex, setOpenIndex] = useState<number | null>(0);
 
-  const faqs = [
+  const defaultFaqs = [
     {
       id: "faq-1",
       question: t("faq1Q"),
@@ -32,6 +39,18 @@ export function FaqSection() {
     },
   ];
 
+  const faqs =
+    data?.items && data.items.length > 0
+      ? data.items.map((item, idx) => ({
+          id: item.id || `faq-${idx + 1}`,
+          question: isAr ? item.question_ar : item.question_en,
+          answer: isAr ? item.answer_ar : item.answer_en,
+        }))
+      : defaultFaqs;
+
+  const titleText = (isAr ? data?.title_ar : data?.title_en) || t("faqTitle");
+  const subtitleText = (isAr ? data?.subtitle_ar : data?.subtitle_en) || t("faqSubtitle");
+
   const toggleFaq = (index: number) => {
     setOpenIndex(openIndex === index ? null : index);
   };
@@ -42,10 +61,10 @@ export function FaqSection() {
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-14">
           <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight">
-            {t("faqTitle")}
+            {titleText}
           </h2>
           <p className="mt-3 text-slate-500 text-sm sm:text-base font-medium">
-            {t("faqSubtitle")}
+            {subtitleText}
           </p>
         </div>
 
@@ -68,7 +87,7 @@ export function FaqSection() {
                   {/* Chevron Icon (Left/Start) */}
                   <div
                     className={`p-1 rounded-full transition-transform duration-300 shrink-0 ${
-                      isOpen ? "rotate-180 text-[#0D7A66]" : "text-[#2563EB]"
+                      isOpen ? "rotate-180 text-[#0F5244]" : "text-[#2563EB]"
                     }`}
                   >
                     <ChevronDown className="w-5 h-5 stroke-[2.5]" />

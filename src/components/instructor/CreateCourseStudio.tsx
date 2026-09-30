@@ -41,6 +41,8 @@ import {
 import { useSelector } from "react-redux";
 import { RootState } from "@/lib/store";
 import { LessonVideoUploader } from "@/components/instructor/LessonVideoUploader";
+import { CourseMaterialsManager } from "@/components/instructor/attachments/CourseMaterialsManager";
+import { LessonAttachmentsManager } from "@/components/instructor/attachments/LessonAttachmentsManager";
 import {
   CourseIncompleteModal,
   IncompleteItem,
@@ -49,6 +51,7 @@ import { LiveCoursePreviewModal } from "@/components/modals/LiveCoursePreviewMod
 import {
   getSavedCourseStatus,
   saveCourseStatus,
+  removeCourseStatus,
 } from "@/lib/instructorProfile";
 
 interface Lesson {
@@ -272,7 +275,8 @@ export function CreateCourseStudio({
     isCoverValid,
   );
 
-  const isLockedForReview =
+  const isLockedForReview = false;
+  const isUnderReview =
     courseStatus === "pending_review" ||
     courseStatus === "review" ||
     courseStatus === "under_review";
@@ -964,6 +968,8 @@ export function CreateCourseStudio({
     setIsPublishing(true);
     try {
       const validCourseId = await ensureBackendCourseId();
+      const isAlreadyPublished = courseStatus === "published";
+
       await instructorCourseService.updateCourse(validCourseId, {
         title_ar: titleAr.trim(),
         title_en: titleEn.trim(),
@@ -972,22 +978,27 @@ export function CreateCourseStudio({
         category: Number(category) || 1,
         level: level || "beginner",
         price: price || "49.00",
-        status: "pending_review",
+        ...(isAlreadyPublished ? {} : { status: "pending_review" }),
       });
 
-      try {
-        await instructorCourseService.submitForReview(validCourseId);
-      } catch (submitErr) {
-        console.warn("Submit for review API info:", submitErr);
+      if (!isAlreadyPublished) {
+        try {
+          await instructorCourseService.submitForReview(validCourseId);
+        } catch (submitErr) {
+          console.warn("Submit for review API info:", submitErr);
+        }
+        saveCourseStatus(validCourseId, "pending_review");
+        setCourseStatus("pending_review");
+      } else {
+        removeCourseStatus(validCourseId);
       }
-
-      saveCourseStatus(validCourseId, "pending_review");
-      setCourseStatus("pending_review");
       setShowSuccessModal(true);
     } catch (err: any) {
       console.warn("Publish course info:", err);
-      if (courseId) saveCourseStatus(courseId, "pending_review");
-      setCourseStatus("pending_review");
+      if (courseStatus !== "published") {
+        if (courseId) saveCourseStatus(courseId, "pending_review");
+        setCourseStatus("pending_review");
+      }
       setShowSuccessModal(true);
     } finally {
       setIsPublishing(false);
@@ -1012,8 +1023,8 @@ export function CreateCourseStudio({
 
       {/* Main Content Container */}
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8 space-y-6 flex-1 w-full">
-        {/* Course Under Review Lock Notification Banner */}
-        {isLockedForReview && (
+        {/* Course Under Review Notification Banner */}
+        {isUnderReview && (
           <div className="p-4 sm:p-5 rounded-3xl bg-amber-500/10 border border-amber-500/30 text-amber-950 flex items-start gap-3.5 shadow-2xs animate-in fade-in">
             <div className="w-9 h-9 rounded-2xl bg-amber-500/20 text-amber-800 flex items-center justify-center shrink-0 mt-0.5">
               <Clock className="w-5 h-5 text-amber-700 animate-pulse" />
@@ -1024,7 +1035,7 @@ export function CreateCourseStudio({
                   {t("courseUnderReviewBannerTitle")}
                 </h2>
                 <span className="px-2.5 py-0.5 rounded-full bg-amber-200/80 text-amber-900 text-[11px] font-black">
-                  {t("lockedModeBadge")}
+                  {t("awaitingReviewBadge")}
                 </span>
               </div>
               <p className="text-xs sm:text-sm text-amber-900/90 font-medium leading-relaxed">
@@ -2081,6 +2092,13 @@ export function CreateCourseStudio({
               </div>
             </div>
 
+            {/* Course-level Materials & Resources Manager */}
+            {courseId ? (
+              <div className="pt-2">
+                <CourseMaterialsManager courseId={courseId} readOnly={isLockedForReview} />
+              </div>
+            ) : null}
+
             {/* Bottom Navigation for Step 2 */}
             <div className="flex items-center justify-between gap-4 pt-4 border-t border-slate-200/70">
               <button
@@ -2429,7 +2447,13 @@ export function CreateCourseStudio({
                       ) : (
                         <>
                           <Send size={18} />
-                          <span>{t("publishCourse")}</span>
+                          <span>
+                            {courseStatus === "published"
+                              ? t("saveChanges")
+                              : isUnderReview
+                              ? t("updateAndResubmitReview")
+                              : t("publishCourse")}
+                          </span>
                         </>
                       )}
                     </button>
@@ -2641,6 +2665,15 @@ export function CreateCourseStudio({
                   }}
                 />
               </div>
+
+              {/* Lesson-level Attachments Manager */}
+              <div className="pt-2">
+                <LessonAttachmentsManager
+                  courseId={courseId}
+                  lessonId={editingLessonInfo.lesson.id}
+                  isNewLesson={editingLessonInfo.isNew}
+                />
+              </div>
             </div>
 
             {/* Modal Actions */}
@@ -2675,10 +2708,14 @@ export function CreateCourseStudio({
 
             <div className="space-y-2">
               <h3 className="text-xl font-black text-slate-900">
-                {t("courseSubmittedSuccess")}
+                {courseStatus === "published"
+                  ? t("courseUpdatedSuccess")
+                  : t("courseSubmittedSuccess")}
               </h3>
               <p className="text-xs sm:text-sm text-slate-600 font-medium">
-                {t("courseSubmittedSuccessDesc")}
+                {courseStatus === "published"
+                  ? t("courseUpdatedSuccessDesc")
+                  : t("courseSubmittedSuccessDesc")}
               </p>
             </div>
 

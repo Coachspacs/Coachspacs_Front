@@ -30,8 +30,8 @@ export function InstructorAcademySection() {
       desc: t("tip1Desc"),
     },
     {
-      icon: <CheckSquare className="w-5 h-5 text-teal-700" />,
-      bg: "bg-teal-50 border-teal-200/70 text-teal-700",
+      icon: <CheckSquare className="w-5 h-5 text-[#0F5244]" />,
+      bg: "bg-emerald-50 border-emerald-200/70 text-[#0F5244]",
       pill: "Engagement",
       title: t("tip2Title"),
       desc: t("tip2Desc"),
@@ -129,7 +129,7 @@ export function InstructorAcademySection() {
                 className="bg-white hover:bg-white rounded-2xl p-5 border border-emerald-200/80 hover:border-[#0F5244] shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 flex flex-col justify-between group cursor-pointer"
               >
                 <div>
-                  <div className="text-[10px] font-bold uppercase text-slate-400 tracking-wider mb-2 group-hover:text-emerald-700 transition-colors">
+                  <div className="text-[10px] font-bold uppercase text-slate-400 tracking-wider mb-2 group-hover:text-[#0F5244] transition-colors">
                     {topic.tag}
                   </div>
                   <div className="text-sm font-black text-slate-900 mb-4 line-clamp-2 leading-snug group-hover:text-[#0F5244] transition-colors">

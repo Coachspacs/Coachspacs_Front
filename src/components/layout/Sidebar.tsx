@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useTranslations, useLocale } from "next-intl";
 import { useDispatch, useSelector } from "react-redux";
@@ -19,6 +20,7 @@ import {
   LogOut,
   ChevronDown,
   BookOpen,
+  Sparkles,
 } from "lucide-react";
 
 export interface SidebarNavItem {
@@ -46,6 +48,7 @@ export interface SidebarProps {
     role?: string;
     avatarUrl?: string | null;
     isApproved?: boolean;
+    email?: string;
   };
   summary?: SidebarSummaryData;
 }
@@ -147,6 +150,12 @@ export function Sidebar({ activeTab, onTabChange, items, user, summary }: Sideba
       href: `/${locale}/student/courses`,
     },
     {
+      id: "my-path",
+      label: isAr ? "مساري (My Path)" : "My Path",
+      icon: Sparkles,
+      href: `/${locale}/student/my-path`,
+    },
+    {
       id: "cart",
       label: t("cart"),
       icon: ShoppingCart,
@@ -221,6 +230,33 @@ export function Sidebar({ activeTab, onTabChange, items, user, summary }: Sideba
     <div dir={isAr ? "rtl" : "ltr"} className="w-full md:w-auto shrink-0 font-sans">
       {/* ================= MOBILE COLLAPSIBLE NAVIGATION (< md) ================= */}
       <div className="md:hidden w-full bg-white border border-slate-200/80 rounded-2xl shadow-2xs overflow-hidden">
+        {user?.name && (
+          <div className="flex items-center gap-2.5 px-3 py-2 border-b border-slate-100 bg-slate-50/50">
+            <div className="relative shrink-0">
+              <div className="w-7 h-7 rounded-full bg-white border border-emerald-200 overflow-hidden flex items-center justify-center">
+                {user.avatarUrl ? (
+                  <Image
+                    src={user.avatarUrl}
+                    alt={user.name}
+                    width={28}
+                    height={28}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <span className="font-bold text-xs text-emerald-700">
+                    {user.name.charAt(0).toUpperCase()}
+                  </span>
+                )}
+              </div>
+              <span className="absolute bottom-0 right-0 rtl:right-auto rtl:left-0 w-2 h-2 bg-emerald-500 border border-white rounded-full" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-xs font-bold text-slate-800 truncate">{user.name}</p>
+              <p className="text-[10px] text-slate-400 truncate">{user.email || user.role}</p>
+            </div>
+          </div>
+        )}
+
         <div className="flex items-center justify-between p-2.5 bg-white">
           <button
             type="button"
@@ -316,6 +352,38 @@ export function Sidebar({ activeTab, onTabChange, items, user, summary }: Sideba
       {/* ================= DESKTOP VERTICAL SIDEBAR (>= md) ================= */}
       <aside className="hidden md:flex w-64 lg:w-72 shrink-0 bg-white border border-slate-200/80 rounded-2xl p-4 flex-col justify-between shadow-xs min-h-fit self-start">
         <div className="space-y-4">
+          {/* User Profile Section in Sidebar */}
+          {user?.name && (
+            <div className="flex items-center gap-3 p-3 bg-slate-50/90 rounded-2xl border border-slate-200/70">
+              <div className="relative shrink-0">
+                <div className="w-10 h-10 rounded-full bg-white border border-emerald-200 overflow-hidden flex items-center justify-center shadow-2xs">
+                  {user.avatarUrl ? (
+                    <Image
+                      src={user.avatarUrl}
+                      alt={user.name}
+                      width={40}
+                      height={40}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <span className="font-bold text-sm text-emerald-700">
+                      {user.name.charAt(0).toUpperCase()}
+                    </span>
+                  )}
+                </div>
+                <span className="absolute bottom-0 right-0 rtl:right-auto rtl:left-0 w-2.5 h-2.5 bg-emerald-500 border-2 border-white rounded-full" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-xs sm:text-sm font-bold text-slate-900 truncate">
+                  {user.name}
+                </p>
+                <p className="text-[11px] text-slate-400 font-medium truncate">
+                  {user.email || user.role}
+                </p>
+              </div>
+            </div>
+          )}
+
           {/* Navigation Links */}
           <nav className="space-y-1" aria-label="Sidebar Navigation">
             {navItems.map((item) => {

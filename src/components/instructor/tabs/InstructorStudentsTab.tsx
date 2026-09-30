@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
+import Image from "next/image";
 import { useTranslations, useLocale } from "next-intl";
 import {
   Search,
@@ -436,9 +437,12 @@ export function InstructorStudentsTab({
                         <div className="flex items-center gap-3">
                           <div className="w-9 h-9 rounded-full bg-[#0F5244]/10 text-[#0F5244] font-black text-xs flex items-center justify-center shrink-0 border border-[#0F5244]/20 overflow-hidden">
                             {student.avatar ? (
-                              <img
+                              <Image
                                 src={student.avatar}
                                 alt={student.name}
+                                width={36}
+                                height={36}
+                                unoptimized
                                 className="w-full h-full object-cover"
                               />
                             ) : (

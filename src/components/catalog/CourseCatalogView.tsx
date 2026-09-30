@@ -172,8 +172,8 @@ export function CourseCatalogView() {
                 studentsCount: Number(c.students_count || c.studentsCount || 0),
                 durationHours: durationNum > 0 ? durationNum : 10,
                 durationFormatted: `${durationNum > 0 ? durationNum : 10} hours`,
-                coverImage: c.cover_image || c.coverImage || c.image || "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&auto=format&fit=crop&q=80",
-                image: c.cover_image || c.coverImage || c.image || "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&auto=format&fit=crop&q=80",
+                coverImage: c.cover_image || c.coverImage || c.image || "/images/courses/course-react.png",
+                image: c.cover_image || c.coverImage || c.image || "/images/courses/course-react.png",
                 badge: c.is_bestseller ? "Bestseller" : undefined,
               };
             });

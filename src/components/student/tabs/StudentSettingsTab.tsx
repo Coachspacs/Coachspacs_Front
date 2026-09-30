@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useRef, useState } from "react";
+import Image from "next/image";
 import { useTranslations, useLocale } from "next-intl";
 import {
   User,
@@ -75,9 +76,12 @@ export function StudentSettingsTab({
         <div className="relative group">
           <div className="w-24 h-24 rounded-full bg-[#0F5244]/10 text-[#0F5244] border-2 border-[#0F5244]/20 flex items-center justify-center font-black text-2xl overflow-hidden shadow-xs">
             {avatarPreview ? (
-              <img
+              <Image
                 src={avatarPreview}
                 alt={formData.fullName}
+                width={96}
+                height={96}
+                unoptimized
                 className="w-full h-full object-cover"
               />
             ) : (

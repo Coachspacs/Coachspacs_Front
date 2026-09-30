@@ -1364,12 +1364,14 @@
     "totalDuration": "المدة الإجمالية",
     "freeCourse": "دورة مجانية",
     "courseUnderReviewBannerTitle": "الدورة قيد المراجعة والتدقيق حالياً",
-    "courseUnderReviewBannerDesc": "تم إرسال هذه الدورة للمراجعة من قِبل إدارة المنصة. تم قفل التعديلات مؤقتاً لضمان نزاهة المراجعة. ستصلك إشعارات فور اعتمادها ونشرها للطلاب.",
+    "courseUnderReviewBannerDesc": "هذه الدورة قيد تدقيق ومراجعة الإدارة حالياً. يمكنك متابعة تحديث تفاصيل الدورة، المرفقات، والمنهج وإعادة إرسالها للمراجعة في أي وقت.",
     "courseRejectedBannerTitle": "الدورة بحاجة إلى تعديلات قبل الاعتماد",
     "courseRejectedBannerDesc": "قام فريق الإدارة بمراجعة هذه الدورة وطلب إجراء التحسينات التالية قبل اعتمادها ونشرها للطلاب. يرجى مراجعة الملاحظات أدناه وإجراء التعديل ثم إعادة التقديم:",
     "rejectionReasonFallback": "يرجى مراجعة تفاصيل المنهج، فيديوهات الدروس، والأوصاف المطلوبة، ثم إعادة تقديم الدورة للمراجعة.",
     "lockedModeBadge": "وضع القراءة فقط",
-    "statusUnderReviewLockedNotice": "الدورة قيد المراجعة لدى الإدارة (مقفلة للتعديل)",
+    "awaitingReviewBadge": "بانتظار الموافقة",
+    "updateAndResubmitReview": "تحديث وإعادة الإرسال للمراجعة",
+    "statusUnderReviewLockedNotice": "الدورة قيد المراجعة لدى الإدارة",
     "viewDetailsBtn": "عرض التفاصيل (قيد المراجعة)",
     "readyToPublish": "دورتك مكتملة وجاهزة للنشر الآن!",
     "missingItemsAlert": "توجد بعض المتطلبات الناقصة قبل أن تتمكن من النشر.",
@@ -1380,6 +1382,14 @@
     "videoAttached": "الفيديو مرفق",
     "externalVideoLink": "رابط خارجي",
     "uploadedCloudinaryVideo": "فيديو Cloudinary MP4",
+    "courseMaterialsTitle": "مواد وملفات الدورة التدريبية",
+    "courseMaterialsSubtitle": "أرفق ملفات داعمة، عروض تقديمية، ومشاريع قابلة للتحميل أعدها المدرب خصيصاً لهذه الدورة.",
+    "lessonAttachmentsTitle": "مرفقات هذا الدرس (سلايدات / تمارين)",
+    "uploadNewAttachment": "إضافة ملف جديد",
+    "replaceAttachment": "استبدال الملف",
+    "renameAttachment": "تعديل الاسم",
+    "deleteAttachment": "حذف",
+    "downloadAttachment": "تحميل",
     "noVideoWarning": "فيديو مفقود",
     "minutes": "دقيقة",
     "defaultCategory": "عام",
@@ -1403,7 +1413,9 @@
     "addNewLesson": "إضافة درس جديد",
     "lessonTitleEnPlaceholder": "e.g. Introduction to Routing",
     "lessonTitleArPlaceholder": "مثال: مقدمة إلى التوجيه",
-    "courseSubmittedSuccessDesc": "تم حفظ الدورة وإرسالها للمراجعة بنجاح! يمكنك الآن إدارة دوراتك ومتابعة حالتها."
+    "courseSubmittedSuccessDesc": "تم حفظ الدورة وإرسالها للمراجعة بنجاح! يمكنك الآن إدارة دوراتك ومتابعة حالتها.",
+    "courseUpdatedSuccess": "تم تحديث الدورة بنجاح!",
+    "courseUpdatedSuccessDesc": "تم حفظ جميع تعديلات ومرفقات الدورة وتطبيقها مباشرة."
   },
   "instructorDashboard": {
     "title": "لوحة التحكم للمدرب",
@@ -1882,5 +1894,439 @@
     "goToStudio": "الانتقال إلى استوديو المدرب",
     "signInAsStudent": "تسجيل الدخول كطالب",
     "stayHere": "إغلاق"
+  },
+  "myPath": {
+    "badge": "المستشار التعليمي الذكي",
+    "generatingBadge": "جاري تخصيص مسارك...",
+    "robotGreeting": "مرحباً! أنا جاهز لبناء مسارك",
+    "speedSprint": "سريع ومكثف",
+    "speedRecommended": "الخيار الموصى به",
+    "speedMastery": "احتراف متكامل",
+    "rankMaster": "مستوى الاحتراف",
+    "rankAdvanced": "مستوى متقدم",
+    "rankApprentice": "مستوى واعد",
+    "rankStarter": "مستوى البداية",
+    "step1Badge": "الخطوة 1 من 4 • نظرة عامة",
+    "step2Badge": "الخطوة 2 من 4 • تقييم المهارات",
+    "step3Badge": "الخطوة 3 من 4 • الجدول والأهداف",
+    "step4Badge": "الخطوة 4 من 4 • جاري إنشاء المسار",
+    "title": "مساري",
+    "subtitle": "خريطتك التعليمية المخصصة بالذكاء الاصطناعي لتسريع وصولك لأهدافك",
+    "description": "خطوات واضحة ومدروسة تناسب جدولك ومستواك، من البداية وحتى الاحتراف وبناء معرض أعمالك.",
+    "whyTitle": "لماذا مساري؟",
+    "benefits": {
+      "personalizedTitle": "مسار مصمم خصيصاً لك",
+      "personalizedDesc": "يتوافق بدقة مع مستواك الحالي، وقتك المتاح، والهدف المهني الذي تطمح له.",
+      "coursesTitle": "مبني على مناهج ومشاريع معتمدة",
+      "coursesDesc": "تطبيق عملي خطوة بخطوة مع شهادات معتمدة ومشاريع حقيقية تبرز في سيرتك الذاتية.",
+      "flexibleTitle": "مرن ومواكب لأحدث التقنيات",
+      "flexibleDesc": "تحديث مستمر لمحطات التعلم مع إمكانية إعادة ضبط الجدول في أي وقت بسهولة."
+    },
+    "startAssessment": "ابدأ مساري التعليمي",
+    "continue": "متابعة",
+    "back": "السابق",
+    "regenerate": "إعادة توليد المسار",
+    "editGoals": "تعديل أهدافي",
+    "wizard": {
+      "step1Badge": "الخطوة 1 من 4",
+      "step1Category": "تقييم وتحديد الهدف",
+      "step1Pill": "تحديد الهدف",
+      "step1Title": "ما هو هدفك التعليمي الأساسي؟",
+      "step1Subtitle": "اختر الهدف الرئيسي الذي يتوافق مع مسارك الشخصي والمهني في هذه المرحلة لنقوم بتخصيص التجربة لك.",
+      "goals": {
+        "job": {
+          "title": "الحصول على وظيفة جديدة / تغيير المسار المهني",
+          "desc": "الانتقال إلى وظائف عالية الطلب مع خرائط طريق مخصصة وشاملة"
+        },
+        "skills": {
+          "title": "تطوير مهاراتي الحالية",
+          "desc": "تعميق الخبرة في مجالك واحتراف أحدث أطر العمل والأدوات التقنية"
+        },
+        "exam": {
+          "title": "التحضير لاختبار أو شهادة معتمدة",
+          "desc": "اختبارات تجريبية منظمة، تدريبات مكثفة، وشهادات معتمدة عالمياً"
+        },
+        "growth": {
+          "title": "التعلم للتطور والشغف الشخصي",
+          "desc": "استكشاف شغفك الإبداعي ومواضيع ملهمة لتوسيع مداركك المعرفية"
+        },
+        "other": {
+          "title": "أهداف أخرى مخصصة",
+          "desc": "وتيرة مخصصة أو أهداف تعليمية متعددة التخصصات"
+        }
+      },
+      "step2Badge": "الخطوة 2 من 4",
+      "step2Category": "تقييم المستوى",
+      "step2Pill": "المستوى الحالي",
+      "step2Estimated": "الوقت المتوقع: 30 ثانية",
+      "step2Title": "ما هو مستواك الحالي في هذا المجال؟",
+      "step2Subtitle": "اختر مستواك لنقوم بتخصيص خطة التعلم المناسبة لك وتخطي ما تتقنه.",
+      "levels": {
+        "none": {
+          "title": "مبتدئ (من الصفر)",
+          "badge": "البدء من الصفر",
+          "desc": "أبدأ من البداية بدون معرفة أو خبرة سابقة",
+          "pace": "الوتيرة: أساسيات هادئة",
+          "prereq": "بدون متطلبات سابقة"
+        },
+        "basic": {
+          "title": "معرفة بالأساسيات",
+          "badge": "إلمام بالمفاهيم",
+          "desc": "إلمام بالمفاهيم العامة وأحتاج للتطبيق والتدريب",
+          "pace": "الوتيرة: منتظمة وثابتة",
+          "prereq": "مفاهيم أساسية"
+        },
+        "intermediate": {
+          "title": "مستوى متوسط",
+          "badge": "تطبيق عملي",
+          "recommendedBadge": "موصى به",
+          "desc": "لدي ممارسة عملية وأريد تطوير مهاراتي وبناء مشاريع",
+          "pace": "الوتيرة: متسارعة",
+          "prereq": "مبني على المشاريع"
+        },
+        "advanced": {
+          "title": "مستوى متقدم",
+          "badge": "تخصص متقدم",
+          "desc": "خبرة قوية وأرغب باحتراف الموضوعات المعقدة",
+          "pace": "الوتيرة: عالية وسريعة",
+          "prereq": "معمارية الأنظمة"
+        }
+      },
+      "diagnosticsNotice": "لست متأكداً تماماً؟ يمكنك إعادة ضبط مستواك في أي مرحلة من خلال اختبار تشخيص المهارات.",
+      "exploreDiagnostics": "استكشاف الاختبار التشخيصي",
+      "step3Badge": "الخطوة 3 من 4",
+      "step3Category": "الوقت الأسبوعي",
+      "step3CategoryAr": "الوقت الأسبوعي",
+      "step3Pill": "الوقت المتاح",
+      "step3Title": "كم ساعة تستطيع تخصيصها أسبوعياً؟",
+      "step3Subtitle": "اختر الوقت المناسب لجدولك لنحدد وتيرة التعلم الواقعية لك.",
+      "hours": {
+        "h1_2": {
+          "title": "1–2 ساعة / أسبوعياً",
+          "desc": "وتيرة هادئة وخفيفة تناسب الأوقات المزدحمة"
+        },
+        "h3_5": {
+          "title": "3–5 ساعات / أسبوعياً",
+          "recommendedBadge": "موصى به",
+          "desc": "وتيرة متوازنة لاكتساب المهارات بانتظام"
+        },
+        "h6_10": {
+          "title": "6–10 ساعات / أسبوعياً",
+          "desc": "مسار سريع وتطبيقات مكثفة لتحقيق أهدافك بسرعة"
+        },
+        "h10plus": {
+          "title": "أكثر من 10 ساعات / أسبوعياً",
+          "desc": "تفرغ كامل وانغماس مكثف لاحتراف المجال في أسرع وقت"
+        }
+      },
+      "step4Badge": "الخطوة 4 من 4 • اختيار المهارة والتخصص",
+      "step4Title": "ما هي المهارة أو التخصص الذي ترغب في تعلمه؟",
+      "step4Subtitle": "حدد مجالك أو مهارتك الرئيسية ليقوم الذكاء الاصطناعي ببناء وحدات مخصصة، مشاريع تطبيقية، ومحطات تعلم ذكية تناسبك.",
+      "searchPlaceholder": "ابحث أو اكتب أي مهارة (مثال: React, UI/UX, Python, Data Science)...",
+      "quickFilter": "فلترة سريعة",
+      "skills": {
+        "frontend": {
+          "title": "تطوير واجهات المستخدم (Frontend)",
+          "badge": "الأكثر طلباً",
+          "desc": "بناء واجهات مستخدم تفاعلية وعالية الأداء وتطبيقات ويب متجاوبة.",
+          "tags": "React, Next.js, TypeScript"
+        },
+        "uiux": {
+          "title": "تصميم تجربة وواجهة المستخدم (UI/UX)",
+          "badge": "طلب عالي",
+          "desc": "تصميم منتجات رقمية تركز على المستخدم، أنظمة التصميم، والنماذج التفاعلية السريعة.",
+          "tags": "Figma, Design Systems, User Research"
+        },
+        "data": {
+          "title": "بايثون وعلم البيانات (Data Science)",
+          "desc": "معالجة البيانات، بناء نماذج تعلم آلة تنبؤية، واستخراج رؤى قابلة للتنفيذ.",
+          "tags": "Data Analysis, Machine Learning, Pandas"
+        },
+        "mobile": {
+          "title": "تطوير تطبيقات الموبايل (Mobile Apps)",
+          "desc": "صناعة تطبيقات سلسة وشبه أصلية قابلة للنشر على متجري App Store و Google Play.",
+          "tags": "Flutter, React Native, iOS / Android"
+        },
+        "cloud": {
+          "title": "الحوسبة السحابية وهندسة ديف أوبس (Cloud & DevOps)",
+          "desc": "توسيع البنى السحابية الحديثة مع خطوط النشر الآلي والحاويات المتقدمة.",
+          "tags": "Docker, AWS, CI/CD"
+        },
+        "backend": {
+          "title": "هندسة وتطوير البنية الخلفية (Backend)",
+          "desc": "بناء قواعد بيانات متينة، منطق خوادم عالي الكفاءة، وواجهات برمجة REST/GraphQL.",
+          "tags": "Node.js, PostgreSQL, GraphQL"
+        }
+      },
+      "customSkillTitle": "إضافة مهارة أو تخصص مخصص",
+      "customSkillDesc": "لم تجد تخصصك؟ اكتب مجالاً مخصصاً مثل Solidity، الأمن السيبراني، أو Go.",
+      "customSkillInputPlaceholder": "اكتب اسم التخصص المخصص (مثال: الأمن السيبراني، Solidity)...",
+      "customSkillConfirm": "تطبيق التخصص المخصص",
+      "completedBadge": "مكتمل",
+      "generatingRoadmap": "توليد خريطة المسار",
+      "generateRoadmapBtn": "توليد خريطة المسار الذكية"
+    },
+    "step2": {
+      "title": "اختر مسارك التعليمي ومستواك الحالي",
+      "subtitle": "حدد المجال الذي ترغب في احترافه ومن أي مستوى ستبدأ رحلتك.",
+      "fieldLabel": "اختر التخصص الأساسي",
+      "levelLabel": "مستوى خبرتك الحالي",
+      "fields": {
+        "frontend": "تطوير واجهات المستخدم (Frontend)",
+        "backend": "تطوير البنية الخلفية والسحابية (Backend)",
+        "fullstack": "التطوير الشامل المتكامل (Full Stack)",
+        "ai": "الذكاء الاصطناعي وتعلّم الآلة (AI & ML)",
+        "uiux": "تصميم تجربة وواجهة المستخدم (UI/UX)",
+        "data": "تحليل وهندسة البيانات (Data Science)",
+        "mobile": "تطوير تطبيقات الموبايل (Mobile Development)",
+        "cloud": "الحوسبة السحابية والـ DevOps",
+        "business": "قيادة وإدارة المنتجات الرقمية (Product Management)"
+      },
+      "levels": {
+        "beginner": "مبتدئ تماماً (البدء من الصفر)",
+        "intermediate": "متوسط (أمتلك الأساسيات وأبني مشاريع)",
+        "advanced": "متقدم (أبحث عن الاحتراف العميق وأفضل الممارسات)"
+      }
+    },
+    "step3": {
+      "title": "جدولك الزمني والهدف الزمني للإنجاز",
+      "subtitle": "كم عدد الساعات التي يمكنك تخصيصها أسبوعياً للتعلم الفعلي؟",
+      "hoursLabel": "الالتزام الأسبوعي بالساعات",
+      "hours3": "3 - 5 ساعات / أسبوعياً (وتيرة مرنة وهادئة)",
+      "hours8": "8 - 12 ساعة / أسبوعياً (وتيرة ثابتة ومركزة)",
+      "hours15": "15+ ساعة / أسبوعياً (وتيرة مكثفة وسريعة)",
+      "targetLabel": "المدة الزمنية المستهدفة لإنهاء المسار",
+      "target1": "شهر واحد (مسار سريع ومكثف)",
+      "target3": "3 أشهر (مسار متوازن وعميق)",
+      "target6": "6 أشهر (مسار مهني شامل ومتقدم)"
+    },
+    "step4": {
+      "generatingTitle": "يقوم الذكاء الاصطناعي بهندسة مسارك الأمثل الآن...",
+      "generatingDesc": "نقوم بتحليل ترابط الدورات، المتطلبات القبلية، وتوزيع الساعات على محطات الإنجاز.",
+      "stepAnalyzing": "تحليل المهارات والمتطلبات القبلية...",
+      "stepSequencing": "ترتيب الدورات والمشاريع التسلسلية...",
+      "stepMilestones": "صياغة محطات الإنجاز والشهادات المكتسبة..."
+    },
+    "roadmap": {
+      "headerBadge": "مساري التعليمي",
+      "activeCurriculumTag": "منهج نشط",
+      "mainTitle": "مساري",
+      "mainSubtitle": "خطة تعليمية مخصصة للوصول لأهدافك خطوة بخطوة وفق جدولك الزمني.",
+      "sharePath": "مشاركة",
+      "resumeCurrentStep": "متابعة التعلم",
+      "careerTrajectory": "المسار الحالي",
+      "editGoal": "تعديل الأهداف",
+      "levelLabel": "المستوى",
+      "commitmentLabel": "الالتزام",
+      "durationLabel": "المدة",
+      "hrsWk": "س/أسبوعياً",
+      "months": "أشهر",
+      "roadmapProgress": "إنجاز المسار",
+      "stepsCompleted": "من أصل {total} محطات مكتملة",
+      "onTrack": "ضمن الجدول",
+      "done": "مكتمل",
+      "currentVelocity": "السرعة",
+      "hrsThisWeek": "ساعات هذا الأسبوع",
+      "nextMilestoneIn": "المحطة التالية خلال {hours} س",
+      "started": "البدء",
+      "target": "المستهدف",
+      "whyThisPath": "لماذا هذا المسار؟",
+      "aiRationale": "تحليل ذكي",
+      "aiRationaleDesc": "مسار مبني خصيصاً ليوازن بين الفهم النظري والمشاريع العملية.",
+      "skipStep": "تخطي خطوة",
+      "reorderPath": "إعادة ترتيب",
+      "regenerateMyPath": "إعادة توليد المسار",
+      "learningRoadmapHeading": "محطات التعلم",
+      "modulesRemaining": "{count} محطات متبقية",
+      "activeModule": "الوحدة النشطة",
+      "upNext": "التالي",
+      "locked": "مغلق",
+      "course": "دورة",
+      "capstoneProject": "مشروع التخرج",
+      "hours": "ساعات",
+      "finished": "منجز",
+      "lessonOf": "الدرس {current} من {total}",
+      "continue": "متابعة",
+      "start": "بدء",
+      "completeStepToUnlock": "أكمل الخطوة {step} للفتح",
+      "needTutoring": "مساعدة إضافية؟",
+      "tutoringDesc": "المساعد الذكي جاهز للإجابة على استفساراتك.",
+      "askTutor": "سؤال المساعد",
+      "resourceKit": "الموارد الإضافية",
+      "resourceKitDesc": "ملخصات سريعة ومشاريع تدريبية واقعية.",
+      "explore": "استكشاف",
+      "headerTitle": "مساري التعليمي",
+      "headerSubtitle": "محطات متسلسلة تقودك من مستواك الحالي وحتى هدفك المنشود.",
+      "estimatedWeeks": "المدة",
+      "weeks": "أسابيع",
+      "hoursPerWeek": "ساعة / أسبوعياً",
+      "totalMilestones": "المحطات",
+      "milestone": "المحطة",
+      "statusPlanned": "مخطط لها",
+      "statusInProgress": "قيد التعلم",
+      "statusCompleted": "مكتملة",
+      "enrollCourse": "بدء",
+      "viewCourse": "عرض",
+      "markComplete": "مكتمل",
+      "completedBadge": "مكتملة",
+      "congratsTitle": "أنت جاهز لبدء رحلتك!",
+      "congratsDesc": "ابدأ الآن بالوحدة الأولى واكتسب مهاراتك خطوة بخطوة.",
+      "recommendedCourse": "الدورة التدريبية المعتمدة",
+      "startCourseBtn": "بدء الدورة الآن",
+      "viewCourseBtn": "تفاصيل الدورة",
+      "practicalProject": "المشروع العملي التطبيقي",
+      "skillsLearned": "المهارات المكتسبة",
+      "currentStepBadge": "المحطة الحالية",
+      "upcomingStepBadge": "مخطط لها",
+      "markAsCompleted": "تحديد كمكتمل",
+      "instructor": "المدرب",
+      "totalProgress": "التقدم",
+      "customCurriculumBadge": "مسار مخصص",
+      "editGoalSchedule": "تعديل المسار",
+      "mainSubtitleDetailed": "خطة عملية هادئة لاكتساب المهارات وبناء معرض أعمالك.",
+      "totalPathProgress": "التقدم الإجمالي",
+      "milestonesOverview": "{total} محطات تعليمية",
+      "activeMilestoneBadge": "المحطة {step}",
+      "activeStepTag": "قيد التعلم",
+      "upcomingStepTag": "قادمة",
+      "capstoneProjectTag": "مشروع التخرج",
+      "trainingHours": "{count} ساعات",
+      "practicalProjectNum": "مشروع {num}",
+      "resumeLessonBtn": "متابعة",
+      "previewContentBtn": "معاينة",
+      "lessonsCompletedCount": "{completed} من {total} مكتملة",
+      "needReviewBannerTitle": "تحتاج استشارة أو مراجعة لمشروعك؟",
+      "needReviewBannerDesc": "احجز جلسة فردية (1-on-1) مع مدربك للحصول على ملاحظات مباشرة.",
+      "request1on1Btn": "طلب جلسة توجيه",
+      "goalLabel": "الهدف",
+      "goalCertificatePortfolio": "شهادة ومعرض أعمال",
+      "levelIntermediateAdvanced": "متوسط"
+    }
+  },
+  "cms": {
+    "title": "نظام إدارة المحتوى",
+    "studioAdmin": "لوحة الإدارة",
+    "headerTitle": "لوحة التحكم المركزية بالهوية والمحتوى",
+    "activeEngine": "نظام الإدارة نشط",
+    "activeShort": "نشط",
+    "verifyingAccess": "جاري التحقق من الصلاحيات...",
+    "accessDenied": "صلاحيات غير كافية",
+    "accessDeniedDesc": "تحتاج إلى صلاحية مدير (Admin) للوصول إلى نظام إدارة المحتوى وتخصيص الهوية.",
+    "backToPlatform": "العودة للمنصة",
+    "nav": {
+      "overview": "نظرة عامة",
+      "branding": "الهوية البصرية",
+      "landing": "محتوى الصفحة الرئيسية",
+      "pages": "الصفحات القانونية (الشروط والخصوصية)",
+      "previewSite": "معاينة الموقع المباشر",
+      "backToApp": "العودة للمنصة"
+    },
+    "overview": {
+      "tag": "نظام إدارة المحتوى والهوية الموحدة",
+      "heading": "لوحة التحكم بالصفحات والهوية",
+      "description": "تعديل محتوى الصفحة الرئيسية والصفحات القانونية (سياسة الخصوصية وشروط الاستخدام) وتخصيص الهوية البصرية بسهولة ودون إعادة بناء للتطبيق.",
+      "previewDraft": "معاينة المسودة",
+      "publishLive": "نشر التعديلات للعامة",
+      "publishSuccess": "تم نشر التعديلات وتحديث الموقع العام بنجاح!",
+      "publishFailed": "فشل النشر، يرجى المحاولة لاحقاً",
+      "draftPending": "توجد مسودة غير منشورة",
+      "published": "منشور ومحدث",
+      "activeColors": "الألوان الحالية:",
+      "lastUpdated": "آخر تحديث: ",
+      "recently": "مؤخراً",
+      "brandingCard": {
+        "tag": "الهوية البصرية",
+        "title": "تخصيص الهوية والألوان",
+        "desc": "تعديل الألوان الأساسية، الشعار، الأيقونة المفضلة ونصف قطر الأزرار على مستوى الموقع كاملاً.",
+        "btn": "فتح إعدادات الهوية"
+      },
+      "landingCard": {
+        "title": "محرر الصفحة الرئيسية",
+        "desc": "تعديل نصوص الهيرو، المميزات، الأسئلة الشائعة، وآراء الطلاب باللغتين العربية والإنجليزية.",
+        "btn": "تحرير أقسام الصفحة"
+      },
+      "legalCard": {
+        "title": "الصفحات القانونية (الشروط والخصوصية)",
+        "desc": "تحرير سياسة الخصوصية وشروط الاستخدام وحقوق المتدربين والمدربين باللغتين العربية والإنجليزية.",
+        "btn": "تحرير الصفحات القانونية"
+      }
+    },
+    "branding": {
+      "designSystem": "إعدادات المظهر العام والهوية",
+      "globalBranding": "تخصيص الهوية، الألوان والخطوط",
+      "resetDefaults": "استعادة الافتراضي",
+      "saveApply": "حفظ وتطبيق",
+      "savedSuccess": "تم حفظ الهوية البصرية، الألوان، والخطوط وتطبيقها بنجاح على كامل المنصة!",
+      "saveFailed": "حدث خطأ أثناء الحفظ",
+      "resetSuccess": "تمت استعادة إعدادات الهوية والخطوط الافتراضية",
+      "presetSuccess": "تم تطبيق قالب الثيم: {name}",
+      "harmonizeSuccess": "تم توليد وتنسيق ألوان الثيم تلقائياً بناءً على اللون الرئيسي!",
+      "instantPresets": "قوالب ثيمات جاهزة (بنقرة واحدة)",
+      "presetsSub": "اختر قالباً جاهزاً أو قم بتخصيص كل لون بنفسك",
+      "colorTokens": "تخصيص الألوان الأساسية (Color Tokens)",
+      "autoHarmonize": "توليد وتنسيق الألوان تلقائياً من اللون الأساسي",
+      "primaryMain": "اللون الرئيسي الأساسي (Primary Main)",
+      "primaryDark": "اللون الرئيسي الداكن (Primary Dark)",
+      "primaryLight": "اللون الرئيسي الفاتح (Primary Light)",
+      "accentMint": "لون التمييز (Accent Mint)",
+      "secondarySoft": "الخلفيات الناعمة (Secondary Soft Light)",
+      "logosAssets": "الشعار والأيقونات (Logos & Assets)",
+      "logoUrl": "رابط الشعار الرئيسي (Logo URL)",
+      "faviconUrl": "رابط الأيقونة المفضلة (Favicon URL)",
+      "buttonRadius": "نصف قطر الأزرار والبطاقات (Button Radius)",
+      "livePreview": "المعاينة الحية الفورية (Real-time Live Preview)",
+      "previewCardTitle": "دورة احترافية في تطوير الويب",
+      "previewInstructor": "د. أحمد المنصوري",
+      "primaryAction": "زر الإجراء الرئيسي",
+      "secondaryAction": "زر ثانوي",
+      "typographyStudio": "استوديو الخطوط والطباعة (Typography Studio)",
+      "arabicFont": "الخط العربي الأساسي (Arabic Font)",
+      "arabicFontDesc": "يتم تطبيقه على النصوص والواجهات باللغة العربية",
+      "englishFont": "الخط الإنجليزي الأساسي (English Font)",
+      "englishFontDesc": "يتم تطبيقه على النصوص والواجهات باللغة الإنجليزية",
+      "customFontLabel": "إضافة أي خط مخصص من Google Fonts",
+      "optional": "اختياري",
+      "customFontPlaceholder": "مثال: Amiri, Rubik, Lemonada, Poppins...",
+      "clearCustomFont": "مسح الخط المخصص",
+      "customFontDesc": "سيتم تحميل الخط تلقائياً من Google Fonts وتطبيقه على المنصة فوراً"
+    },
+    "landing": {
+      "bilingualStudio": "محرر المحتوى الثنائي",
+      "sectionsTitle": "تعديل أقسام الصفحة الرئيسية",
+      "reorderSections": "إعادة ترتيب الأقسام (Drag & Drop)",
+      "previewDraft": "معاينة المسودة",
+      "saveDraft": "حفظ كمسودة",
+      "publishLive": "نشر التعديلات",
+      "orderUpdated": "تم تحديث ترتيب الأقسام بنجاح! احفظ المسودة لتطبيق التعديلات.",
+      "draftSaved": "تم حفظ المسودة بنجاح! يمكنك الآن معاينتها بأمان قبل النشر.",
+      "draftSaveFailed": "حدث خطأ أثناء حفظ المسودة",
+      "publishSuccess": "تم نشر التعديلات بنجاح وأصبحت مباشرة لكافة الزوار!",
+      "publishFailed": "حدث خطأ أثناء النشر",
+      "tabs": {
+        "hero": "قسم البداية (Hero)",
+        "top_categories": "أبرز المجالات",
+        "master_craft": "إتقان المهارات",
+        "why_stands_out": "لماذا كوتش سبيس",
+        "real_stories": "قصص النجاح",
+        "faq": "الأسئلة الشائعة",
+        "join_future": "دعوة التسجيل (CTA)"
+      }
+    },
+    "pages": {
+      "legalStudio": "إدارة السياسات والاتفاقيات",
+      "legalTitle": "تحرير الصفحات القانونية",
+      "previewPage": "معاينة الصفحة",
+      "saveDraft": "حفظ كمسودة",
+      "publishLive": "نشر التعديلات",
+      "draftSaved": "تم حفظ مسودة الصفحات القانونية بنجاح! يمكنك الآن معاينتها.",
+      "draftSaveFailed": "حدث خطأ أثناء حفظ المسودة",
+      "publishSuccess": "تم نشر الصفحات القانونية بنجاح وأصبحت مباشرة على الموقع العام!",
+      "publishFailed": "حدث خطأ أثناء النشر",
+      "tabs": {
+        "privacy": "سياسة الخصوصية (Privacy Policy)",
+        "terms": "شروط الاستخدام (Terms of Service)"
+      }
+    }
   }
 }
+

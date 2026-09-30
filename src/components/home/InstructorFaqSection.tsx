@@ -77,7 +77,7 @@ export function InstructorFaqSection() {
                   {/* Chevron Icon (Left/Start) */}
                   <div
                     className={`p-1 rounded-full transition-transform duration-300 shrink-0 ${
-                      isOpen ? "rotate-180 text-[#0D7A66]" : "text-[#2563EB]"
+                      isOpen ? "rotate-180 text-[#0F5244]" : "text-[#2563EB]"
                     }`}
                   >
                     <ChevronDown className="w-5 h-5 stroke-[2.5]" />

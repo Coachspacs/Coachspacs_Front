@@ -143,6 +143,7 @@ export default function CoursePlayerPage() {
           ? l.title_ar || l.title || t("lessonDefault", { index: lIdx + 1 })
           : l.title_en || l.title || t("lessonDefault", { index: lIdx + 1 }),
         durationFormatted: l.duration || `${l.duration_minutes || 5}:00`,
+        attachments: l.attachments || liveLessonOverrides[String(l.id)]?.attachments || [],
         videoUrl:
           liveLessonOverrides[String(l.id)]?.video_url ||
           (l.video_url && !l.video_url.includes("example.com") ? l.video_url : null) ||
@@ -388,6 +389,8 @@ export default function CoursePlayerPage() {
       onPrevLesson={handlePrevLesson}
       onFinishCourse={handleFinishCourse}
       serverProgressPercent={serverProgressPercent}
+      courseId={courseId}
+      courseMaterials={course.course_materials || course.attachments || []}
       locale={locale}
       isAr={isAr}
       backHref="/student/courses"

@@ -10,17 +10,43 @@ export async function exportElementToPdf(
   const cleanFileName = fileName.endsWith('.pdf') ? fileName : `${fileName}.pdf`;
   let imgData: string | null = null;
 
-  // 1. Primary capture: html2canvas with untainted canvas
+  // Canonical Landscape dimensions (A4 Landscape ratio)
+  const targetWidth = 842;
+  const targetHeight = 595;
+
+  // 1. Primary capture: html2canvas with untainted canvas & high DPI
   try {
     const { default: html2canvas } = await import('html2canvas');
     const canvas = await html2canvas(element, {
-      scale: 2,
+      scale: 3,
       useCORS: true,
       allowTaint: false,
-      backgroundColor: '#ffffff',
+      backgroundColor: '#FAF9F6',
       logging: false,
+      width: targetWidth,
+      height: targetHeight,
+      windowWidth: 1280,
+      windowHeight: 900,
+      onclone: (_clonedDoc, clonedElement) => {
+        // Normalize cloned element style so it's captured in full landscape resolution
+        const cert =
+          clonedElement.id === 'coachspace-certificate-card'
+            ? clonedElement
+            : (clonedElement.querySelector('#coachspace-certificate-card') as HTMLElement) ||
+              clonedElement;
+
+        cert.style.transform = 'none';
+        cert.style.width = `${targetWidth}px`;
+        cert.style.height = `${targetHeight}px`;
+        cert.style.minWidth = `${targetWidth}px`;
+        cert.style.minHeight = `${targetHeight}px`;
+        cert.style.maxWidth = `${targetWidth}px`;
+        cert.style.maxHeight = `${targetHeight}px`;
+        cert.style.margin = '0';
+        cert.style.boxSizing = 'border-box';
+      },
     });
-    imgData = canvas.toDataURL('image/png');
+    imgData = canvas.toDataURL('image/png', 1.0);
   } catch (canvasErr) {
     console.warn('html2canvas capture warning, attempting fallback:', canvasErr);
   }
@@ -30,9 +56,22 @@ export async function exportElementToPdf(
     try {
       const { toPng } = await import('html-to-image');
       imgData = await toPng(element, {
-        quality: 0.98,
-        pixelRatio: 2,
-        backgroundColor: '#ffffff',
+        quality: 1.0,
+        pixelRatio: 3,
+        backgroundColor: '#FAF9F6',
+        width: targetWidth,
+        height: targetHeight,
+        style: {
+          transform: 'none',
+          width: `${targetWidth}px`,
+          height: `${targetHeight}px`,
+          minWidth: `${targetWidth}px`,
+          minHeight: `${targetHeight}px`,
+          maxWidth: `${targetWidth}px`,
+          maxHeight: `${targetHeight}px`,
+          margin: '0',
+          boxSizing: 'border-box',
+        },
         skipFonts: true,
       });
     } catch (pngErr) {
@@ -51,28 +90,27 @@ export async function exportElementToPdf(
         compress: true,
       });
 
-      const pageWidth = 297;
-      const pageHeight = 210;
-      const margin = 8;
-      const availableWidth = pageWidth - margin * 2;
-      const availableHeight = pageHeight - margin * 2;
+      const pdfPageWidth = 297;
+      const pdfPageHeight = 210;
 
-      const elWidth = element.offsetWidth || 1;
-      const elHeight = element.offsetHeight || 1;
-      const ratio = elHeight / elWidth;
+      // Fit full bleed / subtle edge margin (5mm)
+      const margin = 6;
+      const availableWidth = pdfPageWidth - margin * 2;
+      const availableHeight = pdfPageHeight - margin * 2;
 
-      let targetWidth = availableWidth;
-      let targetHeight = availableWidth * ratio;
+      const ratio = targetHeight / targetWidth;
+      let renderWidth = availableWidth;
+      let renderHeight = availableWidth * ratio;
 
-      if (targetHeight > availableHeight) {
-        targetHeight = availableHeight;
-        targetWidth = availableHeight / ratio;
+      if (renderHeight > availableHeight) {
+        renderHeight = availableHeight;
+        renderWidth = availableHeight / ratio;
       }
 
-      const posX = (pageWidth - targetWidth) / 2;
-      const posY = (pageHeight - targetHeight) / 2;
+      const posX = (pdfPageWidth - renderWidth) / 2;
+      const posY = (pdfPageHeight - renderHeight) / 2;
 
-      pdf.addImage(imgData, 'PNG', posX, posY, targetWidth, targetHeight, undefined, 'FAST');
+      pdf.addImage(imgData, 'PNG', posX, posY, renderWidth, renderHeight, undefined, 'SLOW');
 
       // Native Blob download via anchor link
       const blob = pdf.output('blob');

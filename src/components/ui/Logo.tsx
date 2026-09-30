@@ -1,5 +1,6 @@
 "use client";
 
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useTranslations, useLocale } from "next-intl";
@@ -27,25 +28,65 @@ export function Logo({
   const logoHeight = compact ? 36 : 46;
   const logoWidth = compact ? 34 : 44;
 
+  const [logoSrc, setLogoSrc] = useState<string>("/images/brand-logo.png");
+
+  useEffect(() => {
+    const readLogo = () => {
+      try {
+        const globalBranding = (window as unknown as { __CMS_BRANDING__?: { logoUrl?: string } }).__CMS_BRANDING__;
+        if (globalBranding?.logoUrl && globalBranding.logoUrl.trim().length > 0) {
+          setLogoSrc(globalBranding.logoUrl.trim());
+          return;
+        }
+
+        const cached = localStorage.getItem("coachspace_cms_branding");
+        if (cached) {
+          const parsed = JSON.parse(cached);
+          if (parsed?.logoUrl && parsed.logoUrl.trim().length > 0) {
+            setLogoSrc(parsed.logoUrl.trim());
+          }
+        }
+      } catch {}
+    };
+
+    readLogo();
+
+    const handleBranding = (e: Event) => {
+      const customEvent = e as CustomEvent<{ logoUrl?: string }>;
+      if (customEvent?.detail?.logoUrl && customEvent.detail.logoUrl.trim().length > 0) {
+        setLogoSrc(customEvent.detail.logoUrl.trim());
+      }
+    };
+
+    window.addEventListener("cms-branding-updated", handleBranding);
+    return () => {
+      window.removeEventListener("cms-branding-updated", handleBranding);
+    };
+  }, []);
+
+  const isDefaultLogo = logoSrc === "/images/brand-logo.png" || logoSrc === "/images/logo.png";
+  const isSvg = logoSrc.toLowerCase().includes(".svg");
+
   return (
     <Link
       href={targetHref}
       className={`inline-flex items-center gap-2.5 sm:gap-3 shrink-0 focus:outline-none ${className}`}
     >
       <Image
-        src="/images/brand-logo.png"
+        src={logoSrc}
         alt="Coach Space Logo"
         width={logoWidth}
         height={logoHeight}
         priority
-        className={`w-auto shrink-0 object-contain ${
-          imageClassName
-            ? imageClassName
-            : compact
-            ? "h-8 sm:h-9"
-            : "h-10 sm:h-11"
-        }`}
-        style={{ height: `${logoHeight}px`, width: "auto" }}
+        unoptimized={isSvg || isDefaultLogo}
+        onError={() => setLogoSrc("/images/brand-logo.png")}
+        className={`object-contain shrink-0 ${
+          isDefaultLogo ? "brand-logo-img" : ""
+        } ${imageClassName || ""}`}
+        style={{
+          height: `${logoHeight}px`,
+          width: "auto",
+        }}
       />
 
       {showText && (
@@ -61,4 +102,5 @@ export function Logo({
     </Link>
   );
 }
+
 

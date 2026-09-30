@@ -71,6 +71,8 @@ export default function middleware(request: NextRequest) {
   const userRole = decodeURIComponent(request.cookies.get('user_role')?.value || 'student').toLowerCase();
   const userStatus = decodeURIComponent(request.cookies.get('user_status')?.value || '').toLowerCase();
   const isInstructor = userRole === 'instructor' || userRole === 'coach';
+  const isSuperuserCookie = request.cookies.get('is_superuser')?.value === 'true';
+  const isSuperuser = isSuperuserCookie || userRole === 'admin' || userRole === 'superuser';
 
   // 5. Auth Guest Guard: Prevent logged-in users from accessing login, register, forgot-password, reset-password
   if (isAuthenticated) {
@@ -119,7 +121,9 @@ export default function middleware(request: NextRequest) {
     !pathWithoutLocale.includes('/confirm-email');
   const isProfileRoute = pathWithoutLocale === '/profile' || pathWithoutLocale.startsWith('/profile/');
 
+  const isAdminRoute = pathWithoutLocale.startsWith('/admin');
   const isProtectedRoute =
+    isAdminRoute ||
     isInstructorRoute ||
     isStudentRoute ||
     (isCartOrCheckoutRoute && !isStudentRoute) ||
@@ -135,7 +139,15 @@ export default function middleware(request: NextRequest) {
       return NextResponse.redirect(url);
     }
 
-    // 6.2 Role-Based Access: Students cannot access instructor routes
+    // 6.2 Admin Route Access: ONLY Superusers can access /admin pages
+    if (isAdminRoute && !isSuperuser) {
+      const url = request.nextUrl.clone();
+      url.pathname = isInstructor ? `/${currentLocale}/instructor` : `/${currentLocale}/student`;
+      url.search = '';
+      return NextResponse.redirect(url);
+    }
+
+    // 6.3 Role-Based Access: Students cannot access instructor routes
     if (isInstructorRoute && !isInstructor) {
       const url = request.nextUrl.clone();
       url.pathname = `/${currentLocale}/student`;

@@ -49,7 +49,7 @@ export const tokenManager = {
   /**
    * Sets the access token in runtime memory and syncs the session cookie for middleware.
    */
-  setAccessToken(token: string | null, role?: string, status?: string): void {
+  setAccessToken(token: string | null, role?: string, status?: string, isSuperuser?: boolean): void {
     memoryAccessToken = token;
     if (token) {
       setCookie('auth_token', token, 7);
@@ -58,6 +58,9 @@ export const tokenManager = {
       }
       if (status !== undefined) {
         setCookie('user_status', status || '', 7);
+      }
+      if (isSuperuser !== undefined) {
+        setCookie('is_superuser', isSuperuser ? 'true' : 'false', 7);
       }
     } else {
       this.clearTokens();
@@ -103,6 +106,7 @@ export const tokenManager = {
     removeCookie('refresh_token');
     removeCookie('user_role');
     removeCookie('user_status');
+    removeCookie('is_superuser');
     if (typeof window !== 'undefined') {
       localStorage.removeItem('user');
       localStorage.removeItem('token');

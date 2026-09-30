@@ -4,7 +4,7 @@ import { useEffect, useRef } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@/lib/store";
 import { tokenManager } from "@/lib/tokenManager";
-import { setCredentials } from "@/features/auth/slice";
+import { setCredentials, logout } from "@/features/auth/slice";
 import { userService } from "@/services/userService";
 
 export function AuthInitializer() {
@@ -92,6 +92,9 @@ export function AuthInitializer() {
         })
         .catch((err) => {
           console.warn("[AuthInitializer] Automatic profile sync info:", err?.message);
+          if (err?.response?.status === 401 || !tokenManager.hasSession()) {
+            dispatch(logout());
+          }
         })
         .finally(() => {
           isFetchingRef.current = false;

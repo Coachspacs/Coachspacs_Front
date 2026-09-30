@@ -17,6 +17,40 @@ export interface Lesson {
   is_preview?: boolean;
   order?: number;
   warning?: string;
+  attachments?: AttachmentItem[];
+}
+
+export interface AttachmentItem {
+  id: string | number;
+  file_name: string;
+  file_public_id: string;
+  file_size?: number;
+  file_bytes?: number;
+  file_format?: string;
+  created_at?: string;
+  updated_at?: string;
+  course_id?: string | number;
+  lesson_id?: string | number | null;
+  download_url?: string;
+}
+
+export interface AttachmentUploadSignatureResponse {
+  cloud_name: string;
+  api_key: string;
+  timestamp: number | string;
+  folder: string;
+  type: string;
+  signature: string;
+}
+
+export interface CreateAttachmentRequest {
+  file_name: string;
+  file_public_id: string;
+}
+
+export interface UpdateAttachmentRequest {
+  file_name?: string;
+  file_public_id?: string;
 }
 
 export interface Section {
@@ -142,6 +176,8 @@ export interface Course {
   total_duration_minutes?: number;
   isSaved?: boolean;
   isRealBackend?: boolean;
+  course_materials?: AttachmentItem[];
+  attachments?: AttachmentItem[];
   updatedAt?: string;
 }
 

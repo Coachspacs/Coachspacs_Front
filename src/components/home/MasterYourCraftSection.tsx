@@ -7,11 +7,19 @@ import { courseService } from "@/services/courseService";
 import { CourseCard } from "@/components/catalog/CourseCard";
 import { Course } from "@/types/catalog";
 import { motion, Variants } from "framer-motion";
+import { MasterYourCraftSectionData } from "@/types/cms";
 
-export function MasterYourCraftSection() {
+interface MasterYourCraftSectionProps {
+  data?: MasterYourCraftSectionData;
+}
+
+export function MasterYourCraftSection({ data }: MasterYourCraftSectionProps = {}) {
   const t = useTranslations("home");
   const locale = useLocale() || "en";
   const isAr = locale === "ar";
+
+  const headingText = (isAr ? data?.heading_ar : data?.heading_en) || t("masterYourCraftTitle");
+  const descriptionText = (isAr ? data?.description_ar : data?.description_en) || t("masterYourCraftSubtitle");
 
   const [courses, setCourses] = useState<Course[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -49,7 +57,7 @@ export function MasterYourCraftSection() {
               rating: Number(c.rating || 0),
               reviewsCount: Number(c.reviews_count || c.reviewsCount || 0),
               reviewsCountFormatted: String(Number(c.reviews_count || c.reviewsCount || 0)),
-              coverImage: c.cover_image || c.coverImage || c.image || "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&auto=format&fit=crop&q=80",
+              coverImage: c.cover_image || c.coverImage || c.image || "/images/courses/course-react.png",
               badge: c.is_bestseller ? "Bestseller" : undefined,
             };
           });
@@ -107,10 +115,10 @@ export function MasterYourCraftSection() {
           className="text-center max-w-3xl mx-auto mb-10 sm:mb-14"
         >
           <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight">
-            {t("masterYourCraftTitle")}
+            {headingText}
           </h2>
           <p className="mt-3 text-slate-500 text-sm sm:text-base font-medium">
-            {t("masterYourCraftSubtitle")}
+            {descriptionText}
           </p>
         </motion.div>
 

@@ -155,8 +155,22 @@ export function InstructorWorkspace({
 
     setIsLoadingCourses(true);
     try {
-      const data = await instructorCourseService.getMyCourses();
-      const list = Array.isArray(data) ? data : data?.results || [];
+      const [coursesRes, dashRes] = await Promise.all([
+        instructorCourseService.getMyCourses().catch((err) => {
+          console.warn("Could not fetch instructor courses:", err);
+          return [];
+        }),
+        instructorService.getDashboard().catch((dashErr) => {
+          console.warn("Could not fetch instructor dashboard metrics:", dashErr);
+          return null;
+        }),
+      ]);
+
+      if (dashRes) {
+        setDashboardData(dashRes);
+      }
+
+      const list = Array.isArray(coursesRes) ? coursesRes : coursesRes?.results || [];
 
       const realCourses = list.map((c: any) => {
         const rawStatus = String(c.status || "").toLowerCase();
@@ -167,12 +181,26 @@ export function InstructorWorkspace({
           | "draft"
           | "rejected"
           | "archived" = "draft";
+        // Authoritative backend status check
         if (
+          rawStatus === "published" ||
+          rawStatus === "approved" ||
+          (c.is_published &&
+            rawStatus !== "draft" &&
+            rawStatus !== "rejected" &&
+            rawStatus !== "archived")
+        ) {
+          removeCourseStatus(c.id);
+          normalizedStatus = "published";
+        } else if (
           rawStatus === "archived" ||
           Boolean(c.is_archived) ||
           savedStatus === "archived"
         ) {
           normalizedStatus = "archived";
+        } else if (rawStatus === "rejected" || rawStatus === "declined") {
+          removeCourseStatus(c.id);
+          normalizedStatus = "rejected";
         } else if (
           rawStatus === "pending_review" ||
           rawStatus === "pending" ||
@@ -181,23 +209,29 @@ export function InstructorWorkspace({
           savedStatus === "pending_review"
         ) {
           normalizedStatus = "pending_review";
-        } else if (rawStatus === "rejected" || rawStatus === "declined") {
-          removeCourseStatus(c.id);
-          normalizedStatus = "rejected";
-        } else if (
-          rawStatus === "published" ||
-          rawStatus === "approved" ||
-          savedStatus === "published" ||
-          (c.is_published &&
-            rawStatus !== "draft" &&
-            rawStatus !== "rejected" &&
-            rawStatus !== "archived")
-        ) {
-          removeCourseStatus(c.id);
+        } else if (savedStatus === "published") {
           normalizedStatus = "published";
         } else {
           normalizedStatus = "draft";
         }
+
+        const dashCourse = dashRes?.courses?.find(
+          (dc: any) => String(dc.id) === String(c.id),
+        );
+        const resolvedStudentsCount = Number(
+          dashCourse?.enrollment_count ??
+          c.enrollment_count ??
+          c.enrollments_count ??
+          c.enrolled_count ??
+          c.enrolled_students_count ??
+          c.students_count ??
+          c.total_students ??
+          c.studentsCount ??
+          (Array.isArray(c.enrolled_students) ? c.enrolled_students.length : undefined) ??
+          (Array.isArray(c.students) ? c.students.length : undefined) ??
+          (Array.isArray(c.enrollments) ? c.enrollments.length : undefined) ??
+          0,
+        ) || 0;
 
         return {
           id: String(c.id),
@@ -206,12 +240,12 @@ export function InstructorWorkspace({
             : c.title_en || c.title_ar || c.title,
           titleEn: c.title_en || c.title || tInst("untitledCourse"),
           titleAr: c.title_ar || c.title || tInst("untitledCourse"),
-          studentsCount: Number(c.students_count || c.total_students || 0),
+          studentsCount: resolvedStudentsCount,
           rating: Number(c.rating || 0),
           reviewsCount: Number(c.reviews_count || c.reviewsCount || 0),
           revenue: Number(
             c.revenue ||
-              (c.price ? Number(c.price) * (c.students_count || 0) : 0),
+              (c.price ? Number(c.price) * resolvedStudentsCount : 0),
           ),
           status: normalizedStatus,
           price: Number(c.price) || 0,
@@ -284,61 +318,75 @@ export function InstructorWorkspace({
       });
       setStudents(allDynamicStudents);
 
-      // Async live fetch for courses with enrolled students (US-17)
-      const coursesWithStudents = realCourses.filter(
-        (c: any) => Number(c.studentsCount || c.students_count || 0) > 0
-      );
-      if (coursesWithStudents.length > 0) {
+      // Live fetch enrolled students from /api/instructor/courses/{id}/students (US-17)
+      if (realCourses.length > 0) {
         Promise.all(
-          coursesWithStudents.map(async (c: any) => {
+          realCourses.map(async (c: any) => {
             try {
               const res = await instructorService.getCourseStudents(c.id, 1, 50);
-              return (res.results || []).map((st: any, idx: number) => ({
-                id: String(st.id || `${c.id}-st-${idx + 1}`),
+              const studentList = res?.results || (Array.isArray(res) ? res : []);
+              const count =
+                typeof res?.count === "number"
+                  ? res.count
+                  : studentList.length;
+              return {
                 courseId: String(c.id),
-                name:
-                  st.full_name ||
-                  st.name ||
-                  st.email?.split("@")[0] ||
-                  (isAr ? `طالب مسجل ${idx + 1}` : `Student ${idx + 1}`),
-                email: st.email || `student${idx + 1}@example.com`,
-                avatar: st.avatar || null,
-                course: isAr ? c.titleAr : c.titleEn,
-                date: st.enrolled_at
-                  ? new Date(st.enrolled_at).toLocaleDateString(
-                      isAr ? "ar-EG" : "en-US",
-                    )
-                  : isAr
-                    ? "مؤخراً"
-                    : "Recently",
-                progress:
-                  typeof st.progress_percent === "number"
-                    ? st.progress_percent
-                    : (st.progress ?? 0),
-                status:
-                  st.is_completed || st.progress_percent === 100
-                    ? "completed"
-                    : "active",
-              }));
+                count,
+                students: studentList.map((st: any, idx: number) => ({
+                  id: String(st.id || `${c.id}-st-${idx + 1}`),
+                  courseId: String(c.id),
+                  name:
+                    st.full_name ||
+                    st.name ||
+                    st.email?.split("@")[0] ||
+                    (isAr ? `طالب مسجل ${idx + 1}` : `Student ${idx + 1}`),
+                  email: st.email || `student${idx + 1}@example.com`,
+                  avatar: st.avatar || null,
+                  course: isAr ? c.titleAr : c.titleEn,
+                  date: st.enrolled_at
+                    ? new Date(st.enrolled_at).toLocaleDateString(
+                        isAr ? "ar-EG" : "en-US",
+                      )
+                    : isAr
+                      ? "مؤخراً"
+                      : "Recently",
+                  progress:
+                    typeof st.progress_percent === "number"
+                      ? st.progress_percent
+                      : (st.progress ?? 0),
+                  status:
+                    st.is_completed || st.progress_percent === 100
+                      ? "completed"
+                      : "active",
+                })),
+              };
             } catch (err) {
               console.warn(`Failed to fetch students for course ${c.id}:`, err);
-              return [];
+              return { courseId: String(c.id), count: 0, students: [] };
             }
           })
-        ).then((nested) => {
-          const flat = nested.flat();
-          if (flat.length > 0) {
-            setStudents(flat);
+        ).then((courseStudentResults) => {
+          const liveStudents = courseStudentResults.flatMap((r) => r.students);
+          if (liveStudents.length > 0) {
+            setStudents(liveStudents);
           }
+          // Update courses studentsCount if getCourseStudents found students
+          setCourses((prevCourses) =>
+            prevCourses.map((pc) => {
+              const found = courseStudentResults.find(
+                (r) => r.courseId === String(pc.id)
+              );
+              if (found && found.count > 0 && pc.studentsCount < found.count) {
+                return {
+                  ...pc,
+                  studentsCount: found.count,
+                  revenue: pc.revenue || (pc.price ? pc.price * found.count : 0),
+                };
+              }
+              return pc;
+            })
+          );
         });
-      }
-
-      // Fetch live instructor dashboard summary metrics (US-17)
-      try {
-        const dash = await instructorService.getDashboard();
-        setDashboardData(dash);
-      } catch (dashErr) {
-        console.warn("Could not fetch instructor dashboard data:", dashErr);
       }
     } catch (err) {
       console.warn("Could not fetch instructor courses from backend API:", err);

@@ -1,0 +1,167 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 320" fill="none" className="w-full h-full">
+  <defs>
+    <!-- Soft Pastel Sky Gradient -->
+    <linearGradient id="skyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#D9ECFB"/>
+      <stop offset="60%" stop-color="#EAF4FD"/>
+      <stop offset="100%" stop-color="#F6FAFE"/>
+    </linearGradient>
+
+    <!-- Harmonious Pastel Hill Gradients -->
+    <linearGradient id="hillBackGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#A5DBBF"/>
+      <stop offset="100%" stop-color="#83CBA7"/>
+    </linearGradient>
+    <linearGradient id="hillMidGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#7AC7A0"/>
+      <stop offset="100%" stop-color="#55B284"/>
+    </linearGradient>
+    <linearGradient id="hillFrontGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#4EAC7D"/>
+      <stop offset="100%" stop-color="#349463"/>
+    </linearGradient>
+
+    <!-- Crisp Clean Road Gradient -->
+    <linearGradient id="pathGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="100%" stop-color="#F4FAF7"/>
+    </linearGradient>
+
+    <filter id="softShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#1B3A36" flood-opacity="0.08"/>
+    </filter>
+    <clipPath id="roundedClip">
+      <rect x="0" y="0" width="400" height="320" rx="32" />
+    </clipPath>
+
+    <style>
+      @keyframes floatCloudLeft {
+        0%, 100% { transform: translateX(0px); }
+        50% { transform: translateX(12px); }
+      }
+      @keyframes floatCloudRight {
+        0%, 100% { transform: translateX(0px); }
+        50% { transform: translateX(-10px); }
+      }
+      @keyframes flagWave1 {
+        0%, 100% { transform: skewY(0deg) scaleX(1); }
+        50% { transform: skewY(-5deg) scaleX(0.92); }
+      }
+      @keyframes flagWave2 {
+        0%, 100% { transform: skewY(0deg) scaleX(1); }
+        50% { transform: skewY(6deg) scaleX(0.94); }
+      }
+      @keyframes sparklePulse {
+        0%, 100% { opacity: 0.3; transform: scale(0.8); }
+        50% { opacity: 1; transform: scale(1.15); }
+      }
+      .anim-cloud-1 {
+        animation: floatCloudLeft 7s ease-in-out infinite;
+      }
+      .anim-cloud-2 {
+        animation: floatCloudRight 8.5s ease-in-out infinite;
+      }
+      .anim-flag-1 {
+        transform-origin: 11px 20px;
+        animation: flagWave1 2.2s ease-in-out infinite;
+      }
+      .anim-flag-2 {
+        transform-origin: 9px 16px;
+        animation: flagWave2 2.6s ease-in-out infinite 0.3s;
+      }
+      .anim-flag-3 {
+        transform-origin: 8px 13px;
+        animation: flagWave1 2.8s ease-in-out infinite 0.6s;
+      }
+      .anim-flag-4 {
+        transform-origin: 7px 12px;
+        animation: flagWave2 3.1s ease-in-out infinite 0.9s;
+      }
+      .anim-sparkle {
+        animation: sparklePulse 3s ease-in-out infinite;
+      }
+    </style>
+  </defs>
+
+  <g clip-path="url(#roundedClip)">
+    <!-- Sky Background -->
+    <rect x="0" y="0" width="400" height="320" fill="url(#skyGrad)" />
+
+    <!-- Animated Clouds -->
+    <g class="anim-cloud-1">
+      <path d="M60 95 C60 82, 78 78, 88 82 C95 72, 115 72, 122 84 C132 84, 140 92, 136 100 C136 105, 60 105, 60 95 Z" fill="#FFFFFF" opacity="0.95"/>
+    </g>
+    <g class="anim-cloud-2">
+      <path d="M300 100 C300 88, 316 84, 326 88 C332 78, 350 78, 356 90 C364 90, 372 98, 368 105 C368 110, 300 110, 300 100 Z" fill="#FFFFFF" opacity="0.95"/>
+    </g>
+
+    <!-- Distant Background Hills -->
+    <ellipse cx="80" cy="190" rx="150" ry="85" fill="url(#hillBackGrad)" opacity="0.85" />
+    <ellipse cx="320" cy="170" rx="170" ry="95" fill="url(#hillBackGrad)" opacity="0.9" />
+
+    <!-- Midground Hills -->
+    <path d="M-30 320 Q60 130 230 170 Q350 200 430 320 Z" fill="url(#hillMidGrad)" />
+
+    <!-- Main Winding Path -->
+    <path d="M 235 90 
+             C 210 110, 195 125, 205 150 
+             C 218 180, 140 180, 145 215 
+             C 150 250, 240 260, 200 320 
+             L 75 320 
+             C 130 260, 75 240, 95 205 
+             C 110 170, 175 155, 165 135 
+             C 155 115, 195 100, 215 90 Z" 
+          fill="url(#pathGrad)" filter="url(#softShadow)" />
+
+    <!-- Foreground Hills & Bushes -->
+    <ellipse cx="50" cy="295" rx="75" ry="45" fill="url(#hillFrontGrad)" />
+    <ellipse cx="340" cy="290" rx="95" ry="55" fill="url(#hillFrontGrad)" />
+
+    <!-- Soft Green Bushes -->
+    <circle cx="55" cy="245" r="14" fill="#3B9E6E" />
+    <circle cx="70" cy="238" r="18" fill="#2E875C" />
+    <circle cx="86" cy="246" r="13" fill="#46AE7B" />
+
+    <circle cx="295" cy="236" r="15" fill="#2E875C" />
+    <circle cx="312" cy="225" r="20" fill="#3B9E6E" />
+    <circle cx="332" cy="232" r="14" fill="#46AE7B" />
+
+    <!-- Animated Sparkles on the path -->
+    <g class="anim-sparkle" transform="translate(195, 155)">
+      <polygon points="0,-4 1.2,-1.2 4,0 1.2,1.2 0,4 -1.2,1.2 -4,0 -1.2,-1.2" fill="#FFE58F" />
+    </g>
+    <g class="anim-sparkle" transform="translate(140, 230)" style="animation-delay: 1.5s;">
+      <polygon points="0,-4 1.2,-1.2 4,0 1.2,1.2 0,4 -1.2,1.2 -4,0 -1.2,-1.2" fill="#FFE58F" />
+    </g>
+
+    <!-- Deep Teal Milestone Flags with Flutter/Wave Animation -->
+    
+    <!-- Flag 4 (Peak) -->
+    <g transform="translate(235, 25)">
+      <rect x="4" y="0" width="3.5" height="50" rx="1.5" fill="#14312B"/>
+      <path class="anim-flag-4" d="M 7 2 L 38 12 L 7 24 Z" fill="#103F34"/>
+      <ellipse cx="6" cy="50" rx="5" ry="2" fill="#0C2620" opacity="0.3"/>
+    </g>
+
+    <!-- Flag 3 -->
+    <g transform="translate(155, 110)">
+      <rect x="4" y="0" width="4" height="48" rx="2" fill="#14312B"/>
+      <path class="anim-flag-3" d="M 8 2 L 40 13 L 8 26 Z" fill="#124A3D"/>
+      <ellipse cx="6" cy="48" rx="6" ry="2.5" fill="#0C2620" opacity="0.3"/>
+    </g>
+
+    <!-- Flag 2 -->
+    <g transform="translate(225, 155)">
+      <rect x="5" y="0" width="4.5" height="55" rx="2" fill="#14312B"/>
+      <path class="anim-flag-2" d="M 9 3 L 46 16 L 9 31 Z" fill="#145244"/>
+      <ellipse cx="7" cy="55" rx="7" ry="3" fill="#0C2620" opacity="0.3"/>
+    </g>
+
+    <!-- Flag 1 (Foreground) -->
+    <g transform="translate(110, 200)">
+      <rect x="6" y="0" width="5" height="65" rx="2.5" fill="#14312B"/>
+      <path class="anim-flag-1" d="M 11 4 L 54 20 L 11 38 Z" fill="#0F473B"/>
+      <ellipse cx="8" cy="65" rx="9" ry="3.5" fill="#0C2620" opacity="0.3"/>
+    </g>
+  </g>
+</svg>
