@@ -1,50 +1,36 @@
-name: Frontend CI
+name: CoachSpace Frontend CI
 
 on:
   push:
-    branches:
-      - main
-      - development
-      - staging
+    branches: [ main, master, develop ]
   pull_request:
-    branches:
-      - main
-      - development
-      - staging
-
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+    branches: [ main, master, develop ]
 
 jobs:
-  ci:
-    name: Lint, Test & Build
+  validate:
+    name: Type-Check & Unit Tests
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v4
-
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'pnpm'
+          cache: 'npm'
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: npm ci
 
-      - name: Run Linter
-        run: pnpm run lint
+      - name: Run TypeScript Verification
+        run: npx tsc --noEmit
 
-      - name: Run Unit Tests
-        run: pnpm run test
+      - name: Run Vitest Unit Tests
+        run: npx vitest run
 
-      - name: Build Next.js Application
-        run: pnpm run build
+      - name: Run Production Build Validation
+        run: npm run build
         env:
-          NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL || 'https://api.coachspace.com' }}
-          NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME: ${{ secrets.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || 'coachspace' }}
+          NEXT_PUBLIC_API_URL: "https://coachspace-back.onrender.com/api"

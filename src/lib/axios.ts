@@ -209,6 +209,7 @@ axiosInstance.interceptors.response.use(
       "";
     const detailText = String(detailMsg || error.message || "").toLowerCase();
     const isBenign =
+      (status === 401 && !tokenManager.hasSession()) ||
       detailText.includes("already in your cart") ||
       detailText.includes("already in cart") ||
       detailText.includes("already enrolled") ||

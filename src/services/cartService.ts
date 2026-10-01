@@ -1,4 +1,5 @@
 import axiosInstance from "@/lib/axios";
+import { tokenManager } from "@/lib/tokenManager";
 
 export interface ApiCartItemCourse {
   id: number | string;
@@ -33,8 +34,19 @@ export const cartService = {
    * GET /api/cart
    */
   async getCart(): Promise<ApiCartResponse> {
-    const response = await axiosInstance.get<ApiCartResponse>("/cart");
-    return response.data;
+    if (!tokenManager.hasSession()) {
+      return { items: [], item_count: 0, total: 0 };
+    }
+
+    try {
+      const response = await axiosInstance.get<ApiCartResponse>("/cart");
+      return response.data;
+    } catch (err: any) {
+      if (err?.response?.status === 401) {
+        return { items: [], item_count: 0, total: 0 };
+      }
+      throw err;
+    }
   },
 
   /**

@@ -211,5 +211,6 @@ export interface LessonSummaryResponse {
   is_cached?: boolean;
   message?: string;
   detail?: string;
+  title?: string;
 }
 

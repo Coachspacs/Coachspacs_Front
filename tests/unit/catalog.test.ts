@@ -1,4 +1,17 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi, beforeEach } from "vitest";
+import { categoryService } from "@/services/categoryService";
+import { enrollmentService } from "@/services/enrollmentService";
+import { apiClient } from "@/api/client";
+import axiosInstance from "@/lib/axios";
+
+vi.mock("@/lib/axios", () => ({
+  default: {
+    get: vi.fn(),
+    delete: vi.fn(),
+    post: vi.fn(),
+  },
+  getCurrentLocale: () => "en",
+}));
 
 interface MockCourse {
   id: number;
@@ -78,3 +91,38 @@ describe("US-07: Course Details & Preview Gate", () => {
     expect(getCtaAction(0, true)).toBe("go_to_course");
   });
 });
+
+describe("Performance & Caching: Category Service & Unenrollment", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    categoryService.clearCache();
+  });
+
+  it("caches category list and deduplicates simultaneous requests", async () => {
+    (axiosInstance.get as any).mockResolvedValue({
+      data: [
+        { id: 1, name: "Programming" },
+        { id: 2, name: "Fitness" },
+      ],
+    });
+
+    // Make two simultaneous calls
+    const [res1, res2] = await Promise.all([
+      categoryService.getCategories("en"),
+      categoryService.getCategories("en"),
+    ]);
+
+    expect(axiosInstance.get).toHaveBeenCalledTimes(1);
+    expect(res1).toEqual(res2);
+    expect(res1.length).toBe(2);
+  });
+
+  it("successfully calls unenrollCourse to drop an enrollment", async () => {
+    (axiosInstance.delete as any).mockResolvedValueOnce({ status: 204 });
+
+    const result = await enrollmentService.unenrollCourse(55, 10);
+    expect(axiosInstance.delete).toHaveBeenCalledWith("/enrollments/55");
+    expect(result.success).toBe(true);
+  });
+});
+

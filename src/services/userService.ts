@@ -1,4 +1,5 @@
 import axiosInstance from '@/lib/axios';
+import { tokenManager } from '@/lib/tokenManager';
 import {
   UserProfileResponse,
   UpdateProfileRequest,
@@ -16,6 +17,9 @@ export const userService = {
    * GET /api/users/me
    */
   async getMyProfile(): Promise<UserProfileResponse> {
+    if (!tokenManager.hasSession()) {
+      return null as any;
+    }
     const response = await axiosInstance.get<UserProfileResponse>('/users/me');
     return response.data;
   },

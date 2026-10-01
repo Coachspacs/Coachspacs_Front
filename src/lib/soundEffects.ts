@@ -242,8 +242,18 @@ class SoundEffectManager {
       });
     } catch {}
   }
+
+  playCardSelect() {
+    this.playOptionSelect();
+  }
+
+  playCelebrationChime() {
+    this.playCelebration();
+  }
 }
 
 export const soundFx = new SoundEffectManager();
+export const soundEffects = soundFx;
+
 
 
