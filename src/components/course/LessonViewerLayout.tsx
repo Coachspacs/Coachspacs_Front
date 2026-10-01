@@ -12,6 +12,7 @@ import {
   KeyboardShortcutsModal,
   CourseCelebrationModal,
 } from "./player";
+import { ErrorBoundary } from "@/components/ui/ErrorBoundary";
 
 export { type LessonItem, type SectionItem, type InstructorItem, type LessonViewerLayoutProps } from "./player/types";
 
@@ -219,59 +220,69 @@ export function LessonViewerLayout(props: LessonViewerLayoutProps) {
           } min-w-0 space-y-4 transition-all duration-300`}
         >
           {/* Video Player */}
-          <LessonVideoPlayer
-            activeLesson={activeLesson}
-            activeLessonIndex={activeLessonIndex}
-            allLessons={allLessons}
-            courseCover={courseCover}
-            isAr={isAr}
-            theaterMode={theaterMode}
-            setTheaterMode={setTheaterMode}
-            playerContainerRef={playerContainerRef}
-            videoRef={videoRef}
-            settingsMenuRef={settingsMenuRef}
-            progressBarRef={progressBarRef}
-            isPlaying={isPlaying}
-            isFullscreen={isFullscreen}
-            playbackSpeed={playbackSpeed}
-            currentTime={currentTime}
-            duration={duration}
-            volume={volume}
-            isMuted={isMuted}
-            autoplayNext={autoplayNext}
-            setAutoplayNext={setAutoplayNext}
-            nextCountdown={nextCountdown}
-            setNextCountdown={setNextCountdown}
-            showControls={showControls}
-            hasStartedPlayback={hasStartedPlayback}
-            feedbackToast={feedbackToast}
-            settingsMenuOpen={settingsMenuOpen}
-            setSettingsMenuOpen={setSettingsMenuOpen}
-            settingsSubmenu={settingsSubmenu}
-            setSettingsSubmenu={setSettingsSubmenu}
-            selectedQuality={selectedQuality}
-            setSelectedQuality={setSelectedQuality}
-            isCurrentCompleted={isCurrentCompleted}
-            handleMouseMovePlayer={handleMouseMovePlayer}
-            handlePlayPause={handlePlayPause}
-            handleJumpSeconds={handleJumpSeconds}
-            handleToggleFullscreen={handleToggleFullscreen}
-            handleVideoEnded={handleVideoEnded}
-            handleSeekScrubber={handleSeekScrubber}
-            handleToggleMute={handleToggleMute}
-            handleVolumeChange={handleVolumeChange}
-            handleSpeedChange={handleSpeedChange}
-            formatTime={formatTime}
-            onToggleComplete={onToggleComplete}
-            onPrevLesson={onPrevLesson}
-            onNextLesson={onNextLesson}
-            onFinishCourse={onFinishCourse}
-            handleNavigateToCertificate={handleNavigateToCertificate}
-            setIsPlaying={setIsPlaying}
-            setCurrentTime={setCurrentTime}
-            setDuration={setDuration}
-            t={t}
-          />
+          <ErrorBoundary
+            title={isAr ? "تعذر تحميل مشغل الفيديو" : "Video Player Error"}
+            description={
+              isAr
+                ? "حدث خطأ غير متوقع أثناء تشغيل الفيديو. يمكنك إعادة المحاولة أو الانتقال لدرس آخر."
+                : "An unexpected error occurred in the video player. You can retry or switch lessons."
+            }
+            resetText={isAr ? "إعادة تحميل المشغل" : "Reload Player"}
+          >
+            <LessonVideoPlayer
+              activeLesson={activeLesson}
+              activeLessonIndex={activeLessonIndex}
+              allLessons={allLessons}
+              courseCover={courseCover}
+              isAr={isAr}
+              theaterMode={theaterMode}
+              setTheaterMode={setTheaterMode}
+              playerContainerRef={playerContainerRef}
+              videoRef={videoRef}
+              settingsMenuRef={settingsMenuRef}
+              progressBarRef={progressBarRef}
+              isPlaying={isPlaying}
+              isFullscreen={isFullscreen}
+              playbackSpeed={playbackSpeed}
+              currentTime={currentTime}
+              duration={duration}
+              volume={volume}
+              isMuted={isMuted}
+              autoplayNext={autoplayNext}
+              setAutoplayNext={setAutoplayNext}
+              nextCountdown={nextCountdown}
+              setNextCountdown={setNextCountdown}
+              showControls={showControls}
+              hasStartedPlayback={hasStartedPlayback}
+              feedbackToast={feedbackToast}
+              settingsMenuOpen={settingsMenuOpen}
+              setSettingsMenuOpen={setSettingsMenuOpen}
+              settingsSubmenu={settingsSubmenu}
+              setSettingsSubmenu={setSettingsSubmenu}
+              selectedQuality={selectedQuality}
+              setSelectedQuality={setSelectedQuality}
+              isCurrentCompleted={isCurrentCompleted}
+              handleMouseMovePlayer={handleMouseMovePlayer}
+              handlePlayPause={handlePlayPause}
+              handleJumpSeconds={handleJumpSeconds}
+              handleToggleFullscreen={handleToggleFullscreen}
+              handleVideoEnded={handleVideoEnded}
+              handleSeekScrubber={handleSeekScrubber}
+              handleToggleMute={handleToggleMute}
+              handleVolumeChange={handleVolumeChange}
+              handleSpeedChange={handleSpeedChange}
+              formatTime={formatTime}
+              onToggleComplete={onToggleComplete}
+              onPrevLesson={onPrevLesson}
+              onNextLesson={onNextLesson}
+              onFinishCourse={onFinishCourse}
+              handleNavigateToCertificate={handleNavigateToCertificate}
+              setIsPlaying={setIsPlaying}
+              setCurrentTime={setCurrentTime}
+              setDuration={setDuration}
+              t={t}
+            />
+          </ErrorBoundary>
 
           {/* Lesson Content & Details Tabs */}
           <LessonContentTabs

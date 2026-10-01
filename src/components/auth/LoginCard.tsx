@@ -81,12 +81,28 @@ export function LoginCard({ lang }: LoginCardProps) {
 
       // 1. Check for redirect query parameter from Protected Route guard
       const redirectParam = searchParams.get("redirect");
+      const isInstructorRole = user.role === "instructor" || user.role === "coach";
+
       if (redirectParam && redirectParam.startsWith("/") && !redirectParam.startsWith("//")) {
         const isTargetingInstructor = redirectParam.includes("/instructor");
-        if (isTargetingInstructor && user.role !== "instructor") {
+        const isTargetingStudent = redirectParam.includes("/student");
+
+        // If an instructor logs in, do not redirect them to stale student dashboard/courses from a previous student session
+        if (isInstructorRole && isTargetingStudent && !redirectParam.includes("/student/learn/")) {
+          if (approval_status === "approved") {
+            router.push(`/${locale}/instructor/dashboard`);
+          } else {
+            router.push(`/${locale}/instructor`);
+          }
+          return;
+        }
+
+        // If a student tries to access an instructor-only destination
+        if (isTargetingInstructor && !isInstructorRole) {
           router.push(`/${locale}/student`);
           return;
         }
+
         router.push(redirectParam);
         return;
       }
@@ -96,7 +112,7 @@ export function LoginCard({ lang }: LoginCardProps) {
       //    - If Approved -> Go to Instructor Dashboard (/instructor/dashboard)
       //    - If Pending / Not Approved -> Go to Instructor Workspace with Pending Review state (/instructor)
       // - If Student -> Go to Student Portal (/student)
-      if (user.role === "instructor") {
+      if (isInstructorRole) {
         if (approval_status === "approved") {
           router.push(`/${locale}/instructor/dashboard`);
         } else {
