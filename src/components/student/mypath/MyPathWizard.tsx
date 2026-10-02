@@ -75,20 +75,8 @@ export function MyPathWizard() {
           />
         )}
 
-        {/* STEP 2 (WIZARD 1 OF 4): GOAL ASSESSMENT */}
+        {/* STEP 2 (WIZARD 1 OF 4): AVAILABLE TRACK & CATEGORY SELECTION */}
         {step === 2 && (
-          <WizardGoalStep
-            t={t}
-            isAr={isAr}
-            preferences={preferences}
-            setPreferences={setPreferences}
-            onNext={() => goToNextStep(3)}
-            onPrev={() => goToPrevStep(1)}
-          />
-        )}
-
-        {/* STEP 3 (WIZARD 2 OF 4): SKILL FOCUS & TRACK SELECTION */}
-        {step === 3 && (
           <WizardTrackStep
             t={t}
             isAr={isAr}
@@ -96,11 +84,18 @@ export function MyPathWizard() {
             setPreferences={setPreferences}
             searchQuery={searchQuery}
             setSearchQuery={setSearchQuery}
-            customSkillInput={customSkillInput}
-            setCustomSkillInput={setCustomSkillInput}
-            isCustomSkillOpen={isCustomSkillOpen}
-            setIsCustomSkillOpen={setIsCustomSkillOpen}
-            onSelectCustomSkill={handleSelectCustomSkill}
+            onNext={() => goToNextStep(3)}
+            onPrev={() => goToPrevStep(1)}
+          />
+        )}
+
+        {/* STEP 3 (WIZARD 2 OF 4): LEARNING GOAL ASSESSMENT */}
+        {step === 3 && (
+          <WizardGoalStep
+            t={t}
+            isAr={isAr}
+            preferences={preferences}
+            setPreferences={setPreferences}
             onNext={() => goToNextStep(4)}
             onPrev={() => goToPrevStep(2)}
           />
@@ -118,7 +113,7 @@ export function MyPathWizard() {
           />
         )}
 
-        {/* STEP 5 (WIZARD 4 OF 4): PRACTICAL EXPERIENCE & TECH STACK (FINAL STEP) */}
+        {/* STEP 5 (WIZARD 4 OF 4): WEEKLY COMMITMENT HOURS */}
         {step === 5 && (
           <WizardExperienceStep
             t={t}
@@ -138,7 +133,7 @@ export function MyPathWizard() {
             locale={locale}
             isRegenerating={isRegenerating}
             onComplete={handleGenerationComplete}
-            onAdjustPreferences={() => goToPrevStep(5)}
+            onAdjustPreferences={() => goToPrevStep(2)}
           />
         )}
 

@@ -26,12 +26,16 @@ export function useMyPathWizard(t: (key: string) => string, locale: string = "en
   const [isLoadingRoadmap, setIsLoadingRoadmap] = useState<boolean>(true);
 
   const [preferences, setPreferences] = useState<MyPathPreferences>({
+    categoryId: 1,
+    categoryName: "Programming",
+    categoryNameAr: "البرمجة وتطوير البرمجيات",
+    track: "Programming",
+    goalText: "",
     goal: "job",
-    priorKnowledge: "intermediate",
-    track: "frontend",
-    customTrackName: "",
-    level: "intermediate",
-    hoursPerWeek: "3-5",
+    priorKnowledge: "basic",
+    level: "beginner",
+    hoursPerWeek: "6-10",
+    weeklyHours: 6,
     targetMonths: "3",
   });
 

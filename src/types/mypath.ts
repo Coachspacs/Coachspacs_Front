@@ -22,11 +22,16 @@ export type TargetDuration = '1' | '3' | '6';
 
 export interface MyPathPreferences {
   goal?: LearningGoal;
+  goalText?: string;
+  categoryId?: number;
+  categoryName?: string;
+  categoryNameAr?: string;
   priorKnowledge?: PriorKnowledge;
   track: LearningTrack;
   customTrackName?: string;
   level: SkillLevel;
   hoursPerWeek: WeeklyCommitment;
+  weeklyHours?: number;
   targetMonths?: TargetDuration;
   targetProjectOutcome?: string;
   learningChallenges?: string;
@@ -258,6 +263,10 @@ export function parseWeeklyHours(hoursStr?: string | number): number {
  * Builds a natural goal_text from student preferences for the AI generator.
  */
 export function buildGoalText(preferences: MyPathPreferences, isAr = false): string {
+  if (preferences.goalText && preferences.goalText.trim().length > 0) {
+    return preferences.goalText.trim();
+  }
+
   if (preferences.customTrackName && preferences.customTrackName.trim().length > 0) {
     return preferences.customTrackName.trim();
   }
