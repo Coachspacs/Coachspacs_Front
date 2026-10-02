@@ -12,6 +12,7 @@ import {
   KeyboardShortcutsModal,
   CourseCelebrationModal,
 } from "./player";
+import { LessonSummaryCard } from "./LessonSummaryCard";
 import { ErrorBoundary } from "@/components/ui/ErrorBoundary";
 
 export { type LessonItem, type SectionItem, type InstructorItem, type LessonViewerLayoutProps } from "./player/types";
@@ -304,26 +305,55 @@ export function LessonViewerLayout(props: LessonViewerLayoutProps) {
           />
         </div>
 
-        {/* 3. Curriculum Sidebar */}
-        <LessonCurriculumSidebar
-          theaterMode={theaterMode}
-          sidebarOpen={sidebarOpen}
-          completedCount={completedCount}
-          totalLessons={totalLessons}
-          progressPercent={progressPercent}
-          searchQuery={searchQuery}
-          setSearchQuery={setSearchQuery}
-          filteredSections={filteredSections}
-          openSections={openSections}
-          setOpenSections={setOpenSections}
-          allLessons={allLessons}
-          activeLessonIndex={activeLessonIndex}
-          completedLessonIds={completedLessonIds}
-          onSelectLesson={onSelectLesson}
-          setIsPlaying={setIsPlaying}
-          isAr={isAr}
-          t={t}
-        />
+        {/* 3. Right Sidebar Workspace Column (Summary + Curriculum next to video) */}
+        <aside
+          className={`w-full ${
+            theaterMode ? "lg:w-full" : sidebarOpen ? "lg:w-[32%] lg:max-w-[420px]" : "hidden"
+          } shrink-0 space-y-4 transition-all duration-300 lg:sticky lg:top-20 lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto pr-0.5 custom-scrollbar`}
+        >
+          {/* AI LESSON SUMMARY (At the top next to video, above the lessons!) */}
+          {activeLesson?.id && (
+            <ErrorBoundary
+              title={isAr ? "تعذر تحميل بطاقة الملخص الذكي" : "Lesson Summary Error"}
+              description={
+                isAr
+                  ? "حدث خطأ أثناء تحميل الملخص الذكي. باقي محتويات الدرس تعمل بشكل طبيعي."
+                  : "An unexpected error occurred while loading the AI summary."
+              }
+              resetText={isAr ? "إعادة المحاولة" : "Try Again"}
+            >
+              <LessonSummaryCard
+                key={`lesson-summary-${activeLesson.id}`}
+                lessonId={activeLesson.id}
+                lessonTitle={displayLessonTitle}
+                isEnrolled={!activeLesson?.is_locked || Boolean(activeLesson?.is_preview)}
+                hasResources={true}
+                locale={locale}
+              />
+            </ErrorBoundary>
+          )}
+
+          {/* Curriculum Sidebar (Course Content & Lessons) */}
+          <LessonCurriculumSidebar
+            theaterMode={theaterMode}
+            sidebarOpen={sidebarOpen}
+            completedCount={completedCount}
+            totalLessons={totalLessons}
+            progressPercent={progressPercent}
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
+            filteredSections={filteredSections}
+            openSections={openSections}
+            setOpenSections={setOpenSections}
+            allLessons={allLessons}
+            activeLessonIndex={activeLessonIndex}
+            completedLessonIds={completedLessonIds}
+            onSelectLesson={onSelectLesson}
+            setIsPlaying={setIsPlaying}
+            isAr={isAr}
+            t={t}
+          />
+        </aside>
       </main>
 
       {/* Keyboard Shortcuts Modal */}

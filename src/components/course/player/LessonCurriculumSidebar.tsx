@@ -51,12 +51,8 @@ export function LessonCurriculumSidebar({
   t,
 }: LessonCurriculumSidebarProps) {
   return (
-    <aside
-      className={`w-full ${
-        theaterMode ? "lg:w-full" : sidebarOpen ? "lg:w-[32%] lg:max-w-[420px]" : "hidden"
-      } shrink-0 transition-all duration-300`}
-    >
-      <div className="w-full bg-white border border-slate-200/80 rounded-xl shadow-xs overflow-hidden lg:sticky lg:top-20 lg:max-h-[calc(100vh-6.5rem)] flex flex-col">
+    <div className="w-full shrink-0">
+      <div className="w-full bg-white border border-slate-200/80 rounded-xl shadow-xs overflow-hidden flex flex-col">
         {/* Sidebar Header: Course Content & Overall Progress */}
         <div className="p-4 border-b border-slate-100 bg-slate-50/70 space-y-3 shrink-0">
           <div className="flex items-center justify-between gap-3">
@@ -264,6 +260,6 @@ export function LessonCurriculumSidebar({
           )}
         </div>
       </div>
-    </aside>
+    </div>
   );
 }

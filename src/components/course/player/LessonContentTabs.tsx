@@ -19,8 +19,6 @@ import {
   getFileCategory,
   formatFileSize,
 } from "@/components/shared/AttachmentIcon";
-import { LessonSummaryCard } from "../LessonSummaryCard";
-import { ErrorBoundary } from "@/components/ui/ErrorBoundary";
 import { LessonItem, InstructorItem } from "./types";
 
 interface LessonContentTabsProps {
@@ -188,28 +186,6 @@ export function LessonContentTabs({
           </div>
         </div>
       </div>
-
-      {/* 4b. AI LESSON SUMMARIZATION (US-19) */}
-      {activeLesson?.id && (
-        <ErrorBoundary
-          title={isAr ? "تعذر تحميل بطاقة الملخص الذكي" : "Lesson Summary Error"}
-          description={
-            isAr
-              ? "حدث خطأ أثناء تحميل الملخص الذكي. باقي محتويات الدرس تعمل بشكل طبيعي."
-              : "An unexpected error occurred while loading the AI summary. Other lesson materials remain accessible."
-          }
-          resetText={isAr ? "إعادة المحاولة" : "Try Again"}
-        >
-          <LessonSummaryCard
-            key={`lesson-summary-${activeLesson.id}`}
-            lessonId={activeLesson.id}
-            lessonTitle={displayLessonTitle}
-            isEnrolled={!activeLesson?.is_locked || Boolean(activeLesson?.is_preview)}
-            hasResources={true}
-            locale={locale}
-          />
-        </ErrorBoundary>
-      )}
 
       {/* 5. LESSON & COURSE ATTACHMENTS (US-21) */}
       {((activeLesson?.attachments && activeLesson.attachments.length > 0) || (courseMaterials && courseMaterials.length > 0)) && (
