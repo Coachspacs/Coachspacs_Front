@@ -87,6 +87,7 @@ export function Logo({
           height: `${logoHeight}px`,
           width: "auto",
         }}
+        suppressHydrationWarning
       />
 
       {showText && (

@@ -99,12 +99,6 @@ axiosInstance.interceptors.request.use(
     }
 
     const fullUrl = (config.baseURL || '').replace(/\/+$/, '') + (config.url || '');
-    if (process.env.NODE_ENV === 'development') {
-      console.log(`[Axios Request] ${config.method?.toUpperCase()} -> ${fullUrl}`, {
-        locale: currentLocale,
-        hasAuth: Boolean(token),
-      });
-    }
 
     return config;
   },

@@ -192,6 +192,7 @@ export function Footer({ lang, variant = "main" }: FooterProps) {
                 unoptimized={logoSrc.toLowerCase().includes(".svg")}
                 onError={() => setLogoSrc("/images/brand-logo-white.png")}
                 className="w-auto h-7 sm:h-8 object-contain drop-shadow-sm group-hover:scale-105 transition-transform duration-200"
+                suppressHydrationWarning
               />
               <span className="text-xl sm:text-2xl font-bold text-white tracking-tight leading-none">
                 {headerT("brandName")}

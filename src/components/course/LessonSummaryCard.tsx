@@ -176,8 +176,10 @@ export function LessonSummaryCard({
                 className="group relative bg-white/90 hover:bg-white rounded-2xl p-4 sm:p-4.5 border border-slate-200/90 hover:border-emerald-500/40 shadow-2xs hover:shadow-md hover:shadow-emerald-950/5 transition-all duration-200 flex items-start gap-3.5"
               >
                 {/* Numbered Pill Badge */}
-                <div className="w-7 h-7 rounded-xl bg-gradient-to-br from-emerald-100 to-teal-100 text-[#0F5244] border border-emerald-200/80 group-hover:from-[#0F5244] group-hover:to-emerald-700 group-hover:text-white group-hover:border-[#0F5244] flex items-center justify-center shrink-0 mt-0.5 font-black text-xs shadow-2xs transition-all duration-200">
-                  <span>{bIdx + 1}</span>
+                <div className="w-7 h-7 rounded-xl bg-emerald-100/90 border border-emerald-200/90 group-hover:bg-[#0F5244] group-hover:border-[#0F5244] flex items-center justify-center shrink-0 mt-0.5 shadow-2xs transition-all duration-200">
+                  <span className="font-black text-xs text-emerald-900 group-hover:!text-white transition-colors duration-200">
+                    {bIdx + 1}
+                  </span>
                 </div>
 
                 {/* Bullet Text */}
@@ -456,7 +458,10 @@ export function LessonSummaryCard({
                 </div>
               </div>
 
-              <div dir={isAr ? "rtl" : "ltr"} className="space-y-2.5">
+              <div
+                dir={isAr ? "rtl" : "ltr"}
+                className="space-y-2.5 max-h-[300px] overflow-y-auto px-1.5 py-0.5 custom-scrollbar"
+              >
                 {renderFormattedSummary(currentSummary.summary || currentSummary.content || "")}
               </div>
             </div>
