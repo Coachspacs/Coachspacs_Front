@@ -375,7 +375,7 @@ export function InstructorCoursesTab({
                 onToggleExpandStudents={() =>
                   setExpandedCourseStudentsId(isExpanded ? null : String(c.id))
                 }
-                onSubmitReview={(id) => handleSubmitForReview(String(id))}
+                onSubmitReview={(id: string | number) => handleSubmitForReview(String(id))}
                 isSubmittingReview={submittingCourseId === c.id}
                 onOpenArchiveModal={handleArchiveCourse}
                 onOpenDeleteModal={setDeleteModalCourse}

@@ -78,12 +78,6 @@ export function RegisterCard({ lang }: RegisterCardProps) {
       const rolePayload: UserRoleType =
         data.role === "coach" || data.role === "instructor" ? "instructor" : "student";
 
-      console.log("[RegisterCard] Submitting registration form:", {
-        email: data.email,
-        role: rolePayload,
-        fullName: data.fullName,
-      });
-
       const res = await authService.register({
         full_name: data.fullName,
         email: data.email.trim(),

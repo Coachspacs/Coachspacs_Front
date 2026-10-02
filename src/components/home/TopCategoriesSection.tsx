@@ -4,10 +4,7 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { motion, Variants } from "framer-motion";
 import { useTranslations, useLocale } from "next-intl";
-import {
-  ArrowRight,
-  Sparkles,
-} from "lucide-react";
+import { ArrowRight, ArrowUpRight, Sparkles } from "lucide-react";
 import { categoryService } from "@/services/categoryService";
 import { TopCategoriesSectionData } from "@/types/cms";
 
@@ -25,9 +22,9 @@ export function TopCategoriesSection({ data }: TopCategoriesSectionProps = {}) {
 
   const defaultCategories = [
     {
-      id: "business-coaching",
-      title: t("catBusiness"),
-      href: `/${locale}/courses?category=Business%20Coaching`,
+      id: "fitness-coaching",
+      title: t("catFitness"),
+      href: `/${locale}/courses?category=Fitness%20Coaching`,
     },
     {
       id: "career-coaching",
@@ -35,9 +32,9 @@ export function TopCategoriesSection({ data }: TopCategoriesSectionProps = {}) {
       href: `/${locale}/courses?category=Career%20Coaching`,
     },
     {
-      id: "fitness-coaching",
-      title: t("catFitness"),
-      href: `/${locale}/courses?category=Fitness%20Coaching`,
+      id: "nutrition",
+      title: isAr ? "التغذية" : "Nutrition",
+      href: `/${locale}/courses?category=Nutrition`,
     },
     {
       id: "life-mindfulness",
@@ -89,12 +86,12 @@ export function TopCategoriesSection({ data }: TopCategoriesSectionProps = {}) {
   };
 
   const itemVariants: Variants = {
-    hidden: { opacity: 0, y: 20 },
+    hidden: { opacity: 0, y: 16 },
     visible: {
       opacity: 1,
       y: 0,
       transition: {
-        duration: 0.5,
+        duration: 0.45,
         ease: "easeOut",
       },
     },
@@ -114,7 +111,7 @@ export function TopCategoriesSection({ data }: TopCategoriesSectionProps = {}) {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-40px" }}
           transition={{ duration: 0.55, ease: "easeOut" }}
-          className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 mb-10 sm:mb-14 pb-5 border-b border-slate-100"
+          className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 mb-8 sm:mb-12 pb-5 border-b border-slate-100"
         >
           <div className="space-y-2">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#6CF8BB]/20 text-[#0F5244] border border-[#6CF8BB]/40 text-xs font-extrabold tracking-wider uppercase shadow-2xs">
@@ -139,17 +136,18 @@ export function TopCategoriesSection({ data }: TopCategoriesSectionProps = {}) {
           </Link>
         </motion.div>
 
-        {/* Categories Grid */}
+        {/* Dynamic Clean Categories Grid (No hardcoded icons) */}
         <motion.div
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: "-40px" }}
           suppressHydrationWarning
-          className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 sm:gap-5 lg:gap-6"
+          className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3.5 sm:gap-4 lg:gap-5"
         >
           {categories.map((cat, idx) => {
             const isLastOnMobile = idx === categories.length - 1;
+
             return (
               <motion.div
                 key={cat.id}
@@ -162,15 +160,23 @@ export function TopCategoriesSection({ data }: TopCategoriesSectionProps = {}) {
               >
                 <Link
                   href={cat.href}
-                  className="group relative bg-white hover:bg-emerald-50/40 rounded-3xl p-5 sm:p-6 min-h-[110px] sm:min-h-[125px] flex items-center justify-center text-center border border-slate-200/90 hover:border-[#0F5244]/40 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-[#0F5244]/12 overflow-hidden w-full h-full block"
+                  className="group relative bg-white hover:bg-gradient-to-b hover:from-emerald-50/30 hover:to-white rounded-2xl sm:rounded-3xl p-5 sm:p-6 min-h-[105px] sm:min-h-[120px] flex flex-col items-center justify-center text-center border border-slate-200/90 hover:border-[#0F5244]/35 shadow-2xs hover:shadow-lg hover:shadow-emerald-950/8 transition-all duration-300 hover:-translate-y-1 overflow-hidden w-full h-full block"
                 >
-                  {/* Ambient Soft Glow on Hover */}
-                  <div className="pointer-events-none absolute -bottom-10 -right-10 w-32 h-32 bg-[#34D399]/20 blur-2xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                  {/* Subtle ambient corner light */}
+                  <div className="pointer-events-none absolute -top-8 -right-8 w-20 h-20 bg-emerald-400/10 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
-                  {/* Centered Category Title */}
-                  <h3 className="text-slate-900 font-extrabold text-base sm:text-lg group-hover:text-[#0F5244] transition-colors leading-snug">
+                  {/* Top-Right Arrow Indicator */}
+                  <div className="absolute top-3 right-3 rtl:right-auto rtl:left-3 w-5 h-5 rounded-full bg-slate-100 group-hover:bg-[#0F5244] text-slate-400 group-hover:text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 shadow-2xs scale-75 group-hover:scale-100">
+                    <ArrowUpRight className="w-3 h-3 rtl:-rotate-90" />
+                  </div>
+
+                  {/* Dynamic Category Title */}
+                  <h3 className="relative z-10 text-slate-900 font-black text-sm sm:text-base group-hover:text-[#0F5244] transition-colors leading-snug px-2">
                     {cat.title}
                   </h3>
+
+                  {/* Subtle dynamic bottom accent line on hover */}
+                  <div className="absolute bottom-0 inset-x-8 h-0.5 bg-[#0F5244] scale-x-0 group-hover:scale-x-100 transition-transform duration-300 rounded-full" />
                 </Link>
               </motion.div>
             );
@@ -181,4 +187,6 @@ export function TopCategoriesSection({ data }: TopCategoriesSectionProps = {}) {
     </section>
   );
 }
+
+
 

@@ -64,14 +64,11 @@ export interface AuthApiResponse<T = any> {
  */
 export async function login(data: LoginRequest): Promise<AuthApiResponse> {
   const endpoint = '/auth/login';
-  console.log(`[authService.login] POST -> ${endpoint}`, { email: data.email });
-
   try {
     const response = await axiosInstance.post<AuthApiResponse>(endpoint, {
       email: data.email,
       password: data.password,
     });
-    console.log('[authService.login] Login successful:', response.data);
     return response.data;
   } catch (err: any) {
     console.warn('[authService.login] Error during login request:', {
@@ -89,12 +86,6 @@ export async function login(data: LoginRequest): Promise<AuthApiResponse> {
  */
 export async function register(data: RegisterRequest): Promise<AuthApiResponse> {
   const endpoint = '/auth/register';
-  console.log(`[authService.register] POST -> ${endpoint}`, {
-    full_name: data.full_name,
-    email: data.email,
-    role: data.role,
-  });
-
   try {
     const response = await axiosInstance.post<AuthApiResponse>(endpoint, {
       full_name: data.full_name,
@@ -102,7 +93,6 @@ export async function register(data: RegisterRequest): Promise<AuthApiResponse> 
       password: data.password,
       role: data.role,
     });
-    console.log('[authService.register] Registration successful:', response.data);
     return response.data;
   } catch (err: any) {
     console.warn('[authService.register] Error during registration request:', {
@@ -120,11 +110,6 @@ export async function register(data: RegisterRequest): Promise<AuthApiResponse> 
  */
 export async function verifyEmail(params: VerifyEmailRequest): Promise<AuthApiResponse> {
   const endpoint = '/auth/verify-email';
-  console.log(`[authService.verifyEmail] GET -> ${endpoint}`, {
-    uid: params.uid,
-    token: params.token ? '***' : undefined,
-  });
-
   try {
     const response = await axiosInstance.get<AuthApiResponse>(endpoint, {
       params: {
@@ -132,7 +117,6 @@ export async function verifyEmail(params: VerifyEmailRequest): Promise<AuthApiRe
         token: params.token,
       },
     });
-    console.log('[authService.verifyEmail] Verification successful:', response.data);
     return response.data;
   } catch (err: any) {
     console.warn('[authService.verifyEmail] Verification error:', {
@@ -151,7 +135,6 @@ export async function resendVerificationEmail(
   data: ResendVerificationEmailRequest
 ): Promise<AuthApiResponse> {
   const endpoint = '/auth/verify-email/resend';
-  console.log(`[authService.resendVerificationEmail] POST -> ${endpoint}`, { email: data.email });
 
   try {
     const response = await axiosInstance.post<AuthApiResponse>(endpoint, {
@@ -173,7 +156,6 @@ export async function resendVerificationEmail(
  */
 export async function forgotPassword(data: ForgotPasswordRequest): Promise<AuthApiResponse> {
   const payload = { email: data.email };
-  console.log('[authService.forgotPassword] Requesting reset for:', { email: data.email });
 
   try {
     const response = await axiosInstance.post<AuthApiResponse>('/auth/password/forgot', payload);
@@ -209,11 +191,6 @@ export async function resetPassword(data: ResetPasswordRequest): Promise<AuthApi
   if (data.uid) {
     payload.uid = data.uid;
   }
-
-  console.log('[authService.resetPassword] Resetting password for:', {
-    uid: data.uid,
-    hasToken: Boolean(data.token),
-  });
 
   try {
     const response = await axiosInstance.post<AuthApiResponse>('/auth/password/reset', payload);
@@ -261,9 +238,11 @@ export async function logout(refresh?: string): Promise<AuthApiResponse> {
   try {
     const tokenToBlacklist = refresh || tokenManager.getRefreshToken();
     if (tokenToBlacklist) {
-      await axiosInstance.post<AuthApiResponse>('/auth/logout', {
-        refresh: tokenToBlacklist,
-      });
+      await axiosInstance.post<AuthApiResponse>(
+        '/auth/logout',
+        { refresh: tokenToBlacklist },
+        { timeout: 3000 }
+      );
     }
   } catch (err: any) {
     // Silent catch so client-side logout completes cleanly even if token expired

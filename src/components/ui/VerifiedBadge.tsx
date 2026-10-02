@@ -94,3 +94,6 @@ export function VerifiedBadge({
     </span>
   );
 }
+
+export default VerifiedBadge;
+

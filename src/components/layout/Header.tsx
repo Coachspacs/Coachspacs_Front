@@ -79,6 +79,15 @@ export function Header({ lang, onLanguageToggle, variant = "main", className = "
 
   const userRole = (user?.role || "").toLowerCase();
   const isInstructor = userRole === "instructor" || userRole === "coach";
+  const isAdmin = Boolean(
+    isAuthenticated && (
+      userRole === "admin" ||
+      userRole === "superuser" ||
+      userRole === "superadmin" ||
+      user?.is_superuser === true ||
+      (user as any)?.isSuperuser === true
+    )
+  );
   const isApproved =
     (user?.approval_status || user?.approvalStatus || "").toLowerCase() === "approved";
 
@@ -154,11 +163,12 @@ export function Header({ lang, onLanguageToggle, variant = "main", className = "
   };
 
   const handleLogout = () => {
-    authService.logout().catch(() => {});
+    tokenManager.clearTokens();
     dispatch(logout());
     setUserDropdownOpen(false);
     setMobileMenuOpen(false);
-    router.push(`/${locale}/login`);
+    authService.logout().catch(() => {});
+    window.location.href = `/${locale}/login`;
   };
 
   // Helper to normalize path by stripping locale prefix and query
@@ -251,7 +261,19 @@ export function Header({ lang, onLanguageToggle, variant = "main", className = "
 
           {/* 3. Role-Based Navigation Link */}
           {mounted && isAuthenticated && (
-            isInstructor ? (
+            isAdmin ? (
+              <Link
+                href={`/${locale}/admin/cms`}
+                className={`px-3.5 py-2 rounded-xl text-xs lg:text-sm font-bold transition-all inline-flex items-center gap-1.5 ${
+                  isActive("/admin")
+                    ? "bg-purple-50 text-purple-900 font-extrabold border border-purple-200/80 shadow-2xs"
+                    : "text-slate-600 hover:text-purple-900 hover:bg-purple-50/50"
+                }`}
+              >
+                <LayoutDashboard className="h-4 w-4 text-purple-700 shrink-0" />
+                <span>{isAr ? "لوحة الإدارة (CMS)" : "Admin Portal"}</span>
+              </Link>
+            ) : isInstructor ? (
               <Link
                 href={instructorDashboardUrl}
                 className={`px-3.5 py-2 rounded-xl text-xs lg:text-sm font-bold transition-all inline-flex items-center gap-1.5 ${
@@ -296,8 +318,8 @@ export function Header({ lang, onLanguageToggle, variant = "main", className = "
         {/* Right: Actions (Language, Cart, Auth / User Profile) */}
         <div className="hidden md:flex items-center gap-2.5 lg:gap-3.5">
           
-          {/* Shopping Cart Button (For Guests and Students only) */}
-          {(!mounted || !isAuthenticated || !isInstructor) && (
+          {/* Shopping Cart Button (For Guests and Students only - NOT for instructors or admins) */}
+          {(!mounted || !isAuthenticated || (!isInstructor && !isAdmin)) && (
             <button
               type="button"
               onClick={() => dispatch(openCartDrawer())}
@@ -406,12 +428,14 @@ export function Header({ lang, onLanguageToggle, variant = "main", className = "
                       </div>
                       <span
                         className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold shrink-0 ${
-                          isInstructor
+                          isAdmin
+                            ? "bg-purple-100 text-purple-800 border border-purple-200/90 font-black"
+                            : isInstructor
                             ? "bg-emerald-50 text-[#0F5244] border border-emerald-200/90 font-black"
                             : "bg-emerald-100 text-[#0F5244] border border-emerald-200/80"
                         }`}
                       >
-                        {isInstructor ? tHeader("instructorRole") : tHeader("studentRole")}
+                        {isAdmin ? (isAr ? "مسؤول النظام" : "Admin") : isInstructor ? tHeader("instructorRole") : tHeader("studentRole")}
                       </span>
                     </div>
                     <p className="text-[11px] text-slate-500 font-medium truncate mt-0.5">
@@ -421,7 +445,34 @@ export function Header({ lang, onLanguageToggle, variant = "main", className = "
 
                   {/* Concise Account Actions */}
                   <div className="py-1 space-y-0.5">
-                    {isInstructor ? (
+                    {isAdmin ? (
+                      <>
+                        <Link
+                          href={`/${locale}/admin/cms`}
+                          onClick={() => setUserDropdownOpen(false)}
+                          className={`flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-bold transition-colors ${
+                            isActive("/admin")
+                              ? "bg-purple-50 text-purple-900"
+                              : "hover:bg-purple-50/50 text-slate-700 hover:text-purple-900"
+                          }`}
+                        >
+                          <LayoutDashboard className="h-4 w-4 text-purple-700 shrink-0" />
+                          <span>{isAr ? "لوحة الإدارة (CMS)" : "Admin Portal"}</span>
+                        </Link>
+                        <Link
+                          href={`/${locale}/admin/cms/landing`}
+                          onClick={() => setUserDropdownOpen(false)}
+                          className={`flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-bold transition-colors ${
+                            isActive("/admin/cms/landing")
+                              ? "bg-purple-50 text-purple-900"
+                              : "hover:bg-slate-50 text-slate-700 hover:text-[#0F5244]"
+                          }`}
+                        >
+                          <Settings className="h-4 w-4 text-purple-700 shrink-0" />
+                          <span>{isAr ? "إدارة الصفحة الرئيسية" : "Landing CMS"}</span>
+                        </Link>
+                      </>
+                    ) : isInstructor ? (
                       <>
                         <Link
                           href={`/${locale}/instructor/settings`}
@@ -669,7 +720,34 @@ export function Header({ lang, onLanguageToggle, variant = "main", className = "
 
               {/* 3. Role-Based Navigation Items */}
               {mounted && isAuthenticated ? (
-                isInstructor ? (
+                isAdmin ? (
+                  <>
+                    <Link
+                      href={`/${locale}/admin/cms`}
+                      onClick={() => setMobileMenuOpen(false)}
+                      className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all ${
+                        isActive("/admin")
+                          ? "bg-purple-800 text-white shadow-xs"
+                          : "text-slate-700 hover:bg-slate-50"
+                      }`}
+                    >
+                      <LayoutDashboard className="h-4 w-4 text-purple-600" />
+                      <span>{isAr ? "لوحة الإدارة (CMS)" : "Admin Portal"}</span>
+                    </Link>
+                    <Link
+                      href={`/${locale}/admin/cms/landing`}
+                      onClick={() => setMobileMenuOpen(false)}
+                      className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all ${
+                        isActive("/admin/cms/landing")
+                          ? "bg-purple-800 text-white shadow-xs"
+                          : "text-slate-700 hover:bg-slate-50"
+                      }`}
+                    >
+                      <Settings className="h-4 w-4 text-purple-600" />
+                      <span>{isAr ? "إدارة الصفحة الرئيسية" : "Landing CMS"}</span>
+                    </Link>
+                  </>
+                ) : isInstructor ? (
                   <>
                     <Link
                       href={instructorDashboardUrl}

@@ -1,5 +1,6 @@
 import axios from "axios";
 import axiosInstance, { getCurrentLocale } from "@/lib/axios";
+import { tokenManager } from "@/lib/tokenManager";
 import {
   CertificateItem,
   CertificateListResponse,
@@ -16,17 +17,28 @@ export const certificateService = {
    * GET /api/certificates
    */
   async getMyCertificates(): Promise<CertificateItem[]> {
-    const response = await axiosInstance.get<
-      CertificateListResponse | CertificateItem[]
-    >("/certificates");
-    const data = response.data;
-    if (Array.isArray(data)) {
-      return data;
+    if (!tokenManager.hasSession()) {
+      return [];
     }
-    if (data && Array.isArray((data as CertificateListResponse).results)) {
-      return (data as CertificateListResponse).results;
+
+    try {
+      const response = await axiosInstance.get<
+        CertificateListResponse | CertificateItem[]
+      >("/certificates");
+      const data = response.data;
+      if (Array.isArray(data)) {
+        return data;
+      }
+      if (data && Array.isArray((data as CertificateListResponse).results)) {
+        return (data as CertificateListResponse).results;
+      }
+      return [];
+    } catch (err: any) {
+      if (err?.response?.status === 401) {
+        return [];
+      }
+      throw err;
     }
-    return [];
   },
 
   /**

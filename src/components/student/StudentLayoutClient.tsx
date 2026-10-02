@@ -43,7 +43,11 @@ export function StudentLayoutClient({ children }: { children: React.ReactNode })
       return;
     }
 
+    const isInstructorUser =
+      activeUser?.role === "instructor" || activeUser?.role === "coach";
+
     if (
+      !isInstructorUser &&
       activeUser?.headline &&
       (activeUser.headline.toLowerCase().includes("certified instructor") ||
         activeUser.headline.toLowerCase().includes("instructor") ||

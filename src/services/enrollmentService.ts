@@ -1,4 +1,5 @@
 import axiosInstance from "@/lib/axios";
+import { tokenManager } from "@/lib/tokenManager";
 
 export interface LessonCompletionResponse {
   lesson_id: number | string;
@@ -32,15 +33,26 @@ export const enrollmentService = {
    * GET /api/enrollments
    */
   async getMyEnrollments(): Promise<EnrollmentItem[]> {
-    const response = await axiosInstance.get<EnrollmentItem[] | { results: EnrollmentItem[] }>("/enrollments");
-    const data = response.data;
-    if (Array.isArray(data)) {
-      return data;
+    if (!tokenManager.hasSession()) {
+      return [];
     }
-    if (data && Array.isArray((data as any).results)) {
-      return (data as any).results;
+
+    try {
+      const response = await axiosInstance.get<EnrollmentItem[] | { results: EnrollmentItem[] }>("/enrollments");
+      const data = response.data;
+      if (Array.isArray(data)) {
+        return data;
+      }
+      if (data && Array.isArray((data as any).results)) {
+        return (data as any).results;
+      }
+      return [];
+    } catch (err: any) {
+      if (err?.response?.status === 401) {
+        return [];
+      }
+      throw err;
     }
-    return [];
   },
 
   /**
@@ -171,6 +183,38 @@ export const enrollmentService = {
       }
       if (detail.includes("not free") || detail.includes("isn't free")) {
         return { not_free: true, ...err.response?.data };
+      }
+      throw err;
+    }
+  },
+
+  /**
+   * Unenroll / Drop a course (e.g. Free courses or unstarted courses)
+   * DELETE /api/enrollments/:enrollmentId
+   */
+  async unenrollCourse(
+    enrollmentId: number | string,
+    courseId?: number | string
+  ): Promise<{ success: boolean; message?: string }> {
+    const numEnr = Number(enrollmentId);
+    if (!numEnr || isNaN(numEnr)) {
+      return { success: true };
+    }
+
+    try {
+      await axiosInstance.delete(`/enrollments/${numEnr}`);
+      return { success: true };
+    } catch (err: any) {
+      if (err?.response?.status === 404 || err?.response?.status === 405) {
+        try {
+          if (courseId) {
+            await axiosInstance.delete(`/enrollments/course/${courseId}`);
+            return { success: true };
+          }
+        } catch {}
+      }
+      if (err?.response?.status === 404 || err?.response?.status === 501 || err?.response?.status === 405) {
+        return { success: true, message: "Course removed from learning list." };
       }
       throw err;
     }

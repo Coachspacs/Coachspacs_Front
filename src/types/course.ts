@@ -194,3 +194,23 @@ export interface EnrolledCourse extends Partial<Course> {
   user_has_active_subscription?: boolean;
   [key: string]: any;
 }
+
+/**
+ * US-19: AI Lesson Summarization Types
+ */
+export type LessonSummaryStatus = "ready" | "unavailable" | "failed";
+
+export interface LessonSummaryResponse {
+  status: LessonSummaryStatus;
+  summary?: string;
+  content?: string;
+  language?: "en" | "ar" | string;
+  lesson_id?: string | number;
+  model_version?: string;
+  generated_at?: string;
+  is_cached?: boolean;
+  message?: string;
+  detail?: string;
+  title?: string;
+}
+
