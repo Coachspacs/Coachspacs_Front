@@ -21,8 +21,10 @@ import {
   buildGoalText,
   parseWeeklyHours,
   normalizeBackendRoadmap,
+  createRoadmapFromCatalogCourses,
 } from "@/types/mypath";
 import { roadmapService } from "@/services/roadmapService";
+import { courseService } from "@/services/courseService";
 import { soundFx } from "@/lib/soundEffects";
 
 interface AiArchitectGenerationScreenProps {
@@ -68,13 +70,14 @@ export function AiArchitectGenerationScreen({
     apiFinishedRef.current = false;
     responseDataRef.current = null;
 
-    try {
-      const goal_text = preferences.goalText?.trim() || buildGoalText(preferences, isAr);
-      const weekly_hours = preferences.weeklyHours || parseWeeklyHours(preferences.hoursPerWeek);
-      const current_level = preferences.level || "beginner";
-      const category = preferences.categoryId || 1;
+    const goal_text = preferences.goalText?.trim() || buildGoalText(preferences, isAr);
+    const weekly_hours = preferences.weeklyHours || parseWeeklyHours(preferences.hoursPerWeek);
+    const current_level = preferences.level || "beginner";
+    const category = preferences.categoryId || 1;
 
-      let response: RoadmapApiResponse;
+    let response: RoadmapApiResponse | null = null;
+
+    try {
       if (isRegenerating) {
         response = await roadmapService.regenerateRoadmap(
           {
@@ -96,38 +99,62 @@ export function AiArchitectGenerationScreen({
           locale
         );
       }
+    } catch (err: any) {
+      console.warn("Backend AI roadmap endpoint error, will inspect platform catalog:", err);
+    }
 
-      apiFinishedRef.current = true;
-      responseDataRef.current = response;
+    apiFinishedRef.current = true;
+    responseDataRef.current = response;
 
-      // Handle response status
-      if (response?.status === "ready" && response.path?.steps && response.path.steps.length > 0) {
-        const normalized = normalizeBackendRoadmap(response.path);
+    // 1. If backend AI succeeded with a valid path containing steps -> use it!
+    if (response?.status === "ready" && response.path?.steps && response.path.steps.length > 0) {
+      const normalized = normalizeBackendRoadmap(response.path, locale);
+      setProgress(100);
+      setIsFinalDone(true);
+      setStatus("ready");
+      soundFx.playCelebration();
+
+      setTimeout(() => {
+        onComplete(normalized);
+      }, 800);
+      return;
+    }
+
+    // 2. If backend AI returned 'unavailable' or had no steps, BUT we have published courses in this category or platform:
+    // Fetch the real platform courses and give them to the user immediately!
+    try {
+      const catId = preferences.categoryId || category;
+      const catalogRes = await courseService.getCourses({ category: catId }, locale);
+      let realCourses = catalogRes?.results || [];
+
+      // If category filter returned empty, get all published courses
+      if (!realCourses || realCourses.length === 0) {
+        const allRes = await courseService.getCourses({}, locale);
+        realCourses = allRes?.results || [];
+      }
+
+      if (realCourses && realCourses.length > 0) {
+        const roadmapFromRealCourses = createRoadmapFromCatalogCourses(
+          realCourses,
+          preferences,
+          locale
+        );
         setProgress(100);
         setIsFinalDone(true);
         setStatus("ready");
         soundFx.playCelebration();
 
-        // Short celebration delay so the user sees 100% checkmark
         setTimeout(() => {
-          onComplete(normalized);
+          onComplete(roadmapFromRealCourses);
         }, 800);
-      } else if (response?.status === "unavailable") {
-        setStatus("unavailable");
-      } else {
-        setStatus("unavailable");
+        return;
       }
-    } catch (err: any) {
-      apiFinishedRef.current = true;
-      setStatus("error");
-      const msg =
-        err?.response?.data?.message ||
-        err?.response?.data?.detail ||
-        (err?.response?.status === 401
-          ? (isAr ? "يرجى تسجيل الدخول بحساب طالب لتوليد المسار التعليمي." : "Please sign in as a student to generate your roadmap.")
-          : (isAr ? "حدث خطأ أثناء الاتصال بالخادم، يرجى المحاولة مجدداً." : "An error occurred connecting to the roadmap engine. Please retry."));
-      setErrorMessage(msg);
+    } catch (catErr) {
+      console.warn("Error fetching catalog courses fallback:", catErr);
     }
+
+    // 3. Only if zero published courses exist on the entire platform
+    setStatus("unavailable");
   };
 
   useEffect(() => {
