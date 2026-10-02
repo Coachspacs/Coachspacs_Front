@@ -90,12 +90,13 @@ export default function middleware(request: NextRequest) {
         } catch {}
       }
 
-      let redirectPath = `/${currentLocale}/student`;
-      if (isInstructor) {
-        redirectPath = userStatus === 'approved'
+      let redirectPath = isSuperuser
+        ? `/${currentLocale}/admin/cms`
+        : isInstructor
+        ? userStatus === 'approved'
           ? `/${currentLocale}/instructor/dashboard`
-          : `/${currentLocale}/instructor`;
-      }
+          : `/${currentLocale}/instructor`
+        : `/${currentLocale}/student`;
 
       const url = request.nextUrl.clone();
       url.pathname = redirectPath;
@@ -147,7 +148,15 @@ export default function middleware(request: NextRequest) {
       return NextResponse.redirect(url);
     }
 
-    // 6.3 Role-Based Access: Students cannot access instructor routes
+    // 6.3 Admin Access Constraint: Superusers/Admins can ONLY access CMS / admin pages, not student dashboard or instructor routes
+    if (isSuperuser && (isStudentRoute || isInstructorRoute || isCartOrCheckoutRoute)) {
+      const url = request.nextUrl.clone();
+      url.pathname = `/${currentLocale}/admin/cms`;
+      url.search = '';
+      return NextResponse.redirect(url);
+    }
+
+    // 6.4 Role-Based Access: Students cannot access instructor routes
     if (isInstructorRoute && !isInstructor) {
       const url = request.nextUrl.clone();
       url.pathname = `/${currentLocale}/student`;
@@ -158,7 +167,9 @@ export default function middleware(request: NextRequest) {
     // Direct /account and /profile redirects based on role
     if (isAccountRoute || isProfileRoute) {
       const url = request.nextUrl.clone();
-      url.pathname = isInstructor
+      url.pathname = isSuperuser
+        ? `/${currentLocale}/admin/cms`
+        : isInstructor
         ? `/${currentLocale}/instructor/settings`
         : `/${currentLocale}/student/settings`;
       return NextResponse.redirect(url);

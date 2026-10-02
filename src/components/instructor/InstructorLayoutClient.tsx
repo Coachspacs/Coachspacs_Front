@@ -78,6 +78,18 @@ export function InstructorLayoutClient({
       return;
     }
 
+    const isAdminUser = Boolean(
+      activeUser?.is_superuser === true ||
+      (activeUser as any)?.isSuperuser === true ||
+      activeUser.role === "admin" ||
+      activeUser.role === "superuser"
+    );
+
+    if (isAdminUser) {
+      router.replace(`/${locale}/admin/cms`);
+      return;
+    }
+
     if (activeUser.role === "student") {
       router.replace(`/${locale}/student`);
       return;

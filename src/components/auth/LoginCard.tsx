@@ -66,9 +66,15 @@ export function LoginCard({ lang }: LoginCardProps) {
 
       const initialRole = (res.role || res.user?.role || "student").toLowerCase();
       const initialStatus = (res.approval_status || res.user?.approval_status || "approved").toLowerCase();
+      const initialIsSuperuser = Boolean(
+        initialRole === "admin" ||
+        initialRole === "superuser" ||
+        (res as any)?.is_superuser === true ||
+        (res as any)?.user?.is_superuser === true
+      );
 
       // Immediately store tokens & session cookies so Axios and Middleware have authorization
-      tokenManager.setAccessToken(token, initialRole, initialStatus);
+      tokenManager.setAccessToken(token, initialRole, initialStatus, initialIsSuperuser);
       if (refreshToken) {
         tokenManager.setRefreshToken(refreshToken);
       }
@@ -76,12 +82,32 @@ export function LoginCard({ lang }: LoginCardProps) {
       // Fetch authentic user profile & verify approval status directly from backend database API
       const { user, approval_status } = await authService.syncCurrentUserProfile(token, res, data.email);
 
+      const isAdminUser = Boolean(
+        user.is_superuser === true ||
+        (user as any)?.isSuperuser === true ||
+        user.role === "admin" ||
+        user.role === "superuser"
+      );
+
+      // Re-sync session cookie with verified is_superuser value
+      tokenManager.setAccessToken(token, user.role, approval_status, isAdminUser);
+
       // Save verified user credentials in Redux & localStorage
       dispatch(setCredentials({ user, token, refreshToken }));
 
       // 1. Check for redirect query parameter from Protected Route guard
       const redirectParam = searchParams.get("redirect");
       const isInstructorRole = user.role === "instructor" || user.role === "coach";
+
+      // Admins are strictly scoped to the CMS Studio and administrative routes
+      if (isAdminUser) {
+        if (redirectParam && redirectParam.startsWith("/") && !redirectParam.startsWith("//") && redirectParam.includes("/admin")) {
+          router.push(redirectParam);
+        } else {
+          router.push(`/${locale}/admin/cms`);
+        }
+        return;
+      }
 
       if (redirectParam && redirectParam.startsWith("/") && !redirectParam.startsWith("//")) {
         const isTargetingInstructor = redirectParam.includes("/instructor");
