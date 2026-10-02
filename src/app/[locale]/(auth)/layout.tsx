@@ -46,12 +46,20 @@ export default function AuthLayout({
     if (isAuthPage && isUserLoggedIn && activeUser) {
       const role = activeUser.role || "student";
       const status = activeUser.approval_status || activeUser.approvalStatus || "";
+      const isAdmin = Boolean(
+        activeUser.is_superuser === true ||
+        (activeUser as any)?.isSuperuser === true ||
+        role === "admin" ||
+        role === "superuser"
+      );
 
       const searchParams = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
       const redirectParam = searchParams?.get("redirect");
 
       let redirectPath = redirectParam || `/${locale}/student`;
-      if (!redirectParam && role === "instructor") {
+      if (isAdmin) {
+        redirectPath = (redirectParam && redirectParam.includes("/admin")) ? redirectParam : `/${locale}/admin/cms`;
+      } else if (!redirectParam && role === "instructor") {
         redirectPath =
           status === "approved"
             ? `/${locale}/instructor/dashboard`
