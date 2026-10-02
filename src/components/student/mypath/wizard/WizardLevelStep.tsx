@@ -4,17 +4,16 @@ import React from "react";
 import { motion } from "framer-motion";
 import {
   BookOpen,
-  Code2,
   TrendingUp,
   Award,
   Check,
   ArrowRight,
   ArrowLeft,
+  Sparkles,
 } from "lucide-react";
 import { soundFx } from "@/lib/soundEffects";
-import { MyPathPreferences, PriorKnowledge, SkillLevel } from "@/types/mypath";
+import { MyPathPreferences, SkillLevel } from "@/types/mypath";
 import { RobotJourneyBanner } from "../RobotJourneyBanner";
-import { LevelOptionItem } from "./types";
 
 interface WizardLevelStepProps {
   t: (key: string) => string;
@@ -25,27 +24,47 @@ interface WizardLevelStepProps {
   onPrev: () => void;
 }
 
-const LEVEL_OPTIONS: readonly LevelOptionItem[] = [
+interface LevelOption {
+  level: SkillLevel;
+  icon: any;
+  titleAr: string;
+  titleEn: string;
+  descAr: string;
+  descEn: string;
+  badgeAr?: string;
+  badgeEn?: string;
+}
+
+const LEVEL_OPTIONS: LevelOption[] = [
   {
-    id: "none",
-    skillLevel: "beginner",
+    level: "beginner",
     icon: BookOpen,
+    titleAr: "مبتدئ (Beginner)",
+    titleEn: "Beginner",
+    descAr: "أبدأ من نقطة الصفر أو لدي معرفة بسيطة جداً، وأريد تأسيس المفاهيم الأساسية أولاً.",
+    descEn: "Starting from scratch or with minimal knowledge, focusing on building solid fundamentals.",
+    badgeAr: "نقطة البداية الأولى",
+    badgeEn: "Foundational",
   },
   {
-    id: "basic",
-    skillLevel: "beginner",
-    icon: Code2,
-  },
-  {
-    id: "intermediate",
-    skillLevel: "intermediate",
+    level: "intermediate",
     icon: TrendingUp,
-    hasRecommended: true,
+    titleAr: "متوسط (Intermediate)",
+    titleEn: "Intermediate",
+    descAr: "أمتلك أساسيات جيدة، وأرغب في الانتقال لبناء مشاريع متكاملة وتطوير مهارات عملية أعمق.",
+    descEn: "Good grasp of fundamentals, looking to build practical projects and advance core competencies.",
+    badgeAr: "الأكثر اختياراً",
+    badgeEn: "Most Popular",
   },
   {
-    id: "advanced",
-    skillLevel: "advanced",
+    level: "advanced",
     icon: Award,
+    titleAr: "متقدم (Advanced)",
+    titleEn: "Advanced",
+    descAr: "لدي خبرة عملية راسخة، وأسعى لإتقان الأنماط المتقدمة والحلول المعمارية والاحترافية.",
+    descEn: "Solid industry experience, aiming to master high-level patterns and advanced architecture.",
+    badgeAr: "مستوى احترافي",
+    badgeEn: "Mastery",
   },
 ];
 
@@ -57,94 +76,105 @@ export function WizardLevelStep({
   onNext,
   onPrev,
 }: WizardLevelStepProps) {
+  const currentLevel = preferences.level || "beginner";
+
   return (
     <div className="space-y-6 relative z-10">
-      {/* Animated Interactive Scenic Journey Banner with Moving Robot */}
+      {/* 1. Animated Interactive Scenic Journey Banner with Moving Robot */}
       <RobotJourneyBanner
         currentStepIndex={3}
         totalSteps={4}
-        stepBadge={isAr ? "الخطوة 3 من 4 • تقييم المستوى" : "Step 3 of 4 • Skill Level"}
+        stepBadge={isAr ? "الخطوة 3 من 4 • تقييم مستواك" : "Step 3 of 4 • Skill Level"}
         stepCategory={isAr ? "المستوى الحالي" : "Current Level"}
         isAr={isAr}
       />
 
-      {/* Step Header (Centered) */}
+      {/* 2. Step Header (Centered) */}
       <div className="text-center max-w-xl mx-auto pt-4 sm:pt-6 pb-1 space-y-2.5">
         <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-          {t("wizard.step2Title")}
+          {isAr ? "ما هو مستواك الحالي في هذا المجال؟" : "What is your current level in this domain?"}
         </h2>
         <p className="text-xs sm:text-sm text-slate-500 font-normal leading-relaxed">
-          {t("wizard.step2Subtitle")}
+          {isAr
+            ? "يساعد تحديد المستوى في البدء بالمواضيع المناسبة وتخطي الأساسيات المكررة لتوفير وقتك."
+            : "Selecting your level ensures the AI starts with appropriate courses and avoids redundant basics."}
         </p>
       </div>
 
-      {/* Level Options List */}
-      <div className="space-y-3 pt-2 max-w-2xl mx-auto" role="radiogroup">
+      {/* 3. Level Options List */}
+      <div className="space-y-3.5 pt-1 max-w-2xl mx-auto" role="radiogroup">
         {LEVEL_OPTIONS.map((opt, idx) => {
           const Icon = opt.icon;
-          const isSelected = preferences.priorKnowledge === opt.id;
+          const isSelected = currentLevel === opt.level;
+
           return (
             <motion.button
-              key={opt.id}
+              key={opt.level}
               type="button"
               role="radio"
               aria-checked={isSelected}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.25, delay: idx * 0.04 }}
+              transition={{ duration: 0.25, delay: idx * 0.05 }}
               whileHover={{ scale: 1.01 }}
               whileTap={{ scale: 0.99 }}
               onClick={() => {
                 soundFx.playOptionSelect();
-                setPreferences({
-                  ...preferences,
-                  priorKnowledge: opt.id as PriorKnowledge,
-                  level: opt.skillLevel as SkillLevel,
-                });
+                setPreferences((prev) => ({
+                  ...prev,
+                  level: opt.level,
+                  priorKnowledge: opt.level === "beginner" ? "basic" : opt.level,
+                }));
               }}
-              className={`w-full p-3.5 sm:p-4 rounded-2xl border text-start transition-all cursor-pointer flex items-center justify-between gap-4 ${
+              className={`w-full p-4 sm:p-5 rounded-2xl border text-start transition-all cursor-pointer flex items-center justify-between gap-4 ${
                 isSelected
                   ? "bg-white border-2 border-emerald-400 shadow-xs"
                   : "bg-white border border-slate-200/90 hover:border-slate-300 hover:bg-slate-50/40"
               }`}
             >
-              {/* Start Side: Icon + Text */}
-              <div className="flex items-center gap-3.5 min-w-0 flex-1">
+              {/* Start Side (Icon + Texts) */}
+              <div className="flex items-center gap-4 min-w-0 flex-1">
                 <div
-                  className={`w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
+                  className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
                     isSelected
                       ? "bg-[#0F5244] text-white shadow-xs"
                       : "bg-slate-100 text-slate-500"
                   }`}
                 >
-                  <Icon className="w-5 h-5 sm:w-5.5 sm:h-5.5" />
+                  <Icon className="w-6 h-6" />
                 </div>
 
-                <div className="min-w-0 flex-1 text-start">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm sm:text-base font-bold text-slate-900 block truncate">
-                      {t(`wizard.levels.${opt.id}.title`)}
-                    </span>
-                    {opt.hasRecommended && (
-                      <span className="px-2 py-0.5 rounded text-[10px] font-extrabold uppercase bg-emerald-600 text-white tracking-wider">
-                        {t("wizard.levels.intermediate.recommendedBadge")}
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <h3 className="text-sm sm:text-base font-bold text-slate-900 leading-snug">
+                      {isAr ? opt.titleAr : opt.titleEn}
+                    </h3>
+                    {opt.badgeAr && (
+                      <span
+                        className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full ${
+                          isSelected
+                            ? "bg-emerald-100 text-emerald-800"
+                            : "bg-slate-100 text-slate-600"
+                        }`}
+                      >
+                        {isAr ? opt.badgeAr : opt.badgeEn}
                       </span>
                     )}
                   </div>
-                  <p className="text-xs text-slate-400 sm:text-slate-500 font-normal line-clamp-1 mt-0.5">
-                    {t(`wizard.levels.${opt.id}.desc`)}
+                  <p className="text-xs text-slate-500 font-normal leading-relaxed">
+                    {isAr ? opt.descAr : opt.descEn}
                   </p>
                 </div>
               </div>
 
-              {/* End Side: Radio Checkmark */}
-              <div className="shrink-0 flex items-center ps-2">
+              {/* End Side (Radio Check Indicator) */}
+              <div className="shrink-0 flex items-center">
                 {isSelected ? (
                   <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-emerald-600 text-white flex items-center justify-center shadow-xs">
                     <Check className="w-3.5 h-3.5 stroke-[3]" />
                   </div>
                 ) : (
-                  <div className="w-5 h-5.5 sm:w-5.5 sm:h-5.5 rounded-full border-2 border-slate-200 bg-white" />
+                  <div className="w-5 h-5 rounded-full border-2 border-slate-200 bg-white" />
                 )}
               </div>
             </motion.button>
@@ -152,9 +182,9 @@ export function WizardLevelStep({
         })}
       </div>
 
-      {/* Navigation Buttons */}
+      {/* 4. Navigation Buttons */}
       <div
-        className={`flex items-center justify-between pt-8 max-w-2xl mx-auto ${
+        className={`flex items-center justify-between pt-6 max-w-2xl mx-auto ${
           isAr ? "flex-row-reverse" : ""
         }`}
       >
