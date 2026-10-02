@@ -30,6 +30,8 @@ export function MyPathWizard() {
     isCustomSkillOpen,
     setIsCustomSkillOpen,
     roadmap,
+    isRegenerating,
+    refreshRoadmap,
     goToNextStep,
     goToPrevStep,
     handleStartAssessment,
@@ -38,7 +40,7 @@ export function MyPathWizard() {
     handleReorderMilestones,
     handleRegenerate,
     handleSelectCustomSkill,
-  } = useMyPathWizard(t);
+  } = useMyPathWizard(t, locale);
 
   return (
     <motion.section
@@ -133,6 +135,8 @@ export function MyPathWizard() {
           <AiArchitectGenerationScreen
             preferences={preferences}
             isAr={isAr}
+            locale={locale}
+            isRegenerating={isRegenerating}
             onComplete={handleGenerationComplete}
             onAdjustPreferences={() => goToPrevStep(5)}
           />
@@ -149,6 +153,7 @@ export function MyPathWizard() {
             onReorderMilestones={handleReorderMilestones}
             onRegenerate={handleRegenerate}
             onEditPreferences={() => goToPrevStep(5)}
+            onRefreshRoadmap={refreshRoadmap}
           />
         )}
       </div>

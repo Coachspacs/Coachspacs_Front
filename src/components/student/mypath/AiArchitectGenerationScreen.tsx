@@ -15,21 +15,36 @@ import {
   Compass,
 } from "lucide-react";
 import { AnimatedRobotCharacter } from "./AnimatedRobotCharacter";
-import { MyPathPreferences } from "@/types/mypath";
+import {
+  MyPathPreferences,
+  GeneratedRoadmap,
+  RoadmapApiResponse,
+  buildGoalText,
+  parseWeeklyHours,
+  normalizeBackendRoadmap,
+} from "@/types/mypath";
+import { roadmapService } from "@/services/roadmapService";
+import { generateRoadmapFromPreferences } from "@/lib/myPathGenerator";
 
 interface AiArchitectGenerationScreenProps {
   preferences: MyPathPreferences;
   isAr?: boolean;
-  onComplete: () => void;
+  locale?: string;
+  isRegenerating?: boolean;
+  onComplete: (roadmap?: GeneratedRoadmap) => void;
   onAdjustPreferences?: () => void;
 }
 
 export function AiArchitectGenerationScreen({
   preferences,
   isAr = false,
+  locale = "en",
+  isRegenerating = false,
   onComplete,
   onAdjustPreferences,
 }: AiArchitectGenerationScreenProps) {
+  const generatedRoadmapRef = React.useRef<GeneratedRoadmap | null>(null);
+
   // Phase 1 (0-1s), Phase 2 (1-2s), Phase 3 (2-3s), Phase 4 (3-4s)
   const [phase, setPhase] = useState<1 | 2 | 3 | 4>(1);
   const [isFinalDone, setIsFinalDone] = useState<boolean>(false);
@@ -73,6 +88,63 @@ export function AiArchitectGenerationScreen({
     }
   };
 
+  // Trigger backend roadmap generation in parallel with the 4-phase animation
+  useEffect(() => {
+    let isCancelled = false;
+
+    const generateAsync = async () => {
+      try {
+        const goal_text = buildGoalText(preferences);
+        const weekly_hours = parseWeeklyHours(preferences.hoursPerWeek);
+        const current_level =
+          preferences.level === "beginner"
+            ? "beginner"
+            : preferences.level === "advanced"
+            ? "advanced"
+            : "intermediate";
+
+        let response: RoadmapApiResponse;
+        if (isRegenerating) {
+          response = await roadmapService.regenerateRoadmap(
+            {
+              goal_text,
+              weekly_hours,
+              current_level,
+            },
+            locale
+          );
+        } else {
+          response = await roadmapService.generateRoadmap(
+            {
+              goal_text,
+              weekly_hours,
+              current_level,
+            },
+            locale
+          );
+        }
+
+        if (
+          !isCancelled &&
+          response?.path &&
+          response.path.steps &&
+          response.path.steps.length > 0
+        ) {
+          const normalized = normalizeBackendRoadmap(response.path);
+          generatedRoadmapRef.current = normalized;
+        }
+      } catch (err) {
+        console.warn("AI roadmap generation fallback to client generator:", err);
+      }
+    };
+
+    generateAsync();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [preferences, isRegenerating, locale]);
+
   useEffect(() => {
     // 1. Initial 1s countdown tick
     const sec1 = setTimeout(() => setSecondsRemaining(6), 1000);
@@ -111,7 +183,9 @@ export function AiArchitectGenerationScreen({
 
     // 6. Smooth finish and navigation at 7500ms
     const t5 = setTimeout(() => {
-      onComplete();
+      const finalRoadmap =
+        generatedRoadmapRef.current || generateRoadmapFromPreferences(preferences);
+      onComplete(finalRoadmap);
     }, 7500);
 
     return () => {
@@ -124,7 +198,7 @@ export function AiArchitectGenerationScreen({
       clearTimeout(t4);
       clearTimeout(t5);
     };
-  }, [onComplete]);
+  }, [onComplete, preferences]);
 
   return (
     <motion.div

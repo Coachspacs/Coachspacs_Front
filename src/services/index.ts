@@ -11,4 +11,5 @@ export * from './orderService';
 export * from './certificateService';
 export * from './courseAttachmentService';
 export * from './lessonSummaryService';
+export * from './roadmapService';
 
