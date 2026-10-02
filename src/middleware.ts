@@ -90,7 +90,7 @@ export default function middleware(request: NextRequest) {
         } catch {}
       }
 
-      let redirectPath = isSuperuser
+      const redirectPath = isSuperuser
         ? `/${currentLocale}/admin/cms`
         : isInstructor
         ? userStatus === 'approved'

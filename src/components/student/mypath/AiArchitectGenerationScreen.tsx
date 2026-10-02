@@ -131,6 +131,7 @@ export function AiArchitectGenerationScreen({
 
   useEffect(() => {
     executeGeneration();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Visual phases timer (phases 1 -> 2 -> 3 -> 4)
