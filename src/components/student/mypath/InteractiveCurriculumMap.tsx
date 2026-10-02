@@ -15,7 +15,7 @@ export type { InteractiveCurriculumMapProps } from "./map";
 export function InteractiveCurriculumMap(props: InteractiveCurriculumMapProps) {
   const {
     isAr = false,
-    locale,
+    locale = "en",
     onRegenerate,
   } = props;
 

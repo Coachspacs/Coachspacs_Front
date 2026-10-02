@@ -8,22 +8,27 @@ import {
   GeneratedRoadmap,
   MyPathPreferences,
 } from "@/types/mypath";
+import { roadmapService } from "@/services/roadmapService";
 import { WaypointNode } from "../types";
 
 interface UseCurriculumMapProps {
   roadmap: GeneratedRoadmap;
   preferences: MyPathPreferences;
   isAr?: boolean;
+  locale?: string;
   onMilestoneToggle: (id: string) => void;
   onReorderMilestones?: (newMilestones: RoadmapMilestone[]) => void;
+  onRefreshRoadmap?: () => Promise<void>;
 }
 
 export function useCurriculumMap({
   roadmap,
   preferences,
   isAr = false,
+  locale = "en",
   onMilestoneToggle,
   onReorderMilestones,
+  onRefreshRoadmap,
 }: UseCurriculumMapProps) {
   const [soundOn, setSoundOn] = useState<boolean>(true);
   const [isReorderModalOpen, setIsReorderModalOpen] = useState(false);
@@ -99,22 +104,27 @@ export function useCurriculumMap({
     },
   );
 
-  // Reordering milestone logic
-  const handleMoveMilestone = (index: number, direction: "up" | "down") => {
+  // Reordering milestone logic (US-18 #5)
+  const handleMoveMilestone = async (index: number, direction: "up" | "down") => {
     let updated: RoadmapMilestone[] | null = null;
+    let targetNewOrder = 1;
+    const targetMilestone = milestonesState[index];
+
     if (direction === "up" && index > 0) {
       updated = [...milestonesState];
       const temp = updated[index];
       updated[index] = updated[index - 1];
       updated[index - 1] = temp;
+      targetNewOrder = index; // 1-based order
     } else if (direction === "down" && index < milestonesState.length - 1) {
       updated = [...milestonesState];
       const temp = updated[index];
       updated[index] = updated[index + 1];
       updated[index + 1] = temp;
+      targetNewOrder = index + 2; // 1-based order
     }
 
-    if (updated) {
+    if (updated && targetMilestone) {
       setMilestonesState(updated);
 
       // Auto-expand the milestone that is NOW at Stage 1 / active stage
@@ -136,13 +146,18 @@ export function useCurriculumMap({
       } catch {}
 
       onReorderMilestones?.(updated);
-
       if (soundOn) soundFx.playOptionSelect();
+
+      // Sync step order with backend PATCH /api/ai/roadmap/steps/:id
+      try {
+        await roadmapService.reorderStep(targetMilestone.id, targetNewOrder, locale);
+      } catch (err) {}
     }
   };
 
-  // Drag & Drop Reorder Handler
-  const handleReorderGroup = (newOrder: RoadmapMilestone[]) => {
+  // Drag & Drop Reorder Handler (US-18 #5)
+  const handleReorderGroup = async (newOrder: RoadmapMilestone[]) => {
+    const prevOrder = [...milestonesState];
     setMilestonesState(newOrder);
 
     // Auto-expand the milestone that is NOW at Stage 1 / active stage
@@ -164,14 +179,30 @@ export function useCurriculumMap({
     } catch {}
 
     onReorderMilestones?.(newOrder);
+
+    // Sync newly ordered positions with backend
+    try {
+      for (let i = 0; i < newOrder.length; i++) {
+        const item = newOrder[i];
+        const oldPos = prevOrder.findIndex((m) => m.id === item.id);
+        if (oldPos !== i) {
+          await roadmapService.reorderStep(item.id, i + 1, locale);
+        }
+      }
+    } catch (err) {}
   };
 
-  // Skip milestone handler
-  const handleToggleSkip = (milestoneId: string) => {
+  // Skip milestone handler (US-18 #4a / #4b)
+  const handleToggleSkip = async (milestoneId: string) => {
+    const currentMilestone = milestonesState.find((m) => m.id === milestoneId);
+    const isCurrentlySkipped = currentMilestone?.status === "skipped";
+    const newStatusBackend = isCurrentlySkipped ? "pending" : "skipped";
+    const nextLocalStatus = isCurrentlySkipped ? "planned" : "skipped";
+
+    // Optimistic UI update
     const updated = milestonesState.map((m) => {
       if (m.id === milestoneId) {
-        const newStatus = m.status === "skipped" ? "planned" : "skipped";
-        return { ...m, status: newStatus as any };
+        return { ...m, status: nextLocalStatus as any };
       }
       return m;
     });
@@ -186,8 +217,18 @@ export function useCurriculumMap({
     } catch {}
 
     onReorderMilestones?.(updated);
-
     if (soundOn) soundFx.playOptionSelect();
+
+    // Call real backend PATCH /api/ai/roadmap/steps/:stepId
+    try {
+      await roadmapService.updateStepStatus(milestoneId, newStatusBackend, locale);
+      // Re-plan remaining pending steps around it
+      if (onRefreshRoadmap) {
+        await onRefreshRoadmap();
+      }
+    } catch (err) {
+      // Graceful offline preservation
+    }
   };
 
   // Dynamic Waypoint coordinates generation with generous top and bottom margins

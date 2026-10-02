@@ -8,11 +8,12 @@ export interface InteractiveCurriculumMapProps {
   roadmap: GeneratedRoadmap;
   preferences: MyPathPreferences;
   isAr?: boolean;
-  locale: string;
+  locale?: string;
   onMilestoneToggle: (id: string) => void;
   onRegenerate: () => void;
   onEditPreferences?: () => void;
   onReorderMilestones?: (newMilestones: RoadmapMilestone[]) => void;
+  onRefreshRoadmap?: () => Promise<void>;
 }
 
 export interface WaypointNode {

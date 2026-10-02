@@ -8,10 +8,12 @@ import {
   MyPathPreferences,
   GeneratedRoadmap,
   RoadmapMilestone,
+  normalizeBackendRoadmap,
 } from "@/types/mypath";
+import { roadmapService } from "@/services/roadmapService";
 import { WizardStep } from "../types";
 
-export function useMyPathWizard(t: (key: string) => string) {
+export function useMyPathWizard(t: (key: string) => string, locale: string = "en") {
   // Step 1: Landing Overview
   // Step 2: Wizard 1/4 - Goal Assessment
   // Step 3: Wizard 2/4 - Skill Focus & Track Selection
@@ -20,6 +22,8 @@ export function useMyPathWizard(t: (key: string) => string) {
   // Step 6: AI Generation Loading
   // Step 7: Final Interactive Roadmap
   const [step, setStep] = useState<WizardStep>(1);
+  const [isRegenerating, setIsRegenerating] = useState<boolean>(false);
+  const [isLoadingRoadmap, setIsLoadingRoadmap] = useState<boolean>(true);
 
   const [preferences, setPreferences] = useState<MyPathPreferences>({
     goal: "job",
@@ -39,33 +43,64 @@ export function useMyPathWizard(t: (key: string) => string) {
 
   const [isHydrated, setIsHydrated] = useState(false);
 
-  // Restore saved state (preferences, roadmap, and exact active step) on mount
+  // Restore saved state and sync with live backend roadmap on mount
   useEffect(() => {
-    try {
-      const savedPrefs = localStorage.getItem("coachspace_mypath_preferences");
-      if (savedPrefs) {
-        const parsed = JSON.parse(savedPrefs);
-        if (parsed) setPreferences((prev) => ({ ...prev, ...parsed }));
-      }
+    let isCancelled = false;
 
-      const savedRoadmap = localStorage.getItem("coachspace_student_roadmap");
-      if (savedRoadmap) {
-        const parsedRoadmap = JSON.parse(savedRoadmap);
-        if (parsedRoadmap?.milestones?.length > 0) {
-          setRoadmap(parsedRoadmap);
+    const initRoadmap = async () => {
+      // 1. Instant local restore
+      try {
+        const savedPrefs = localStorage.getItem("coachspace_mypath_preferences");
+        if (savedPrefs) {
+          const parsed = JSON.parse(savedPrefs);
+          if (parsed) setPreferences((prev) => ({ ...prev, ...parsed }));
+        }
+
+        const savedRoadmap = localStorage.getItem("coachspace_student_roadmap");
+        if (savedRoadmap) {
+          const parsedRoadmap = JSON.parse(savedRoadmap);
+          if (parsedRoadmap?.milestones?.length > 0) {
+            setRoadmap(parsedRoadmap);
+          }
+        }
+
+        const savedStep = localStorage.getItem("coachspace_mypath_current_step");
+        if (savedStep) {
+          const stepNum = parseInt(savedStep, 10);
+          if (stepNum >= 1 && stepNum <= 7) {
+            setStep(stepNum === 6 ? 5 : (stepNum as WizardStep));
+          }
+        }
+      } catch {}
+
+      // 2. Fetch live roadmap from backend API (US-18 #3: GET /api/ai/roadmap)
+      try {
+        const res = await roadmapService.getMyRoadmap(locale);
+        if (!isCancelled && res?.path && res.path.steps && res.path.steps.length > 0) {
+          const normalized = normalizeBackendRoadmap(res.path);
+          setRoadmap(normalized);
+          setStep(7);
+          try {
+            localStorage.setItem("coachspace_student_roadmap", JSON.stringify(normalized));
+            localStorage.setItem("coachspace_mypath_current_step", "7");
+          } catch {}
+        }
+      } catch (err) {
+        // Unauthenticated or offline: keep existing local state
+      } finally {
+        if (!isCancelled) {
+          setIsHydrated(true);
+          setIsLoadingRoadmap(false);
         }
       }
+    };
 
-      const savedStep = localStorage.getItem("coachspace_mypath_current_step");
-      if (savedStep) {
-        const stepNum = parseInt(savedStep, 10);
-        if (stepNum >= 1 && stepNum <= 7) {
-          setStep(stepNum === 6 ? 5 : (stepNum as WizardStep));
-        }
-      }
-    } catch {}
-    setIsHydrated(true);
-  }, []);
+    initRoadmap();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [locale]);
 
   // Persist current step whenever it changes
   useEffect(() => {
@@ -83,6 +118,19 @@ export function useMyPathWizard(t: (key: string) => string) {
     } catch {}
   }, [preferences, isHydrated]);
 
+  const refreshRoadmap = async () => {
+    try {
+      const res = await roadmapService.getMyRoadmap(locale);
+      if (res?.path && res.path.steps && res.path.steps.length > 0) {
+        const normalized = normalizeBackendRoadmap(res.path);
+        setRoadmap(normalized);
+        try {
+          localStorage.setItem("coachspace_student_roadmap", JSON.stringify(normalized));
+        } catch {}
+      }
+    } catch {}
+  };
+
   const triggerConfetti = () => {
     try {
       confetti({
@@ -94,11 +142,13 @@ export function useMyPathWizard(t: (key: string) => string) {
     } catch {}
   };
 
-  const handleGenerationComplete = () => {
-    const generated = generateRoadmapFromPreferences(preferences);
-    setRoadmap(generated);
+  const handleGenerationComplete = (generated?: GeneratedRoadmap) => {
+    const finalRoadmap = generated || generateRoadmapFromPreferences(preferences);
+    setRoadmap(finalRoadmap);
+    setIsRegenerating(false);
     try {
-      localStorage.setItem("coachspace_student_roadmap", JSON.stringify(generated));
+      localStorage.setItem("coachspace_student_roadmap", JSON.stringify(finalRoadmap));
+      localStorage.setItem("coachspace_mypath_current_step", "7");
     } catch {}
     soundFx.playCelebration();
     setStep(7);
@@ -163,6 +213,7 @@ export function useMyPathWizard(t: (key: string) => string) {
   };
 
   const handleRegenerate = () => {
+    setIsRegenerating(true);
     goToPrevStep(2);
   };
 
@@ -192,6 +243,9 @@ export function useMyPathWizard(t: (key: string) => string) {
     isCustomSkillOpen,
     setIsCustomSkillOpen,
     roadmap,
+    isRegenerating,
+    isLoadingRoadmap,
+    refreshRoadmap,
     goToNextStep,
     goToPrevStep,
     handleStartAssessment,
