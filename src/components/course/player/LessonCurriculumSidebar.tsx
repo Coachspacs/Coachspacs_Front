@@ -8,6 +8,9 @@ import {
   ChevronUp,
   Check,
   Lock,
+  Sparkles,
+  ChevronRight,
+  ChevronLeft,
 } from "lucide-react";
 import { SectionItem, LessonItem } from "./types";
 
@@ -27,6 +30,7 @@ interface LessonCurriculumSidebarProps {
   completedLessonIds: string[];
   onSelectLesson: (index: number) => void;
   setIsPlaying: (val: boolean) => void;
+  onOpenAiQuiz?: () => void;
   isAr: boolean;
   t: any;
 }
@@ -47,6 +51,7 @@ export function LessonCurriculumSidebar({
   completedLessonIds,
   onSelectLesson,
   setIsPlaying,
+  onOpenAiQuiz,
   isAr,
   t,
 }: LessonCurriculumSidebarProps) {
@@ -110,6 +115,39 @@ export function LessonCurriculumSidebar({
               </button>
             )}
           </div>
+
+          {/* AI Practice Quiz Launcher Button */}
+          {onOpenAiQuiz && (
+            <div className="pt-1">
+              <button
+                type="button"
+                onClick={onOpenAiQuiz}
+                className="w-full group/quiz p-2.5 rounded-xl bg-gradient-to-r from-emerald-50 via-teal-50/50 to-white hover:from-emerald-100/70 hover:to-emerald-50/60 border border-emerald-200/90 hover:border-emerald-300 transition-all flex items-center justify-between gap-2.5 shadow-2xs cursor-pointer text-start"
+              >
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <div className="w-7 h-7 rounded-lg bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-xs group-hover/quiz:scale-105 transition-transform">
+                    <Sparkles size={14} className="animate-pulse" />
+                  </div>
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-xs font-black text-slate-900 group-hover/quiz:text-emerald-950 truncate">
+                        {isAr ? "اختبار الذكاء الاصطناعي" : "AI Practice Quiz"}
+                      </span>
+                      <span className="px-1.5 py-0.2 rounded-md bg-emerald-100 text-emerald-800 text-[9px] font-black uppercase">
+                        AI
+                      </span>
+                    </div>
+                    <p className="text-[10px] text-slate-500 font-medium truncate">
+                      {isAr ? "اختبر فهمك عبر أسئلة مخصصة" : "Test your knowledge from lessons"}
+                    </p>
+                  </div>
+                </div>
+                <div className="shrink-0 text-slate-400 group-hover/quiz:text-emerald-700 transition-colors">
+                  {isAr ? <ChevronLeft size={15} /> : <ChevronRight size={15} />}
+                </div>
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Connected Vertical Timeline Curriculum */}

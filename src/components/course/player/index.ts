@@ -6,3 +6,4 @@ export * from "./LessonContentTabs";
 export * from "./LessonCurriculumSidebar";
 export * from "./KeyboardShortcutsModal";
 export * from "./CourseCelebrationModal";
+export * from "./quiz";

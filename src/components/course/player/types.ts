@@ -7,6 +7,7 @@ export interface LessonItem {
   title_ar?: string;
   duration?: string;
   duration_minutes?: number;
+  durationFormatted?: string;
   video_url?: string;
   videoUrl?: string;
   is_preview?: boolean;
