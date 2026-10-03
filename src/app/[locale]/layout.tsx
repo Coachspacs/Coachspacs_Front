@@ -29,17 +29,7 @@ export default async function LocaleLayout({
       <DynamicBrandingInjector isPreview={isDraftMode} />
       {isDraftMode && <PreviewModeBanner locale={locale} />}
       <StoreProvider>
-        <NextIntlClientProvider
-          messages={messages}
-          locale={locale}
-          onError={(error) => {
-            if (error.code === 'MISSING_MESSAGE') return;
-            console.warn(error);
-          }}
-          getMessageFallback={({ key, namespace }) => {
-            return namespace ? `${namespace}.${key}` : key;
-          }}
-        >
+        <NextIntlClientProvider messages={messages} locale={locale}>
           <AuthInitializer />
           <CartDrawer />
           <main className="flex-grow w-full">{children}</main>
