@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import { Footer } from "@/components/layout/Footer";
 import {
   LessonViewerLayoutProps,
@@ -11,6 +11,7 @@ import {
   LessonCurriculumSidebar,
   KeyboardShortcutsModal,
   CourseCelebrationModal,
+  AiPracticeQuizModal,
 } from "./player";
 import { LessonSummaryCard } from "./LessonSummaryCard";
 import { ErrorBoundary } from "@/components/ui/ErrorBoundary";
@@ -165,6 +166,7 @@ export function LessonViewerLayout(props: LessonViewerLayoutProps) {
     ? t("defaultInstructorHeadline")
     : rawHeadline;
   const instructorSlug = instructor?.slug || String(instructor?.id || "instructor");
+  const [showAiQuizModal, setShowAiQuizModal] = useState(false);
 
   return (
     <div
@@ -299,6 +301,7 @@ export function LessonViewerLayout(props: LessonViewerLayoutProps) {
             instructor={instructor}
             whatYouWillLearn={whatYouWillLearn}
             courseMaterials={courseMaterials}
+            onOpenAiQuiz={() => setShowAiQuizModal(true)}
             locale={locale}
             isAr={isAr}
             t={t}
@@ -350,6 +353,7 @@ export function LessonViewerLayout(props: LessonViewerLayoutProps) {
             completedLessonIds={completedLessonIds}
             onSelectLesson={onSelectLesson}
             setIsPlaying={setIsPlaying}
+            onOpenAiQuiz={() => setShowAiQuizModal(true)}
             isAr={isAr}
             t={t}
           />
@@ -373,6 +377,27 @@ export function LessonViewerLayout(props: LessonViewerLayoutProps) {
         onNavigateToCertificate={handleNavigateToCertificate}
         displayCourseTitle={displayCourseTitle}
         t={t}
+      />
+
+      {/* AI Practice Quiz Modal (Sprint 14) */}
+      <AiPracticeQuizModal
+        isOpen={showAiQuizModal}
+        onClose={() => setShowAiQuizModal(false)}
+        courseId={props.courseId || props.courseSlug || ""}
+        courseTitle={displayCourseTitle}
+        allLessons={allLessons}
+        completedLessonIds={completedLessonIds}
+        sections={props.sections}
+        onSelectLessonById={(lessonId) => {
+          const idx = allLessons.findIndex(
+            (l) => String(l.id) === String(lessonId)
+          );
+          if (idx !== -1) {
+            onSelectLesson(idx);
+          }
+        }}
+        locale={locale}
+        isAr={isAr}
       />
 
       {/* Footer */}

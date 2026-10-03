@@ -34,6 +34,7 @@ interface LessonContentTabsProps {
   instructor?: InstructorItem;
   whatYouWillLearn?: string[];
   courseMaterials?: AttachmentItem[];
+  onOpenAiQuiz?: () => void;
   locale: string;
   isAr: boolean;
   t: any;
@@ -52,6 +53,7 @@ export function LessonContentTabs({
   instructor,
   whatYouWillLearn = [],
   courseMaterials,
+  onOpenAiQuiz,
   locale,
   isAr,
   t,
@@ -149,6 +151,41 @@ export function LessonContentTabs({
               </a>
             </div>
           </div>
+
+          {/* AI Practice Quiz Banner */}
+          {onOpenAiQuiz && (
+            <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-emerald-50 via-white to-teal-50/40 border border-emerald-200/90 shadow-2xs flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div className="flex items-center gap-3.5 min-w-0">
+                <div className="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-xs">
+                  <Sparkles size={18} className="animate-pulse" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-sm sm:text-base font-black text-slate-900">
+                      {isAr ? "اختبار الذكاء الاصطناعي التجريبي" : "AI Practice Quiz"}
+                    </h3>
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-100 text-emerald-800 border border-emerald-300">
+                      Sprint 14
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-600 font-medium">
+                    {isAr
+                      ? "اختبر استيعابك للمفاهيم عبر أسئلة تفاعلية فورية ومراجعة الدروس بالذكاء الاصطناعي."
+                      : "Generate practice tests from course lessons with instant AI scoring & review."}
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={onOpenAiQuiz}
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-[#0F5244] hover:bg-[#07382E] text-white text-xs font-bold transition-all shadow-2xs shrink-0 cursor-pointer"
+              >
+                <Sparkles size={13} />
+                <span>{isAr ? "بدء الاختبار الذكي" : "Start Practice Quiz"}</span>
+                <ArrowRight size={13} className="rtl:rotate-180" />
+              </button>
+            </div>
+          )}
 
           {/* Overview Section */}
           <div className="space-y-3 pt-1">
