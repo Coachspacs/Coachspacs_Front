@@ -135,7 +135,7 @@ export function sanitizeInlineHtml(text: string): string {
  */
 export function sanitizeLegalHtml(html: string): string {
   if (!html) return "";
-  let clean = html
+  const clean = html
     .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, "")
     .replace(/<iframe\b[^<]*(?:(?!<\/iframe>)<[^<]*)*<\/iframe>/gi, "")
     .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, "")

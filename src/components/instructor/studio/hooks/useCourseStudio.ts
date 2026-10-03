@@ -89,7 +89,7 @@ export function useCourseStudio(initialId?: string) {
     if (!initialCourseId) return;
     async function loadCourse() {
       try {
-        let rawRes =
+        const rawRes =
           await instructorCourseService.getInstructorCourse(initialCourseId);
         
         let data = rawRes?.course || rawRes?.data || rawRes;
