@@ -3,7 +3,8 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "@/lib/store";
 import {
   Clock,
   CheckCircle2,
@@ -32,6 +33,7 @@ export function InstructorPendingModal({
   const t = useTranslations("instructorPendingModal");
   const router = useRouter();
   const dispatch = useDispatch();
+  const { user, isAuthenticated } = useSelector((state: RootState) => state.auth);
 
   const [isChecking, setIsChecking] = useState(false);
   const [feedback, setFeedback] = useState<{
@@ -51,7 +53,11 @@ export function InstructorPendingModal({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isOpen, onClose]);
 
-  if (!isOpen) return null;
+  const approvalStatus = (user?.approval_status || (user as any)?.approvalStatus || "").toLowerCase();
+  const isApproved = approvalStatus === "approved";
+
+  // Prevent modal from flashing during logout, unauthenticated transitions, or if instructor is approved
+  if (!isOpen || !isAuthenticated || !user || isApproved) return null;
 
   const handleCheckStatus = async () => {
     setIsChecking(true);

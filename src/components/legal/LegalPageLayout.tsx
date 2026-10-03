@@ -2,7 +2,8 @@
 
 import React from "react";
 import Link from "next/link";
-import { ArrowLeft, ArrowRight, Sparkles, Mail, LucideIcon } from "lucide-react";
+import { usePathname, useSearchParams } from "next/navigation";
+import { ArrowLeft, ArrowRight, Sparkles, Mail, Globe, LucideIcon } from "lucide-react";
 
 export interface LegalSectionItem {
   id: string;
@@ -39,6 +40,14 @@ export function LegalPageLayout({
   contactEmail = "coachspace4@gmail.com",
 }: LegalPageLayoutProps) {
   const isAr = locale === "ar";
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const targetLocale = isAr ? "en" : "ar";
+  const searchStr = searchParams?.toString() ? `?${searchParams.toString()}` : "";
+  const targetLangUrl = pathname
+    ? pathname.replace(new RegExp(`^/${locale}`), `/${targetLocale}`) + searchStr
+    : `/${targetLocale}${searchStr}`;
 
   return (
     <div
@@ -46,8 +55,8 @@ export function LegalPageLayout({
       className="min-h-screen bg-slate-50/70 font-sans text-slate-800 py-8 sm:py-14 px-4 sm:px-6 lg:px-8"
     >
       <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in duration-200">
-        {/* Back Link */}
-        <div>
+        {/* Top Bar: Back Link & Language Switcher */}
+        <div className="flex items-center justify-between gap-3">
           <Link
             href={`/${locale}`}
             className="inline-flex items-center gap-2 text-xs sm:text-sm font-bold text-slate-500 hover:text-[#0F5244] transition-colors group cursor-pointer"
@@ -58,6 +67,16 @@ export function LegalPageLayout({
               <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
             )}
             <span>{backToHomeText}</span>
+          </Link>
+
+          {/* Language Switcher Pill */}
+          <Link
+            href={targetLangUrl}
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white hover:bg-slate-50 border border-slate-200 text-xs font-black text-slate-700 hover:text-[#0F5244] shadow-2xs transition-all cursor-pointer"
+            title={isAr ? "Switch to English" : "التبديل إلى العربية"}
+          >
+            <Globe className="w-3.5 h-3.5 text-[#0F5244]" />
+            <span>{isAr ? "English" : "العربية"}</span>
           </Link>
         </div>
 

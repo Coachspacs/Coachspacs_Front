@@ -209,6 +209,13 @@ export interface LegalPagesContent {
   terms: LegalPageData;
 }
 
+export interface LegalPageSnapshot {
+  id: string;
+  savedAt: string;
+  savedBy: string;
+  data: LegalPagesContent;
+}
+
 export interface LegalPagesDoc {
   status: 'published' | 'draft_only' | 'has_draft_changes';
   publishedAt: string | null;
@@ -216,5 +223,6 @@ export interface LegalPagesDoc {
   lastUpdatedBy: string;
   published: LegalPagesContent;
   draft: LegalPagesContent;
+  history?: LegalPageSnapshot[];
 }
 

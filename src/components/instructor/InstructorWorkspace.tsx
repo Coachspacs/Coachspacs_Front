@@ -253,10 +253,11 @@ export function InstructorWorkspace({
           image:
             c.cover_image ||
             c.coverImage ||
-            (typeof c.image === "string" &&
-            !c.image.includes("unsplash.com/photo-1516321318423")
-              ? c.image
-              : ""),
+            c.thumbnail ||
+            c.cover_image_url ||
+            c.image_url ||
+            (typeof c.image === "string" ? c.image : "") ||
+            "/images/courses/course-leadership.png",
           rejectionReason:
             (isAr ? c.rejection_reason_ar : c.rejection_reason_en) ||
             c.rejection_reason ||
@@ -584,9 +585,10 @@ export function InstructorWorkspace({
       const hasCover = Boolean(
         detailedCourse?.cover_image ||
         detailedCourse?.coverImage ||
-        (detailedCourse?.image &&
-          typeof detailedCourse.image === "string" &&
-          !detailedCourse.image.includes("unsplash.com/photo-1516321318423")),
+        detailedCourse?.thumbnail ||
+        detailedCourse?.cover_image_url ||
+        detailedCourse?.image_url ||
+        (detailedCourse?.image && typeof detailedCourse.image === "string" && detailedCourse.image.trim().length > 0)
       );
 
       const sections = detailedCourse?.sections || [];

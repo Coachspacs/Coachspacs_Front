@@ -448,11 +448,24 @@ export class CmsServerService {
   }
 
   /**
-   * Publish Legal Pages (copies draft into published)
+   * Publish Legal Pages (copies draft into published and records history snapshot)
    */
   static async publishLegalPages(updatedBy: string): Promise<LegalPagesDoc> {
     const db = getFirestoreDb();
     const currentDoc = await this.getLegalPagesDoc();
+
+    const snapshot = {
+      id: `snapshot-${Date.now()}`,
+      savedAt: new Date().toISOString(),
+      savedBy: updatedBy,
+      data: {
+        privacy: { ...currentDoc.draft.privacy },
+        terms: { ...currentDoc.draft.terms },
+      },
+    };
+
+    const previousHistory = Array.isArray(currentDoc.history) ? currentDoc.history : [];
+    const updatedHistory = [snapshot, ...previousHistory].slice(0, 25);
 
     const publishedDoc: LegalPagesDoc = {
       ...currentDoc,
@@ -464,6 +477,7 @@ export class CmsServerService {
         privacy: { ...currentDoc.draft.privacy },
         terms: { ...currentDoc.draft.terms },
       },
+      history: updatedHistory,
     };
 
     inMemoryLegalDoc = publishedDoc;

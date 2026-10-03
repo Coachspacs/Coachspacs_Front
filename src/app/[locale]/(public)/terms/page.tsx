@@ -37,8 +37,21 @@ const ICON_MAP: Record<string, any> = {
   FileText,
 };
 
+import { sanitizeLegalHtml } from "@/components/cms/legal/legalUtils";
+
 function renderLegalContent(text: string) {
   if (!text) return null;
+
+  // If text is rich HTML (contains tags like <p>, <ul>, <strong>, <a>)
+  if (/<[a-z][\s\S]*>/i.test(text)) {
+    return (
+      <div
+        className="space-y-3 leading-relaxed [&_ul]:list-disc [&_ul]:ps-5 [&_ul]:space-y-1.5 [&_ol]:list-decimal [&_ol]:ps-5 [&_ol]:space-y-1.5 [&_p]:mb-2 [&_a]:text-emerald-700 [&_a]:underline [&_a]:font-semibold"
+        dangerouslySetInnerHTML={{ __html: sanitizeLegalHtml(text) }}
+      />
+    );
+  }
+
   const paragraphs = text.split("\n\n").filter(Boolean);
   return (
     <div className="space-y-3">
@@ -100,22 +113,98 @@ function TermsOfServiceContent() {
   const [pageData, setPageData] = useState<LegalPageData>(DEFAULT_LEGAL_PAGES.terms);
 
   useEffect(() => {
-    async function loadCmsLegal() {
+    // 1. If in preview mode, try reading real-time in-memory edits from localStorage and listen for updates
+    if (isPreview && typeof window !== "undefined") {
+      const syncFromLocal = () => {
+        try {
+          const cached = localStorage.getItem("coachspace_cms_preview_legal");
+          if (cached) {
+            const parsed = JSON.parse(cached);
+            if (parsed?.terms) {
+              setPageData(parsed.terms);
+              return true;
+            }
+          }
+        } catch {}
+        return false;
+      };
+
+      const foundLocal = syncFromLocal();
+
+      // Listen for live broadcast updates while preview tab is open
+      let bc: BroadcastChannel | null = null;
       try {
-        const res = await fetch("/api/cms/content");
-        const json = await res.json();
-        if (json.success && json.legal) {
-          const data =
-            isPreview && json.legal.draft?.terms
-              ? json.legal.draft.terms
-              : json.legal.published?.terms || DEFAULT_LEGAL_PAGES.terms;
-          setPageData(data);
+        if (typeof BroadcastChannel !== "undefined") {
+          bc = new BroadcastChannel("coachspace_cms_preview");
+          bc.onmessage = (event) => {
+            if (event.data?.type === "PREVIEW_LEGAL_UPDATE" && event.data?.legal?.terms) {
+              setPageData(event.data.legal.terms);
+            }
+          };
         }
-      } catch (err) {
-        console.warn("Failed to load CMS terms of service data, using fallback:", err);
+      } catch {}
+
+      // Also listen for storage and focus events in case of tab switching
+      const handleStorageChange = (e: StorageEvent) => {
+        if (e.key === "coachspace_cms_preview_legal" && e.newValue) {
+          try {
+            const parsed = JSON.parse(e.newValue);
+            if (parsed?.terms) {
+              setPageData(parsed.terms);
+            }
+          } catch {}
+        }
+      };
+      const handleTabFocus = () => {
+        syncFromLocal();
+      };
+
+      window.addEventListener("storage", handleStorageChange);
+      window.addEventListener("focus", handleTabFocus);
+      window.addEventListener("visibilitychange", handleTabFocus);
+
+      // Fetch from server API as fallback only if localStorage was empty
+      if (!foundLocal) {
+        async function loadCmsLegal() {
+          try {
+            const res = await fetch("/api/cms/content");
+            const json = await res.json();
+            if (json.success && json.legal) {
+              const data =
+                json.legal.draft?.terms ||
+                json.legal.published?.terms ||
+                DEFAULT_LEGAL_PAGES.terms;
+              setPageData(data);
+            }
+          } catch (err) {
+            console.warn("Failed to load CMS terms of service data, using fallback:", err);
+          }
+        }
+        loadCmsLegal();
       }
+
+      return () => {
+        if (bc) bc.close();
+        window.removeEventListener("storage", handleStorageChange);
+        window.removeEventListener("focus", handleTabFocus);
+        window.removeEventListener("visibilitychange", handleTabFocus);
+      };
+    } else {
+      // 2. Normal Public Visitor: strictly fetch published version from server
+      async function loadPublishedLegal() {
+        try {
+          const res = await fetch("/api/cms/content");
+          const json = await res.json();
+          if (json.success && json.legal) {
+            const data = json.legal.published?.terms || DEFAULT_LEGAL_PAGES.terms;
+            setPageData(data);
+          }
+        } catch (err) {
+          console.warn("Failed to load CMS terms of service data, using fallback:", err);
+        }
+      }
+      loadPublishedLegal();
     }
-    loadCmsLegal();
   }, [isPreview]);
 
   const sections: LegalSectionItem[] = (pageData.sections || []).map((sec, idx) => {
