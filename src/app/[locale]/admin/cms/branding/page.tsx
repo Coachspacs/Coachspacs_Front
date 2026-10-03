@@ -218,14 +218,26 @@ export default function BrandingSettingsPage() {
               disabled={isPreviewing}
               type="button"
               className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-white hover:bg-slate-50 text-slate-700 hover:text-slate-900 text-xs font-bold border border-slate-200/90 shadow-2xs transition-all cursor-pointer disabled:opacity-50"
-              title={t("previewTooltip")}
+              title={
+                t.has("previewTooltip")
+                  ? t("previewTooltip")
+                  : isAr
+                  ? "معاينة بالألوان والخطوط الجديدة بدون حفظها للعامة"
+                  : "Preview draft colors and typography without saving to live"
+              }
             >
               {isPreviewing ? (
                 <Loader2 className="w-4 h-4 animate-spin text-[#0F5244]" />
               ) : (
                 <Eye className="w-4 h-4 text-slate-500" />
               )}
-              <span>{t("previewSite")}</span>
+              <span>
+                {t.has("previewSite")
+                  ? t("previewSite")
+                  : isAr
+                  ? "معاينة المنصة"
+                  : "Live Preview Site"}
+              </span>
             </button>
 
             {/* Save & Apply Button */}
