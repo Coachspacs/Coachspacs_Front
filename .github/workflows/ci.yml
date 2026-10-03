@@ -28,11 +28,7 @@ jobs:
         run: npx tsc --noEmit
 
       - name: Run Vitest Unit Tests
-        run: |
-          npm test -- --reporter=verbose || {
-            echo "::error::$(npm test -- --reporter=verbose 2>&1 | tail -n 25 | tr '\n' ' ')"
-            exit 1
-          }
+        run: npm test
 
       - name: Run Production Build Validation
         run: npm run build
