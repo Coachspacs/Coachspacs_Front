@@ -5,6 +5,8 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const secret = searchParams.get('secret');
   const locale = searchParams.get('locale') || 'ar';
+  const view = searchParams.get('view') || 'guest';
+  const t = searchParams.get('t') || Date.now().toString();
   const expectedSecret = process.env.CMS_PREVIEW_SECRET || 'coachspace_cms_preview_secret';
 
   if (secret !== expectedSecret) {
@@ -14,6 +16,9 @@ export async function GET(request: NextRequest) {
   const draft = await draftMode();
   draft.enable();
 
-  const redirectUrl = new URL(`/${locale}?preview=true`, request.url);
+  const redirectUrl = new URL(
+    `/${locale}?preview=true&view=${encodeURIComponent(view)}&t=${encodeURIComponent(t)}`,
+    request.url
+  );
   return NextResponse.redirect(redirectUrl);
 }

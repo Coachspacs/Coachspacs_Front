@@ -13,8 +13,12 @@ export function RealStoriesSection({ data }: RealStoriesSectionProps = {}) {
   const locale = useLocale();
   const isRtl = locale === "ar";
 
-  const titleText = (isRtl ? data?.title_ar : data?.title_en) || t("storiesTitle");
-  const subtitleText = (isRtl ? data?.subtitle_ar : data?.subtitle_en) || t("storiesSubtitle");
+  const titleText =
+    (isRtl ? (data?.title_ar || data?.title_en) : (data?.title_en || data?.title_ar)) ||
+    t("storiesTitle");
+  const subtitleText =
+    (isRtl ? (data?.subtitle_ar || data?.subtitle_en) : (data?.subtitle_en || data?.subtitle_ar)) ||
+    t("storiesSubtitle");
 
   const defaultStories = [
     {
@@ -84,12 +88,15 @@ export function RealStoriesSection({ data }: RealStoriesSectionProps = {}) {
     const handleResize = () => {
       if (rafId !== null) cancelAnimationFrame(rafId);
       rafId = requestAnimationFrame(() => {
-        if (window.innerWidth < 768) {
+        if (window.innerWidth < 640) {
           setItemsPerPage(1);
         } else if (window.innerWidth < 1024) {
           setItemsPerPage(2);
-        } else {
+        } else if (window.innerWidth < 1280) {
           setItemsPerPage(3);
+        } else {
+          // On wide desktop, display 4 cards if 4 or more stories exist, or 3 cards
+          setItemsPerPage(stories.length >= 4 ? 4 : 3);
         }
       });
     };
@@ -100,9 +107,10 @@ export function RealStoriesSection({ data }: RealStoriesSectionProps = {}) {
       if (rafId !== null) cancelAnimationFrame(rafId);
       window.removeEventListener("resize", handleResize);
     };
-  }, []);
+  }, [stories.length]);
 
-  const maxIndex = Math.max(0, stories.length - itemsPerPage);
+  const effectiveItemsPerPage = Math.min(itemsPerPage, Math.max(1, stories.length));
+  const maxIndex = Math.max(0, stories.length - effectiveItemsPerPage);
 
   const handleNext = () => {
     setCurrentIndex((prev) => (prev >= maxIndex ? 0 : prev + 1));
@@ -139,9 +147,9 @@ export function RealStoriesSection({ data }: RealStoriesSectionProps = {}) {
     touchEndX.current = null;
   };
 
-  const totalPages = Math.ceil(stories.length / itemsPerPage);
-  const activePage = Math.floor(currentIndex / itemsPerPage);
-  const translateOffset = (currentIndex * 100) / itemsPerPage;
+  const totalPages = Math.max(1, Math.ceil(stories.length / effectiveItemsPerPage));
+  const activePage = Math.min(totalPages - 1, Math.floor(currentIndex / effectiveItemsPerPage));
+  const translateOffset = (currentIndex * 100) / effectiveItemsPerPage;
 
   return (
     <section className="w-full bg-[#F0F3FF]/40 py-16 sm:py-24 border-t border-slate-100 overflow-hidden font-sans relative">
@@ -176,14 +184,16 @@ export function RealStoriesSection({ data }: RealStoriesSectionProps = {}) {
         >
           
           {/* Left Arrow Button (Sleek Glassmorphic Style) */}
-          <button
-            type="button"
-            onClick={isRtl ? handleNext : handlePrev}
-            aria-label={isRtl ? t("nextSlide") : t("prevSlide")}
-            className="absolute -left-2 sm:-left-6 top-1/2 -translate-y-1/2 z-20 w-11 h-11 sm:w-13 sm:h-13 rounded-full bg-white/95 backdrop-blur-md border border-[#0F5244]/25 text-[#0F5244] shadow-lg shadow-[#0F5244]/10 hover:bg-[#0F5244] hover:text-white hover:border-[#0F5244] hover:scale-110 transition-all duration-300 flex items-center justify-center cursor-pointer group active:scale-95"
-          >
-            <ChevronLeft className="w-6 h-6 stroke-[2.2] group-hover:-translate-x-0.5 transition-transform" />
-          </button>
+          {maxIndex > 0 && (
+            <button
+              type="button"
+              onClick={isRtl ? handleNext : handlePrev}
+              aria-label={isRtl ? t("nextSlide") : t("prevSlide")}
+              className="absolute -left-2 sm:-left-6 top-1/2 -translate-y-1/2 z-20 w-11 h-11 sm:w-13 sm:h-13 rounded-full bg-white/95 backdrop-blur-md border border-[#0F5244]/25 text-[#0F5244] shadow-lg shadow-[#0F5244]/10 hover:bg-[#0F5244] hover:text-white hover:border-[#0F5244] hover:scale-110 transition-all duration-300 flex items-center justify-center cursor-pointer group active:scale-95"
+            >
+              <ChevronLeft className="w-6 h-6 stroke-[2.2] group-hover:-translate-x-0.5 transition-transform" />
+            </button>
+          )}
 
           {/* Touch Swipeable Overflow Window */}
           <div
@@ -205,7 +215,7 @@ export function RealStoriesSection({ data }: RealStoriesSectionProps = {}) {
                 <div
                   key={story.id}
                   className="shrink-0 px-3 transition-opacity duration-500"
-                  style={{ width: `${100 / itemsPerPage}%` }}
+                  style={{ width: `${100 / effectiveItemsPerPage}%` }}
                 >
                   <div className="group bg-white rounded-3xl p-7 border border-[#004442]/15 shadow-md shadow-[#004442]/5 hover:shadow-xl hover:border-[#004442]/35 hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between h-full min-h-[270px]">
                     {/* Top Row: Quote Icon & 5 Stars */}
@@ -257,37 +267,41 @@ export function RealStoriesSection({ data }: RealStoriesSectionProps = {}) {
           </div>
 
           {/* Right Arrow Button (Sleek Glassmorphic Style) */}
-          <button
-            type="button"
-            onClick={isRtl ? handlePrev : handleNext}
-            aria-label={isRtl ? t("prevSlide") : t("nextSlide")}
-            className="absolute -right-2 sm:-right-6 top-1/2 -translate-y-1/2 z-20 w-11 h-11 sm:w-13 sm:h-13 rounded-full bg-white/95 backdrop-blur-md border border-[#0F5244]/25 text-[#0F5244] shadow-lg shadow-[#0F5244]/10 hover:bg-[#0F5244] hover:text-white hover:border-[#0F5244] hover:scale-110 transition-all duration-300 flex items-center justify-center cursor-pointer group active:scale-95"
-          >
-            <ChevronRight className="w-6 h-6 stroke-[2.2] group-hover:translate-x-0.5 transition-transform" />
-          </button>
+          {maxIndex > 0 && (
+            <button
+              type="button"
+              onClick={isRtl ? handlePrev : handleNext}
+              aria-label={isRtl ? t("prevSlide") : t("nextSlide")}
+              className="absolute -right-2 sm:-right-6 top-1/2 -translate-y-1/2 z-20 w-11 h-11 sm:w-13 sm:h-13 rounded-full bg-white/95 backdrop-blur-md border border-[#0F5244]/25 text-[#0F5244] shadow-lg shadow-[#0F5244]/10 hover:bg-[#0F5244] hover:text-white hover:border-[#0F5244] hover:scale-110 transition-all duration-300 flex items-center justify-center cursor-pointer group active:scale-95"
+            >
+              <ChevronRight className="w-6 h-6 stroke-[2.2] group-hover:translate-x-0.5 transition-transform" />
+            </button>
+          )}
         </motion.div>
 
         {/* Enhanced Pagination Controls Bar */}
-        <div className="flex items-center justify-center gap-3 mt-10">
-          <span className="text-xs font-extrabold text-[#0F5244]/70 tracking-wider">
-            {activePage + 1} / {totalPages}
-          </span>
-          <div className="flex items-center gap-2">
-            {Array.from({ length: totalPages }).map((_, idx) => (
-              <button
-                key={idx}
-                type="button"
-                onClick={() => setCurrentIndex(idx * itemsPerPage)}
-                aria-label={isRtl ? `الانتقال إلى شريحة ${idx + 1}` : `Go to slide ${idx + 1}`}
-                className={`h-2.5 rounded-full transition-all duration-500 cursor-pointer ${
-                  activePage === idx
-                    ? "w-10 bg-[#0F5244] shadow-xs shadow-[#0F5244]/30"
-                    : "w-3 bg-[#0F5244]/20 hover:bg-[#0F5244]/40 hover:w-5"
-                }`}
-              />
-            ))}
+        {maxIndex > 0 && (
+          <div className="flex items-center justify-center gap-3 mt-10">
+            <span className="text-xs font-extrabold text-[#0F5244]/70 tracking-wider">
+              {activePage + 1} / {totalPages}
+            </span>
+            <div className="flex items-center gap-2">
+              {Array.from({ length: totalPages }).map((_, idx) => (
+                <button
+                  key={idx}
+                  type="button"
+                  onClick={() => setCurrentIndex(Math.min(idx * effectiveItemsPerPage, maxIndex))}
+                  aria-label={isRtl ? `الانتقال إلى شريحة ${idx + 1}` : `Go to slide ${idx + 1}`}
+                  className={`h-2.5 rounded-full transition-all duration-500 cursor-pointer ${
+                    activePage === idx
+                      ? "w-10 bg-[#0F5244] shadow-xs shadow-[#0F5244]/30"
+                      : "w-3 bg-[#0F5244]/20 hover:bg-[#0F5244]/40 hover:w-5"
+                  }`}
+                />
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
       </div>
     </section>

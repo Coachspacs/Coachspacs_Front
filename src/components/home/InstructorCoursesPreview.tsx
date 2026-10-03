@@ -10,7 +10,11 @@ import { BookOpen, Users, Star, PlusCircle, Edit3 } from "lucide-react";
 import { instructorCourseService } from "@/services/instructorCourseService";
 import { CourseCard } from "@/components/course/CourseCard";
 
-export function InstructorCoursesPreview() {
+interface InstructorCoursesPreviewProps {
+  isPreview?: boolean;
+}
+
+export function InstructorCoursesPreview({ isPreview }: InstructorCoursesPreviewProps = {}) {
   const t = useTranslations("home");
   const locale = useLocale();
   const [mounted, setMounted] = useState(false);
@@ -23,8 +27,12 @@ export function InstructorCoursesPreview() {
     setMounted(true);
   }, []);
 
-  const isInstructor = mounted && isAuthenticated && ((user?.role || "").toLowerCase() === "instructor" || (user?.role || "").toLowerCase() === "coach");
-  const isApproved = (user?.approval_status || (user as any)?.approvalStatus || "").toLowerCase() === "approved";
+  const isInstructor =
+    (mounted && isAuthenticated && ((user?.role || "").toLowerCase() === "instructor" || (user?.role || "").toLowerCase() === "coach")) ||
+    isPreview;
+  const isApproved =
+    (user?.approval_status || (user as any)?.approvalStatus || "").toLowerCase() === "approved" ||
+    isPreview;
 
   const fetchInstructorCourses = useCallback(async () => {
     if (!isInstructor || !isApproved) {

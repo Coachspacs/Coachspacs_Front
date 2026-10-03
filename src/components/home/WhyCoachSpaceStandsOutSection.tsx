@@ -24,8 +24,12 @@ export function WhyCoachSpaceStandsOutSection({ data }: WhyCoachSpaceStandsOutPr
   const locale = useLocale();
   const isAr = locale === "ar";
 
-  const titleText = (isAr ? data?.title_ar : data?.title_en) || t("standsOutTitle");
-  const subtitleText = (isAr ? data?.subtitle_ar : data?.subtitle_en) || t("standsOutSubtitle");
+  const titleText =
+    (isAr ? (data?.title_ar || data?.title_en) : (data?.title_en || data?.title_ar)) ||
+    t("standsOutTitle");
+  const subtitleText =
+    (isAr ? (data?.subtitle_ar || data?.subtitle_en) : (data?.subtitle_en || data?.subtitle_ar)) ||
+    t("standsOutSubtitle");
 
   const defaultFeatures: FeatureItem[] = [
     {

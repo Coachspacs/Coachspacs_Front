@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import {
   Palette,
   Save,
@@ -25,6 +26,7 @@ export default function BrandingSettingsPage() {
   const params = useParams();
   const locale = (params?.locale as string) || "ar";
   const isAr = locale === "ar";
+  const t = useTranslations("cms.branding");
 
   // State: holds the current temporary/preview branding configuration in the UI
   const [branding, setBranding] = useState<GlobalBrandingConfig>(DEFAULT_BRANDING);
@@ -112,7 +114,7 @@ export default function BrandingSettingsPage() {
         window.open(`/api/cms/preview?secret=coachspace_cms_preview_secret&locale=${locale}`, "_blank");
       }
     } catch (e) {
-      setStatusMessage(isAr ? "تعذر فتح وضع المعاينة" : "Failed to open preview mode");
+      setStatusMessage(t("previewFailed"));
     } finally {
       setIsPreviewing(false);
     }
@@ -148,16 +150,12 @@ export default function BrandingSettingsPage() {
           } catch {}
         }
 
-        setStatusMessage(
-          isAr
-            ? "تم حفظ وتطبيق الهوية ولوحة الألوان بنجاح على كامل المنصة للجميع!"
-            : "Branding and color palette successfully saved and applied platform-wide!"
-        );
+        setStatusMessage(t("savedSuccess"));
       } else {
-        setStatusMessage(isAr ? "حدث خطأ أثناء الحفظ" : "Failed to save branding");
+        setStatusMessage(t("saveFailed"));
       }
     } catch (e) {
-      setStatusMessage(isAr ? "حدث خطأ أثناء الحفظ" : "Failed to save branding");
+      setStatusMessage(t("saveFailed"));
     } finally {
       setIsSaving(false);
     }
@@ -166,11 +164,7 @@ export default function BrandingSettingsPage() {
   // 5. Reset to Default: Reverts local state to defaults
   const handleResetToDefault = () => {
     setBranding(DEFAULT_BRANDING);
-    setStatusMessage(
-      isAr
-        ? "تمت استعادة الإعدادات الافتراضية محلياً. اضغط 'حفظ وتطبيق' لتنفيذها للعامة."
-        : "Reset to defaults locally. Click 'Save & Apply' to publish live."
-    );
+    setStatusMessage(t("resetSuccess"));
   };
 
   // 6. Auto-Harmonize: Intelligently calculates harmonious colors from Primary Main
@@ -180,11 +174,7 @@ export default function BrandingSettingsPage() {
       ...prev,
       colors: harmonizedColors,
     }));
-    setStatusMessage(
-      isAr
-        ? "تم توليد وتنسيق ألوان الثيم تلقائياً بناءً على اللون الرئيسي!"
-        : "Theme colors auto-harmonized based on primary main color!"
-    );
+    setStatusMessage(t("harmonizeSuccess"));
   };
 
   if (isLoading) {
@@ -196,95 +186,109 @@ export default function BrandingSettingsPage() {
   }
 
   return (
-    <div className="max-w-5xl mx-auto space-y-8 font-sans">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-6">
-        <div>
-          <div className="flex items-center gap-2 text-xs font-bold text-[#0F5244] uppercase tracking-wider mb-1">
-            <Palette className="w-4 h-4 text-[#0F5244]" />
-            <span>{isAr ? "إعدادات المظهر العام والهوية" : "Design System & Platform Branding"}</span>
+    <div className="max-w-6xl mx-auto space-y-8 font-sans pb-12">
+      {/* Top Header */}
+      <div className="bg-white border border-slate-200/90 rounded-2xl sm:rounded-3xl p-5 sm:p-7 shadow-xs">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-2 text-xs font-bold text-[#0F5244] uppercase tracking-wider mb-1.5">
+              <span className="p-1 rounded-md bg-emerald-50 border border-emerald-200/70 text-[#0F5244]">
+                <Palette className="w-3.5 h-3.5" />
+              </span>
+              <span>{t("designSystem")}</span>
+            </div>
+            <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+              {t("globalBranding")}
+            </h1>
           </div>
-          <h2 className="text-2xl font-black text-slate-900">
-            {isAr ? "تخصيص الهوية ولوحة الألوان" : "Global Branding & Palette Tokens"}
-          </h2>
+
+          <div className="flex flex-wrap items-center gap-2.5 sm:gap-3">
+            {/* Reset Defaults Button */}
+            <button
+              onClick={handleResetToDefault}
+              type="button"
+              className="flex-1 sm:flex-none px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-all cursor-pointer border border-slate-200/80 shadow-2xs"
+            >
+              {t("resetDefaults")}
+            </button>
+
+            {/* Live Preview Button */}
+            <button
+              onClick={handlePreview}
+              disabled={isPreviewing}
+              type="button"
+              className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-white hover:bg-slate-50 text-slate-700 hover:text-slate-900 text-xs font-bold border border-slate-200/90 shadow-2xs transition-all cursor-pointer disabled:opacity-50"
+              title={t("previewTooltip")}
+            >
+              {isPreviewing ? (
+                <Loader2 className="w-4 h-4 animate-spin text-[#0F5244]" />
+              ) : (
+                <Eye className="w-4 h-4 text-slate-500" />
+              )}
+              <span>{t("previewSite")}</span>
+            </button>
+
+            {/* Save & Apply Button */}
+            <button
+              onClick={handleSave}
+              disabled={isSaving}
+              type="button"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-[#0F5244] hover:bg-[#07382E] text-white text-xs font-black transition-all cursor-pointer shadow-md shadow-[#0F5244]/20 disabled:opacity-50"
+            >
+              {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+              <span>{t("saveApply")}</span>
+            </button>
+          </div>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-          {/* Reset Defaults Button */}
-          <button
-            onClick={handleResetToDefault}
-            type="button"
-            className="flex-1 sm:flex-none px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-all cursor-pointer border border-slate-200 shadow-2xs"
-          >
-            {isAr ? "استعادة الافتراضي" : "Reset Defaults"}
-          </button>
-
-          {/* Live Preview Button (Temporary State) */}
-          <button
-            onClick={handlePreview}
-            disabled={isPreviewing}
-            type="button"
-            className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-white hover:bg-slate-50 text-slate-700 hover:text-slate-900 text-xs font-bold border border-slate-200 shadow-2xs transition-all cursor-pointer disabled:opacity-50"
-            title={isAr ? "معاينة بالألوان الجديدة بدون حفظها للعامة" : "Preview draft colors without saving to live"}
-          >
-            {isPreviewing ? (
-              <Loader2 className="w-4 h-4 animate-spin text-[#0F5244]" />
-            ) : (
-              <Eye className="w-4 h-4 text-slate-500" />
-            )}
-            <span>{isAr ? "معاينة الموقع" : "Live Preview Site"}</span>
-          </button>
-
-          {/* Save & Apply Button (Persistent State) */}
-          <button
-            onClick={handleSave}
-            disabled={isSaving}
-            type="button"
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-[#0F5244] hover:bg-[#07382E] text-white text-xs font-black transition-all cursor-pointer shadow-md shadow-[#0F5244]/20 disabled:opacity-50"
-          >
-            {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-            <span>{isAr ? "حفظ وتطبيق" : "Save & Apply"}</span>
-          </button>
-        </div>
+        {statusMessage && (
+          <div className="mt-4 p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-[#0F5244] text-xs font-bold flex items-center gap-2 animate-fade-in">
+            <CheckCircle2 className="w-4 h-4 shrink-0 text-[#0F5244]" />
+            <span>{statusMessage}</span>
+          </div>
+        )}
       </div>
 
-      {statusMessage && (
-        <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-[#0F5244] text-xs font-bold flex items-center gap-2 animate-fade-in shadow-xs">
-          <CheckCircle2 className="w-4 h-4 shrink-0 text-[#0F5244]" />
-          <span>{statusMessage}</span>
-        </div>
-      )}
-
       {/* ========================================================================= */}
-      {/* 2. CORE COLOR TOKENS & ASSETS */}
+      {/* 1. CORE COLOR TOKENS & LIVE COMPONENT PREVIEW */}
       {/* ========================================================================= */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
-        {/* Colors Panel */}
-        <div className="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-7 flex flex-col justify-between shadow-2xs h-full">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+        {/* Colors Panel (7 Columns) */}
+        <div className="lg:col-span-7 bg-white border border-slate-200/90 rounded-2xl sm:rounded-3xl p-5 sm:p-7 flex flex-col justify-between shadow-2xs">
           <div>
-            <div className="flex items-center justify-between border-b border-slate-100 pb-4 mb-6">
-              <h3 className="text-sm font-black text-slate-900">
-                {isAr ? "لوحة الألوان الأساسية (Color Tokens)" : "Core Color Tokens"}
-              </h3>
+            <div className="flex items-center justify-between border-b border-slate-100 pb-4 mb-5">
+              <div>
+                <h2 className="text-sm sm:text-base font-black text-slate-900">
+                  {t("colorTokens")}
+                </h2>
+                <p className="text-xs text-slate-500 font-medium mt-0.5">
+                  {t("colorTokensDesc")}
+                </p>
+              </div>
+
               <button
                 type="button"
                 onClick={handleAutoHarmonize}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 border border-emerald-200/80 text-[#0F5244] text-xs font-bold transition-all cursor-pointer shadow-2xs"
-                title={isAr ? "حساب الألوان المتناسقة آلياً بناءً على اللون الرئيسي" : "Auto-calculate harmonious palette"}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 border border-emerald-200/80 text-[#0F5244] text-xs font-bold transition-all cursor-pointer shadow-2xs shrink-0"
+                title={t("autoHarmonizeTooltip")}
               >
                 <Wand2 className="w-3.5 h-3.5" />
-                <span>{isAr ? "توليد متناسق ذكي" : "Auto-Harmonize"}</span>
+                <span>{t("autoHarmonize")}</span>
               </button>
             </div>
 
-            <div className="space-y-4">
+            <div className="space-y-3.5">
               {/* Primary Main */}
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold text-slate-700 flex justify-between">
-                  <span>{isAr ? "اللون الرئيسي (Primary Main)" : "Primary Main Color"}</span>
-                  <span className="font-mono text-slate-500">{branding.colors.primaryMain}</span>
-                </label>
-                <div className="flex items-center gap-3">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-2.5 rounded-xl bg-slate-50/70 border border-slate-100">
+                <div className="min-w-0">
+                  <span className="text-xs font-bold text-slate-800 block">
+                    {t("primaryMain")}
+                  </span>
+                  <span className="text-[11px] text-slate-500 font-medium">
+                    {t("primaryMainDesc")}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
                   <input
                     type="color"
                     value={branding.colors.primaryMain}
@@ -294,7 +298,7 @@ export default function BrandingSettingsPage() {
                         colors: { ...branding.colors, primaryMain: e.target.value.toUpperCase() },
                       })
                     }
-                    className="w-12 h-10 rounded-xl bg-transparent border border-slate-300 cursor-pointer p-0.5 shrink-0"
+                    className="w-9 h-8 rounded-lg bg-transparent border border-slate-300 cursor-pointer p-0.5 shrink-0"
                   />
                   <input
                     type="text"
@@ -305,18 +309,22 @@ export default function BrandingSettingsPage() {
                         colors: { ...branding.colors, primaryMain: e.target.value.toUpperCase() },
                       })
                     }
-                    className="flex-1 bg-slate-50 hover:bg-white border border-slate-200/90 rounded-xl px-4 py-2 text-xs font-mono text-slate-900 focus:outline-none focus:border-[#0F5244] focus:bg-white uppercase"
+                    className="w-24 bg-white border border-slate-200/90 rounded-lg px-2.5 py-1 text-xs font-mono text-slate-900 focus:outline-none focus:border-[#0F5244] uppercase text-center font-bold"
                   />
                 </div>
               </div>
 
               {/* Primary Dark */}
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold text-slate-700 flex justify-between">
-                  <span>{isAr ? "اللون الرئيسي الداكن (Primary Dark)" : "Primary Dark Color"}</span>
-                  <span className="font-mono text-slate-500">{branding.colors.primaryDark}</span>
-                </label>
-                <div className="flex items-center gap-3">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-2.5 rounded-xl bg-slate-50/70 border border-slate-100">
+                <div className="min-w-0">
+                  <span className="text-xs font-bold text-slate-800 block">
+                    {t("primaryDark")}
+                  </span>
+                  <span className="text-[11px] text-slate-500 font-medium">
+                    {t("primaryDarkDesc")}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
                   <input
                     type="color"
                     value={branding.colors.primaryDark}
@@ -326,7 +334,7 @@ export default function BrandingSettingsPage() {
                         colors: { ...branding.colors, primaryDark: e.target.value.toUpperCase() },
                       })
                     }
-                    className="w-12 h-10 rounded-xl bg-transparent border border-slate-300 cursor-pointer p-0.5 shrink-0"
+                    className="w-9 h-8 rounded-lg bg-transparent border border-slate-300 cursor-pointer p-0.5 shrink-0"
                   />
                   <input
                     type="text"
@@ -337,18 +345,22 @@ export default function BrandingSettingsPage() {
                         colors: { ...branding.colors, primaryDark: e.target.value.toUpperCase() },
                       })
                     }
-                    className="flex-1 bg-slate-50 hover:bg-white border border-slate-200/90 rounded-xl px-4 py-2 text-xs font-mono text-slate-900 focus:outline-none focus:border-[#0F5244] focus:bg-white uppercase"
+                    className="w-24 bg-white border border-slate-200/90 rounded-lg px-2.5 py-1 text-xs font-mono text-slate-900 focus:outline-none focus:border-[#0F5244] uppercase text-center font-bold"
                   />
                 </div>
               </div>
 
               {/* Primary Light */}
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold text-slate-700 flex justify-between">
-                  <span>{isAr ? "اللون الفاتح (Primary Light)" : "Primary Light Color"}</span>
-                  <span className="font-mono text-slate-500">{branding.colors.primaryLight}</span>
-                </label>
-                <div className="flex items-center gap-3">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-2.5 rounded-xl bg-slate-50/70 border border-slate-100">
+                <div className="min-w-0">
+                  <span className="text-xs font-bold text-slate-800 block">
+                    {t("primaryLight")}
+                  </span>
+                  <span className="text-[11px] text-slate-500 font-medium">
+                    {t("primaryLightDesc")}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
                   <input
                     type="color"
                     value={branding.colors.primaryLight}
@@ -358,7 +370,7 @@ export default function BrandingSettingsPage() {
                         colors: { ...branding.colors, primaryLight: e.target.value.toUpperCase() },
                       })
                     }
-                    className="w-12 h-10 rounded-xl bg-transparent border border-slate-300 cursor-pointer p-0.5 shrink-0"
+                    className="w-9 h-8 rounded-lg bg-transparent border border-slate-300 cursor-pointer p-0.5 shrink-0"
                   />
                   <input
                     type="text"
@@ -369,18 +381,22 @@ export default function BrandingSettingsPage() {
                         colors: { ...branding.colors, primaryLight: e.target.value.toUpperCase() },
                       })
                     }
-                    className="flex-1 bg-slate-50 hover:bg-white border border-slate-200/90 rounded-xl px-4 py-2 text-xs font-mono text-slate-900 focus:outline-none focus:border-[#0F5244] focus:bg-white uppercase"
+                    className="w-24 bg-white border border-slate-200/90 rounded-lg px-2.5 py-1 text-xs font-mono text-slate-900 focus:outline-none focus:border-[#0F5244] uppercase text-center font-bold"
                   />
                 </div>
               </div>
 
               {/* Accent Mint */}
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold text-slate-700 flex justify-between">
-                  <span>{isAr ? "لون التمييز (Accent Highlight)" : "Accent Highlight Color"}</span>
-                  <span className="font-mono text-slate-500">{branding.colors.accentMint}</span>
-                </label>
-                <div className="flex items-center gap-3">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-2.5 rounded-xl bg-slate-50/70 border border-slate-100">
+                <div className="min-w-0">
+                  <span className="text-xs font-bold text-slate-800 block">
+                    {t("accentMint")}
+                  </span>
+                  <span className="text-[11px] text-slate-500 font-medium">
+                    {t("accentMintDesc")}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
                   <input
                     type="color"
                     value={branding.colors.accentMint}
@@ -390,7 +406,7 @@ export default function BrandingSettingsPage() {
                         colors: { ...branding.colors, accentMint: e.target.value.toUpperCase() },
                       })
                     }
-                    className="w-12 h-10 rounded-xl bg-transparent border border-slate-300 cursor-pointer p-0.5 shrink-0"
+                    className="w-9 h-8 rounded-lg bg-transparent border border-slate-300 cursor-pointer p-0.5 shrink-0"
                   />
                   <input
                     type="text"
@@ -401,18 +417,22 @@ export default function BrandingSettingsPage() {
                         colors: { ...branding.colors, accentMint: e.target.value.toUpperCase() },
                       })
                     }
-                    className="flex-1 bg-slate-50 hover:bg-white border border-slate-200/90 rounded-xl px-4 py-2 text-xs font-mono text-slate-900 focus:outline-none focus:border-[#0F5244] focus:bg-white uppercase"
+                    className="w-24 bg-white border border-slate-200/90 rounded-lg px-2.5 py-1 text-xs font-mono text-slate-900 focus:outline-none focus:border-[#0F5244] uppercase text-center font-bold"
                   />
                 </div>
               </div>
 
-              {/* Secondary Light */}
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold text-slate-700 flex justify-between">
-                  <span>{isAr ? "الخلفيات الناعمة (Secondary Soft Light)" : "Secondary Soft Tint"}</span>
-                  <span className="font-mono text-slate-500">{branding.colors.secondaryLight || "#D1FAE5"}</span>
-                </label>
-                <div className="flex items-center gap-3">
+              {/* Secondary Soft Light */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-2.5 rounded-xl bg-slate-50/70 border border-slate-100">
+                <div className="min-w-0">
+                  <span className="text-xs font-bold text-slate-800 block">
+                    {t("secondarySoft")}
+                  </span>
+                  <span className="text-[11px] text-slate-500 font-medium">
+                    {t("secondarySoftDesc")}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
                   <input
                     type="color"
                     value={branding.colors.secondaryLight || "#D1FAE5"}
@@ -422,7 +442,7 @@ export default function BrandingSettingsPage() {
                         colors: { ...branding.colors, secondaryLight: e.target.value.toUpperCase() },
                       })
                     }
-                    className="w-12 h-10 rounded-xl bg-transparent border border-slate-300 cursor-pointer p-0.5 shrink-0"
+                    className="w-9 h-8 rounded-lg bg-transparent border border-slate-300 cursor-pointer p-0.5 shrink-0"
                   />
                   <input
                     type="text"
@@ -433,7 +453,7 @@ export default function BrandingSettingsPage() {
                         colors: { ...branding.colors, secondaryLight: e.target.value.toUpperCase() },
                       })
                     }
-                    className="flex-1 bg-slate-50 hover:bg-white border border-slate-200/90 rounded-xl px-4 py-2 text-xs font-mono text-slate-900 focus:outline-none focus:border-[#0F5244] focus:bg-white uppercase"
+                    className="w-24 bg-white border border-slate-200/90 rounded-lg px-2.5 py-1 text-xs font-mono text-slate-900 focus:outline-none focus:border-[#0F5244] uppercase text-center font-bold"
                   />
                 </div>
               </div>
@@ -441,130 +461,193 @@ export default function BrandingSettingsPage() {
           </div>
         </div>
 
-        {/* Assets & Styling Panel */}
-        <div className="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-7 flex flex-col justify-between shadow-2xs h-full">
+        {/* Live UI Components & Radius Preview (5 Columns) */}
+        <div className="lg:col-span-5 bg-white border border-slate-200/90 rounded-2xl sm:rounded-3xl p-5 sm:p-7 flex flex-col justify-between shadow-2xs">
           <div>
-            <h3 className="text-sm font-black text-slate-900 border-b border-slate-100 pb-4 mb-6">
-              {isAr ? "الشعار والأيقونات (Logos & Assets)" : "Brand Assets"}
-            </h3>
+            <div className="border-b border-slate-100 pb-4 mb-5">
+              <h2 className="text-sm sm:text-base font-black text-slate-900">
+                {t("livePreview")}
+              </h2>
+              <p className="text-xs text-slate-500 font-medium mt-0.5">
+                {t("livePreviewDesc")}
+              </p>
+            </div>
 
-            <div className="space-y-5">
-              {/* Header / Main Logo Upload (Cloudinary) */}
-              <CmsImageUpload
-                label={isAr ? "شعار الهيدر / الرئيسي (Header Logo)" : "Header / Main Platform Logo"}
-                value={branding.logoUrl}
-                onChange={(url) => setBranding({ ...branding, logoUrl: url })}
-                folder="coachspace/branding"
-                aspectRatio="auto"
-                description={isAr ? "يظهر في شريط التنقل العلوي والصفحات ذات الخلفيات الفاتحة" : "Displayed in top navigation bar and light-background sections"}
-                isAr={isAr}
-              />
-
-              {/* Footer Logo Upload (Cloudinary) */}
-              <CmsImageUpload
-                label={isAr ? "شعار الفوتر (Footer Logo)" : "Footer Logo (Dark Background)"}
-                value={branding.footerLogoUrl || ""}
-                onChange={(url) => setBranding({ ...branding, footerLogoUrl: url })}
-                folder="coachspace/branding"
-                aspectRatio="auto"
-                description={isAr ? "يظهر في أسفل الصفحة على الخلفية الخضراء الداكنة (يُفضل شعار بلون أبيض أو فاتح)" : "Displayed in the footer on dark green background (recommended: white or light logo)"}
-                isAr={isAr}
-              />
-
-              {/* Favicon Upload (Cloudinary) */}
-              <CmsImageUpload
-                label={isAr ? "أيقونة التبويب (Favicon)" : "Favicon (Browser Tab Icon)"}
-                value={branding.faviconUrl}
-                onChange={(url) => setBranding({ ...branding, faviconUrl: url })}
-                folder="coachspace/branding"
-                aspectRatio="favicon"
-                description={isAr ? "الأيقونة المصغرة التي تظهر في شريط تبويب المتصفح (ICO, PNG, SVG)" : "Browser tab icon (ICO, PNG, SVG)"}
-                isAr={isAr}
-              />
-
-              {/* Open Graph Social Share Image (Cloudinary) */}
-              <CmsImageUpload
-                label={isAr ? "صورة المشاركة الاجتماعية (Open Graph / Social Share)" : "Social Preview Image (Open Graph)"}
-                value={branding.ogImageUrl || ""}
-                onChange={(url) => setBranding({ ...branding, ogImageUrl: url })}
-                folder="coachspace/opengraph"
-                aspectRatio="wide"
-                description={isAr ? "الصورة التي تظهر تلقائياً عند مشاركة رابط الموقع على واتساب، تويتر، لينكد إن وفيسبوك (المقاس المثالي 1200×630)" : "Preview image when sharing links on WhatsApp, LinkedIn, X, Facebook (Ideal: 1200x630)"}
-                isAr={isAr}
-              />
-
-              {/* Button Radius */}
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold text-slate-700">
-                  {isAr ? "نصف قطر استدارة الأزرار (Button Border Radius)" : "Button Border Radius"}
-                </label>
-                <div className="grid grid-cols-4 gap-2">
-                  {(["6px", "8px", "12px", "9999px"] as const).map((rad) => (
-                    <button
-                      key={rad}
-                      type="button"
-                      onClick={() => setBranding({ ...branding, buttonRadius: rad })}
-                      className={`py-2 px-3 text-xs font-bold rounded-xl border transition-all cursor-pointer ${
-                        branding.buttonRadius === rad
-                          ? "bg-[#0F5244] border-[#0F5244] text-white shadow-xs"
-                          : "bg-slate-50 border-slate-200 text-slate-700 hover:bg-white hover:text-slate-900"
-                      }`}
-                    >
-                      {rad === "9999px" ? (isAr ? "دائري" : "Pill") : rad}
-                    </button>
-                  ))}
-                </div>
+            {/* Button Border Radius Selector */}
+            <div className="space-y-2 mb-6">
+              <label className="text-xs font-bold text-slate-800 block">
+                {t("buttonRadius")}
+              </label>
+              <div className="grid grid-cols-4 gap-2">
+                {(["6px", "8px", "12px", "9999px"] as const).map((rad) => (
+                  <button
+                    key={rad}
+                    type="button"
+                    onClick={() => setBranding({ ...branding, buttonRadius: rad })}
+                    className={`py-2 px-2 text-xs font-bold rounded-xl border transition-all cursor-pointer text-center ${
+                      branding.buttonRadius === rad
+                        ? "bg-[#0F5244] border-[#0F5244] text-white shadow-xs"
+                        : "bg-slate-50 border-slate-200 text-slate-700 hover:bg-white hover:text-slate-900"
+                    }`}
+                  >
+                    {rad === "9999px" ? t("pillRadius") : rad}
+                  </button>
+                ))}
               </div>
             </div>
-          </div>
 
-          {/* Live Component Preview */}
-          <div className="pt-5 mt-6 border-t border-slate-100 space-y-2.5">
-            <span className="text-xs font-bold text-slate-600 block">
-              {isAr ? "معاينة حية للمكونات بالألوان المحددة:" : "Live UI Component Preview:"}
-            </span>
-            <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-center justify-between gap-4">
-              <button
-                type="button"
-                style={{
-                  backgroundColor: branding.colors.primaryMain,
-                  borderRadius: branding.buttonRadius,
-                }}
-                className="px-5 py-2.5 text-white font-bold text-xs shadow-xs transition-transform cursor-pointer"
-              >
-                {isAr ? "زر الإجراء الرئيسي" : "Primary Action"}
-              </button>
+            {/* Live Interactive Previews */}
+            <div className="space-y-4 p-4 rounded-2xl bg-slate-50/80 border border-slate-200/80">
+              {/* Buttons Demo */}
+              <div className="space-y-2">
+                <span className="text-[11px] font-bold text-slate-600 block">
+                  {t("buttonsDemo")}
+                </span>
+                <div className="flex flex-wrap items-center gap-2.5">
+                  <button
+                    type="button"
+                    style={{
+                      backgroundColor: branding.colors.primaryMain,
+                      borderRadius: branding.buttonRadius,
+                    }}
+                    className="px-4 py-2 text-white font-bold text-xs shadow-xs transition-transform cursor-pointer"
+                  >
+                    {t("primaryAction")}
+                  </button>
 
-              <button
-                type="button"
-                style={{
-                  backgroundColor: branding.colors.secondaryLight,
-                  color: branding.colors.primaryDark,
-                  borderRadius: branding.buttonRadius,
-                }}
-                className="px-4 py-2 font-bold text-xs border border-slate-200/60 cursor-pointer"
-              >
-                {isAr ? "زر ثانوي" : "Secondary"}
-              </button>
+                  <button
+                    type="button"
+                    style={{
+                      backgroundColor: branding.colors.secondaryLight,
+                      color: branding.colors.primaryDark,
+                      borderRadius: branding.buttonRadius,
+                    }}
+                    className="px-3.5 py-2 font-bold text-xs border border-slate-200/60 cursor-pointer"
+                  >
+                    {t("secondaryAction")}
+                  </button>
+                </div>
+              </div>
+
+              {/* Badges Demo */}
+              <div className="space-y-2 pt-2 border-t border-slate-200/60">
+                <span className="text-[11px] font-bold text-slate-600 block">
+                  {t("badgesDemo")}
+                </span>
+                <div className="flex flex-wrap items-center gap-2">
+                  <span
+                    style={{
+                      backgroundColor: `${branding.colors.accentMint}25`,
+                      color: branding.colors.primaryDark,
+                      borderColor: branding.colors.accentMint,
+                    }}
+                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-extrabold border"
+                  >
+                    <span
+                      style={{ backgroundColor: branding.colors.accentMint }}
+                      className="w-1.5 h-1.5 rounded-full"
+                    />
+                    {t("activeBadge")}
+                  </span>
+
+                  <span
+                    style={{
+                      backgroundColor: branding.colors.secondaryLight,
+                      color: branding.colors.primaryMain,
+                    }}
+                    className="inline-flex items-center px-2.5 py-1 rounded-lg text-[11px] font-bold"
+                  >
+                    {t("softTag")}
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
       {/* ========================================================================= */}
-      {/* 3. TYPOGRAPHY STUDIO (إضافة وإدارة أي خط) */}
+      {/* 2. LOGOS & BRAND ASSETS (2x2 Grid) */}
       {/* ========================================================================= */}
-      <div className="bg-white border border-slate-200/90 rounded-2xl sm:rounded-3xl p-6 sm:p-7 space-y-6 shadow-2xs">
+      <div className="bg-white border border-slate-200/90 rounded-2xl sm:rounded-3xl p-5 sm:p-8 space-y-6 shadow-2xs">
+        <div className="border-b border-slate-100 pb-4">
+          <h2 className="text-base font-black text-slate-900">
+            {t("logosAssets")}
+          </h2>
+          <p className="text-xs text-slate-500 font-medium mt-0.5">
+            {t("logosAssetsDesc")}
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Header / Main Logo Upload */}
+          <div className="p-4 rounded-2xl bg-slate-50/50 border border-slate-200/70">
+            <CmsImageUpload
+              label={t("headerLogo")}
+              value={branding.logoUrl}
+              onChange={(url) => setBranding({ ...branding, logoUrl: url })}
+              folder="coachspace/branding"
+              aspectRatio="auto"
+              description={t("headerLogoDesc")}
+              isAr={isAr}
+            />
+          </div>
+
+          {/* Footer Logo Upload */}
+          <div className="p-4 rounded-2xl bg-slate-50/50 border border-slate-200/70">
+            <CmsImageUpload
+              label={t("footerLogo")}
+              value={branding.footerLogoUrl || ""}
+              onChange={(url) => setBranding({ ...branding, footerLogoUrl: url })}
+              folder="coachspace/branding"
+              aspectRatio="auto"
+              description={t("footerLogoDesc")}
+              isAr={isAr}
+            />
+          </div>
+
+          {/* Favicon Upload */}
+          <div className="p-4 rounded-2xl bg-slate-50/50 border border-slate-200/70">
+            <CmsImageUpload
+              label={t("favicon")}
+              value={branding.faviconUrl}
+              onChange={(url) => setBranding({ ...branding, faviconUrl: url })}
+              folder="coachspace/branding"
+              aspectRatio="favicon"
+              description={t("faviconDesc")}
+              isAr={isAr}
+            />
+          </div>
+
+          {/* Open Graph Social Share Image */}
+          <div className="p-4 rounded-2xl bg-slate-50/50 border border-slate-200/70">
+            <CmsImageUpload
+              label={t("ogImage")}
+              value={branding.ogImageUrl || ""}
+              onChange={(url) => setBranding({ ...branding, ogImageUrl: url })}
+              folder="coachspace/opengraph"
+              aspectRatio="wide"
+              description={t("ogImageDesc")}
+              isAr={isAr}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* ========================================================================= */}
+      {/* 3. TYPOGRAPHY STUDIO */}
+      {/* ========================================================================= */}
+      <div className="bg-white border border-slate-200/90 rounded-2xl sm:rounded-3xl p-5 sm:p-8 space-y-6 shadow-2xs">
         <div className="flex items-center gap-3 border-b border-slate-100 pb-4">
           <div className="w-9 h-9 rounded-xl bg-emerald-50 text-[#0F5244] border border-emerald-200/70 flex items-center justify-center shrink-0">
             <Type className="w-5 h-5 text-[#0F5244]" />
           </div>
           <div>
-            <h3 className="text-base font-bold text-slate-900">
-              {isAr ? "استوديو الخطوط والطباعة (Typography Studio)" : "Global Typography Studio"}
-            </h3>
+            <h2 className="text-base font-bold text-slate-900">
+              {t("typographyStudio")}
+            </h2>
             <p className="text-xs text-slate-500 font-medium mt-0.5">
-              {isAr ? "تخصيص الخطوط الأساسية باللغتين العربية والإنجليزية وإمكانية استيراد أي خط من Google Fonts" : "Customize primary fonts for Arabic & English or inject any custom Google Font"}
+              {t("typographyStudioDesc")}
             </p>
           </div>
         </div>
@@ -573,82 +656,82 @@ export default function BrandingSettingsPage() {
           {/* Arabic Font Selector */}
           <div className="space-y-2 text-right">
             <label className="text-xs font-bold text-slate-800 block">
-              {isAr ? "الخط العربي الأساسي (Arabic Font)" : "Primary Arabic Font"}
+              {t("arabicFont")}
             </label>
             <select
               value={branding.fontFamilyAr || "Cairo"}
               onChange={(e) => setBranding({ ...branding, fontFamilyAr: e.target.value })}
-              className="w-full bg-slate-50/70 hover:bg-slate-50 border border-slate-200/90 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:bg-white focus:outline-none focus:border-[#0F5244] focus:ring-1 focus:ring-[#0F5244]/20 cursor-pointer transition-all"
+              className="w-full bg-slate-50 hover:bg-white border border-slate-200/90 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:bg-white focus:outline-none focus:border-[#0F5244] focus:ring-1 focus:ring-[#0F5244]/20 cursor-pointer transition-all font-semibold"
             >
               {POPULAR_GOOGLE_FONTS_ARABIC.map((font) => (
                 <option key={font} value={font}>
-                  {font} {font === "Cairo" ? (isAr ? "(الافتراضي)" : "(Default)") : ""}
+                  {font} {font === "Cairo" ? t("defaultOption") : ""}
                 </option>
               ))}
             </select>
             <p className="text-[11px] text-slate-500 font-medium">
-              {isAr ? "يتم تطبيقه على النصوص والواجهات باللغة العربية" : "Applied to RTL Arabic interfaces"}
+              {t("arabicFontDesc")}
             </p>
           </div>
 
           {/* English Font Selector */}
           <div className="space-y-2 text-left">
             <label className="text-xs font-bold text-slate-800 block" dir="ltr">
-              {isAr ? "الخط الإنجليزي الأساسي (English Font)" : "Primary English Font"}
+              {t("englishFont")}
             </label>
             <select
               dir="ltr"
               value={branding.fontFamilyEn || "Plus Jakarta Sans"}
               onChange={(e) => setBranding({ ...branding, fontFamilyEn: e.target.value })}
-              className="w-full bg-slate-50/70 hover:bg-slate-50 border border-slate-200/90 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:bg-white focus:outline-none focus:border-[#0F5244] focus:ring-1 focus:ring-[#0F5244]/20 cursor-pointer transition-all"
+              className="w-full bg-slate-50 hover:bg-white border border-slate-200/90 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:bg-white focus:outline-none focus:border-[#0F5244] focus:ring-1 focus:ring-[#0F5244]/20 cursor-pointer transition-all font-semibold"
             >
               {POPULAR_GOOGLE_FONTS_ENGLISH.map((font) => (
                 <option key={font} value={font}>
-                  {font} {font === "Plus Jakarta Sans" ? (isAr ? "(الافتراضي)" : "(Default)") : ""}
+                  {font} {font === "Plus Jakarta Sans" ? t("defaultOption") : ""}
                 </option>
               ))}
             </select>
             <p className="text-[11px] text-slate-500 font-medium" dir="ltr">
-              {isAr ? "يتم تطبيقه على النصوص والواجهات باللغة الإنجليزية" : "Applied to LTR English interfaces"}
+              {t("englishFontDesc")}
             </p>
           </div>
 
           {/* Custom Google Font Input */}
           <div className="space-y-2">
             <label className="text-xs font-bold text-slate-800 flex items-center justify-between">
-              <span>{isAr ? "إضافة أي خط مخصص من Google Fonts" : "Any Custom Google Font"}</span>
-              <span className="text-[10.5px] text-[#0F5244] font-semibold bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200/60">{isAr ? "اختياري" : "Optional"}</span>
+              <span>{t("customFontLabel")}</span>
+              <span className="text-[10.5px] text-[#0F5244] font-semibold bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200/60">{t("optional")}</span>
             </label>
             <div className="flex items-center gap-2">
               <input
                 type="text"
-                placeholder={isAr ? "مثال: Amiri, Rubik, Lemonada, Poppins..." : "e.g. Amiri, Lemonada, Montserrat..."}
+                placeholder={t("customFontPlaceholder")}
                 value={branding.customGoogleFontName || ""}
                 onChange={(e) => setBranding({ ...branding, customGoogleFontName: e.target.value })}
-                className="flex-1 bg-slate-50/70 hover:bg-slate-50 border border-slate-200/90 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:border-[#0F5244] focus:ring-1 focus:ring-[#0F5244]/20 transition-all"
+                className="flex-1 bg-slate-50 hover:bg-white border border-slate-200/90 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:border-[#0F5244] focus:ring-1 focus:ring-[#0F5244]/20 transition-all font-semibold"
               />
               {branding.customGoogleFontName && (
                 <button
                   type="button"
                   onClick={() => setBranding({ ...branding, customGoogleFontName: "" })}
                   className="px-2.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-xs font-bold cursor-pointer transition-colors"
-                  title={isAr ? "مسح الخط المخصص" : "Clear custom font"}
+                  title={t("clearCustomFont")}
                 >
                   ✕
                 </button>
               )}
             </div>
             <p className="text-[11px] text-slate-500 font-medium">
-              {isAr ? "اكتب اسم أي خط معتمد في Google Fonts وسيتم جلبه وتطبيقه تلقائياً" : "Type any Google Font name to inject and apply globally"}
+              {t("customFontDesc")}
             </p>
           </div>
         </div>
 
         {/* Live Bilingual Typography Preview */}
-        <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-4">
+        <div className="p-5 rounded-2xl bg-slate-50/80 border border-slate-200/80 space-y-3.5">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold text-slate-700">
-              {isAr ? "معاينة حية للخطوط المختارة:" : "Live Typography Preview:"}
+              {t("liveTypographyPreview")}
             </span>
             <div className="flex items-center gap-3 text-[11px] font-mono text-[#0F5244] font-bold">
               <span>AR: {branding.customGoogleFontName || branding.fontFamilyAr || "Cairo"}</span>
@@ -664,10 +747,10 @@ export default function BrandingSettingsPage() {
               className="p-4 rounded-xl bg-white border border-slate-200 shadow-2xs"
             >
               <h4 className="text-base font-black text-slate-900 mb-1">
-                انطلق في مسارك نحو الاحتراف والريادة
+                {t("previewArabicHeading")}
               </h4>
               <p className="text-xs text-slate-600 leading-relaxed font-normal">
-                اكتشف دورات تدريبية عملية يقودها نخبة من الخبراء لمساعدتك في بناء مهارات المستقبل.
+                {t("previewArabicBody")}
               </p>
             </div>
 
@@ -678,10 +761,10 @@ export default function BrandingSettingsPage() {
               className="p-4 rounded-xl bg-white border border-slate-200 shadow-2xs"
             >
               <h4 className="text-base font-black text-slate-900 mb-1">
-                Elevate Your Career to True Mastery
+                {t("previewEnglishHeading")}
               </h4>
               <p className="text-xs text-slate-600 leading-relaxed font-normal">
-                Explore practical industry-accredited courses led by certified leaders to accelerate your growth.
+                {t("previewEnglishBody")}
               </p>
             </div>
           </div>

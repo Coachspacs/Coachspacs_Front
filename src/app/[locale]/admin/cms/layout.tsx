@@ -236,7 +236,7 @@ export default function CmsAdminLayout({ children }: { children: React.ReactNode
   );
 
   return (
-    <div dir={isAr ? "rtl" : "ltr"} className="min-h-screen bg-slate-50 text-slate-900 flex flex-col lg:flex-row font-sans">
+    <div dir={isAr ? "rtl" : "ltr"} className="min-h-screen bg-slate-50 text-slate-900 flex flex-col lg:flex-row font-sans cms-root">
       {/* Desktop Sidebar */}
       <aside className="hidden lg:flex w-72 bg-white border-e border-slate-200 flex-col shrink-0 h-screen sticky top-0 z-40">
         {sidebarContent}

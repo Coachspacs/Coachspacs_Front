@@ -15,26 +15,40 @@ import {
   Sparkles,
 } from "lucide-react";
 import { VerifiedBadge } from "@/components/ui/VerifiedBadge";
-import { HeroSectionData } from "@/types/cms";
+import { HeroSectionData, TargetAudienceView } from "@/types/cms";
 
 interface HeroSectionProps {
   data?: HeroSectionData;
+  previewView?: TargetAudienceView;
+  isPreview?: boolean;
 }
 
-export function HeroSection({ data }: HeroSectionProps = {}) {
+export function HeroSection({ data, previewView, isPreview }: HeroSectionProps = {}) {
   const t = useTranslations("home");
   const locale = useLocale();
   const isAr = locale === "ar";
   const [mounted, setMounted] = useState(false);
   const { user, isAuthenticated } = useSelector((state: RootState) => state.auth);
 
-  const badgeText = (isAr ? data?.badge_ar : data?.badge_en) || t("heroBadge");
-  const titleText = (isAr ? data?.title_ar : data?.title_en) || t("heroTitle");
-  const highlightText = (isAr ? data?.highlighted_text_ar : data?.highlighted_text_en) || t("heroTitleHighlight");
-  const descriptionText = (isAr ? data?.description_ar : data?.description_en) || t("heroSubtitle");
-  const ctaPrimaryText = (isAr ? data?.cta_primary_text_ar : data?.cta_primary_text_en) || t("exploreCourses");
+  const badgeText =
+    (isAr ? (data?.badge_ar || data?.badge_en) : (data?.badge_en || data?.badge_ar)) ||
+    t("heroBadge");
+  const titleText =
+    (isAr ? (data?.title_ar || data?.title_en) : (data?.title_en || data?.title_ar)) ||
+    t("heroTitle");
+  const highlightText =
+    (isAr ? (data?.highlighted_text_ar || data?.highlighted_text_en) : (data?.highlighted_text_en || data?.highlighted_text_ar)) ||
+    t("heroTitleHighlight");
+  const descriptionText =
+    (isAr ? (data?.description_ar || data?.description_en) : (data?.description_en || data?.description_ar)) ||
+    t("heroSubtitle");
+  const ctaPrimaryText =
+    (isAr ? (data?.cta_primary_text_ar || data?.cta_primary_text_en) : (data?.cta_primary_text_en || data?.cta_primary_text_ar)) ||
+    t("exploreCourses");
   const ctaPrimaryLink = data?.cta_primary_link || `/${locale}/courses`;
-  const ctaSecondaryText = (isAr ? data?.cta_secondary_text_ar : data?.cta_secondary_text_en) || t("startLearningFree");
+  const ctaSecondaryText =
+    (isAr ? (data?.cta_secondary_text_ar || data?.cta_secondary_text_en) : (data?.cta_secondary_text_en || data?.cta_secondary_text_ar)) ||
+    t("startLearningFree");
   const ctaSecondaryLink = data?.cta_secondary_link || `/${locale}/register`;
   const heroImageUrl = data?.hero_image_url || "/images/hero-coach.png";
 
@@ -43,9 +57,13 @@ export function HeroSection({ data }: HeroSectionProps = {}) {
   }, []);
 
   const displayName = user?.name || user?.fullName || user?.email?.split("@")[0] || "";
-  const isInstructor = (user?.role || "").toLowerCase() === "instructor" || (user?.role || "").toLowerCase() === "coach";
+  const isInstructor = previewView
+    ? previewView === "instructor"
+    : (user?.role || "").toLowerCase() === "instructor" || (user?.role || "").toLowerCase() === "coach";
   const approvalStatus = (user?.approval_status || (user as any)?.approvalStatus || "").toLowerCase();
-  const isApproved = approvalStatus === "approved";
+  const isApproved = approvalStatus === "approved" || isPreview;
+  const isGuest = previewView ? previewView === "guest" : !isAuthenticated;
+  const isUserAuthenticated = isPreview ? !isGuest : isAuthenticated;
 
   // Stagger animation container
   const containerVariants: Variants = {
@@ -90,7 +108,19 @@ export function HeroSection({ data }: HeroSectionProps = {}) {
             
             {/* Dynamic Welcome Pill / Badge */}
             <motion.div variants={itemVariants}>
-              {mounted && isAuthenticated ? (
+              {isPreview ? (
+                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#6CF8BB]/20 text-[#0F5244] border border-[#6CF8BB]/40 shadow-xs mb-6 text-xs font-bold tracking-wider uppercase">
+                  <VerifiedBadge size="xs" />
+                  <span>{badgeText}</span>
+                  <span className="ms-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#0F5244] text-white tracking-normal normal-case">
+                    {previewView === "instructor"
+                      ? isAr ? "معاينة: المدربين" : "Preview: Instructors"
+                      : previewView === "student"
+                      ? isAr ? "معاينة: الطلاب" : "Preview: Students"
+                      : isAr ? "معاينة: الزوار" : "Preview: Guests"}
+                  </span>
+                </div>
+              ) : mounted && isUserAuthenticated ? (
                 <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#0F5244] text-white shadow-md mb-6 text-xs sm:text-sm font-bold animate-in fade-in duration-300">
                   <Sparkles className="w-4 h-4 text-[#6CF8BB] shrink-0" />
                   <span>
@@ -144,7 +174,7 @@ export function HeroSection({ data }: HeroSectionProps = {}) {
               variants={itemVariants}
               className="flex flex-wrap items-center gap-3.5 sm:gap-4"
             >
-              {mounted && isAuthenticated ? (
+              {mounted && isUserAuthenticated ? (
                 isInstructor ? (
                   <>
                     <Link

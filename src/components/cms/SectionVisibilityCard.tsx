@@ -29,9 +29,9 @@ export function SectionVisibilityCard({
   isAr,
 }: SectionVisibilityCardProps) {
   const rolesOptions: { id: SectionRolePermission; labelAr: string; labelEn: string; icon: React.ComponentType<{ className?: string }> }[] = [
-    { id: "all", labelAr: "الجميع (عام للكل)", labelEn: "Everyone (Public)", icon: Globe },
+    { id: "all", labelAr: "الجميع (عام)", labelEn: "Everyone (Public)", icon: Globe },
     { id: "guest", labelAr: "الزوار فقط", labelEn: "Guests Only", icon: User },
-    { id: "authenticated", labelAr: "المسجلين عموماً", labelEn: "Authenticated", icon: Lock },
+    { id: "authenticated", labelAr: "المستخدمين المسجلين", labelEn: "Authenticated", icon: Lock },
     { id: "student", labelAr: "الطلاب فقط", labelEn: "Students Only", icon: GraduationCap },
     { id: "instructor", labelAr: "المدربين فقط", labelEn: "Instructors Only", icon: UserCheck },
     { id: "admin", labelAr: "المديرين فقط", labelEn: "Admins Only", icon: Shield },

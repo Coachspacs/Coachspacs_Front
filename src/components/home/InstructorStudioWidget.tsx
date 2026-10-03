@@ -8,7 +8,11 @@ import { RootState } from "@/lib/store";
 import { instructorCourseService } from "@/services/instructorCourseService";
 import { Users, BookOpen, PlusCircle, LayoutDashboard, Sparkles, TrendingUp, Loader2 } from "lucide-react";
 
-export function InstructorStudioWidget() {
+interface InstructorStudioWidgetProps {
+  isPreview?: boolean;
+}
+
+export function InstructorStudioWidget({ isPreview }: InstructorStudioWidgetProps = {}) {
   const t = useTranslations("home");
   const locale = useLocale();
   const isAr = locale === "ar";
@@ -33,14 +37,20 @@ export function InstructorStudioWidget() {
         } finally {
           setIsLoading(false);
         }
+      } else {
+        setIsLoading(false);
       }
     }
 
     loadInstructorStats();
   }, [isAuthenticated, user?.role]);
 
-  const isInstructor = mounted && isAuthenticated && ((user?.role || "").toLowerCase() === "instructor" || (user?.role || "").toLowerCase() === "coach");
-  const isApproved = (user?.approval_status || (user as any)?.approvalStatus || "").toLowerCase() === "approved";
+  const isInstructor =
+    (mounted && isAuthenticated && ((user?.role || "").toLowerCase() === "instructor" || (user?.role || "").toLowerCase() === "coach")) ||
+    isPreview;
+  const isApproved =
+    (user?.approval_status || (user as any)?.approvalStatus || "").toLowerCase() === "approved" ||
+    isPreview;
 
   if (!isInstructor || !isApproved) {
     return null;

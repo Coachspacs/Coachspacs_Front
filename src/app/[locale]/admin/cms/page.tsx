@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { motion, AnimatePresence, Variants } from "framer-motion";
 import {
   Palette,
   FileText,
@@ -16,6 +17,30 @@ import {
   Loader2,
 } from "lucide-react";
 import { GlobalBrandingConfig, LandingPageDoc, LegalPagesDoc } from "@/types/cms";
+
+const containerVariants: Variants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.12,
+      delayChildren: 0.15,
+    },
+  },
+};
+
+const cardVariants: Variants = {
+  hidden: { opacity: 0, y: 24, scale: 0.96 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: {
+      duration: 0.45,
+      ease: "easeOut",
+    },
+  },
+};
 
 export default function CmsOverviewPage() {
   const params = useParams();
@@ -84,7 +109,12 @@ export default function CmsOverviewPage() {
   return (
     <div className="max-w-7xl mx-auto space-y-6 sm:space-y-8 font-sans">
       {/* Welcome Banner with subtle depth gradient & enhanced visual hierarchy */}
-      <div className="relative overflow-hidden bg-gradient-to-b from-[#0F5244] via-[#0B4438] to-[#062E25] border border-emerald-700/30 rounded-2xl sm:rounded-3xl p-6 sm:p-8 md:p-10 shadow-md text-white">
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, ease: "easeOut" }}
+        className="relative overflow-hidden bg-gradient-to-b from-[#0F5244] via-[#0B4438] to-[#062E25] border border-emerald-700/30 rounded-2xl sm:rounded-3xl p-6 sm:p-8 md:p-10 shadow-md text-white"
+      >
         <div className="absolute top-0 right-0 w-80 h-80 bg-white/10 rounded-full blur-3xl pointer-events-none" />
         <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
           <div className="space-y-3">
@@ -128,18 +158,35 @@ export default function CmsOverviewPage() {
           </div>
         </div>
 
-        {statusMessage && (
-          <div className="mt-6 p-4 rounded-2xl bg-white/20 border border-white/30 text-white text-xs font-bold flex items-center gap-2 animate-fade-in backdrop-blur-xs shadow-xs">
-            <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-300" />
-            <span>{statusMessage}</span>
-          </div>
-        )}
-      </div>
+        <AnimatePresence>
+          {statusMessage && (
+            <motion.div
+              initial={{ opacity: 0, y: -6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -6 }}
+              transition={{ duration: 0.2 }}
+              className="mt-6 p-4 rounded-2xl bg-white/20 border border-white/30 text-white text-xs font-bold flex items-center gap-2 backdrop-blur-xs shadow-xs"
+            >
+              <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-300" />
+              <span>{statusMessage}</span>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </motion.div>
 
-      {/* Grid of Control Modules - Equal spacing, clear status badges, and icon micro-interactions */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch">
+      {/* Grid of Control Modules - Staggered entrance animation */}
+      <motion.div
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch"
+      >
         {/* Module 1: Global Branding */}
-        <div className="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-7 flex flex-col justify-between hover:border-emerald-500/40 hover:-translate-y-1 hover:shadow-lg hover:shadow-slate-200/60 transition-all duration-300 ease-out group">
+        <motion.div
+          variants={cardVariants}
+          whileHover={{ y: -4, transition: { duration: 0.2 } }}
+          className="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-7 flex flex-col justify-between hover:border-emerald-500/40 hover:shadow-lg hover:shadow-slate-200/60 transition-all duration-300 ease-out group"
+        >
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-[#0F5244] border border-emerald-200/80 flex items-center justify-center group-hover:scale-105 group-hover:border-emerald-300 transition-all duration-200 ease-out shrink-0">
@@ -195,10 +242,14 @@ export default function CmsOverviewPage() {
               <span>{t("overview.brandingCard.btn")}</span>
             </Link>
           </div>
-        </div>
+        </motion.div>
 
         {/* Module 2: Landing Page Sections */}
-        <div className="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-7 flex flex-col justify-between hover:border-emerald-500/40 hover:-translate-y-1 hover:shadow-lg hover:shadow-slate-200/60 transition-all duration-300 ease-out group">
+        <motion.div
+          variants={cardVariants}
+          whileHover={{ y: -4, transition: { duration: 0.2 } }}
+          className="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-7 flex flex-col justify-between hover:border-emerald-500/40 hover:shadow-lg hover:shadow-slate-200/60 transition-all duration-300 ease-out group"
+        >
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-[#0F5244] border border-emerald-200/80 flex items-center justify-center group-hover:scale-105 group-hover:border-emerald-300 transition-all duration-200 ease-out shrink-0">
@@ -244,10 +295,14 @@ export default function CmsOverviewPage() {
               <span>{t("overview.landingCard.btn")}</span>
             </Link>
           </div>
-        </div>
+        </motion.div>
 
         {/* Module 3: Legal & Static Pages (Privacy Policy, Terms of Service) */}
-        <div className="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-7 flex flex-col justify-between hover:border-emerald-500/40 hover:-translate-y-1 hover:shadow-lg hover:shadow-slate-200/60 transition-all duration-300 ease-out group">
+        <motion.div
+          variants={cardVariants}
+          whileHover={{ y: -4, transition: { duration: 0.2 } }}
+          className="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-7 flex flex-col justify-between hover:border-emerald-500/40 hover:shadow-lg hover:shadow-slate-200/60 transition-all duration-300 ease-out group"
+        >
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-[#0F5244] border border-emerald-200/80 flex items-center justify-center group-hover:scale-105 group-hover:border-emerald-300 transition-all duration-200 ease-out shrink-0">
@@ -293,8 +348,8 @@ export default function CmsOverviewPage() {
               <span>{t("overview.legalCard.btn")}</span>
             </Link>
           </div>
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
     </div>
   );
 }

@@ -43,13 +43,19 @@ export function FaqSection({ data }: FaqSectionProps = {}) {
     data?.items && data.items.length > 0
       ? data.items.map((item, idx) => ({
           id: item.id || `faq-${idx + 1}`,
-          question: isAr ? item.question_ar : item.question_en,
-          answer: isAr ? item.answer_ar : item.answer_en,
+          question:
+            (isAr ? (item.question_ar || item.question_en) : (item.question_en || item.question_ar)) || "",
+          answer:
+            (isAr ? (item.answer_ar || item.answer_en) : (item.answer_en || item.answer_ar)) || "",
         }))
       : defaultFaqs;
 
-  const titleText = (isAr ? data?.title_ar : data?.title_en) || t("faqTitle");
-  const subtitleText = (isAr ? data?.subtitle_ar : data?.subtitle_en) || t("faqSubtitle");
+  const titleText =
+    (isAr ? (data?.title_ar || data?.title_en) : (data?.title_en || data?.title_ar)) ||
+    t("faqTitle");
+  const subtitleText =
+    (isAr ? (data?.subtitle_ar || data?.subtitle_en) : (data?.subtitle_en || data?.subtitle_ar)) ||
+    t("faqSubtitle");
 
   const toggleFaq = (index: number) => {
     setOpenIndex(openIndex === index ? null : index);

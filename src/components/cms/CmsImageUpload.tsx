@@ -2,6 +2,7 @@
 
 import React, { useState, useRef } from "react";
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 import {
   UploadCloud,
   X,
@@ -33,6 +34,7 @@ export function CmsImageUpload({
   description,
   isAr = true,
 }: CmsImageUploadProps) {
+  const t = useTranslations("cms.branding.imageUpload");
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [isDragOver, setIsDragOver] = useState(false);
@@ -44,11 +46,7 @@ export function CmsImageUpload({
 
     // Validate size (10MB max)
     if (file.size > 10 * 1024 * 1024) {
-      setUploadError(
-        isAr
-          ? "حجم الملف يتجاوز الحد الأقصى المسموح (10 ميجابايت)"
-          : "File size exceeds 10MB limit."
-      );
+      setUploadError(t("fileTooLarge"));
       return;
     }
 
@@ -68,13 +66,13 @@ export function CmsImageUpload({
       const json = await res.json();
 
       if (!res.ok || !json.success) {
-        throw new Error(json.error || "Failed to upload image.");
+        throw new Error(json.error || t("uploadFailed"));
       }
 
       onChange(json.url);
     } catch (err: unknown) {
       const e = err as Error;
-      setUploadError(e.message || (isAr ? "فشل رفع الصورة إلى Cloudinary" : "Upload failed"));
+      setUploadError(e.message || t("uploadFailed"));
     } finally {
       setIsUploading(false);
     }
@@ -91,112 +89,110 @@ export function CmsImageUpload({
   const getAspectClass = () => {
     switch (aspectRatio) {
       case "favicon":
-        return "w-12 h-12";
+        return "w-10 h-10";
       case "square":
-        return "w-24 h-24";
+        return "w-14 h-14";
       case "wide":
-        return "w-full h-32";
+        return "w-20 h-14";
       case "hero":
-        return "w-full h-44 sm:h-52";
+        return "w-24 h-16";
       default:
-        return "w-28 h-20";
+        return "w-16 h-14";
     }
   };
 
   return (
-    <div className="space-y-2 font-sans">
-      <div className="flex items-center justify-between">
-        <label className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
-          <span>{label}</span>
-          <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-800 bg-emerald-50 border border-emerald-200/80 px-1.5 py-0.5 rounded-md">
-            <Sparkles className="w-2.5 h-2.5 text-emerald-600" />
-            Cloudinary CDN
-          </span>
+    <div className="space-y-2 font-sans w-full min-w-0">
+      <div className="flex items-center justify-between gap-2">
+        <label className="text-sm font-bold text-slate-800 flex items-center gap-1.5 min-w-0">
+          <span className="truncate">{label}</span>
         </label>
 
         <button
           type="button"
           onClick={() => setShowUrlInput((prev) => !prev)}
-          className="text-[11px] font-semibold text-slate-500 hover:text-[#0F5244] inline-flex items-center gap-1 transition-colors cursor-pointer"
+          className="text-xs font-semibold text-slate-500 hover:text-[#0F5244] inline-flex items-center gap-1 transition-colors cursor-pointer shrink-0"
         >
-          <LinkIcon className="w-3 h-3" />
-          <span>{showUrlInput ? (isAr ? "إخفاء الرابط" : "Hide URL") : (isAr ? "تعديل الرابط يدوياً" : "Edit URL")}</span>
+          <LinkIcon className="w-3.5 h-3.5" />
+          <span>{showUrlInput ? t("hideUrl") : t("editUrl")}</span>
         </button>
       </div>
 
       {description && (
-        <p className="text-[11px] text-slate-500 font-normal">{description}</p>
+        <p className="text-xs sm:text-[13px] text-slate-500 font-normal leading-relaxed">{description}</p>
       )}
 
       {/* Main Upload Dropzone / Preview Area */}
-      <div className="space-y-2">
+      <div className="space-y-2 w-full min-w-0">
         {value ? (
           /* Preview Mode with Action Overlays */
-          <div className="p-3 bg-slate-50/70 border border-slate-200/90 rounded-2xl flex flex-col sm:flex-row items-center gap-4 group transition-all hover:bg-white hover:border-emerald-300">
-            {/* Image Thumbnail */}
-            <div className={`relative ${getAspectClass()} rounded-xl overflow-hidden border border-slate-200 bg-white shrink-0 flex items-center justify-center shadow-2xs`}>
-              {aspectRatio === "favicon" ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={value}
-                  alt={label}
-                  className="w-8 h-8 object-contain"
-                />
-              ) : (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={value}
-                  alt={label}
-                  className="w-full h-full object-contain p-1"
-                />
-              )}
-            </div>
+          <div className="p-3.5 bg-slate-50/60 hover:bg-white border border-slate-200/90 hover:border-emerald-300 rounded-2xl flex flex-col gap-3 transition-all duration-200 shadow-2xs hover:shadow-xs w-full min-w-0 overflow-hidden">
+            {/* Top Row: Thumbnail + Truncated URL + External Link */}
+            <div className="flex items-center gap-3 w-full min-w-0">
+              {/* Image Thumbnail */}
+              <div className={`relative ${getAspectClass()} rounded-xl overflow-hidden border border-slate-200 bg-white shrink-0 flex items-center justify-center shadow-xs p-1`}>
+                {aspectRatio === "favicon" ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={value}
+                    alt={label}
+                    className="w-7 h-7 object-contain"
+                  />
+                ) : (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={value}
+                    alt={label}
+                    className="w-full h-full object-contain p-1"
+                  />
+                )}
+              </div>
 
-            {/* URL info & Action Buttons */}
-            <div className="flex-1 min-w-0 space-y-1.5 w-full">
-              <div className="flex items-center gap-2">
-                <span className="text-[11px] font-bold text-slate-700 truncate max-w-[280px] sm:max-w-md block font-mono" dir="ltr">
+              {/* URL & View Link */}
+              <div className="flex-1 min-w-0 flex items-center justify-between gap-2">
+                <span className="text-[11px] font-bold text-slate-700 truncate font-mono block min-w-0 flex-1" dir="ltr">
                   {value}
                 </span>
                 <a
                   href={value}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-slate-400 hover:text-[#0F5244] shrink-0"
-                  title={isAr ? "فتح في نافذة جديدة" : "Open link"}
+                  className="text-slate-400 hover:text-[#0F5244] shrink-0 p-1.5 rounded-lg hover:bg-slate-100 transition-colors"
+                  title={t("openNewTab")}
                 >
                   <ExternalLink className="w-3.5 h-3.5" />
                 </a>
               </div>
+            </div>
 
-              <div className="flex items-center gap-2">
-                {/* Replace File Button */}
-                <button
-                  type="button"
-                  onClick={() => fileInputRef.current?.click()}
-                  disabled={isUploading}
-                  className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-white hover:bg-emerald-50 text-[#0F5244] hover:text-[#07382E] border border-slate-200 hover:border-emerald-300 text-xs font-bold transition-all cursor-pointer shadow-2xs disabled:opacity-50"
-                >
-                  {isUploading ? (
-                    <Loader2 className="w-3 h-3 animate-spin text-[#0F5244]" />
-                  ) : (
-                    <UploadCloud className="w-3 h-3 text-[#0F5244]" />
-                  )}
-                  <span>{isAr ? "استبدال الصورة عبر Cloudinary" : "Replace via Cloudinary"}</span>
-                </button>
+            {/* Bottom Row: Actions (Full Width / Contained) */}
+            <div className="flex items-center gap-2 pt-2 border-t border-slate-200/70 w-full min-w-0">
+              {/* Replace File Button */}
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={isUploading}
+                className="flex-1 inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl bg-white hover:bg-emerald-50 text-[#0F5244] hover:text-[#07382E] border border-slate-200 hover:border-emerald-300 text-xs font-bold transition-all cursor-pointer shadow-2xs hover:shadow-xs active:scale-95 disabled:opacity-50 min-w-0"
+              >
+                {isUploading ? (
+                  <Loader2 className="w-3.5 h-3.5 animate-spin text-[#0F5244] shrink-0" />
+                ) : (
+                  <UploadCloud className="w-3.5 h-3.5 text-[#0F5244] shrink-0" />
+                )}
+                <span className="truncate">{t("replaceImage")}</span>
+              </button>
 
-                {/* Remove Image Button */}
-                <button
-                  type="button"
-                  onClick={() => onChange("")}
-                  disabled={isUploading}
-                  className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-white hover:bg-rose-50 text-slate-500 hover:text-rose-600 border border-slate-200 hover:border-rose-200 text-xs font-semibold transition-all cursor-pointer shadow-2xs"
-                  title={isAr ? "مسح الصورة" : "Remove Image"}
-                >
-                  <X className="w-3 h-3" />
-                  <span>{isAr ? "مسح" : "Clear"}</span>
-                </button>
-              </div>
+              {/* Remove Image Button */}
+              <button
+                type="button"
+                onClick={() => onChange("")}
+                disabled={isUploading}
+                className="inline-flex items-center justify-center gap-1 px-3 py-2 rounded-xl bg-white hover:bg-rose-50 text-slate-500 hover:text-rose-600 border border-slate-200 hover:border-rose-200 text-xs font-semibold transition-all cursor-pointer shadow-2xs hover:shadow-xs active:scale-95 shrink-0"
+                title={t("clear")}
+              >
+                <X className="w-3.5 h-3.5" />
+                <span>{t("clear")}</span>
+              </button>
             </div>
           </div>
         ) : (
@@ -219,7 +215,7 @@ export function CmsImageUpload({
               <div className="py-4 flex flex-col items-center justify-center gap-2">
                 <Loader2 className="w-7 h-7 text-[#0F5244] animate-spin" />
                 <span className="text-xs font-bold text-slate-700">
-                  {isAr ? "جاري الرفع والمعالجة على Cloudinary..." : "Uploading to Cloudinary..."}
+                  {t("uploading")}
                 </span>
               </div>
             ) : (
@@ -229,12 +225,10 @@ export function CmsImageUpload({
                 </div>
                 <div>
                   <span className="text-xs font-bold text-slate-800">
-                    {isAr ? "انقر للرفع أو اسحب الصورة هنا" : "Click to upload or drag & drop"}
+                    {t("clickOrDrag")}
                   </span>
                   <p className="text-[11px] text-slate-500 mt-0.5">
-                    {isAr
-                      ? "يتم رفعها وحفظها تلقائياً على Cloudinary CDN (PNG, JPG, WebP, SVG, ICO)"
-                      : "Directly optimized & hosted on Cloudinary CDN (Max 10MB)"}
+                    {t("uploadHint")}
                   </p>
                 </div>
               </div>

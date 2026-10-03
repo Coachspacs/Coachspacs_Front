@@ -1,14 +1,22 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { useSelector } from "react-redux";
 import { RootState } from "@/lib/store";
 import { ChevronDown } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { FaqSectionData } from "@/types/cms";
 
-export function InstructorFaqSection() {
+interface InstructorFaqSectionProps {
+  data?: FaqSectionData;
+  isPreview?: boolean;
+}
+
+export function InstructorFaqSection({ data, isPreview }: InstructorFaqSectionProps = {}) {
   const t = useTranslations("home");
+  const locale = useLocale();
+  const isAr = locale === "ar";
   const [openIndex, setOpenIndex] = useState<number | null>(0);
   const [mounted, setMounted] = useState(false);
   const { user, isAuthenticated } = useSelector((state: RootState) => state.auth);
@@ -17,13 +25,15 @@ export function InstructorFaqSection() {
     setMounted(true);
   }, []);
 
-  const isInstructor = mounted && isAuthenticated && ((user?.role || "").toLowerCase() === "instructor" || (user?.role || "").toLowerCase() === "coach");
+  const isInstructor =
+    (mounted && isAuthenticated && ((user?.role || "").toLowerCase() === "instructor" || (user?.role || "").toLowerCase() === "coach")) ||
+    isPreview;
 
   if (!isInstructor) {
     return null;
   }
 
-  const faqs = [
+  const defaultFaqs = [
     {
       id: "faq-inst-1",
       question: t("instructorFaqQ1"),
@@ -41,6 +51,24 @@ export function InstructorFaqSection() {
     },
   ];
 
+  const faqs =
+    data?.items && data.items.length > 0
+      ? data.items.map((item, idx) => ({
+          id: item.id || `faq-inst-${idx + 1}`,
+          question:
+            (isAr ? (item.question_ar || item.question_en) : (item.question_en || item.question_ar)) || "",
+          answer:
+            (isAr ? (item.answer_ar || item.answer_en) : (item.answer_en || item.answer_ar)) || "",
+        }))
+      : defaultFaqs;
+
+  const titleText =
+    (isAr ? (data?.title_ar || data?.title_en) : (data?.title_en || data?.title_ar)) ||
+    t("instructorFaqTitle");
+  const subtitleText =
+    (isAr ? (data?.subtitle_ar || data?.subtitle_en) : (data?.subtitle_en || data?.subtitle_ar)) ||
+    t("instructorFaqSubtitle");
+
   const toggleFaq = (index: number) => {
     setOpenIndex(openIndex === index ? null : index);
   };
@@ -51,10 +79,10 @@ export function InstructorFaqSection() {
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-14">
           <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight">
-            {t("instructorFaqTitle")}
+            {titleText}
           </h2>
           <p className="mt-3 text-slate-500 text-sm sm:text-base font-medium">
-            {t("instructorFaqSubtitle")}
+            {subtitleText}
           </p>
         </div>
 

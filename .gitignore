@@ -17,3 +17,5 @@ tsconfig.tsbuildinfo
 .idea/
 
 Coach-Space-User-Stories.md
+CoachSpace_Presentation.pptx
+generate_presentation.py
