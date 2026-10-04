@@ -18,8 +18,12 @@ export function MasterYourCraftSection({ data }: MasterYourCraftSectionProps = {
   const locale = useLocale() || "en";
   const isAr = locale === "ar";
 
-  const headingText = (isAr ? data?.heading_ar : data?.heading_en) || t("masterYourCraftTitle");
-  const descriptionText = (isAr ? data?.description_ar : data?.description_en) || t("masterYourCraftSubtitle");
+  const headingText =
+    (isAr ? (data?.heading_ar || data?.heading_en) : (data?.heading_en || data?.heading_ar)) ||
+    t("masterYourCraftTitle");
+  const descriptionText =
+    (isAr ? (data?.description_ar || data?.description_en) : (data?.description_en || data?.description_ar)) ||
+    t("masterYourCraftSubtitle");
 
   const [courses, setCourses] = useState<Course[]>([]);
   const [isLoading, setIsLoading] = useState(true);

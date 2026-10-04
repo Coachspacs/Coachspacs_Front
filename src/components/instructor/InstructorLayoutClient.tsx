@@ -1,8 +1,6 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import Link from "next/link";
-import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { useSelector, useDispatch } from "react-redux";
@@ -14,14 +12,11 @@ import { Footer } from "@/components/layout/Footer";
 import { Sidebar } from "@/components/layout/Sidebar";
 import {
   Award,
-  Clock,
   LayoutDashboard,
   BookOpen,
   Users,
   Settings,
-  ExternalLink,
 } from "lucide-react";
-import { VerifiedBadge } from "@/components/ui/VerifiedBadge";
 import { tokenManager } from "@/lib/tokenManager";
 import {
   getSavedInstructorOverrides,
@@ -202,11 +197,11 @@ export function InstructorLayoutClient({
 
   // If instructor is not approved and navigates to a restricted route, redirect to settings and open modal
   useEffect(() => {
-    if (mounted && !checkingAuth && !isApproved && !isSettingsPage) {
+    if (mounted && !checkingAuth && isAuthenticated && user && !isApproved && !isSettingsPage) {
       setIsPendingModalOpen(true);
       router.replace(`/${locale}/instructor/settings`);
     }
-  }, [mounted, checkingAuth, isApproved, isSettingsPage, locale, router]);
+  }, [mounted, checkingAuth, isAuthenticated, user, isApproved, isSettingsPage, locale, router]);
 
   const fullName =
     (mounted ? user?.fullName || user?.name : "") ||
@@ -300,93 +295,21 @@ export function InstructorLayoutClient({
     <div className="min-h-screen bg-[#FAFCFB] flex flex-col font-sans">
       <Header />
       <main className="flex-grow py-5 sm:py-7 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
-        <div className="w-full space-y-4 sm:space-y-6">
-          {/* Executive Top Instructor Header Strip */}
-          <div className="bg-gradient-to-r from-white via-white to-emerald-50/40 rounded-2xl border border-slate-200/80 px-4 py-3.5 sm:px-6 sm:py-4 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div className="flex items-center gap-3.5 text-start w-full sm:w-auto">
-              <div className="relative group shrink-0">
-                <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-full ring-2 ring-emerald-500/20 ring-offset-2 overflow-hidden bg-slate-50 border border-slate-200/90 shadow-2xs flex items-center justify-center">
-                  {avatarPreview ? (
-                    <Image
-                      src={avatarPreview}
-                      alt={fullName || "Instructor"}
-                      width={48}
-                      height={48}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <span className="font-bold text-base text-[#0B4F3A]">
-                      {fullName.trim().charAt(0).toUpperCase() || "I"}
-                    </span>
-                  )}
-                </div>
-                <span
-                  className={`absolute bottom-0 right-0 rtl:right-auto rtl:left-0 w-3 h-3 border-2 border-white rounded-full ${
-                    isApproved ? "bg-emerald-500" : "bg-amber-400"
-                  }`}
-                  title={isApproved ? (isAr ? "حساب معتمد" : "Verified") : (isAr ? "قيد المراجعة" : "Under review")}
-                />
-              </div>
+        {/* Persistent Dashboard Layout: Right Sidebar (RTL) + Main Dynamic Area */}
+        <div className="flex flex-col md:flex-row gap-5 sm:gap-6 items-start">
+          <aside className="w-full md:w-64 lg:w-72 shrink-0">
+            <Sidebar
+              items={navItems}
+              user={{
+                name: fullName,
+                role: tInst("roleInstructor"),
+                avatarUrl: avatarPreview,
+                isApproved: isApproved,
+              }}
+            />
+          </aside>
 
-              <div className="space-y-0.5 min-w-0">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <h2 className="text-sm sm:text-base font-black text-slate-900 truncate">
-                    {fullName}
-                  </h2>
-                  {isApproved ? (
-                    <VerifiedBadge size="sm" />
-                  ) : (
-                    <span className="px-2 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200/80 text-[10px] font-semibold flex items-center gap-1">
-                      <Clock className="h-3 w-3 text-amber-600 shrink-0" />
-                      <span>{tInst("underReviewBadge")}</span>
-                    </span>
-                  )}
-                </div>
-                <div className="flex items-center gap-2 text-slate-500 text-xs flex-wrap">
-                  <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-700 bg-emerald-50/90 px-2 py-0.5 rounded-md border border-emerald-100">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                    <span>{isAr ? "مدرب معتمد" : "Active Instructor"}</span>
-                  </span>
-                  {email ? (
-                    <>
-                      <span className="text-slate-300">•</span>
-                      <span className="text-[11px] text-slate-400 truncate">{email}</span>
-                    </>
-                  ) : null}
-                </div>
-              </div>
-            </div>
-
-            {/* Quick Actions Cluster */}
-            <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
-              {isApproved && (
-                <Link
-                  href={`/${locale}/instructors/${user?.id || normalizeInstructorSlug(fullName)}`}
-                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-slate-200/90 bg-white hover:bg-slate-50 text-slate-700 hover:text-slate-900 text-xs font-bold transition-all shadow-2xs hover:border-emerald-500/40 hover:text-emerald-800"
-                >
-                  <span>{isAr ? "عرض الملف العام" : "Public Profile"}</span>
-                  <ExternalLink className="w-3.5 h-3.5 text-slate-400 rtl:rotate-180" />
-                </Link>
-              )}
-            </div>
-          </div>
-
-          {/* Persistent Dashboard Layout: Right Sidebar (RTL) + Main Dynamic Area */}
-          <div className="flex flex-col md:flex-row gap-5 sm:gap-6 items-start">
-            <aside className="w-full md:w-64 lg:w-72 shrink-0">
-              <Sidebar
-                items={navItems}
-                user={{
-                  name: fullName,
-                  role: tInst("roleInstructor"),
-                  avatarUrl: avatarPreview,
-                  isApproved: isApproved,
-                }}
-              />
-            </aside>
-
-            <div className="flex-1 w-full">{children}</div>
-          </div>
+          <div className="flex-1 w-full">{children}</div>
         </div>
       </main>
       <Footer />

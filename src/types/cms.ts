@@ -30,6 +30,8 @@ export interface GlobalBrandingConfig {
   updatedBy: string;
 }
 
+export type TargetAudienceView = 'guest' | 'student' | 'instructor';
+
 export interface HeroSectionData {
   badge_ar: string;
   badge_en: string;
@@ -48,6 +50,7 @@ export interface HeroSectionData {
   hero_image_url: string;
   is_visible?: boolean;
   allowed_roles?: SectionRolePermission[];
+  hidden_in_views?: TargetAudienceView[];
 }
 
 export interface TopCategoriesSectionData {
@@ -57,6 +60,7 @@ export interface TopCategoriesSectionData {
   subtitle_en: string;
   is_visible: boolean;
   allowed_roles?: SectionRolePermission[];
+  hidden_in_views?: TargetAudienceView[];
 }
 
 export interface FeatureItem {
@@ -76,6 +80,7 @@ export interface MasterYourCraftSectionData {
   features: FeatureItem[];
   is_visible?: boolean;
   allowed_roles?: SectionRolePermission[];
+  hidden_in_views?: TargetAudienceView[];
 }
 
 export interface WhyStandsOutCard {
@@ -95,6 +100,7 @@ export interface WhyCoachSpaceStandsOutSectionData {
   cards: WhyStandsOutCard[];
   is_visible?: boolean;
   allowed_roles?: SectionRolePermission[];
+  hidden_in_views?: TargetAudienceView[];
 }
 
 export interface TestimonialItem {
@@ -117,6 +123,7 @@ export interface RealStoriesSectionData {
   testimonials: TestimonialItem[];
   is_visible?: boolean;
   allowed_roles?: SectionRolePermission[];
+  hidden_in_views?: TargetAudienceView[];
 }
 
 export interface FaqItem {
@@ -135,6 +142,7 @@ export interface FaqSectionData {
   items: FaqItem[];
   is_visible?: boolean;
   allowed_roles?: SectionRolePermission[];
+  hidden_in_views?: TargetAudienceView[];
 }
 
 export interface JoinFutureSectionData {
@@ -147,6 +155,7 @@ export interface JoinFutureSectionData {
   button_link: string;
   is_visible?: boolean;
   allowed_roles?: SectionRolePermission[];
+  hidden_in_views?: TargetAudienceView[];
 }
 
 export type LandingSectionKey =
@@ -167,6 +176,11 @@ export interface LandingSectionsData {
   faq: FaqSectionData;
   join_future: JoinFutureSectionData;
   section_order?: LandingSectionKey[];
+  views?: {
+    guest?: LandingSectionsData;
+    student?: LandingSectionsData;
+    instructor?: LandingSectionsData;
+  };
 }
 
 export interface LandingPageDoc {
@@ -209,6 +223,13 @@ export interface LegalPagesContent {
   terms: LegalPageData;
 }
 
+export interface LegalPageSnapshot {
+  id: string;
+  savedAt: string;
+  savedBy: string;
+  data: LegalPagesContent;
+}
+
 export interface LegalPagesDoc {
   status: 'published' | 'draft_only' | 'has_draft_changes';
   publishedAt: string | null;
@@ -216,5 +237,6 @@ export interface LegalPagesDoc {
   lastUpdatedBy: string;
   published: LegalPagesContent;
   draft: LegalPagesContent;
+  history?: LegalPageSnapshot[];
 }
 

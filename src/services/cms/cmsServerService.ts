@@ -28,6 +28,69 @@ let inMemoryLegalDoc: LegalPagesDoc | null = null;
 const BRANDING_DRAFT_DOC_ID = 'branding_draft';
 let inMemoryBrandingDraft: GlobalBrandingConfig | null = null;
 
+function mergeLandingViewWithDefaults(
+  savedView: Partial<LandingSectionsData> | undefined,
+  defaultView: LandingSectionsData
+): LandingSectionsData {
+  if (!savedView) return defaultView;
+  return {
+    ...defaultView,
+    ...savedView,
+    hero: {
+      ...defaultView.hero,
+      ...(savedView.hero || {}),
+      title_ar: savedView.hero?.title_ar || defaultView.hero.title_ar,
+      title_en: savedView.hero?.title_en || defaultView.hero.title_en,
+      is_visible: savedView.hero?.is_visible !== undefined ? savedView.hero.is_visible : defaultView.hero.is_visible,
+    },
+    top_categories: {
+      ...defaultView.top_categories,
+      ...(savedView.top_categories || {}),
+      title_ar: savedView.top_categories?.title_ar || defaultView.top_categories.title_ar,
+      title_en: savedView.top_categories?.title_en || defaultView.top_categories.title_en,
+      is_visible: savedView.top_categories?.is_visible !== undefined ? savedView.top_categories.is_visible : defaultView.top_categories.is_visible,
+    },
+    master_craft: {
+      ...defaultView.master_craft,
+      ...(savedView.master_craft || {}),
+      heading_ar: savedView.master_craft?.heading_ar || defaultView.master_craft.heading_ar,
+      heading_en: savedView.master_craft?.heading_en || defaultView.master_craft.heading_en,
+      features: (savedView.master_craft?.features && savedView.master_craft.features.length > 0) ? savedView.master_craft.features : defaultView.master_craft.features,
+      is_visible: savedView.master_craft?.is_visible !== undefined ? savedView.master_craft.is_visible : defaultView.master_craft.is_visible,
+    },
+    why_stands_out: {
+      ...defaultView.why_stands_out,
+      ...(savedView.why_stands_out || {}),
+      title_ar: savedView.why_stands_out?.title_ar || defaultView.why_stands_out.title_ar,
+      title_en: savedView.why_stands_out?.title_en || defaultView.why_stands_out.title_en,
+      cards: (savedView.why_stands_out?.cards && savedView.why_stands_out.cards.length > 0) ? savedView.why_stands_out.cards : defaultView.why_stands_out.cards,
+      is_visible: savedView.why_stands_out?.is_visible !== undefined ? savedView.why_stands_out.is_visible : defaultView.why_stands_out.is_visible,
+    },
+    real_stories: {
+      ...defaultView.real_stories,
+      ...(savedView.real_stories || {}),
+      title_ar: savedView.real_stories?.title_ar || defaultView.real_stories.title_ar,
+      title_en: savedView.real_stories?.title_en || defaultView.real_stories.title_en,
+      testimonials: (savedView.real_stories?.testimonials && savedView.real_stories.testimonials.length >= 3) ? savedView.real_stories.testimonials : defaultView.real_stories.testimonials,
+      is_visible: savedView.real_stories?.is_visible !== undefined ? savedView.real_stories.is_visible : defaultView.real_stories.is_visible,
+    },
+    faq: {
+      ...defaultView.faq,
+      ...(savedView.faq || {}),
+      items: (savedView.faq?.items && savedView.faq.items.length > 0) ? savedView.faq.items : defaultView.faq.items,
+      is_visible: savedView.faq?.is_visible !== undefined ? savedView.faq.is_visible : defaultView.faq.is_visible,
+    },
+    join_future: {
+      ...defaultView.join_future,
+      ...(savedView.join_future || {}),
+      title_ar: savedView.join_future?.title_ar || defaultView.join_future.title_ar,
+      title_en: savedView.join_future?.title_en || defaultView.join_future.title_en,
+      is_visible: savedView.join_future?.is_visible !== undefined ? savedView.join_future.is_visible : defaultView.join_future.is_visible,
+    },
+    section_order: (savedView.section_order && savedView.section_order.length >= 6) ? savedView.section_order : defaultView.section_order,
+  };
+}
+
 export class CmsServerService {
   /**
    * Fetch Branding configuration (supports isPreview flag for draft preview)
@@ -206,6 +269,23 @@ export class CmsServerService {
       }
 
       const data = doc.data() as Partial<LandingPageDoc>;
+      const defGuest = DEFAULT_LANDING_SECTIONS.views?.guest || DEFAULT_LANDING_SECTIONS;
+      const defStudent = DEFAULT_LANDING_SECTIONS.views?.student || DEFAULT_LANDING_SECTIONS;
+      const defInstructor = DEFAULT_LANDING_SECTIONS.views?.instructor || DEFAULT_LANDING_SECTIONS;
+
+      const publishedViews = {
+        guest: mergeLandingViewWithDefaults(data.published?.views?.guest || (data.published as any), defGuest),
+        student: mergeLandingViewWithDefaults(data.published?.views?.student, defStudent),
+        instructor: mergeLandingViewWithDefaults(data.published?.views?.instructor, defInstructor),
+      };
+
+      const rawDraft = data.draft || data.published;
+      const draftViews = {
+        guest: mergeLandingViewWithDefaults(rawDraft?.views?.guest || (rawDraft as any), publishedViews.guest),
+        student: mergeLandingViewWithDefaults(rawDraft?.views?.student, publishedViews.student),
+        instructor: mergeLandingViewWithDefaults(rawDraft?.views?.instructor, publishedViews.instructor),
+      };
+
       const resolved: LandingPageDoc = {
         status: data.status || 'published',
         publishedAt: data.publishedAt || null,
@@ -214,10 +294,12 @@ export class CmsServerService {
         published: {
           ...DEFAULT_LANDING_SECTIONS,
           ...(data.published || {}),
+          views: publishedViews,
         },
         draft: {
           ...DEFAULT_LANDING_SECTIONS,
-          ...(data.draft || data.published || {}),
+          ...(rawDraft || {}),
+          views: draftViews,
         },
       };
       inMemoryLandingDoc = resolved;
@@ -258,6 +340,12 @@ export class CmsServerService {
     const db = getFirestoreDb();
     const currentDoc = await this.getLandingPageDoc();
 
+    const mergedViews = {
+      guest: draftData.views?.guest || currentDoc.draft?.views?.guest || currentDoc.draft,
+      student: draftData.views?.student || currentDoc.draft?.views?.student || DEFAULT_LANDING_SECTIONS.views?.student || currentDoc.draft,
+      instructor: draftData.views?.instructor || currentDoc.draft?.views?.instructor || DEFAULT_LANDING_SECTIONS.views?.instructor || currentDoc.draft,
+    };
+
     const updatedDoc: LandingPageDoc = {
       ...currentDoc,
       status: 'has_draft_changes',
@@ -266,6 +354,7 @@ export class CmsServerService {
       draft: {
         ...currentDoc.draft,
         ...draftData,
+        views: mergedViews,
       },
     };
 
@@ -448,11 +537,24 @@ export class CmsServerService {
   }
 
   /**
-   * Publish Legal Pages (copies draft into published)
+   * Publish Legal Pages (copies draft into published and records history snapshot)
    */
   static async publishLegalPages(updatedBy: string): Promise<LegalPagesDoc> {
     const db = getFirestoreDb();
     const currentDoc = await this.getLegalPagesDoc();
+
+    const snapshot = {
+      id: `snapshot-${Date.now()}`,
+      savedAt: new Date().toISOString(),
+      savedBy: updatedBy,
+      data: {
+        privacy: { ...currentDoc.draft.privacy },
+        terms: { ...currentDoc.draft.terms },
+      },
+    };
+
+    const previousHistory = Array.isArray(currentDoc.history) ? currentDoc.history : [];
+    const updatedHistory = [snapshot, ...previousHistory].slice(0, 25);
 
     const publishedDoc: LegalPagesDoc = {
       ...currentDoc,
@@ -464,6 +566,7 @@ export class CmsServerService {
         privacy: { ...currentDoc.draft.privacy },
         terms: { ...currentDoc.draft.terms },
       },
+      history: updatedHistory,
     };
 
     inMemoryLegalDoc = publishedDoc;

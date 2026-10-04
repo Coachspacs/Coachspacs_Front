@@ -6,7 +6,11 @@ import { useSelector } from "react-redux";
 import { RootState } from "@/lib/store";
 import { Mic, CheckSquare, Target, TrendingUp, Flame, Lightbulb } from "lucide-react";
 
-export function InstructorAcademySection() {
+interface InstructorAcademySectionProps {
+  isPreview?: boolean;
+}
+
+export function InstructorAcademySection({ isPreview }: InstructorAcademySectionProps = {}) {
   const t = useTranslations("home");
   const [mounted, setMounted] = useState(false);
   const { user, isAuthenticated } = useSelector((state: RootState) => state.auth);
@@ -15,7 +19,9 @@ export function InstructorAcademySection() {
     setMounted(true);
   }, []);
 
-  const isInstructor = mounted && isAuthenticated && ((user?.role || "").toLowerCase() === "instructor" || (user?.role || "").toLowerCase() === "coach");
+  const isInstructor =
+    (mounted && isAuthenticated && ((user?.role || "").toLowerCase() === "instructor" || (user?.role || "").toLowerCase() === "coach")) ||
+    isPreview;
 
   if (!isInstructor) {
     return null;

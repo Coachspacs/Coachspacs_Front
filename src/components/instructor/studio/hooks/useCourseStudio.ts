@@ -89,13 +89,32 @@ export function useCourseStudio(initialId?: string) {
     if (!initialCourseId) return;
     async function loadCourse() {
       try {
-        const data =
+        const rawRes =
           await instructorCourseService.getInstructorCourse(initialCourseId);
+        
+        let data = rawRes?.course || rawRes?.data || rawRes;
+
+        // Fallback: If direct get fails or is incomplete, look up in instructor's course list
+        if (!data || !data.title) {
+          try {
+            const myCoursesRes = await instructorCourseService.getMyCourses();
+            const list = Array.isArray(myCoursesRes)
+              ? myCoursesRes
+              : myCoursesRes?.courses || myCoursesRes?.data || [];
+            const found = list.find(
+              (c: any) => String(c.id) === String(initialCourseId) || String(c.slug) === String(initialCourseId)
+            );
+            if (found) {
+              data = found;
+            }
+          } catch {}
+        }
+
         if (data) {
-          setTitleEn(data.title_en || data.title || "");
-          setTitleAr(data.title_ar || "");
-          setDescEn(data.description_en || data.description || "");
-          setDescAr(data.description_ar || "");
+          setTitleEn(data.title_en || data.titleEn || data.title || "");
+          setTitleAr(data.title_ar || data.titleAr || data.title || "");
+          setDescEn(data.description_en || data.descriptionEn || data.description || "");
+          setDescAr(data.description_ar || data.descriptionAr || data.description || "");
           const savedStatus = getSavedCourseStatus(initialCourseId);
           if (savedStatus) {
             setCourseStatus(savedStatus);
@@ -117,14 +136,30 @@ export function useCourseStudio(initialId?: string) {
             setRejectionReason(reason);
           }
           if (data.category) setCategory(String(data.category));
-          if (data.level) setLevel(data.level.toLowerCase());
-          if (data.price) setPrice(String(data.price));
-          if (
-            data.cover_image &&
-            typeof data.cover_image === "string" &&
-            !data.cover_image.includes("unsplash.com/photo-1516321318423")
-          ) {
-            setCoverPreview(data.cover_image);
+          if (data.level) setLevel(String(data.level).toLowerCase());
+          if (data.price !== undefined) setPrice(String(data.price));
+
+          // Robust cover image candidate extraction with guarantee for existing courses
+          let rawCover =
+            data.cover_image ||
+            data.coverImage ||
+            data.image ||
+            data.thumbnail ||
+            data.cover_image_url ||
+            data.thumbnail_url ||
+            data.image_url ||
+            (data.course && (data.course.cover_image || data.course.coverImage || data.course.image || data.course.thumbnail)) ||
+            (data.data && (data.data.cover_image || data.data.coverImage || data.data.image || data.data.thumbnail));
+
+          if (rawCover && typeof rawCover === "object" && (rawCover as any).src) {
+            rawCover = (rawCover as any).src;
+          }
+
+          if (rawCover && typeof rawCover === "string" && rawCover.trim().length > 0) {
+            setCoverPreview(rawCover.trim());
+          } else {
+            // Ensure editing an existing course always retains a valid cover image
+            setCoverPreview("/images/courses/course-leadership.png");
           }
 
           if (Array.isArray(data.sections) && data.sections.length > 0) {
@@ -163,9 +198,10 @@ export function useCourseStudio(initialId?: string) {
   }, [initialCourseId, isAr]);
 
   const isCoverValid = Boolean(
-    coverPreview &&
-    typeof coverPreview === "string" &&
-    !coverPreview.includes("unsplash.com/photo-1516321318423"),
+    (coverPreview &&
+      typeof coverPreview === "string" &&
+      coverPreview.trim().length > 0) ||
+      Boolean(initialCourseId)
   );
 
   const step1FieldErrors = {
@@ -715,6 +751,7 @@ export function useCourseStudio(initialId?: string) {
         category: Number(category) || 1,
         level: level || "beginner",
         price: price || "49.00",
+        cover_image: coverPreview || undefined,
       });
       setSaveSuccess(true);
       setTimeout(() => setSaveSuccess(false), 3000);
@@ -729,7 +766,7 @@ export function useCourseStudio(initialId?: string) {
     const hasCover = Boolean(
       coverPreview &&
       typeof coverPreview === "string" &&
-      !coverPreview.includes("unsplash.com/photo-1516321318423"),
+      coverPreview.trim().length > 0
     );
     const hasSections = sections.length > 0;
     const hasLessons =
@@ -847,6 +884,7 @@ export function useCourseStudio(initialId?: string) {
         category: Number(category) || 1,
         level: level || "beginner",
         price: price || "49.00",
+        cover_image: coverPreview || undefined,
         ...(isAlreadyPublished ? {} : { status: "pending_review" }),
       });
 

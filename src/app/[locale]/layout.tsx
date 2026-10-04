@@ -1,5 +1,5 @@
 import React from 'react';
-import { NextIntlClientProvider } from 'next-intl';
+import { IntlProvider } from '@/components/providers/IntlProvider';
 import { getMessages, setRequestLocale } from 'next-intl/server';
 import { draftMode } from 'next/headers';
 import StoreProvider from '@/components/StoreProvider';
@@ -29,11 +29,11 @@ export default async function LocaleLayout({
       <DynamicBrandingInjector isPreview={isDraftMode} />
       {isDraftMode && <PreviewModeBanner locale={locale} />}
       <StoreProvider>
-        <NextIntlClientProvider messages={messages} locale={locale}>
+        <IntlProvider messages={messages} locale={locale}>
           <AuthInitializer />
           <CartDrawer />
           <main className="flex-grow w-full">{children}</main>
-        </NextIntlClientProvider>
+        </IntlProvider>
       </StoreProvider>
     </div>
   );

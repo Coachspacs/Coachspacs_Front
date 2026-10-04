@@ -6,7 +6,11 @@ import { useSelector } from "react-redux";
 import { RootState } from "@/lib/store";
 import { CheckCircle2, Clock, Lock, ShieldCheck } from "lucide-react";
 
-export function InstructorPendingWidget() {
+interface InstructorPendingWidgetProps {
+  isPreview?: boolean;
+}
+
+export function InstructorPendingWidget({ isPreview }: InstructorPendingWidgetProps = {}) {
   const t = useTranslations("home");
   const [mounted, setMounted] = useState(false);
   const { user, isAuthenticated } = useSelector((state: RootState) => state.auth);
@@ -18,8 +22,8 @@ export function InstructorPendingWidget() {
   const isInstructor = mounted && isAuthenticated && ((user?.role || "").toLowerCase() === "instructor" || (user?.role || "").toLowerCase() === "coach");
   const isApproved = (user?.approval_status || (user as any)?.approvalStatus || "").toLowerCase() === "approved";
 
-  // Only show for instructors that are not approved yet
-  if (!isInstructor || isApproved) {
+  // Only show for instructors that are not approved yet (hidden in preview)
+  if (!isInstructor || isApproved || isPreview) {
     return null;
   }
 

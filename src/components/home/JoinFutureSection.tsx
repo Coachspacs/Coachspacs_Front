@@ -12,26 +12,33 @@ import { JoinFutureSectionData } from "@/types/cms";
 
 interface JoinFutureSectionProps {
   data?: JoinFutureSectionData;
+  isPreview?: boolean;
 }
 
-export function JoinFutureSection({ data }: JoinFutureSectionProps = {}) {
+export function JoinFutureSection({ data, isPreview }: JoinFutureSectionProps = {}) {
   const t = useTranslations("home");
   const locale = useLocale();
   const isAr = locale === "ar";
   const [mounted, setMounted] = useState(false);
   const { user, isAuthenticated } = useSelector((state: RootState) => state.auth);
 
-  const titleText = (isAr ? data?.title_ar : data?.title_en) || t("joinTitle");
-  const subtitleText = (isAr ? data?.subtitle_ar : data?.subtitle_en) || t("joinSubtitle");
-  const buttonText = (isAr ? data?.button_text_ar : data?.button_text_en) || t("startTeaching");
+  const titleText =
+    (isAr ? (data?.title_ar || data?.title_en) : (data?.title_en || data?.title_ar)) ||
+    t("joinTitle");
+  const subtitleText =
+    (isAr ? (data?.subtitle_ar || data?.subtitle_en) : (data?.subtitle_en || data?.subtitle_ar)) ||
+    t("joinSubtitle");
+  const buttonText =
+    (isAr ? (data?.button_text_ar || data?.button_text_en) : (data?.button_text_en || data?.button_text_ar)) ||
+    t("startTeaching");
   const buttonLink = data?.button_link || `/${locale}/become-instructor`;
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  // Hide bottom instructor CTA banner when user is logged in (student or instructor)
-  if (mounted && isAuthenticated && user) {
+  // Hide bottom instructor CTA banner when user is logged in (unless in preview)
+  if (mounted && isAuthenticated && user && !isPreview) {
     return null;
   }
 

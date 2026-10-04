@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Alex+Brush&family=Playfair+Display:ital,wght@0,600;0,700;0,800;0,900;1,600;1,700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Alex+Brush&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;0,800;0,900;1,600;1,700&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -9,6 +9,9 @@
   }
   .font-serif-luxury {
     font-family: 'Playfair Display', Georgia, Cambria, 'Times New Roman', Times, serif;
+  }
+  .font-cms {
+    font-family: 'IBM Plex Sans Arabic', var(--font-jakarta), system-ui, -apple-system, sans-serif !important;
   }
 }
 
@@ -56,6 +59,36 @@
 
   [dir="ltr"] {
     font-family: var(--font-jakarta), system-ui, -apple-system, sans-serif;
+  }
+
+  /* CMS-only Dedicated Modern Typography */
+  .cms-root {
+    font-family: 'IBM Plex Sans Arabic', var(--font-jakarta), system-ui, -apple-system, sans-serif !important;
+  }
+
+  .cms-root,
+  .cms-root *,
+  .cms-root input,
+  .cms-root textarea,
+  .cms-root select,
+  .cms-root button {
+    font-family: inherit;
+  }
+
+  [dir="rtl"] .cms-root,
+  .cms-root[dir="rtl"],
+  .cms-root [dir="rtl"],
+  [dir="rtl"] .cms-root *,
+  .cms-root [dir="rtl"] * {
+    font-family: 'IBM Plex Sans Arabic', system-ui, -apple-system, sans-serif !important;
+  }
+
+  [dir="ltr"] .cms-root,
+  .cms-root[dir="ltr"],
+  .cms-root [dir="ltr"],
+  [dir="ltr"] .cms-root *,
+  .cms-root [dir="ltr"] * {
+    font-family: var(--font-jakarta), system-ui, -apple-system, sans-serif !important;
   }
 
   /* Prevent native iOS Safari inner shadow & unwanted default styles */

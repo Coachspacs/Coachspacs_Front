@@ -17,8 +17,12 @@ export function TopCategoriesSection({ data }: TopCategoriesSectionProps = {}) {
   const locale = useLocale() || "en";
   const isAr = locale === "ar";
 
-  const titleText = (isAr ? data?.title_ar : data?.title_en) || t("topCategoriesTitle");
-  const subtitleText = (isAr ? data?.subtitle_ar : data?.subtitle_en) || t("topCategoriesSubtitle");
+  const titleText =
+    (isAr ? (data?.title_ar || data?.title_en) : (data?.title_en || data?.title_ar)) ||
+    t("topCategoriesTitle");
+  const subtitleText =
+    (isAr ? (data?.subtitle_ar || data?.subtitle_en) : (data?.subtitle_en || data?.subtitle_ar)) ||
+    t("topCategoriesSubtitle");
 
   const defaultCategories = [
     {

@@ -21,7 +21,7 @@ import {
   BookOpen,
 } from "lucide-react";
 import { motion, AnimatePresence, Reorder } from "framer-motion";
-import { LandingSectionKey, LandingSectionsData } from "@/types/cms";
+import { LandingSectionKey, LandingSectionsData, TargetAudienceView } from "@/types/cms";
 import { DEFAULT_SECTION_ORDER } from "@/lib/cmsDefaults";
 
 interface SectionMeta {
@@ -89,6 +89,7 @@ interface SectionReorderDrawerProps {
   onClose: () => void;
   sectionsData: LandingSectionsData;
   isAr?: boolean;
+  targetView?: TargetAudienceView;
   onSaveOrder: (newOrder: LandingSectionKey[]) => void;
   onSelectTab?: (tab: LandingSectionKey) => void;
 }
@@ -98,6 +99,7 @@ export function SectionReorderDrawer({
   onClose,
   sectionsData,
   isAr = true,
+  targetView,
   onSaveOrder,
   onSelectTab,
 }: SectionReorderDrawerProps) {
@@ -227,7 +229,11 @@ export function SectionReorderDrawer({
               };
               const Icon = meta.icon;
               const sectionData = sectionsData[key] as any;
-              const isVisible = sectionData?.is_visible !== false;
+              const isVisible =
+                sectionData?.is_visible !== false &&
+                (!targetView ||
+                  !Array.isArray(sectionData?.hidden_in_views) ||
+                  !sectionData?.hidden_in_views.includes(targetView));
 
               return (
                 <Reorder.Item
