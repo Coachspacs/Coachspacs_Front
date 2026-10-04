@@ -391,9 +391,9 @@ export function StudentWorkspace({
                     averageScore: avgScore,
                     latestQuiz: latest ? {
                       courseTitle: latestCourse?.title || "Course",
-                      courseId: latest.course_id,
-                      score: getScore(latest) || 0,
-                      questionCount: latest.question_count,
+                      courseId: latest.course_id || 0,
+                      score: Number(getScore(latest)) || 0,
+                      questionCount: latest.question_count || 0,
                       createdAt: latest.created_at,
                     } : undefined,
                     isLoading: false,
