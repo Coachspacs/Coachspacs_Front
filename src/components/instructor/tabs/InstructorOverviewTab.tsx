@@ -37,7 +37,9 @@ export function InstructorOverviewTab({
   // US-17: Total courses created (including drafts and archived)
   const totalCourses = dashboardData?.total_courses ?? courses.length;
 
-  const coursesDistribution = dashboardData?.courses || [];
+  const coursesDistribution = courses && courses.length >= (dashboardData?.courses?.length || 0) 
+    ? courses 
+    : (dashboardData?.courses || []);
 
   const containerVariants: Variants = {
     hidden: { opacity: 0 },
@@ -199,13 +201,13 @@ export function InstructorOverviewTab({
                     <div className="flex items-center gap-1.5 text-xs font-bold text-slate-700 bg-white border border-slate-200/90 px-3 py-1.5 rounded-xl shadow-2xs">
                       <Users className="w-3.5 h-3.5 text-emerald-600" />
                       <span>
-                        {course.enrollment_count}{" "}
+                        {course.enrollment_count ?? course.studentsCount ?? 0}{" "}
                         {isAr ? "طالب مسجل" : "learners"}
                       </span>
                     </div>
 
                     <Link
-                      href={`/${locale}/instructor/courses`}
+                      href={`/${locale}/instructor/courses/${course.id}/edit`}
                       className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold text-slate-600 hover:text-[#0F5244] hover:bg-emerald-50 border border-transparent hover:border-emerald-200/80 transition-all"
                     >
                       <span>{isAr ? "إدارة" : "Manage"}</span>

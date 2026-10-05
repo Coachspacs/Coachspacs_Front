@@ -54,9 +54,7 @@ export async function POST(req: NextRequest) {
     if (action === 'publish') {
       const publishedDoc = await CmsServerService.publishLandingPage(userEmail);
       // Trigger instant ISR revalidation
-      revalidatePath('/ar');
-      revalidatePath('/en');
-      revalidatePath('/[locale]', 'layout');
+      revalidatePath('/', 'layout');
 
       return NextResponse.json({
         success: true,
@@ -77,9 +75,7 @@ export async function POST(req: NextRequest) {
     if (action === 'save_branding') {
       const updatedBranding = await CmsServerService.saveBranding(data, userEmail);
       // Trigger instant revalidation for layout styles
-      revalidatePath('/ar');
-      revalidatePath('/en');
-      revalidatePath('/[locale]', 'layout');
+      revalidatePath('/', 'layout');
 
       return NextResponse.json({
         success: true,
@@ -99,15 +95,8 @@ export async function POST(req: NextRequest) {
 
     if (action === 'publish_legal') {
       const publishedLegal = await CmsServerService.publishLegalPages(userEmail);
-      // Revalidate legal pages
-      revalidatePath('/ar/privacy');
-      revalidatePath('/en/privacy');
-      revalidatePath('/ar/privacy-policy');
-      revalidatePath('/en/privacy-policy');
-      revalidatePath('/ar/terms');
-      revalidatePath('/en/terms');
-      revalidatePath('/ar/terms-of-service');
-      revalidatePath('/en/terms-of-service');
+      // Revalidate legal pages globally
+      revalidatePath('/', 'layout');
 
       return NextResponse.json({
         success: true,

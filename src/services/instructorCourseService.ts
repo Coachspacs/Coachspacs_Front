@@ -148,8 +148,8 @@ export const instructorCourseService = {
    * 8. List all courses owned by current instructor.
    * GET /api/instructor/courses
    */
-  async getMyCourses(): Promise<any> {
-    const res = await apiClient.get("/instructor/courses");
+  async getMyCourses(params?: any): Promise<any> {
+    const res = await apiClient.get("/instructor/courses", { params });
     return res.data;
   },
 

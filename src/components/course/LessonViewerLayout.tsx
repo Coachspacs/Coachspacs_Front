@@ -2,6 +2,7 @@
 
 import React, { useMemo, useState } from "react";
 import { Footer } from "@/components/layout/Footer";
+import { Header } from "@/components/layout/Header";
 import {
   LessonViewerLayoutProps,
   useLessonPlayer,
@@ -180,32 +181,10 @@ export function LessonViewerLayout(props: LessonViewerLayoutProps) {
         </div>
       )}
 
-      {/* 1. Header */}
-      <LessonViewerHeader
-        courseTitle={displayCourseTitle}
-        courseSlug={courseSlug}
-        courseCover={courseCover}
-        progressPercent={progressPercent}
-        completedCount={completedCount}
-        totalLessons={totalLessons}
-        backHref={backHref}
-        locale={locale}
-        isAr={isAr}
-        user={user}
-        isAuthenticated={isAuthenticated}
-        isAdmin={isAdmin}
-        cartItems={cartItems}
-        userDropdownOpen={userDropdownOpen}
-        setUserDropdownOpen={setUserDropdownOpen}
-        dropdownRef={dropdownRef}
-        setShowShortcutsModal={setShowShortcutsModal}
-        handleNavigateToCertificate={handleNavigateToCertificate}
-        router={router}
-        pathname={pathname}
-        dispatch={dispatch}
-        t={t}
-        tNav={tNav}
-        tHeader={tHeader}
+      {/* 1. Main Site Header with dynamic width matching the layout */}
+      <Header 
+        variant="main" 
+        maxWidthClass={theaterMode ? "max-w-[1850px]" : "max-w-[1680px]"} 
       />
 
       {/* 2. Main Player & Curriculum Stage */}
@@ -315,7 +294,7 @@ export function LessonViewerLayout(props: LessonViewerLayoutProps) {
           } shrink-0 space-y-4 transition-all duration-300 lg:sticky lg:top-20 lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto pr-0.5 custom-scrollbar`}
         >
           {/* AI LESSON SUMMARY (At the top next to video, above the lessons!) */}
-          {activeLesson?.id && (
+          {activeLesson?.id && Boolean(activeLesson?.attachments?.length || activeLesson?.resources?.length) && (
             <ErrorBoundary
               title={isAr ? "تعذر تحميل بطاقة الملخص الذكي" : "Lesson Summary Error"}
               description={

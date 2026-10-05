@@ -347,11 +347,7 @@ export function StudioStepCurriculum({
                                   </span>
                                 )}
 
-                                {lesson.is_preview && (
-                                  <span className="inline-block text-[10px] font-extrabold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
-                                    {t("freePreview")}
-                                  </span>
-                                )}
+
                               </div>
                             </div>
                           </div>

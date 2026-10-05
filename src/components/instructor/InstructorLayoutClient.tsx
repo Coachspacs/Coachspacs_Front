@@ -108,61 +108,80 @@ export function InstructorLayoutClient({
           localStorage.setItem("user", JSON.stringify(uObj));
         }
       } catch {}
+    let isAlreadyApproved = false;
+    if (activeUser) {
+      const currentHeadline = activeUser.headline || "";
+      const isHeadlineOk = 
+          !currentHeadline.toLowerCase().includes("student") &&
+          !currentHeadline.includes("طالب") &&
+          !currentHeadline.toLowerCase().includes("certified instructor") &&
+          !currentHeadline.includes("مدرب معتمد") &&
+          !currentHeadline.includes("مدرب موثوق") &&
+          !currentHeadline.includes("مدرب وخبير معتمد");
+
+      const expectedHeadline = isHeadlineOk ? currentHeadline : "";
+      isAlreadyApproved = activeUser.role === "instructor" && 
+                          (activeUser.approval_status === "approved" || activeUser.approvalStatus === "approved") &&
+                          currentHeadline === expectedHeadline;
     }
 
-    // Live sync approval status with backend GET /api/auth/instructor/dashboard
-    getInstructorDashboard()
-      .then(() => {
-        const headlineToSet =
-          user?.headline &&
-          !user.headline.toLowerCase().includes("student") &&
-          !user.headline.includes("طالب") &&
-          !user.headline.toLowerCase().includes("certified instructor") &&
-          !user.headline.includes("مدرب معتمد") &&
-          !user.headline.includes("مدرب موثوق") &&
-          !user.headline.includes("مدرب وخبير معتمد")
-            ? user.headline
-            : "";
-
-        dispatch(
-          updateUser({
-            role: "instructor",
-            approval_status: "approved",
-            approvalStatus: "approved",
-            headline: headlineToSet,
-          }),
-        );
-        try {
-          const uStr = localStorage.getItem("user");
-          if (uStr) {
-            const uObj = JSON.parse(uStr);
-            uObj.role = "instructor";
-            uObj.approval_status = "approved";
-            uObj.approvalStatus = "approved";
-            uObj.headline = headlineToSet;
-            localStorage.setItem("user", JSON.stringify(uObj));
-          }
-        } catch {}
-      })
-      .catch((err: any) => {
-        if (err?.response?.status === 403) {
+    if (!isAlreadyApproved && !(window as any).__hasCheckedInstructorDashboard) {
+      (window as any).__hasCheckedInstructorDashboard = true;
+      getInstructorDashboard()
+        .then(() => {
+          const headlineToSet =
+            user?.headline &&
+            !user.headline.toLowerCase().includes("student") &&
+            !user.headline.includes("طالب") &&
+            !user.headline.toLowerCase().includes("certified instructor") &&
+            !user.headline.includes("مدرب معتمد") &&
+            !user.headline.includes("مدرب موثوق") &&
+            !user.headline.includes("مدرب وخبير معتمد")
+              ? user.headline
+              : "";
+  
           dispatch(
             updateUser({
-              approval_status: "pending",
-              approvalStatus: "pending",
+              role: "instructor",
+              approval_status: "approved",
+              approvalStatus: "approved",
+              headline: headlineToSet,
             }),
           );
           try {
             const uStr = localStorage.getItem("user");
             if (uStr) {
               const uObj = JSON.parse(uStr);
-              uObj.approval_status = "pending";
-              uObj.approvalStatus = "pending";
+              uObj.role = "instructor";
+              uObj.approval_status = "approved";
+              uObj.approvalStatus = "approved";
+              uObj.headline = headlineToSet;
               localStorage.setItem("user", JSON.stringify(uObj));
             }
           } catch {}
-        }
-      });
+        })
+        .catch((err: any) => {
+          if (err?.response?.status === 403) {
+            if (activeUser?.approval_status !== "pending") {
+              dispatch(
+                updateUser({
+                  approval_status: "pending",
+                  approvalStatus: "pending",
+                }),
+              );
+              try {
+                const uStr = localStorage.getItem("user");
+                if (uStr) {
+                  const uObj = JSON.parse(uStr);
+                  uObj.approval_status = "pending";
+                  uObj.approvalStatus = "pending";
+                  localStorage.setItem("user", JSON.stringify(uObj));
+                }
+              } catch {}
+            }
+          }
+        });
+    }
 
     // Sync saved instructor profile overrides from localStorage if applicable
     const activeSlug =

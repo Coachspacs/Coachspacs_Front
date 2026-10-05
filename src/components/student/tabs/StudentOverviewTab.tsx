@@ -131,7 +131,7 @@ export function StudentOverviewTab({
                 <span className="truncate">{isAr ? "دورة تدريبية" : "Courses enrolled"}</span>
               </div>
             </div>
-            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-emerald-50 text-[#0F5244] group-hover:bg-[#0F5244] group-hover:text-white flex items-center justify-center shrink-0 border border-emerald-100/80 transition-all duration-200 shadow-2xs">
+            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-emerald-50 text-[#0F5244] group-hover:bg-[#0F5244] group-hover:text-[#ffffff] flex items-center justify-center shrink-0 border border-emerald-100/80 transition-all duration-200 shadow-2xs">
               <BookOpen className="w-5 h-5" />
             </div>
           </Link>
@@ -161,7 +161,7 @@ export function StudentOverviewTab({
                 <span className="truncate">{isAr ? "دروس نشطة" : "Active courses"}</span>
               </div>
             </div>
-            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-blue-50 text-blue-600 group-hover:bg-blue-600 group-hover:text-white flex items-center justify-center shrink-0 border border-blue-100/80 transition-all duration-200 shadow-2xs">
+            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-blue-50 text-blue-600 group-hover:bg-[#2563eb] group-hover:text-[#ffffff] flex items-center justify-center shrink-0 border border-blue-100/80 transition-all duration-200 shadow-2xs">
               <Play className="w-5 h-5 fill-current" />
             </div>
           </Link>
@@ -191,7 +191,7 @@ export function StudentOverviewTab({
                 <span className="truncate">{tWs("earned")}</span>
               </div>
             </div>
-            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-emerald-50 text-emerald-700 group-hover:bg-emerald-700 group-hover:text-white flex items-center justify-center shrink-0 border border-emerald-100/80 transition-all duration-200 shadow-2xs">
+            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-emerald-50 text-emerald-700 group-hover:bg-[#047857] group-hover:text-[#ffffff] flex items-center justify-center shrink-0 border border-emerald-100/80 transition-all duration-200 shadow-2xs">
               <Award className="w-5 h-5" />
             </div>
           </Link>
@@ -222,7 +222,7 @@ export function StudentOverviewTab({
                 </span>
               </div>
             </div>
-            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-violet-50 text-violet-600 group-hover:bg-violet-600 group-hover:text-white flex items-center justify-center shrink-0 border border-violet-100/80 transition-all duration-200 shadow-2xs">
+            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-violet-50 text-violet-600 group-hover:bg-[#7c3aed] group-hover:text-[#ffffff] flex items-center justify-center shrink-0 border border-violet-100/80 transition-all duration-200 shadow-2xs">
               <BrainCircuit className="w-5 h-5" />
             </div>
           </div>

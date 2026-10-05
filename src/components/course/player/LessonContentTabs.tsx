@@ -164,9 +164,6 @@ export function LessonContentTabs({
                     <h3 className="text-sm sm:text-base font-black text-slate-900">
                       {isAr ? "اختبار الذكاء الاصطناعي التجريبي" : "AI Practice Quiz"}
                     </h3>
-                    <span className="px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-100 text-emerald-800 border border-emerald-300">
-                      Sprint 14
-                    </span>
                   </div>
                   <p className="text-xs text-slate-600 font-medium">
                     {isAr

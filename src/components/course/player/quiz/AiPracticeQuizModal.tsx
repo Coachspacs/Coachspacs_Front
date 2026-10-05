@@ -499,9 +499,6 @@ export function AiPracticeQuizModal({
                 <h2 className="text-base sm:text-lg font-black text-slate-900 tracking-tight">
                   {isAr ? "اختبار الذكاء الاصطناعي التجريبي" : "AI Practice Quiz"}
                 </h2>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-100/80 text-emerald-800 border border-emerald-300/60">
-                  Sprint 14
-                </span>
               </div>
               <p className="text-xs text-slate-500 font-medium truncate max-w-sm sm:max-w-md">
                 {courseTitle}

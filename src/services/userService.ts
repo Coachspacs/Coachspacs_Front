@@ -29,11 +29,7 @@ export const userService = {
    * PUT /api/users/me
    */
   async updateMyProfile(data: UpdateProfileRequest): Promise<UserProfileResponse> {
-    const response = await axiosInstance.put<UserProfileResponse>('/users/me', {
-      full_name: data.full_name,
-      phone_number: data.phone_number,
-      preferred_language: data.preferred_language,
-    });
+    const response = await axiosInstance.put<UserProfileResponse>('/users/me', data);
     return response.data;
   },
 

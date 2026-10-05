@@ -371,7 +371,8 @@ export default function CertificatePage() {
     return () => {
       isSubscribed = false;
     };
-  }, [certificateIdParam, user, locale, isAr, t]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [certificateIdParam, user, locale, isAr]);
 
   const handleDownloadPdf = useCallback(async () => {
     if (!certificateData || isDownloading) return;

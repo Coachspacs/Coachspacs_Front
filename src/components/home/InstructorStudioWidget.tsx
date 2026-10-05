@@ -28,7 +28,8 @@ export function InstructorStudioWidget({ isPreview }: InstructorStudioWidgetProp
       if (isAuthenticated && (user?.role || "").toLowerCase() === "instructor") {
         try {
           setIsLoading(true);
-          const liveCourses = await instructorCourseService.getMyCourses();
+          const liveCoursesRes = await instructorCourseService.getMyCourses({ per_page: 100, limit: 100 });
+          const liveCourses = Array.isArray(liveCoursesRes) ? liveCoursesRes : (liveCoursesRes?.data || liveCoursesRes?.results || []);
           if (Array.isArray(liveCourses)) {
             setCourses(liveCourses);
           }
@@ -58,15 +59,18 @@ export function InstructorStudioWidget({ isPreview }: InstructorStudioWidgetProp
 
   // Calculate live statistics
   const totalStudents = courses.reduce(
-    (acc, curr) => acc + Number(curr.students_count || curr.studentsCount || curr.total_students || 0),
+    (acc, curr) => acc + Number(curr.enrollment_count || curr.enrollments_count || curr.enrolled_count || curr.students_count || curr.studentsCount || curr.total_students || 0),
     0
   );
 
   const publishedCourses = courses.filter(
-    (c) => c.status === "published" || c.is_published === true
+    (c) => c.status === "published" || c.status === "PUBLISHED" || c.is_published === true
   );
-  const publishedCount = publishedCourses.length > 0 ? publishedCourses.length : (courses.length > 0 ? courses.length : 0);
-  const draftCount = courses.filter((c) => c.status === "draft" || c.status === "review").length;
+  const publishedCount = publishedCourses.length;
+  const draftCount = courses.filter((c) => {
+    const s = String(c.status).toLowerCase();
+    return s === "draft" || s === "review" || s === "pending_review" || s === "pending";
+  }).length;
 
   return (
     <section className="w-full py-6 sm:py-8 font-sans">
@@ -102,7 +106,7 @@ export function InstructorStudioWidget({ isPreview }: InstructorStudioWidgetProp
               </Link>
 
               <Link
-                href={`/${locale}/instructor/dashboard`}
+                href={`/${locale}/instructor/overview`}
                 className="inline-flex items-center gap-2 bg-slate-50 hover:bg-slate-100 active:scale-95 text-slate-700 font-bold text-xs sm:text-sm px-4 py-2.5 rounded-xl border border-slate-200 transition-all duration-200 cursor-pointer"
               >
                 <LayoutDashboard className="w-4 h-4 text-slate-500" />

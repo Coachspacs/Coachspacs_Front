@@ -31,9 +31,10 @@ interface HeaderProps {
   onLanguageToggle?: () => void;
   variant?: "main" | "auth";
   className?: string;
+  maxWidthClass?: string;
 }
 
-export function Header({ lang, onLanguageToggle, variant = "main", className = "" }: HeaderProps) {
+export function Header({ lang, onLanguageToggle, variant = "main", className = "", maxWidthClass = "max-w-7xl" }: HeaderProps) {
   const tNav = useTranslations("nav");
   const tHeader = useTranslations("header");
   const locale = useLocale() || "en";
@@ -198,7 +199,7 @@ export function Header({ lang, onLanguageToggle, variant = "main", className = "
     return (
       <header className="sticky top-0 z-50 w-full shrink-0">
         <div className="h-16 w-full border-b border-slate-200/80 bg-white/95 backdrop-blur-md shadow-2xs">
-          <div className="mx-auto flex h-full max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+          <div className={`mx-auto flex h-full ${maxWidthClass} items-center justify-between px-4 sm:px-6 lg:px-8`}>
             <div className="flex items-center">
               <Logo showText={true} isAr={isAr} href={`/${locale}`} />
             </div>
@@ -225,7 +226,7 @@ export function Header({ lang, onLanguageToggle, variant = "main", className = "
   // ----------------------------------------------------
   return (
     <header className={`sticky top-0 z-50 w-full bg-white/95 backdrop-blur-md border-b border-slate-200/80 shadow-2xs font-sans transition-all ${className}`}>
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+      <div className={`mx-auto flex h-16 ${maxWidthClass} items-center justify-between px-4 sm:px-6 lg:px-8`}>
         
         {/* Left: Brand Logo */}
         <div className="flex items-center shrink-0">
@@ -389,7 +390,7 @@ export function Header({ lang, onLanguageToggle, variant = "main", className = "
               <button
                 type="button"
                 onClick={() => setUserDropdownOpen(!userDropdownOpen)}
-                className="flex items-center gap-2 rounded-full p-0.5 focus:outline-none focus:ring-2 focus:ring-[#0F5244]/30 ring-offset-1 transition-all cursor-pointer group"
+                className="flex items-center gap-2 rounded-full p-0.5 focus:outline-none transition-all cursor-pointer group"
                 aria-label={tHeader("userMenu")}
                 aria-expanded={userDropdownOpen}
               >
@@ -489,6 +490,18 @@ export function Header({ lang, onLanguageToggle, variant = "main", className = "
                       </>
                     ) : (
                       <>
+                        <Link
+                          href={`/${locale}/student/courses`}
+                          onClick={() => setUserDropdownOpen(false)}
+                          className={`flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-bold transition-colors ${
+                            isActive("/student/courses")
+                              ? "bg-emerald-50 text-[#0F5244]"
+                              : "hover:bg-slate-50 text-slate-700 hover:text-[#0F5244]"
+                          }`}
+                        >
+                          <BookOpen className="h-4 w-4 text-[#0F5244] shrink-0" />
+                          <span>{tNav("myLearning")}</span>
+                        </Link>
                         <Link
                           href={`/${locale}/student/settings`}
                           onClick={() => setUserDropdownOpen(false)}

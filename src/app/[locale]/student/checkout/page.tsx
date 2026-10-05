@@ -236,7 +236,8 @@ export default function CheckoutPage() {
     return () => {
       isMounted = false;
     };
-  }, [queryOrderId, cartItems, t, isAr]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [queryOrderId, cartItems, isAr]);
 
   const totalAmount = checkoutItems.reduce((sum, itm) => sum + (itm.price || 0), 0);
 
