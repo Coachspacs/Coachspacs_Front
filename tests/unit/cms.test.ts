@@ -1,7 +1,8 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import { DEFAULT_BRANDING, DEFAULT_LANDING_SECTIONS } from "@/lib/cmsDefaults";
 import { CmsServerService } from "@/services/cms/cmsServerService";
 import { LandingSectionsData } from "@/types/cms";
+import * as firebaseAdmin from "@/lib/firebaseAdmin";
 
 describe("CMS & Global Branding Architecture Tests (US-23)", () => {
   it("verifies DEFAULT_BRANDING contains all mandatory CSS design tokens", () => {
@@ -71,25 +72,40 @@ describe("CMS & Global Branding Architecture Tests (US-23)", () => {
   });
 
   it("handles Draft vs Published lifecycle safely", async () => {
-    const updatedDraft: Partial<LandingSectionsData> = {
-      hero: {
-        ...DEFAULT_LANDING_SECTIONS.hero,
-        title_ar: "عنوان مسودة تجريبي",
-        title_en: "Experimental Draft Title",
-      },
+    const mockDb = {
+      collection: () => ({
+        doc: () => ({
+          get: vi.fn().mockResolvedValue({ exists: false }),
+          set: vi.fn().mockResolvedValue(true),
+          delete: vi.fn().mockResolvedValue(true)
+        })
+      })
     };
+    const spy = vi.spyOn(firebaseAdmin, "getFirestoreDb").mockReturnValue(mockDb as any);
 
-    const draftDoc = await CmsServerService.saveLandingDraft(updatedDraft, "test-editor@coachspace.com");
-    expect(draftDoc.status).toBe("has_draft_changes");
-    expect(draftDoc.draft.hero.title_ar).toBe("عنوان مسودة تجريبي");
+    try {
+      const updatedDraft: Partial<LandingSectionsData> = {
+        hero: {
+          ...DEFAULT_LANDING_SECTIONS.hero,
+          title_ar: "عنوان مسودة تجريبي",
+          title_en: "Experimental Draft Title",
+        },
+      };
 
-    // In non-preview mode, published content remains untouched
-    const published = await CmsServerService.getLandingSections(false);
-    expect(published.hero.title_ar).not.toBe("عنوان مسودة تجريبي");
+      const draftDoc = await CmsServerService.saveLandingDraft(updatedDraft, "test-editor@coachspace.com");
+      expect(draftDoc.status).toBe("has_draft_changes");
+      expect(draftDoc.draft.hero.title_ar).toBe("عنوان مسودة تجريبي");
 
-    // In preview mode, draft content is returned
-    const preview = await CmsServerService.getLandingSections(true);
-    expect(preview.hero.title_ar).toBe("عنوان مسودة تجريبي");
+      // In non-preview mode, published content remains untouched
+      const published = await CmsServerService.getLandingSections(false);
+      expect(published.hero.title_ar).not.toBe("عنوان مسودة تجريبي");
+
+      // In preview mode, draft content is returned
+      const preview = await CmsServerService.getLandingSections(true);
+      expect(preview.hero.title_ar).toBe("عنوان مسودة تجريبي");
+    } finally {
+      spy.mockRestore();
+    }
   });
 
   it("verifies bilingual text resolution logic", () => {
