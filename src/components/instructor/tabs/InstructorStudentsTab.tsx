@@ -18,7 +18,7 @@ import {
 } from "lucide-react";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { instructorService } from "@/services/instructorService";
-import { CourseStudentItem } from "@/types/certificate";
+import { CourseStudentItem, InstructorDashboardResponse } from "@/types/certificate";
 
 interface Student {
   id: string;
@@ -38,6 +38,7 @@ interface InstructorStudentsTabProps {
   studentSearch: string;
   setStudentSearch: (query: string) => void;
   isLoading?: boolean;
+  dashboardData?: InstructorDashboardResponse | null;
 }
 
 export function InstructorStudentsTab({
@@ -46,6 +47,7 @@ export function InstructorStudentsTab({
   studentSearch,
   setStudentSearch,
   isLoading = false,
+  dashboardData,
 }: InstructorStudentsTabProps) {
   const tInst = useTranslations("instructorSettings");
   const tDash = useTranslations("instructorDashboard");
@@ -232,6 +234,7 @@ export function InstructorStudentsTab({
 
     return {
       id: String(st.id || `${st.course_id || selectedCourseId}-st-${idx}`),
+      courseId: String(st.course_id || selectedCourseId),
       name,
       email: email || "—",
       avatar,
@@ -262,19 +265,38 @@ export function InstructorStudentsTab({
     };
   });
 
-  const activeStudentList =
-    courseStudents.length > 0
-      ? mappedLiveStudents
-      : students.length > 0
-        ? students
-        : mappedLiveStudents;
+  // Merge live students with workspace students so no enrolled students are missing
+  const mergedStudentsMap = new Map<string, Student>();
 
-  const filteredStudents = activeStudentList.filter(
-    (student) =>
-      student.name.toLowerCase().includes(studentSearch.toLowerCase()) ||
-      student.course.toLowerCase().includes(studentSearch.toLowerCase()) ||
-      student.email.toLowerCase().includes(studentSearch.toLowerCase())
-  );
+  students.forEach((s) => {
+    mergedStudentsMap.set(`${s.courseId || ""}-${s.email || s.name || s.id}`, s);
+  });
+
+  mappedLiveStudents.forEach((s) => {
+    mergedStudentsMap.set(`${s.courseId || ""}-${s.email || s.name || s.id}`, s);
+  });
+
+  const activeStudentList =
+    mergedStudentsMap.size > 0
+      ? Array.from(mergedStudentsMap.values())
+      : mappedLiveStudents.length > 0
+        ? mappedLiveStudents
+        : students;
+
+  const filteredStudents = activeStudentList.filter((student) => {
+    const matchesCourse =
+      !isSpecificCourse ||
+      String(student.courseId) === String(selectedCourseId);
+    if (!matchesCourse) return false;
+
+    if (!studentSearch.trim()) return true;
+    const q = studentSearch.toLowerCase();
+    return (
+      student.name.toLowerCase().includes(q) ||
+      student.course.toLowerCase().includes(q) ||
+      student.email.toLowerCase().includes(q)
+    );
+  });
 
   const totalPages = isSpecificCourse
     ? Math.max(1, Math.ceil(totalCourseStudents / pageSize))
@@ -287,10 +309,23 @@ export function InstructorStudentsTab({
         currentPage * pageSize
       );
 
-  const displayTotalCount =
-    totalCourseStudents > 0
-      ? totalCourseStudents
-      : filteredStudents.length;
+  // Total enrolled students across all courses from dashboard metrics or courses sum
+  const totalAllCoursesStudents =
+    dashboardData?.total_students ??
+    courses.reduce((acc, curr) => acc + Number(curr.studentsCount || 0), 0);
+
+  const selectedCourseObj = courses.find(
+    (c) => String(c.id) === String(selectedCourseId)
+  );
+
+  const displayTotalCount = isSpecificCourse
+    ? (selectedCourseObj?.studentsCount || totalCourseStudents || filteredStudents.length)
+    : Math.max(
+        totalAllCoursesStudents,
+        totalCourseStudents,
+        activeStudentList.length,
+        filteredStudents.length
+      );
 
   return (
     <div className="space-y-6 animate-in fade-in duration-200">

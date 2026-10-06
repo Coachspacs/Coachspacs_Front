@@ -1,12 +1,12 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useTranslations, useLocale } from "next-intl";
 import { useSelector } from "react-redux";
 import { RootState } from "@/lib/store";
-import { BookOpen, Users, Star, PlusCircle, Edit3 } from "lucide-react";
+import { BookOpen, Users, Star, PlusCircle, Edit3, ChevronLeft, ChevronRight } from "lucide-react";
 import { instructorCourseService } from "@/services/instructorCourseService";
 import { CourseCard } from "@/components/course/CourseCard";
 
@@ -17,15 +17,53 @@ interface InstructorCoursesPreviewProps {
 export function InstructorCoursesPreview({ isPreview }: InstructorCoursesPreviewProps = {}) {
   const t = useTranslations("home");
   const locale = useLocale();
+  const isAr = locale === "ar";
   const [mounted, setMounted] = useState(false);
   const [activeTab, setActiveTab] = useState<"all" | "published" | "drafts">("all");
   const [courses, setCourses] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { user, isAuthenticated } = useSelector((state: RootState) => state.auth);
 
+  // Slider State
+  const [itemsPerPage, setItemsPerPage] = useState(3);
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  // Touch Swipe State
+  const touchStartX = useRef<number | null>(null);
+  const touchEndX = useRef<number | null>(null);
+
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  // Responsive itemsPerPage calculation
+  useEffect(() => {
+    let rafId: number | null = null;
+    const handleResize = () => {
+      if (rafId !== null) cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(() => {
+        if (window.innerWidth < 640) {
+          setItemsPerPage(1);
+        } else if (window.innerWidth < 1024) {
+          setItemsPerPage(2);
+        } else {
+          setItemsPerPage(3);
+        }
+      });
+    };
+
+    handleResize();
+    window.addEventListener("resize", handleResize, { passive: true });
+    return () => {
+      if (rafId !== null) cancelAnimationFrame(rafId);
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+
+  // Reset slider index when activeTab changes
+  useEffect(() => {
+    setCurrentIndex(0);
+  }, [activeTab]);
 
   const isInstructor =
     (mounted && isAuthenticated && ((user?.role || "").toLowerCase() === "instructor" || (user?.role || "").toLowerCase() === "coach")) ||
@@ -47,13 +85,27 @@ export function InstructorCoursesPreview({ isPreview }: InstructorCoursesPreview
 
       const formatted = courseList.map((c: any) => {
         const isDraft = c.status === "draft" || (!c.published_at && !c.is_published && c.status !== "published");
+        const resolvedStudentsCount = Number(
+          c.enrollment_count ??
+          c.enrollments_count ??
+          c.enrolled_count ??
+          c.enrolled_students_count ??
+          c.students_count ??
+          c.total_students ??
+          c.studentsCount ??
+          (Array.isArray(c.enrolled_students) ? c.enrolled_students.length : undefined) ??
+          (Array.isArray(c.students) ? c.students.length : undefined) ??
+          (Array.isArray(c.enrollments) ? c.enrollments.length : undefined) ??
+          0,
+        ) || 0;
+
         return {
           id: String(c.id),
           title: (locale === "ar" ? (c.title_ar || c.title) : (c.title_en || c.title)) || c.title || t("untitledCourse"),
           image: c.cover_image || c.coverImage || c.image || "/images/courses/course-react.png",
-          studentsCount: Number(c.students_count) || 0,
+          studentsCount: resolvedStudentsCount,
           rating: Number(c.rating || 0),
-          reviewsCount: Number(c.reviews_count) || 0,
+          reviewsCount: Number(c.reviews_count || c.reviewsCount) || 0,
           isDraft: isDraft,
           price: Number(c.price) || 0,
         };
@@ -88,11 +140,51 @@ export function InstructorCoursesPreview({ isPreview }: InstructorCoursesPreview
     return true;
   });
 
+  const effectiveItemsPerPage = Math.min(itemsPerPage, Math.max(1, filteredCourses.length));
+  const maxIndex = Math.max(0, filteredCourses.length - effectiveItemsPerPage);
+
+  const handlePrev = () => {
+    setCurrentIndex((prev) => (prev <= 0 ? maxIndex : prev - 1));
+  };
+
+  const handleNext = () => {
+    setCurrentIndex((prev) => (prev >= maxIndex ? 0 : prev + 1));
+  };
+
+  // Touch Swipe Handlers for Mobile
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.targetTouches[0].clientX;
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    touchEndX.current = e.targetTouches[0].clientX;
+  };
+
+  const handleTouchEnd = () => {
+    if (!touchStartX.current || !touchEndX.current) return;
+    const distance = touchStartX.current - touchEndX.current;
+    if (Math.abs(distance) > 40) {
+      if (isAr) {
+        if (distance > 40) handlePrev();
+        else handleNext();
+      } else {
+        if (distance > 40) handleNext();
+        else handlePrev();
+      }
+    }
+    touchStartX.current = null;
+    touchEndX.current = null;
+  };
+
+  const totalPages = Math.max(1, Math.ceil(filteredCourses.length / effectiveItemsPerPage));
+  const activePage = Math.min(totalPages - 1, Math.floor(currentIndex / effectiveItemsPerPage));
+  const translateOffset = (currentIndex * 100) / effectiveItemsPerPage;
+
   return (
-    <section suppressHydrationWarning className="w-full bg-[#FAFCFB] py-14 sm:py-18 font-sans border-y border-slate-200/60">
+    <section suppressHydrationWarning className="w-full bg-[#FAFCFB] py-14 sm:py-18 font-sans border-y border-slate-200/60 overflow-hidden">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         
-        {/* Section Header & Tabs */}
+        {/* Section Header & Controls */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-5 mb-8 sm:mb-10">
           <div>
             <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-emerald-50 border border-emerald-200/80 text-[#0F5244] text-xs font-bold tracking-wider uppercase mb-2.5">
@@ -107,41 +199,69 @@ export function InstructorCoursesPreview({ isPreview }: InstructorCoursesPreview
             </p>
           </div>
 
-          {/* Filter Tabs */}
-          <div className="flex items-center gap-1.5 bg-white p-1.5 rounded-2xl border border-slate-200/80 shadow-xs self-start md:self-auto">
-            <button
-              type="button"
-              onClick={() => setActiveTab("all")}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                activeTab === "all"
-                  ? "bg-[#0F5244] text-white shadow-xs"
-                  : "text-slate-600 hover:text-slate-900"
-              }`}
-            >
-              {t("allCoursesTab")} ({courses.length})
-            </button>
-            <button
-              type="button"
-              onClick={() => setActiveTab("published")}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                activeTab === "published"
-                  ? "bg-[#0F5244] text-white shadow-xs"
-                  : "text-slate-600 hover:text-slate-900"
-              }`}
-            >
-              {t("publishedTab")} ({publishedCount})
-            </button>
-            <button
-              type="button"
-              onClick={() => setActiveTab("drafts")}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                activeTab === "drafts"
-                  ? "bg-[#0F5244] text-white shadow-xs"
-                  : "text-slate-600 hover:text-slate-900"
-              }`}
-            >
-              {t("draftsTab")} ({draftsCount})
-            </button>
+          {/* Filter Tabs & Navigation Controls */}
+          <div className="flex flex-wrap items-center gap-3 self-start md:self-auto">
+            {/* Filter Tabs */}
+            <div className="flex items-center gap-1.5 bg-white p-1.5 rounded-2xl border border-slate-200/80 shadow-xs">
+              <button
+                type="button"
+                onClick={() => setActiveTab("all")}
+                className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                  activeTab === "all"
+                    ? "bg-[#0F5244] text-white shadow-xs"
+                    : "text-slate-600 hover:text-slate-900"
+                }`}
+              >
+                {t("allCoursesTab")} ({courses.length})
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab("published")}
+                className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                  activeTab === "published"
+                    ? "bg-[#0F5244] text-white shadow-xs"
+                    : "text-slate-600 hover:text-slate-900"
+                }`}
+              >
+                {t("publishedTab")} ({publishedCount})
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab("drafts")}
+                className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                  activeTab === "drafts"
+                    ? "bg-[#0F5244] text-white shadow-xs"
+                    : "text-slate-600 hover:text-slate-900"
+                }`}
+              >
+                {t("draftsTab")} ({draftsCount})
+              </button>
+            </div>
+
+            {/* Slider Navigation Arrows (shown when there are more courses than visible columns) */}
+            {maxIndex > 0 && (
+              <div className="flex items-center gap-1.5 bg-white p-1.5 rounded-2xl border border-slate-200/80 shadow-xs">
+                <button
+                  type="button"
+                  onClick={isAr ? handleNext : handlePrev}
+                  aria-label="Previous"
+                  className="w-8 h-8 rounded-xl bg-slate-50 hover:bg-[#0F5244] text-slate-700 hover:text-white transition-all flex items-center justify-center cursor-pointer active:scale-95"
+                >
+                  <ChevronRight className="w-4 h-4 rtl:rotate-0 ltr:rotate-180" />
+                </button>
+                <span className="text-xs font-bold text-slate-500 px-1 select-none">
+                  {currentIndex + 1} / {maxIndex + 1}
+                </span>
+                <button
+                  type="button"
+                  onClick={isAr ? handlePrev : handleNext}
+                  aria-label="Next"
+                  className="w-8 h-8 rounded-xl bg-slate-50 hover:bg-[#0F5244] text-slate-700 hover:text-white transition-all flex items-center justify-center cursor-pointer active:scale-95"
+                >
+                  <ChevronLeft className="w-4 h-4 rtl:rotate-0 ltr:rotate-180" />
+                </button>
+              </div>
+            )}
           </div>
         </div>
 
@@ -176,16 +296,55 @@ export function InstructorCoursesPreview({ isPreview }: InstructorCoursesPreview
             </Link>
           </div>
         ) : (
-          /* Courses Grid */
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredCourses.map((course) => (
-              <CourseCard
-                key={course.id}
-                course={course}
-                variant="instructor-preview"
-                isAr={locale === "ar"}
-              />
-            ))}
+          /* Slider Track Window */
+          <div className="relative w-full">
+            <div
+              className="w-full overflow-hidden py-2"
+              onTouchStart={handleTouchStart}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
+            >
+              <div
+                className="flex transition-transform duration-500 ease-[cubic-bezier(0.25,1,0.5,1)]"
+                style={{
+                  transform: isAr
+                    ? `translateX(${translateOffset}%)`
+                    : `translateX(-${translateOffset}%)`,
+                }}
+              >
+                {filteredCourses.map((course) => (
+                  <div
+                    key={course.id}
+                    className="shrink-0 px-3"
+                    style={{ width: `${100 / effectiveItemsPerPage}%` }}
+                  >
+                    <CourseCard
+                      course={course}
+                      variant="instructor-preview"
+                      isAr={isAr}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Slider Dots Pagination */}
+            {totalPages > 1 && (
+              <div className="flex items-center justify-center gap-2 mt-6">
+                {Array.from({ length: totalPages }).map((_, idx) => (
+                  <button
+                    key={`dot-${idx}`}
+                    onClick={() => setCurrentIndex(Math.min(idx * effectiveItemsPerPage, maxIndex))}
+                    aria-label={`Go to slide ${idx + 1}`}
+                    className={`h-2.5 rounded-full transition-all duration-300 cursor-pointer ${
+                      activePage === idx
+                        ? "w-8 bg-[#0F5244]"
+                        : "w-2.5 bg-slate-200 hover:bg-slate-300"
+                    }`}
+                  />
+                ))}
+              </div>
+            )}
           </div>
         )}
 

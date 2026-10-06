@@ -1081,6 +1081,7 @@ export function InstructorWorkspace({
                   studentSearch={studentSearch}
                   setStudentSearch={setStudentSearch}
                   isLoading={isLoadingCourses}
+                  dashboardData={dashboardData}
                 />
               </motion.div>
             )}
