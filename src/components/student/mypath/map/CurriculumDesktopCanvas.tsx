@@ -204,9 +204,13 @@ export function CurriculumDesktopCanvas({
             }}
           >
             {/* Checkpoint Node + Attached Card (Facing inward) */}
-            <div className="relative flex items-center justify-center">
-              {/* 1. Checkpoint Stone Button (Centers exactly on the waypoint) */}
-              <div className="flex flex-col items-center shrink-0 relative z-10">
+            <div
+              className={`relative flex items-center gap-3 sm:gap-4 ${
+                isLeft ? "flex-row" : "flex-row-reverse"
+              }`}
+            >
+              {/* 1. Checkpoint Stone Button */}
+              <div className="flex flex-col items-center shrink-0 relative">
                 {(isActive || (currentActiveIndex <= 0 && idx === 0)) && (
                   <div className="absolute -top-20 sm:-top-24 left-1/2 -translate-x-1/2 pointer-events-none z-30 flex flex-col items-center">
                     <AnimatedRobotCharacter size="sm" showCap={true} className="scale-125 sm:scale-135 origin-bottom" />
@@ -259,16 +263,8 @@ export function CurriculumDesktopCanvas({
                 </motion.button>
               </div>
 
-              {/* 2. Attached Milestone Card View (Absolutely positioned to the side) */}
-              <div
-                className="absolute top-1/2 -translate-y-1/2 z-0"
-                style={
-                  isLeft
-                    ? { left: "100%", paddingLeft: "1rem" }
-                    : { right: "100%", paddingRight: "1rem" }
-                }
-              >
-                <MilestoneCardView
+              {/* 2. Attached Milestone Card View */}
+              <MilestoneCardView
                 milestone={milestone}
                 idx={idx}
                 isExpanded={isExpanded}
@@ -292,7 +288,6 @@ export function CurriculumDesktopCanvas({
                 canMoveDown={idx < totalCount - 1}
                 isMobile={false}
               />
-              </div>
             </div>
           </div>
         );

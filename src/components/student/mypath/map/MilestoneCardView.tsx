@@ -52,7 +52,7 @@ export function MilestoneCardView({
           exit={{ opacity: 0, scale: 0.96 }}
           transition={{ duration: 0.2 }}
           className={`${
-            isMobile ? "w-full" : "w-[260px] lg:w-80"
+            isMobile ? "w-full" : "w-64 sm:w-80"
           } rounded-3xl p-4 sm:p-5 border transition-all duration-200 ${
             isCompleted
               ? "bg-emerald-50/95 border-emerald-300/80 text-emerald-950 shadow-[0_12px_32px_-4px_rgba(16,185,129,0.18)]"
@@ -131,7 +131,7 @@ export function MilestoneCardView({
                   </Link>
                 ))}
 
-              {/* <button
+              <button
                 type="button"
                 onClick={onToggleCompleted}
                 className={`text-xs font-bold px-3 py-1.5 rounded-xl transition-all cursor-pointer active:scale-95 ${
@@ -147,45 +147,27 @@ export function MilestoneCardView({
                   : isAr
                     ? "إنجاز"
                     : "Done"}
-              </button> */}
+              </button>
             </div>
 
             {/* Skip & Reorder Controls */}
             <div className="flex items-center justify-between pt-1.5 border-t border-slate-100/80 text-[10px] text-slate-500">
-              {idx === 0 || isEnrolled || isCompleted ? (
-                <div
-                  className="inline-flex items-center gap-1 opacity-40 cursor-not-allowed"
-                  title={isAr ? "لا يمكن تخطي هذه المحطة (مسجل بها، مكتملة، أو خطوة أساسية)" : "This step cannot be skipped (enrolled, completed, or foundational)"}
-                >
-                  <SkipForward className="w-3 h-3" />
-                  <span>
-                    {isSkipped
-                      ? isAr
-                        ? "إلغاء التخطي"
-                        : "Unskip"
-                      : isAr
-                        ? "تخطي هذه المحطة"
-                        : "Skip Step"}
-                  </span>
-                </div>
-              ) : (
-                <button
-                  type="button"
-                  onClick={onToggleSkip}
-                  className="inline-flex items-center gap-1 hover:text-amber-700 font-bold transition-colors cursor-pointer"
-                >
-                  <SkipForward className="w-3 h-3" />
-                  <span>
-                    {isSkipped
-                      ? isAr
-                        ? "إلغاء التخطي"
-                        : "Unskip"
-                      : isAr
-                        ? "تخطي هذه المحطة"
-                        : "Skip Step"}
-                  </span>
-                </button>
-              )}
+              <button
+                type="button"
+                onClick={onToggleSkip}
+                className="inline-flex items-center gap-1 hover:text-amber-700 font-bold transition-colors cursor-pointer"
+              >
+                <SkipForward className="w-3 h-3" />
+                <span>
+                  {isSkipped
+                    ? isAr
+                      ? "إلغاء التخطي"
+                      : "Unskip"
+                    : isAr
+                      ? "تخطي هذه المحطة"
+                      : "Skip Step"}
+                </span>
+              </button>
 
               {/* Step Reorder Controls (Up / Down) */}
               <div className="flex items-center gap-1">
@@ -241,7 +223,7 @@ export function MilestoneCardView({
           whileHover={{ scale: 1.02 }}
           onClick={onToggleExpand}
           className={`${
-            isMobile ? "w-full" : "w-[220px] lg:w-[272px]"
+            isMobile ? "w-full" : "w-56 sm:w-68"
           } rounded-2xl px-4 py-3 border transition-all duration-200 shadow-sm hover:shadow-md cursor-pointer group/compact ${
             isCompleted
               ? "bg-emerald-50/90 border-emerald-200/80 text-emerald-950"
