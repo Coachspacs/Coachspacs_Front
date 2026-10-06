@@ -134,22 +134,24 @@ export function InstructorStudioWidget({ isPreview }: InstructorStudioWidgetProp
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
             
             {/* Stat 1: Total Students */}
-            <div className="bg-[#F8FAFC] hover:bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/70 hover:border-blue-200 shadow-2xs hover:shadow-md transition-all duration-200">
-              <div className="flex items-center justify-between mb-2.5">
-                <div className="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center border border-blue-100">
-                  <Users className="w-4 h-4" />
+            <Link href={`/${locale}/instructor/students`} className="block">
+              <div className="bg-[#F8FAFC] hover:bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/70 hover:border-blue-200 shadow-2xs hover:shadow-md transition-all duration-200 cursor-pointer h-full">
+                <div className="flex items-center justify-between mb-2.5">
+                  <div className="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center border border-blue-100">
+                    <Users className="w-4 h-4" />
+                  </div>
+                  <span className="inline-flex items-center gap-0.5 text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200/50">
+                    <TrendingUp className="w-3 h-3" /> {isAr ? "نشط" : "Active"}
+                  </span>
                 </div>
-                <span className="inline-flex items-center gap-0.5 text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200/50">
-                  <TrendingUp className="w-3 h-3" /> {isAr ? "نشط" : "Active"}
-                </span>
+                <div className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+                  {isLoading ? <Loader2 className="w-5 h-5 animate-spin text-slate-400" /> : totalStudents.toLocaleString()}
+                </div>
+                <div className="text-xs text-slate-500 font-medium mt-0.5">
+                  {t("totalStudentsCount")}
+                </div>
               </div>
-              <div className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-                {isLoading ? <Loader2 className="w-5 h-5 animate-spin text-slate-400" /> : totalStudents.toLocaleString()}
-              </div>
-              <div className="text-xs text-slate-500 font-medium mt-0.5">
-                {t("totalStudentsCount")}
-              </div>
-            </div>
+            </Link>
 
             {/* Stat 2: Active Courses */}
             <div className="bg-[#F8FAFC] hover:bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/70 hover:border-emerald-200 shadow-2xs hover:shadow-md transition-all duration-200">

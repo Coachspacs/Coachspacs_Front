@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import { useTranslations, useLocale } from "next-intl";
+import { useSearchParams } from "next/navigation";
 import {
   Search,
   Users,
@@ -54,7 +55,9 @@ export function InstructorStudentsTab({
   const locale = useLocale() || "en";
   const isAr = locale === "ar";
 
-  const [selectedCourseId, setSelectedCourseId] = useState<string>("all");
+  const searchParams = useSearchParams();
+  const initialCourseId = searchParams?.get("courseId") || "all";
+  const [selectedCourseId, setSelectedCourseId] = useState<string>(initialCourseId);
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 10;
 

@@ -87,25 +87,27 @@ export function InstructorOverviewTab({
         className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-4.5"
       >
         {/* Card 1: Distinct Students */}
-        <motion.div
-          variants={itemVariants}
-          whileHover={{ y: -3, transition: { duration: 0.2 } }}
-          className="p-5 rounded-2xl bg-white border border-slate-200/80 shadow-xs hover:shadow-md hover:border-emerald-500/40 transition-all duration-200"
-        >
-          <div className="flex items-center justify-between gap-2">
-            <span className="text-xs font-bold text-slate-500">
-              {tInst("enrolledStudentsNav")}
-            </span>
-            <div className="w-9 h-9 rounded-xl bg-emerald-50 text-[#0F5244] ring-1 ring-emerald-100 flex items-center justify-center shrink-0">
-              <Users className="w-4.5 h-4.5" />
+        <Link href={`/${locale}/instructor/students`} className="block">
+          <motion.div
+            variants={itemVariants}
+            whileHover={{ y: -3, transition: { duration: 0.2 } }}
+            className="p-5 rounded-2xl bg-white border border-slate-200/80 shadow-xs hover:shadow-md hover:border-emerald-500/40 transition-all duration-200 cursor-pointer"
+          >
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-xs font-bold text-slate-500">
+                {tInst("enrolledStudentsNav")}
+              </span>
+              <div className="w-9 h-9 rounded-xl bg-emerald-50 text-[#0F5244] ring-1 ring-emerald-100 flex items-center justify-center shrink-0">
+                <Users className="w-4.5 h-4.5" />
+              </div>
             </div>
-          </div>
-          <div className="mt-3">
-            <div className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-              <AnimatedCounter value={totalStudents} duration={1} />
+            <div className="mt-3">
+              <div className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+                <AnimatedCounter value={totalStudents} duration={1} />
+              </div>
             </div>
-          </div>
-        </motion.div>
+          </motion.div>
+        </Link>
 
         {/* Card 2: Total Courses */}
         <motion.div
@@ -198,13 +200,16 @@ export function InstructorOverviewTab({
                   </div>
 
                   <div className="flex items-center gap-2.5 self-end sm:self-auto shrink-0">
-                    <div className="flex items-center gap-1.5 text-xs font-bold text-slate-700 bg-white border border-slate-200/90 px-3 py-1.5 rounded-xl shadow-2xs">
+                    <Link 
+                      href={`/${locale}/instructor/students?courseId=${course.id}`}
+                      className="flex items-center gap-1.5 text-xs font-bold text-slate-700 bg-white hover:bg-slate-50 border border-slate-200/90 px-3 py-1.5 rounded-xl shadow-2xs transition-colors cursor-pointer"
+                    >
                       <Users className="w-3.5 h-3.5 text-emerald-600" />
                       <span>
                         {course.enrollment_count ?? course.studentsCount ?? 0}{" "}
                         {isAr ? "طالب مسجل" : "learners"}
                       </span>
-                    </div>
+                    </Link>
 
                     <Link
                       href={`/${locale}/instructor/courses/${course.id}/edit`}
