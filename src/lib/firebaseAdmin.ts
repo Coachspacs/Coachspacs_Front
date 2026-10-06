@@ -16,10 +16,15 @@ export function getFirebaseAdminApp(): App | null {
   if (privateKey) {
     // Handle escaped newlines from environment variable strings
     privateKey = privateKey.replace(/\\n/g, '\n');
+    // Remove surrounding quotes if they exist (Vercel sometimes adds them)
+    if (privateKey.startsWith('"') && privateKey.endsWith('"')) {
+      privateKey = privateKey.substring(1, privateKey.length - 1);
+    }
   }
 
   if (!projectId || !clientEmail || !privateKey) {
     // Graceful warning: credentials not yet provided in .env
+    console.warn('[FirebaseAdmin] Missing credentials. ProjectId:', !!projectId, 'Email:', !!clientEmail, 'Key:', !!privateKey);
     return null;
   }
 

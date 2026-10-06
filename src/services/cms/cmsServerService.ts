@@ -187,12 +187,14 @@ export class CmsServerService {
 
     inMemoryBrandingDraft = merged;
 
-    if (db) {
-      try {
-        await db.collection(SETTINGS_COLLECTION).doc(BRANDING_DRAFT_DOC_ID).set(merged, { merge: true });
-      } catch (err) {
-        console.error('[CmsServerService] Failed to save draft branding to Firestore:', err);
-      }
+    if (!db) {
+      throw new Error('Firebase Database is not connected. CMS requires Firebase to save.');
+    }
+
+    try {
+      await db.collection(SETTINGS_COLLECTION).doc(BRANDING_DRAFT_DOC_ID).set(merged, { merge: true });
+    } catch (err) {
+      console.error('[CmsServerService] Failed to save draft branding to Firestore:', err);
     }
 
     return merged;
@@ -221,15 +223,17 @@ export class CmsServerService {
     inMemoryBranding = merged;
     inMemoryBrandingDraft = null;
 
-    if (db) {
-      try {
-        await db.collection(SETTINGS_COLLECTION).doc(BRANDING_DOC_ID).set(merged, { merge: true });
-        // Clean up draft doc once published
-        await db.collection(SETTINGS_COLLECTION).doc(BRANDING_DRAFT_DOC_ID).delete().catch(() => {});
-      } catch (err) {
-        console.error('[CmsServerService] Failed to save branding to Firestore:', err);
-        throw new Error('Failed to save branding to database');
-      }
+    if (!db) {
+      throw new Error('Firebase Database is not connected. CMS requires Firebase to save.');
+    }
+
+    try {
+      await db.collection(SETTINGS_COLLECTION).doc(BRANDING_DOC_ID).set(merged, { merge: true });
+      // Clean up draft doc once published
+      await db.collection(SETTINGS_COLLECTION).doc(BRANDING_DRAFT_DOC_ID).delete().catch(() => {});
+    } catch (err) {
+      console.error('[CmsServerService] Failed to save branding to Firestore:', err);
+      throw new Error('Failed to save branding to database');
     }
 
     return merged;
@@ -360,13 +364,15 @@ export class CmsServerService {
 
     inMemoryLandingDoc = updatedDoc;
 
-    if (db) {
-      try {
-        await db.collection(PAGES_COLLECTION).doc(LANDING_DOC_ID).set(updatedDoc, { merge: true });
-      } catch (err) {
-        console.error('[CmsServerService] Error saving landing draft:', err);
-        throw new Error('Failed to save draft to database');
-      }
+    if (!db) {
+      throw new Error('Firebase Database is not connected. CMS requires Firebase to save.');
+    }
+
+    try {
+      await db.collection(PAGES_COLLECTION).doc(LANDING_DOC_ID).set(updatedDoc, { merge: true });
+    } catch (err) {
+      console.error('[CmsServerService] Error saving landing draft:', err);
+      throw new Error('Failed to save draft to database');
     }
 
     return updatedDoc;
@@ -392,13 +398,15 @@ export class CmsServerService {
 
     inMemoryLandingDoc = publishedDoc;
 
-    if (db) {
-      try {
-        await db.collection(PAGES_COLLECTION).doc(LANDING_DOC_ID).set(publishedDoc, { merge: true });
-      } catch (err) {
-        console.error('[CmsServerService] Error publishing landing page:', err);
-        throw new Error('Failed to publish to database');
-      }
+    if (!db) {
+      throw new Error('Firebase Database is not connected. CMS requires Firebase to save.');
+    }
+
+    try {
+      await db.collection(PAGES_COLLECTION).doc(LANDING_DOC_ID).set(publishedDoc, { merge: true });
+    } catch (err) {
+      console.error('[CmsServerService] Error publishing landing page:', err);
+      throw new Error('Failed to publish to database');
     }
 
     return publishedDoc;
@@ -524,13 +532,15 @@ export class CmsServerService {
 
     inMemoryLegalDoc = updatedDoc;
 
-    if (db) {
-      try {
-        await db.collection(PAGES_COLLECTION).doc(LEGAL_DOC_ID).set(updatedDoc, { merge: true });
-      } catch (err) {
-        console.error('[CmsServerService] Error saving legal draft:', err);
-        throw new Error('Failed to save legal draft to database');
-      }
+    if (!db) {
+      throw new Error('Firebase Database is not connected. CMS requires Firebase to save.');
+    }
+
+    try {
+      await db.collection(PAGES_COLLECTION).doc(LEGAL_DOC_ID).set(updatedDoc, { merge: true });
+    } catch (err) {
+      console.error('[CmsServerService] Error saving legal draft:', err);
+      throw new Error('Failed to save legal draft to database');
     }
 
     return updatedDoc;
@@ -571,13 +581,15 @@ export class CmsServerService {
 
     inMemoryLegalDoc = publishedDoc;
 
-    if (db) {
-      try {
-        await db.collection(PAGES_COLLECTION).doc(LEGAL_DOC_ID).set(publishedDoc, { merge: true });
-      } catch (err) {
-        console.error('[CmsServerService] Error publishing legal pages:', err);
-        throw new Error('Failed to publish legal pages to database');
-      }
+    if (!db) {
+      throw new Error('Firebase Database is not connected. CMS requires Firebase to save.');
+    }
+
+    try {
+      await db.collection(PAGES_COLLECTION).doc(LEGAL_DOC_ID).set(publishedDoc, { merge: true });
+    } catch (err) {
+      console.error('[CmsServerService] Error publishing legal pages:', err);
+      throw new Error('Failed to publish legal pages to database');
     }
 
     return publishedDoc;
