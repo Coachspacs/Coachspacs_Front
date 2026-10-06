@@ -14,6 +14,7 @@ import { authService, getApiErrorMessage } from "@/services/auth";
 import { enrollmentService } from "@/services/enrollmentService";
 import { cartService } from "@/services/cartService";
 import { certificateService } from "@/services/certificateService";
+import { aiQuizService } from "@/services/aiQuizService";
 import {
   LayoutDashboard,
   BookOpen,
@@ -57,6 +58,7 @@ import {
   StudentCertificatesTab,
   StudentSettingsTab,
 } from "./tabs";
+import type { AiQuizDashboardStats } from "./tabs/StudentOverviewTab";
 
 function getSafeCourseImage(course: any): string {
   const defaultCover = "/images/courses/course-leadership.png";
@@ -235,6 +237,14 @@ export function StudentWorkspace({
   const [isLoadingCourses, setIsLoadingCourses] = useState(true);
   const [certificatesCount, setCertificatesCount] = useState<number | null>(null);
 
+  // AI Quiz Stats
+  const [aiQuizStats, setAiQuizStats] = useState<AiQuizDashboardStats>({
+    totalQuizzes: 0,
+    totalAttempted: 0,
+    averageScore: 0,
+    isLoading: true,
+  });
+
   // Load enrolled courses from API (Live Enrollments Sync)
   useEffect(() => {
     let isSubscribed = true;
@@ -342,6 +352,64 @@ export function StudentWorkspace({
             );
           }
           setIsLoadingCourses(false);
+
+          // Fetch AI quiz stats for enrolled courses
+          try {
+            if (mapped.length > 0) {
+              const quizPromises = mapped.map(c => 
+                aiQuizService.getCourseQuizzes(c.id).catch(() => [])
+              );
+              const results = await Promise.all(quizPromises);
+              const allQuizzes = results.flat();
+              
+              if (allQuizzes.length > 0) {
+                // Helper to safely extract score
+                const getScore = (q: any) => {
+                  if (typeof q.latest_score === "number") return q.latest_score;
+                  if (q.latest_attempt && typeof q.latest_attempt.score === "number") return q.latest_attempt.score;
+                  if (typeof q.score === "number") return q.score;
+                  return null;
+                };
+
+                // Filter attempted quizzes
+                const attemptedQuizzes = allQuizzes.filter(q => q.status === "ready" && getScore(q) !== null);
+                
+                // Sort to find the latest (descending order)
+                attemptedQuizzes.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+                
+                const avgScore = attemptedQuizzes.length > 0
+                  ? Math.round(attemptedQuizzes.reduce((sum, q) => sum + (getScore(q) || 0), 0) / attemptedQuizzes.length)
+                  : 0;
+                  
+                const latest = attemptedQuizzes.length > 0 ? attemptedQuizzes[0] : null;
+                const latestCourse = latest ? mapped.find(c => String(c.id) === String(latest.course_id)) : null;
+
+                if (isSubscribed) {
+                  setAiQuizStats({
+                    totalQuizzes: allQuizzes.length,
+                    totalAttempted: attemptedQuizzes.length,
+                    averageScore: avgScore,
+                    latestQuiz: latest ? {
+                      courseTitle: latestCourse?.title || "Course",
+                      courseId: latest.course_id || 0,
+                      score: Number(getScore(latest)) || 0,
+                      questionCount: latest.question_count || 0,
+                      createdAt: latest.created_at,
+                    } : undefined,
+                    isLoading: false,
+                  });
+                }
+              } else if (isSubscribed) {
+                setAiQuizStats(prev => ({ ...prev, isLoading: false }));
+              }
+            } else if (isSubscribed) {
+              setAiQuizStats(prev => ({ ...prev, isLoading: false }));
+            }
+          } catch (quizErr) {
+            console.warn("[StudentWorkspace] Failed to fetch AI quiz stats:", quizErr);
+            if (isSubscribed) setAiQuizStats(prev => ({ ...prev, isLoading: false }));
+          }
+
           return;
         }
       } catch (err) {
@@ -681,6 +749,7 @@ export function StudentWorkspace({
                   courses={courses}
                   isLoading={isLoadingCourses}
                   certificatesCount={certificatesCount ?? undefined}
+                  aiQuizStats={aiQuizStats}
                   onNavigateTab={handleNavigateTab}
                 />
               </motion.div>

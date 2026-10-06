@@ -149,14 +149,8 @@ export function InstructorSettingsView() {
         }
       : {};
 
-    let globalProfile: any = {};
-    try {
-      const raw = localStorage.getItem("coachspace_active_instructor_profile");
-      if (raw) globalProfile = JSON.parse(raw);
-    } catch {}
-
-    const merged = { ...globalProfile, ...savedOverrides };
-    const rawHeadline = user?.headline ?? merged.headline ?? "";
+    const merged = savedOverrides as any;
+    const rawHeadline = user?.headline ?? "";
     const isGenericHeadline =
       !rawHeadline ||
       rawHeadline.toLowerCase().includes("student") ||
@@ -167,21 +161,14 @@ export function InstructorSettingsView() {
       rawHeadline.includes("مدرب وخبير معتمد");
 
     setFormData({
-      fullName:
-        user?.fullName || user?.name || merged.name || merged.fullName || "",
-      email: user?.email || merged.email || "",
-      phone: user?.phone || user?.phone_number || merged.phone || "",
+      fullName: user?.fullName || user?.name || "",
+      email: user?.email || "",
+      phone: user?.phone || user?.phone_number || "",
       headline: isGenericHeadline ? "" : rawHeadline,
-      specialization: user?.specialization ?? merged.specialization ?? "",
-      experienceYears:
-        (user as any)?.experienceYears ?? merged.experienceYears ?? 0,
-      bio: user?.bio ?? merged.bio ?? "",
-      skills:
-        Array.isArray((user as any)?.skills) && (user as any).skills.length > 0
-          ? (user as any).skills
-          : Array.isArray(merged.skills)
-          ? merged.skills
-          : [],
+      specialization: user?.specialization ?? "",
+      experienceYears: (user as any)?.experienceYears ?? 0,
+      bio: user?.bio ?? "",
+      skills: Array.isArray((user as any)?.skills) && (user as any).skills.length > 0 ? (user as any).skills : [],
       hourlyRate: (user as any)?.hourlyRate ?? merged.hourlyRate ?? "",
       location: (user as any)?.location ?? merged.location ?? "",
       website: merged.socials?.website ?? (user as any)?.website ?? "",
@@ -216,6 +203,18 @@ export function InstructorSettingsView() {
             fullName: prev.fullName || profData.full_name || profData.fullName || "",
             email: prev.email || profData.email || "",
             phone: prev.phone || profData.phone_number || profData.phone || "",
+            headline: prev.headline || profData.headline || profData.headlineAr || "",
+            bio: prev.bio || profData.bio || profData.bioAr || "",
+            specialization: prev.specialization || profData.specialization || profData.specializationAr || "",
+            experienceYears: prev.experienceYears || profData.experienceYears || 0,
+            skills: prev.skills.length ? prev.skills : (profData.skills || profData.skillsAr || []),
+            hourlyRate: prev.hourlyRate || profData.hourlyRate || "",
+            location: prev.location || profData.location || "",
+            website: prev.website || profData.socials?.website || "",
+            linkedin: prev.linkedin || profData.socials?.linkedin || "",
+            twitter: prev.twitter || profData.socials?.twitter || "",
+            github: prev.github || profData.socials?.github || "",
+            socialEmail: prev.socialEmail || profData.socials?.email || "",
           }));
           const backendAvatar =
             profData.avatar ||
@@ -373,38 +372,29 @@ export function InstructorSettingsView() {
         },
       };
 
-      if (typeof window !== "undefined") {
-        try {
-          localStorage.setItem(
-            "coachspace_active_instructor_profile",
-            JSON.stringify(profileUpdates),
-          );
-          if (currentSlug) {
-            localStorage.setItem(
-              `coachspace_inst_profile_${currentSlug}`,
-              JSON.stringify(profileUpdates),
-            );
-          }
-        } catch (e) {
-          console.warn("Could not save to localStorage", e);
-        }
-      }
-
-      updatePublicInstructorOverrides("global", profileUpdates);
-      if (currentSlug) {
-        updatePublicInstructorOverrides(currentSlug, profileUpdates);
-        updatePublicInstructorOverrides(`inst-${currentSlug}`, profileUpdates);
-      }
-      if (user?.id) {
-        updatePublicInstructorOverrides(user.id, profileUpdates);
-        updatePublicInstructorOverrides(`inst-${user.id}`, profileUpdates);
-      }
-
       try {
         await userService.updateMyProfile({
           full_name: formData.fullName.trim(),
           phone_number: formData.phone.trim(),
           preferred_language: locale,
+          headline: formData.headline.trim(),
+          headlineAr: formData.headline.trim(),
+          bio: formData.bio.trim(),
+          bioAr: formData.bio.trim(),
+          specialization: formData.specialization.trim(),
+          specializationAr: formData.specialization.trim(),
+          experienceYears: formData.experienceYears === "" ? 0 : Number(formData.experienceYears),
+          skills: formData.skills,
+          skillsAr: formData.skills,
+          hourlyRate: formData.hourlyRate?.trim() || undefined,
+          location: formData.location?.trim() || undefined,
+          socials: {
+            website: cleanWebsite,
+            linkedin: cleanLinkedin,
+            twitter: cleanTwitter,
+            github: cleanGithub,
+            email: cleanSocialEmail,
+          },
         });
       } catch (apiErr) {
         console.warn("Backend profile update info:", apiErr);

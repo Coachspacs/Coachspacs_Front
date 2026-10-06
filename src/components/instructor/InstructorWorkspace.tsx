@@ -156,7 +156,7 @@ export function InstructorWorkspace({
     setIsLoadingCourses(true);
     try {
       const [coursesRes, dashRes] = await Promise.all([
-        instructorCourseService.getMyCourses().catch((err) => {
+        instructorCourseService.getMyCourses({ per_page: 100, limit: 100 }).catch((err) => {
           console.warn("Could not fetch instructor courses:", err);
           return [];
         }),
@@ -170,7 +170,7 @@ export function InstructorWorkspace({
         setDashboardData(dashRes);
       }
 
-      const list = Array.isArray(coursesRes) ? coursesRes : coursesRes?.results || [];
+      const list = Array.isArray(coursesRes) ? coursesRes : (coursesRes?.data || coursesRes?.results || []);
 
       const realCourses = list.map((c: any) => {
         const rawStatus = String(c.status || "").toLowerCase();
@@ -396,11 +396,13 @@ export function InstructorWorkspace({
     } finally {
       setIsLoadingCourses(false);
     }
-  }, [isAr, tInst]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAr]);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     fetchMyCourses();
-  }, [fetchMyCourses]);
+  }, []);
 
   // Enrolled Students Data & Drawer State
   const [students, setStudents] = useState<any[]>([]);

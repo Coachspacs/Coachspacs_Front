@@ -118,7 +118,8 @@ export function InstructorCoursesPreview({ isPreview }: InstructorCoursesPreview
     } finally {
       setIsLoading(false);
     }
-  }, [isInstructor, isApproved, locale, t]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isInstructor, isApproved, locale]);
 
   useEffect(() => {
     if (mounted && isInstructor && isApproved) {

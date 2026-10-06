@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import confetti from "canvas-confetti";
 import { soundFx } from "@/lib/soundEffects";
 import {
@@ -97,12 +97,17 @@ export function useCurriculumMap({
     activeMilestoneIndex === -1 ? totalCount - 1 : activeMilestoneIndex;
 
   // Accordion state: ONLY the active lesson is expanded by default, others collapsed
-  const [expandedMilestoneId, setExpandedMilestoneId] = useState<string | null>(
-    () => {
-      const activeM = milestonesState[currentActiveIndex];
-      return activeM ? activeM.id : milestonesState[0]?.id || null;
-    },
-  );
+  const [expandedMilestoneId, setExpandedMilestoneId] = useState<string | null>(null);
+
+  // Auto-expand the active milestone when the current active index changes (e.g., on initial load or step completion)
+  const previousActiveIdRef = useRef<string | null>(null);
+  useEffect(() => {
+    const activeM = milestonesState[currentActiveIndex];
+    if (activeM && activeM.id !== previousActiveIdRef.current) {
+      setExpandedMilestoneId(activeM.id);
+      previousActiveIdRef.current = activeM.id;
+    }
+  }, [currentActiveIndex, milestonesState]);
 
   // Reordering milestone logic (US-18 #5)
   const handleMoveMilestone = async (index: number, direction: "up" | "down") => {
@@ -242,9 +247,9 @@ export function useCurriculumMap({
     const endY = 80; // Well-spaced clearance above Goal Marker
 
     return milestonesState.map((_, idx) => {
-      // Alternate left (~25%) and right (~75%)
+      // Alternate left and right closer to center for a smoother S-Curve and to prevent tablet overflow
       const isEven = idx % 2 === 0;
-      const xPercent = isEven ? 25 : 75;
+      const xPercent = isEven ? 38 : 62;
       const yPercent =
         totalCount <= 1
           ? 50
@@ -355,7 +360,7 @@ export function useCurriculumMap({
   const isAnyExpanded = Boolean(expandedMilestoneId);
   const dynamicMinHeight = Math.max(
     800,
-    totalCount * (isAnyExpanded ? 270 : 190),
+    totalCount * (isAnyExpanded ? 340 : 250),
   );
 
   return {

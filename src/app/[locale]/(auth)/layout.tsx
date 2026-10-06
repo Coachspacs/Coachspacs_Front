@@ -33,14 +33,16 @@ export default function AuthLayout({
   );
 
   useEffect(() => {
-    const hasToken = tokenManager.hasSession();
+    // Check for access token specifically to match middleware logic
+    // If only refresh token exists, middleware will block the request, causing an infinite loop
+    const hasAccessToken = Boolean(tokenManager.getAccessToken());
     const localUserStr = typeof window !== "undefined" ? localStorage.getItem("user") : null;
     let localUser = null;
     try {
       if (localUserStr) localUser = JSON.parse(localUserStr);
     } catch {}
 
-    const isUserLoggedIn = isAuthenticated || Boolean(hasToken && (user || localUser));
+    const isUserLoggedIn = isAuthenticated || Boolean(hasAccessToken && (user || localUser));
     const activeUser = user || localUser;
 
     if (isAuthPage && isUserLoggedIn && activeUser) {

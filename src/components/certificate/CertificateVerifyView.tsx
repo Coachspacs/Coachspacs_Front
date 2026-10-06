@@ -95,7 +95,8 @@ export function CertificateVerifyView({
         setIsLoading(false);
       }
     },
-    [code, isAr, t, tCert]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [code, isAr]
   );
 
   // Auto-verify on mount if an initialCode is provided in URL

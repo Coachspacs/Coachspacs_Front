@@ -79,7 +79,8 @@ function VerifyEmailContent() {
     return () => {
       isMounted = false;
     };
-  }, [uid, token, t, isAr]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [uid, token, isAr]);
 
   const handleResend = async (manualEmail?: string) => {
     const targetEmail = (manualEmail || emailInput || emailParam).trim();

@@ -3,16 +3,43 @@
 import React from "react";
 import Link from "next/link";
 import { useTranslations, useLocale } from "next-intl";
-import { Sparkles, Play, BookOpen, Award, TrendingUp } from "lucide-react";
+import {
+  Sparkles,
+  Play,
+  BookOpen,
+  Award,
+  TrendingUp,
+  BrainCircuit,
+  Target,
+  ChevronRight,
+  ChevronLeft,
+  Loader2,
+} from "lucide-react";
 import { EnrolledCourse } from "@/types/course";
+import { AnimatedRobotCharacter } from "@/components/student/mypath/AnimatedRobotCharacter";
 
 import { motion, Variants } from "framer-motion";
 import { AnimatedCounter } from "@/components/ui/AnimatedCounter";
+
+export interface AiQuizDashboardStats {
+  totalQuizzes: number;
+  totalAttempted: number;
+  averageScore: number;
+  latestQuiz?: {
+    courseTitle: string;
+    courseId: string | number;
+    score: number;
+    questionCount: number;
+    createdAt: string;
+  };
+  isLoading: boolean;
+}
 
 interface StudentOverviewTabProps {
   courses: EnrolledCourse[];
   isLoading?: boolean;
   certificatesCount?: number;
+  aiQuizStats?: AiQuizDashboardStats;
   onNavigateTab?: (
     tab: "overview" | "courses" | "certificates" | "orders" | "cart" | "settings",
     filter?: "all" | "in_progress" | "completed"
@@ -23,6 +50,7 @@ export function StudentOverviewTab({
   courses,
   isLoading = false,
   certificatesCount,
+  aiQuizStats,
   onNavigateTab,
 }: StudentOverviewTabProps) {
   const tWs = useTranslations("studentWorkspace");
@@ -77,7 +105,7 @@ export function StudentOverviewTab({
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-5"
+        className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-5"
       >
         {/* Enrolled / Active Courses */}
         <motion.div variants={itemVariants}>
@@ -103,7 +131,7 @@ export function StudentOverviewTab({
                 <span className="truncate">{isAr ? "دورة تدريبية" : "Courses enrolled"}</span>
               </div>
             </div>
-            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-emerald-50 text-[#0F5244] group-hover:bg-[#0F5244] group-hover:text-white flex items-center justify-center shrink-0 border border-emerald-100/80 transition-all duration-200 shadow-2xs">
+            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-emerald-50 text-[#0F5244] group-hover:bg-[#0F5244] group-hover:text-[#ffffff] flex items-center justify-center shrink-0 border border-emerald-100/80 transition-all duration-200 shadow-2xs">
               <BookOpen className="w-5 h-5" />
             </div>
           </Link>
@@ -133,7 +161,7 @@ export function StudentOverviewTab({
                 <span className="truncate">{isAr ? "دروس نشطة" : "Active courses"}</span>
               </div>
             </div>
-            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-blue-50 text-blue-600 group-hover:bg-blue-600 group-hover:text-white flex items-center justify-center shrink-0 border border-blue-100/80 transition-all duration-200 shadow-2xs">
+            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-blue-50 text-blue-600 group-hover:bg-[#2563eb] group-hover:text-[#ffffff] flex items-center justify-center shrink-0 border border-blue-100/80 transition-all duration-200 shadow-2xs">
               <Play className="w-5 h-5 fill-current" />
             </div>
           </Link>
@@ -163,12 +191,107 @@ export function StudentOverviewTab({
                 <span className="truncate">{tWs("earned")}</span>
               </div>
             </div>
-            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-emerald-50 text-emerald-700 group-hover:bg-emerald-700 group-hover:text-white flex items-center justify-center shrink-0 border border-emerald-100/80 transition-all duration-200 shadow-2xs">
+            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-emerald-50 text-emerald-700 group-hover:bg-[#047857] group-hover:text-[#ffffff] flex items-center justify-center shrink-0 border border-emerald-100/80 transition-all duration-200 shadow-2xs">
               <Award className="w-5 h-5" />
             </div>
           </Link>
         </motion.div>
+
+        {/* AI Practice Quizzes */}
+        <motion.div variants={itemVariants}>
+          <div
+            className="group relative p-4 sm:p-5 rounded-2xl bg-white border border-slate-200/80 shadow-2xs hover:border-violet-500 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 flex items-start justify-between gap-3 min-w-0 overflow-hidden cursor-default"
+          >
+            <div className="min-w-0 flex-1">
+              <span className="text-[11px] sm:text-xs font-bold text-slate-400 group-hover:text-violet-600 uppercase tracking-wider block mb-1 truncate transition-colors">
+                {isAr ? "اختبارات الذكاء الاصطناعي" : "AI Practice Quizzes"}
+              </span>
+              <div className="text-2xl sm:text-3xl font-black text-violet-950 leading-tight">
+                {aiQuizStats?.isLoading ? (
+                  <Loader2 className="w-6 h-6 text-violet-400 animate-spin" />
+                ) : (
+                  <AnimatedCounter value={aiQuizStats?.totalAttempted ?? 0} duration={0.9} />
+                )}
+              </div>
+              <div className="text-[10px] sm:text-[11px] font-bold text-violet-700 bg-violet-50 group-hover:bg-violet-100/80 px-2 py-0.5 rounded-md mt-2.5 inline-flex items-center gap-1 border border-violet-100 max-w-full truncate transition-colors">
+                <Target className="w-3 h-3 shrink-0" />
+                <span className="truncate">
+                  {aiQuizStats && !aiQuizStats.isLoading && aiQuizStats.totalAttempted > 0
+                    ? `${isAr ? "معدل الدقة" : "Avg. Score"} ${aiQuizStats.averageScore}%`
+                    : isAr ? "اختبارات تدريبية ذكية" : "AI-powered practice"}
+                </span>
+              </div>
+            </div>
+            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-violet-50 text-violet-600 group-hover:bg-[#7c3aed] group-hover:text-[#ffffff] flex items-center justify-center shrink-0 border border-violet-100/80 transition-all duration-200 shadow-2xs">
+              <BrainCircuit className="w-5 h-5" />
+            </div>
+          </div>
+        </motion.div>
       </motion.div>
+
+      {/* AI Study Companion Widget */}
+      {aiQuizStats && !aiQuizStats.isLoading && aiQuizStats.totalAttempted > 0 && (
+        <div className="p-5 sm:p-6 rounded-3xl bg-gradient-to-br from-violet-50/80 via-white to-indigo-50/40 border border-violet-200/60 shadow-xs relative overflow-hidden">
+          <div className="absolute top-0 end-0 -mt-6 -me-6 w-36 h-36 bg-violet-400/10 rounded-full blur-2xl pointer-events-none" />
+          <div className="absolute bottom-0 start-0 w-28 h-28 bg-indigo-500/5 rounded-full blur-xl pointer-events-none" />
+
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-5 relative z-10">
+            {/* Left: Stats + Text */}
+            <div className="space-y-3 text-center sm:text-start flex-1">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-violet-100/70 text-violet-800 text-xs font-bold">
+                <Sparkles className="w-3.5 h-3.5 text-violet-600" />
+                <span>{isAr ? "رفيقك الذكي للتدريب" : "Your AI Study Companion"}</span>
+              </div>
+
+              <h3 className="text-base sm:text-lg font-black text-slate-900 tracking-tight">
+                {aiQuizStats.averageScore >= 80
+                  ? isAr ? "أداء متميز! تابع التقدم 🌟" : "Outstanding Performance! 🌟"
+                  : aiQuizStats.averageScore >= 60
+                  ? isAr ? "أداء جيد! استمر بالتدريب 👏" : "Great Progress! Keep Practicing 👏"
+                  : isAr ? "استمر بالتدريب لتعزيز فهمك 💪" : "Keep Practicing to Improve 💪"}
+              </h3>
+
+              <div className="flex flex-wrap items-center gap-3 justify-center sm:justify-start">
+                <div className="px-3 py-1.5 rounded-xl bg-white border border-violet-200/80 shadow-2xs">
+                  <span className="text-[10px] font-bold text-slate-400 block">{isAr ? "الاختبارات" : "Quizzes"}</span>
+                  <span className="text-sm font-black text-slate-900">{aiQuizStats.totalAttempted}</span>
+                </div>
+                <div className="px-3 py-1.5 rounded-xl bg-white border border-violet-200/80 shadow-2xs">
+                  <span className="text-[10px] font-bold text-slate-400 block">{isAr ? "معدل الدقة" : "Avg. Score"}</span>
+                  <span className="text-sm font-black text-violet-700">{aiQuizStats.averageScore}%</span>
+                </div>
+                {aiQuizStats.latestQuiz && (
+                  <div className="px-3 py-1.5 rounded-xl bg-white border border-violet-200/80 shadow-2xs">
+                    <span className="text-[10px] font-bold text-slate-400 block">{isAr ? "آخر نتيجة" : "Latest"}</span>
+                    <span className={`text-sm font-black ${aiQuizStats.latestQuiz.score >= 70 ? "text-emerald-700" : "text-amber-700"}`}>
+                      {aiQuizStats.latestQuiz.score}%
+                    </span>
+                  </div>
+                )}
+              </div>
+
+              {aiQuizStats.latestQuiz && (
+                <p className="text-xs text-slate-500 font-medium">
+                  {isAr ? "آخر اختبار:" : "Latest quiz:"}{" "}
+                  <span className="font-bold text-slate-700">{aiQuizStats.latestQuiz.courseTitle}</span>
+                  {" · "}
+                  <span className="font-mono text-slate-400">
+                    {aiQuizStats.latestQuiz.questionCount} {isAr ? "أسئلة" : "Qs"}
+                  </span>
+                </p>
+              )}
+            </div>
+
+            {/* Right: Robot Mascot */}
+            <div className="shrink-0 flex justify-center">
+              <div className="relative">
+                <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-20 h-5 bg-violet-400/20 rounded-full blur-md" />
+                <AnimatedRobotCharacter size="sm" />
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Hero Continue Learning Card */}
       {courses.length > 0 && continueCourse ? (

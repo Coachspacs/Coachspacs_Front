@@ -48,6 +48,18 @@ export interface UpdateProfileRequest {
   full_name?: string;
   phone_number?: string;
   preferred_language?: string;
+  headline?: string;
+  headlineAr?: string;
+  bio?: string;
+  bioAr?: string;
+  specialization?: string;
+  specializationAr?: string;
+  experienceYears?: number;
+  skills?: string[];
+  skillsAr?: string[];
+  hourlyRate?: string | number;
+  location?: string;
+  socials?: any;
 }
 
 export interface AvatarUploadResponse {

@@ -72,7 +72,8 @@ function ConfirmEmailContent() {
     return () => {
       isMounted = false;
     };
-  }, [uid, token, isAr, hasParams, t]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [uid, token, isAr, hasParams]);
 
   return (
     <div
