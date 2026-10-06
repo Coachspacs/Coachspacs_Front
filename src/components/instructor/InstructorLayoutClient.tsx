@@ -108,6 +108,7 @@ export function InstructorLayoutClient({
           localStorage.setItem("user", JSON.stringify(uObj));
         }
       } catch {}
+    }
     let isAlreadyApproved = false;
     if (activeUser) {
       const currentHeadline = activeUser.headline || "";
