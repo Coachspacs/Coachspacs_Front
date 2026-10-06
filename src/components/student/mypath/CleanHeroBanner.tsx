@@ -32,7 +32,7 @@ export function CleanHeroBanner({ isAr }: CleanHeroBannerProps) {
   };
 
   return (
-    <div className="w-full h-56 sm:h-64 relative rounded-2xl overflow-hidden border border-emerald-100/90 shadow-xs select-none mb-5 perspective-1000 bg-emerald-50/20">
+    <div className="w-full h-56 sm:h-64 relative rounded-2xl overflow-hidden border border-slate-200 shadow-xs select-none mb-5 perspective-1000 bg-slate-100">
       <motion.div
         ref={cardRef}
         onMouseMove={handleMouseMove}
@@ -67,7 +67,7 @@ export function CleanHeroBanner({ isAr }: CleanHeroBannerProps) {
             className="drop-shadow-xs select-none"
           >
             <ellipse cx="20" cy="50" rx="14" ry="3.5" fill="rgba(15,82,68,0.24)" />
-            <path d="M10 50C9 45 7 40 4 38C7 43 8 47 10 50Z" fill="#10B981" />
+            <path d="M10 50C9 45 7 40 4 38C7 43 8 47 10 50Z" fill="var(--color-primary-light)" />
             <path d="M12 50C12 44 11 38 9 35C11 42 12 46 13 50Z" fill="#059669" />
             <path d="M14 50C15 45 17 40 19 37C17 43 16 47 14 50Z" fill="#34D399" />
 
@@ -92,7 +92,7 @@ export function CleanHeroBanner({ isAr }: CleanHeroBannerProps) {
               y="35"
               fontSize="12.5"
               fontWeight="900"
-              fill="#0F5244"
+              fill="var(--color-primary-main)"
               textAnchor="middle"
               dominantBaseline="middle"
               fontFamily="system-ui, -apple-system, sans-serif"
@@ -138,7 +138,7 @@ export function CleanHeroBanner({ isAr }: CleanHeroBannerProps) {
                 y2="16"
                 gradientUnits="userSpaceOnUse"
               >
-                <stop stopColor="#10B981" />
+                <stop stopColor="var(--color-primary-light)" />
                 <stop offset="1" stopColor="#0B6B55" />
               </linearGradient>
             </defs>
@@ -151,7 +151,7 @@ export function CleanHeroBanner({ isAr }: CleanHeroBannerProps) {
         </div>
 
         {/* Soft Ambient Light Gradient on edge */}
-        <div className="absolute inset-0 bg-gradient-to-t from-emerald-950/10 via-transparent to-transparent pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-t from-brand-dark via-transparent to-transparent pointer-events-none" />
       </motion.div>
     </div>
   );

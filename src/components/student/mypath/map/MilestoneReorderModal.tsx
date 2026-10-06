@@ -50,16 +50,16 @@ export function MilestoneReorderModal({
             className="relative z-10 w-full max-w-xl bg-white rounded-3xl shadow-2xl border border-slate-200/90 overflow-hidden flex flex-col max-h-[85vh]"
           >
             {/* Modal Header */}
-            <div className="bg-gradient-to-r from-[#0F5244] to-[#166353] p-5 sm:p-6 text-white flex items-center justify-between gap-4">
+            <div className="bg-gradient-to-r from-[var(--color-primary-main)] to-[#166353] p-5 sm:p-6 text-white flex items-center justify-between gap-4">
               <div className="flex items-center gap-3">
-                <div className="p-2.5 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 text-[#38E09D]">
+                <div className="p-2.5 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 text-[var(--color-primary-main)]">
                   <ArrowUpDown className="w-5 h-5" />
                 </div>
                 <div>
                   <h3 className="text-base sm:text-lg font-black text-white">
                     {isAr ? "إعادة ترتيب محطات المسار" : "Reorder Roadmap Stages"}
                   </h3>
-                  <p className="text-xs text-emerald-100/80 font-medium mt-0.5">
+                  <p className="text-xs text-brand font-medium mt-0.5">
                     {isAr
                       ? "اسحب وأفلت المحطات أو استخدم الأسهم لتخصيص الترتيب"
                       : "Drag & drop stages or use arrows to customize the order"}
@@ -119,23 +119,23 @@ export function MilestoneReorderModal({
                     style={{ position: "relative" }}
                     className={`flex items-center justify-between gap-3 p-3.5 rounded-2xl border select-none cursor-grab active:cursor-grabbing touch-none transition-colors duration-150 ${
                       isActive
-                        ? "bg-emerald-50/95 border-emerald-400/90 shadow-xs"
+                        ? "bg-slate-100 border-slate-200 shadow-xs"
                         : isCompleted
-                          ? "bg-slate-50 border-emerald-200/60 opacity-90"
-                          : "bg-white border-slate-200 hover:border-emerald-300 shadow-2xs"
+                          ? "bg-slate-50 border-slate-200 opacity-90"
+                          : "bg-white border-slate-200 hover:border-slate-200 shadow-2xs"
                     }`}
                   >
                     {/* Left / Drag Handle + Title & Order badge */}
                     <div className="flex items-center gap-2.5 min-w-0 flex-1">
                       {/* Drag Handle Icon */}
                       <div
-                        className="text-slate-400 hover:text-emerald-700 p-1 rounded-lg transition-colors flex items-center justify-center shrink-0 cursor-grab active:cursor-grabbing"
+                        className="text-slate-400 hover:text-brand-dark p-1 rounded-lg transition-colors flex items-center justify-center shrink-0 cursor-grab active:cursor-grabbing"
                         title={isAr ? "اسحب لإعادة الترتيب" : "Drag to reorder"}
                       >
                         <GripVertical className="w-4 h-4" />
                       </div>
 
-                      <span className="w-8 h-8 rounded-xl bg-[#0F5244] text-white flex items-center justify-center font-mono font-black text-xs shrink-0 shadow-2xs">
+                      <span className="w-8 h-8 rounded-xl bg-[var(--color-primary-main)] text-white flex items-center justify-center font-mono font-black text-xs shrink-0 shadow-2xs">
                         0{idx + 1}
                       </span>
 
@@ -149,7 +149,7 @@ export function MilestoneReorderModal({
                             {isAr ? "أسابيع" : "weeks"}
                           </span>
                           {isCompleted && (
-                            <span className="text-emerald-700 font-bold">
+                            <span className="text-brand-dark font-bold">
                               • {isAr ? "مكتملة" : "Completed"}
                             </span>
                           )}
@@ -174,7 +174,7 @@ export function MilestoneReorderModal({
                         title={isAr ? "تقديم للأعلى" : "Move up"}
                         className={`p-2 rounded-xl border font-bold transition-all ${
                           idx > 0
-                            ? "bg-slate-50 hover:bg-emerald-50 hover:border-emerald-300 text-slate-700 hover:text-emerald-800 border-slate-200 active:scale-95 cursor-pointer shadow-2xs"
+                            ? "bg-slate-50 hover:bg-slate-100 hover:border-slate-200 text-slate-700 hover:text-brand-dark border-slate-200 active:scale-95 cursor-pointer shadow-2xs"
                             : "opacity-25 border-transparent text-slate-300 cursor-not-allowed"
                         }`}
                       >
@@ -190,7 +190,7 @@ export function MilestoneReorderModal({
                         title={isAr ? "تأخير للأسفل" : "Move down"}
                         className={`p-2 rounded-xl border font-bold transition-all ${
                           idx < totalCount - 1
-                            ? "bg-slate-50 hover:bg-emerald-50 hover:border-emerald-300 text-slate-700 hover:text-emerald-800 border-slate-200 active:scale-95 cursor-pointer shadow-2xs"
+                            ? "bg-slate-50 hover:bg-slate-100 hover:border-slate-200 text-slate-700 hover:text-brand-dark border-slate-200 active:scale-95 cursor-pointer shadow-2xs"
                             : "opacity-25 border-transparent text-slate-300 cursor-not-allowed"
                         }`}
                       >
@@ -213,7 +213,7 @@ export function MilestoneReorderModal({
               <button
                 type="button"
                 onClick={onClose}
-                className="px-5 py-2 rounded-xl bg-gradient-to-r from-[#0F5244] to-[#146654] hover:from-[#09352C] hover:to-[#0F5244] text-white text-xs font-black shadow-md active:scale-95 transition-all cursor-pointer"
+                className="px-5 py-2 rounded-xl bg-gradient-to-r from-[var(--color-primary-main)] to-[var(--color-primary-main)] hover:from-[#09352C] hover:to-[var(--color-primary-main)] text-white text-xs font-black shadow-md active:scale-95 transition-all cursor-pointer"
               >
                 {isAr ? "تم وحفظ الترتيب" : "Done / Save Order"}
               </button>

@@ -116,7 +116,7 @@ export function StudioStepCurriculum({
             {isSaving ? (
               <Loader2 className="w-3.5 h-3.5 animate-spin" />
             ) : (
-              <Save className="w-3.5 h-3.5 text-[#0F5244]" />
+              <Save className="w-3.5 h-3.5 text-[var(--color-primary-main)]" />
             )}
             <span>{t("saveDraft")}</span>
           </button>
@@ -125,7 +125,7 @@ export function StudioStepCurriculum({
             <button
               type="button"
               onClick={addSection}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#0F5244] hover:bg-[#07382E] text-white text-xs font-extrabold shadow-sm transition-all cursor-pointer w-fit"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-brand-dark hover:bg-[#07382E] text-white text-xs font-extrabold shadow-sm transition-all cursor-pointer w-fit"
             >
               <Plus size={16} />
               <span>{t("addSectionBtn")}</span>
@@ -170,7 +170,7 @@ export function StudioStepCurriculum({
                 <button
                   type="button"
                   onClick={addSection}
-                  className="mt-2 px-5 py-2.5 rounded-2xl bg-[#0F5244] text-white text-xs font-extrabold flex items-center gap-2 shadow-sm"
+                  className="mt-2 px-5 py-2.5 rounded-2xl bg-brand-dark text-white text-xs font-extrabold flex items-center gap-2 shadow-sm"
                 >
                   <Plus size={16} />
                   <span>{t("addSectionBtn")}</span>
@@ -218,7 +218,7 @@ export function StudioStepCurriculum({
                             className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
                               sIdx === 0
                                 ? "opacity-30 cursor-not-allowed text-slate-400"
-                                : "text-slate-600 hover:text-[#0F5244] hover:bg-white"
+                                : "text-slate-600 hover:text-[var(--color-primary-main)] hover:bg-white"
                             }`}
                             title={
                               isAr
@@ -235,7 +235,7 @@ export function StudioStepCurriculum({
                             className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
                               sIdx === sections.length - 1
                                 ? "opacity-30 cursor-not-allowed text-slate-400"
-                                : "text-slate-600 hover:text-[#0F5244] hover:bg-white"
+                                : "text-slate-600 hover:text-[var(--color-primary-main)] hover:bg-white"
                             }`}
                             title={
                               isAr
@@ -269,7 +269,7 @@ export function StudioStepCurriculum({
                               );
                             }
                           }}
-                          className="p-2 text-slate-500 hover:text-[#0F5244] rounded-xl hover:bg-emerald-50 transition-colors cursor-pointer"
+                          className="p-2 text-slate-500 hover:text-[var(--color-primary-main)] rounded-xl hover:bg-slate-100 transition-colors cursor-pointer"
                           title={t("editSectionTitlePrompt")}
                         >
                           <Edit2 size={15} />
@@ -320,7 +320,7 @@ export function StudioStepCurriculum({
                             <div
                               className={`flex h-8 w-8 items-center justify-center rounded-xl shrink-0 ${
                                 hasVideo
-                                  ? "bg-emerald-100 text-[#0F5244]"
+                                  ? "bg-slate-200 text-[var(--color-primary-main)]"
                                   : "bg-rose-100 text-rose-600"
                               }`}
                             >
@@ -334,7 +334,7 @@ export function StudioStepCurriculum({
                               </span>
                               <div className="flex items-center gap-2 mt-0.5 flex-wrap">
                                 {hasVideo ? (
-                                  <span className="inline-flex items-center gap-1 text-[10px] font-extrabold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
+                                  <span className="inline-flex items-center gap-1 text-[10px] font-extrabold text-[var(--color-primary-main)] bg-slate-100 px-2 py-0.5 rounded-md border border-slate-200">
                                     <Check size={10} />
                                     {lesson.video_public_id
                                       ? t("uploadedCloudinaryVideo")
@@ -372,7 +372,7 @@ export function StudioStepCurriculum({
                                   }
                                   className={`px-2 py-1 rounded-lg text-[10px] font-extrabold border transition-all cursor-pointer ${
                                     lesson.is_preview
-                                      ? "bg-emerald-50 text-emerald-700 border-emerald-300 hover:bg-emerald-100"
+                                      ? "bg-slate-100 text-[var(--color-primary-main)] border-slate-300 hover:bg-slate-200"
                                       : "bg-slate-50 text-slate-500 border-slate-200 hover:bg-slate-100"
                                   }`}
                                   title={
@@ -399,7 +399,7 @@ export function StudioStepCurriculum({
                                     className={`p-1 rounded transition-colors cursor-pointer ${
                                       lIdx === 0
                                         ? "opacity-30 cursor-not-allowed text-slate-400"
-                                        : "text-slate-600 hover:text-[#0F5244] hover:bg-white"
+                                        : "text-slate-600 hover:text-[var(--color-primary-main)] hover:bg-white"
                                     }`}
                                     title={
                                       isAr
@@ -420,7 +420,7 @@ export function StudioStepCurriculum({
                                     className={`p-1 rounded transition-colors cursor-pointer ${
                                       lIdx === section.lessons.length - 1
                                         ? "opacity-30 cursor-not-allowed text-slate-400"
-                                        : "text-slate-600 hover:text-[#0F5244] hover:bg-white"
+                                        : "text-slate-600 hover:text-[var(--color-primary-main)] hover:bg-white"
                                     }`}
                                     title={
                                       isAr
@@ -442,7 +442,7 @@ export function StudioStepCurriculum({
                                   }
                                   className={`px-3 py-1.5 rounded-xl font-bold text-xs flex items-center gap-1.5 transition-all cursor-pointer ${
                                     hasVideo
-                                      ? "bg-slate-100 hover:bg-[#0F5244] hover:text-white text-slate-700"
+                                      ? "bg-slate-100 hover:bg-brand-dark hover:text-white text-slate-700"
                                       : "bg-rose-600 text-white shadow-xs hover:bg-rose-700"
                                   }`}
                                 >
@@ -469,7 +469,7 @@ export function StudioStepCurriculum({
                               <button
                                 type="button"
                                 onClick={() => setShowPreviewModal(true)}
-                                className="px-3 py-1.5 rounded-xl font-bold text-xs flex items-center gap-1.5 bg-emerald-50 text-emerald-800 border border-emerald-200 transition-all cursor-pointer"
+                                className="px-3 py-1.5 rounded-xl font-bold text-xs flex items-center gap-1.5 bg-slate-100 text-[var(--color-primary-main)] border border-slate-200 transition-all cursor-pointer"
                               >
                                 <PlayCircle size={13} />
                                 <span>{t("previewBtn")}</span>
@@ -485,7 +485,7 @@ export function StudioStepCurriculum({
                       <button
                         type="button"
                         onClick={() => openAddLessonModal(section.id)}
-                        className="w-full mt-2 py-2.5 rounded-2xl border-2 border-dashed border-slate-200 text-slate-600 hover:border-[#0F5244] hover:text-[#0F5244] hover:bg-emerald-50/40 text-xs font-extrabold flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+                        className="w-full mt-2 py-2.5 rounded-2xl border-2 border-dashed border-slate-200 text-slate-600 hover:border-brand-dark hover:text-[var(--color-primary-main)] hover:bg-slate-100/40 text-xs font-extrabold flex items-center justify-center gap-1.5 transition-all cursor-pointer"
                       >
                         <Plus size={14} />
                         <span>{t("addVideoLesson")}</span>
@@ -505,13 +505,13 @@ export function StudioStepCurriculum({
             onKeyDown={(e) => {
               if (e.key === "Enter" || e.key === " ") addSection();
             }}
-            className="rounded-3xl border-2 border-dashed border-slate-300 bg-slate-100/40 p-6 text-center hover:border-[#0F5244] hover:bg-emerald-50/30 transition-all cursor-pointer flex flex-col items-center justify-center gap-2 group"
+            className="rounded-3xl border-2 border-dashed border-slate-300 bg-slate-100/40 p-6 text-center hover:border-brand-dark hover:bg-slate-100/30 transition-all cursor-pointer flex flex-col items-center justify-center gap-2 group"
           >
             <Plus
               size={22}
-              className="text-slate-500 group-hover:text-[#0F5244] transition-colors"
+              className="text-slate-500 group-hover:text-[var(--color-primary-main)] transition-colors"
             />
-            <span className="text-xs sm:text-sm font-extrabold text-slate-700 group-hover:text-[#0F5244]">
+            <span className="text-xs sm:text-sm font-extrabold text-slate-700 group-hover:text-[var(--color-primary-main)]">
               {t("clickToAddSection")}
             </span>
           </div>
@@ -528,7 +528,7 @@ export function StudioStepCurriculum({
               <span className="font-bold text-slate-600">
                 {t("totalSections")}
               </span>
-              <span className="font-black text-[#0F5244] text-sm">
+              <span className="font-black text-[var(--color-primary-main)] text-sm">
                 {sections.length}
               </span>
             </div>
@@ -537,7 +537,7 @@ export function StudioStepCurriculum({
               <span className="font-bold text-slate-600">
                 {t("totalLessons")}
               </span>
-              <span className="font-black text-[#0F5244] text-sm">
+              <span className="font-black text-[var(--color-primary-main)] text-sm">
                 {totalLessonsCount}
               </span>
             </div>
@@ -555,7 +555,7 @@ export function StudioStepCurriculum({
           {/* Validation Status Box */}
           <div className="pt-2 border-t border-slate-100 space-y-2">
             <div
-              className={`flex items-center gap-2 text-xs font-extrabold ${sections.length > 0 ? "text-emerald-700" : "text-rose-600"}`}
+              className={`flex items-center gap-2 text-xs font-extrabold ${sections.length > 0 ? "text-[var(--color-primary-main)]" : "text-rose-600"}`}
             >
               {sections.length > 0 ? (
                 <CheckCircle2 size={16} />
@@ -566,7 +566,7 @@ export function StudioStepCurriculum({
             </div>
 
             <div
-              className={`flex items-center gap-2 text-xs font-extrabold ${totalLessonsCount > 0 && totalVideosAttachedCount === totalLessonsCount ? "text-emerald-700" : "text-rose-600"}`}
+              className={`flex items-center gap-2 text-xs font-extrabold ${totalLessonsCount > 0 && totalVideosAttachedCount === totalLessonsCount ? "text-[var(--color-primary-main)]" : "text-rose-600"}`}
             >
               {totalLessonsCount > 0 &&
               totalVideosAttachedCount === totalLessonsCount ? (
@@ -626,7 +626,7 @@ export function StudioStepCurriculum({
         <button
           type="button"
           onClick={handleContinueToReview}
-          className="px-6 py-3 rounded-2xl bg-[#0F5244] hover:bg-[#07382E] text-white text-xs sm:text-sm font-extrabold flex items-center gap-2 shadow-md hover:shadow-lg transition-all cursor-pointer"
+          className="px-6 py-3 rounded-2xl bg-brand-dark hover:bg-[#07382E] text-white text-xs sm:text-sm font-extrabold flex items-center gap-2 shadow-md hover:shadow-lg transition-all cursor-pointer"
         >
           <span>{t("continueToReview")}</span>
           <ArrowRight className="w-4 h-4 rtl:rotate-180" />

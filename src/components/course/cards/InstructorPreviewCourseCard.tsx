@@ -23,7 +23,7 @@ export const InstructorPreviewCourseCard: React.FC<CourseCardProps> = (props) =>
 
   return (
     <div
-      className={`bg-white rounded-3xl p-5 border border-slate-200/80 shadow-2xs hover:shadow-md hover:border-[#0F5244]/30 transition-all duration-300 flex flex-col justify-between group ${className}`}
+      className={`bg-white rounded-3xl p-5 border border-slate-200/80 shadow-2xs hover:shadow-md hover:border-brand-dark/30 transition-all duration-300 flex flex-col justify-between group ${className}`}
     >
       <div>
         {/* Thumbnail */}
@@ -66,7 +66,7 @@ export const InstructorPreviewCourseCard: React.FC<CourseCardProps> = (props) =>
             </span>
           </div>
         )}
-        <h3 className="text-base font-black text-slate-900 line-clamp-2 leading-snug group-hover:text-[#0F5244] transition-colors mb-3">
+        <h3 className="text-base font-black text-slate-900 line-clamp-2 leading-snug group-hover:text-[var(--color-primary-main)] transition-colors mb-3">
           {displayTitle}
         </h3>
       </div>
@@ -82,7 +82,7 @@ export const InstructorPreviewCourseCard: React.FC<CourseCardProps> = (props) =>
 
         <Link
           href={`/${currentLocale}/instructor/courses/create?id=${course.id}`}
-          className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-800 hover:text-[#0F5244] bg-slate-50 hover:bg-emerald-50 px-3 py-1.5 rounded-lg border border-slate-200/80 transition-all cursor-pointer"
+          className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-800 hover:text-[var(--color-primary-main)] bg-slate-50 hover:bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200/80 transition-all cursor-pointer"
         >
           <Edit className="w-3.5 h-3.5 text-slate-500" />
           <span>{isAr ? "فتح استوديو الكورس" : "Open Course Studio"}</span>

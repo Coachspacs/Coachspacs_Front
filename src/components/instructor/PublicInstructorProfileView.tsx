@@ -414,17 +414,17 @@ export function PublicInstructorProfileView({ instructor: initialInstructor }: P
       <div className="border-b border-slate-200/70 bg-white sticky top-0 z-30 shadow-2xs backdrop-blur-md bg-white/95">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
           <nav className="flex items-center gap-2 text-xs font-medium text-slate-500 overflow-x-auto whitespace-nowrap">
-            <Link href={`/${locale}`} className="hover:text-[#0F5244] transition-colors">
+            <Link href={`/${locale}`} className="hover:text-[var(--color-primary-main)] transition-colors">
               {t("breadcrumbHome")}
             </Link>
             <ChevronRight className="h-3.5 w-3.5 rtl:rotate-180 text-slate-300 shrink-0" />
-            <Link href={`/${locale}/courses`} className="hover:text-[#0F5244] transition-colors">
+            <Link href={`/${locale}/courses`} className="hover:text-[var(--color-primary-main)] transition-colors">
               {t("breadcrumbCatalog")}
             </Link>
             <ChevronRight className="h-3.5 w-3.5 rtl:rotate-180 text-slate-300 shrink-0" />
             <span className="text-slate-400">{t("breadcrumbInstructors")}</span>
             <ChevronRight className="h-3.5 w-3.5 rtl:rotate-180 text-slate-300 shrink-0" />
-            <span suppressHydrationWarning className="text-[#0F5244] font-bold truncate max-w-xs sm:max-w-md">
+            <span suppressHydrationWarning className="text-[var(--color-primary-main)] font-bold truncate max-w-xs sm:max-w-md">
               {displayName}
             </span>
           </nav>
@@ -458,7 +458,7 @@ export function PublicInstructorProfileView({ instructor: initialInstructor }: P
                         />
                       </div>
                     ) : (
-                      <div className="w-full h-full bg-gradient-to-b from-[#E6F3EF] to-[#D5EDE6] flex items-center justify-center text-[#0F5244]">
+                      <div className="w-full h-full bg-gradient-to-b from-[#E6F3EF] to-[#D5EDE6] flex items-center justify-center text-[var(--color-primary-main)]">
                         <span suppressHydrationWarning className="text-3xl sm:text-4xl font-extrabold select-none">
                           {initialLetter}
                         </span>
@@ -493,7 +493,7 @@ export function PublicInstructorProfileView({ instructor: initialInstructor }: P
                     )}
 
                     {displayHourlyRate && (
-                      <span suppressHydrationWarning className="inline-flex items-center px-2.5 py-0.5 rounded-lg bg-emerald-50 text-[#0F5244] text-[11px] font-bold border border-emerald-200">
+                      <span suppressHydrationWarning className="inline-flex items-center px-2.5 py-0.5 rounded-lg bg-slate-100 text-[var(--color-primary-main)] text-[11px] font-bold border border-slate-200">
                         {displayHourlyRate}
                       </span>
                     )}
@@ -511,8 +511,8 @@ export function PublicInstructorProfileView({ instructor: initialInstructor }: P
                 >
                   {copied ? (
                     <>
-                      <Check className="h-3.5 w-3.5 text-emerald-600" />
-                      <span className="text-emerald-700">{t("copied")}</span>
+                      <Check className="h-3.5 w-3.5 text-[var(--color-primary-main)]" />
+                      <span className="text-[var(--color-primary-main)]">{t("copied")}</span>
                     </>
                   ) : (
                     <>
@@ -524,7 +524,7 @@ export function PublicInstructorProfileView({ instructor: initialInstructor }: P
 
                 <Link
                   href={`/${locale}/courses`}
-                  className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-5 py-2.5 rounded-xl bg-[#0F5244] hover:bg-[#07382E] text-white text-xs font-bold transition-all shadow-xs active:scale-95"
+                  className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-5 py-2.5 rounded-xl bg-brand-dark hover:bg-[#07382E] text-white text-xs font-bold transition-all shadow-xs active:scale-95"
                 >
                   <BookOpen className="h-3.5 w-3.5 text-[#45D1B4]" />
                   <span>{t("exploreCourses")}</span>
@@ -546,7 +546,7 @@ export function PublicInstructorProfileView({ instructor: initialInstructor }: P
                   {hasQuickStats && (
                     <div className="rounded-2xl border border-slate-200/70 bg-white p-4 sm:p-5 shadow-xs space-y-3">
                       <h4 className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
-                        <Sparkles className="h-3.5 w-3.5 text-[#0F5244]" />
+                        <Sparkles className="h-3.5 w-3.5 text-[var(--color-primary-main)]" />
                         <span>{t("quickHighlights")}</span>
                       </h4>
 
@@ -565,7 +565,7 @@ export function PublicInstructorProfileView({ instructor: initialInstructor }: P
                   {hasSocials && (
                     <div className="rounded-2xl border border-slate-200/70 bg-white p-4 sm:p-5 shadow-xs space-y-3">
                       <h4 className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
-                        <Globe className="h-3.5 w-3.5 text-[#0F5244]" />
+                        <Globe className="h-3.5 w-3.5 text-[var(--color-primary-main)]" />
                         <span>{t("linkedAccounts")}</span>
                       </h4>
                       <div className="space-y-2">
@@ -580,7 +580,7 @@ export function PublicInstructorProfileView({ instructor: initialInstructor }: P
                               <Github className="h-4 w-4 text-slate-800" />
                               <span className="font-bold text-xs text-slate-800">GitHub</span>
                             </div>
-                            <ExternalLink className="h-3 w-3 text-slate-400 group-hover:text-[#0F5244] transition-colors" />
+                            <ExternalLink className="h-3 w-3 text-slate-400 group-hover:text-[var(--color-primary-main)] transition-colors" />
                           </a>
                         )}
 
@@ -595,7 +595,7 @@ export function PublicInstructorProfileView({ instructor: initialInstructor }: P
                               <Linkedin className="h-4 w-4 text-[#0077B5]" />
                               <span className="font-bold text-xs text-slate-800">LinkedIn</span>
                             </div>
-                            <ExternalLink className="h-3 w-3 text-slate-400 group-hover:text-[#0F5244] transition-colors" />
+                            <ExternalLink className="h-3 w-3 text-slate-400 group-hover:text-[var(--color-primary-main)] transition-colors" />
                           </a>
                         )}
 
@@ -610,7 +610,7 @@ export function PublicInstructorProfileView({ instructor: initialInstructor }: P
                               <Twitter className="h-4 w-4 text-[#1DA1F2]" />
                               <span className="font-bold text-xs text-slate-800">Twitter / X</span>
                             </div>
-                            <ExternalLink className="h-3 w-3 text-slate-400 group-hover:text-[#0F5244] transition-colors" />
+                            <ExternalLink className="h-3 w-3 text-slate-400 group-hover:text-[var(--color-primary-main)] transition-colors" />
                           </a>
                         )}
 
@@ -622,10 +622,10 @@ export function PublicInstructorProfileView({ instructor: initialInstructor }: P
                             className="p-2.5 rounded-xl bg-slate-50/70 hover:bg-[#E6F3EF] border border-slate-200/70 hover:border-[#A7E2D4] flex items-center justify-between transition-all shadow-2xs group cursor-pointer"
                           >
                             <div className="flex items-center gap-2">
-                              <Globe className="h-4 w-4 text-[#0F5244]" />
+                              <Globe className="h-4 w-4 text-[var(--color-primary-main)]" />
                               <span className="font-bold text-xs text-slate-800">{t("website")}</span>
                             </div>
-                            <ExternalLink className="h-3 w-3 text-slate-400 group-hover:text-[#0F5244] transition-colors" />
+                            <ExternalLink className="h-3 w-3 text-slate-400 group-hover:text-[var(--color-primary-main)] transition-colors" />
                           </a>
                         )}
 
@@ -635,10 +635,10 @@ export function PublicInstructorProfileView({ instructor: initialInstructor }: P
                             className="p-2.5 rounded-xl bg-slate-50/70 hover:bg-[#E6F3EF] border border-slate-200/70 hover:border-[#A7E2D4] flex items-center justify-between transition-all shadow-2xs group cursor-pointer"
                           >
                             <div className="flex items-center gap-2 min-w-0">
-                              <Mail className="h-4 w-4 text-[#0F5244] shrink-0" />
+                              <Mail className="h-4 w-4 text-[var(--color-primary-main)] shrink-0" />
                               <span className="font-bold text-xs text-slate-800 truncate">{socials.email}</span>
                             </div>
-                            <ExternalLink className="h-3 w-3 text-slate-400 group-hover:text-[#0F5244] transition-colors shrink-0" />
+                            <ExternalLink className="h-3 w-3 text-slate-400 group-hover:text-[var(--color-primary-main)] transition-colors shrink-0" />
                           </a>
                         )}
                       </div>
@@ -656,7 +656,7 @@ export function PublicInstructorProfileView({ instructor: initialInstructor }: P
               {displayBio && (
                 <div className="space-y-3">
                   <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
-                    <Quote className="h-4 w-4 text-[#0F5244]" />
+                    <Quote className="h-4 w-4 text-[var(--color-primary-main)]" />
                     <h3 className="text-base font-bold text-slate-900 tracking-tight">
                       {t("aboutCoach")}
                     </h3>
@@ -677,7 +677,7 @@ export function PublicInstructorProfileView({ instructor: initialInstructor }: P
               <div className="space-y-4 pt-1">
                 <div className="flex items-center justify-between border-b border-slate-100 pb-3 flex-wrap gap-2">
                   <div className="flex items-center gap-2">
-                    <BookOpen className="h-4 w-4 text-[#0F5244]" />
+                    <BookOpen className="h-4 w-4 text-[var(--color-primary-main)]" />
                     <h3 className="text-base font-bold text-slate-900 tracking-tight">
                       {t("coursesTitle", { count: courses.length })}
                     </h3>
@@ -713,7 +713,7 @@ export function PublicInstructorProfileView({ instructor: initialInstructor }: P
                 {courses.length === 0 ? (
                   /* Compact & Clean Empty state for courses */
                   <div className="rounded-2xl border border-dashed border-slate-200/90 bg-slate-50/50 p-6 sm:p-7 text-center space-y-3">
-                    <div className="w-11 h-11 rounded-xl bg-emerald-50 text-[#0F5244] border border-emerald-100 flex items-center justify-center mx-auto shadow-2xs">
+                    <div className="w-11 h-11 rounded-xl bg-slate-100 text-[var(--color-primary-main)] border border-slate-100 flex items-center justify-center mx-auto shadow-2xs">
                       <BookOpen className="h-5 w-5" />
                     </div>
                     <div className="space-y-1">
@@ -726,7 +726,7 @@ export function PublicInstructorProfileView({ instructor: initialInstructor }: P
                     </div>
                     <Link
                       href={`/${locale}/courses`}
-                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#0F5244] hover:bg-[#07382E] text-white text-xs font-bold transition-all shadow-2xs active:scale-95"
+                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-brand-dark hover:bg-[#07382E] text-white text-xs font-bold transition-all shadow-2xs active:scale-95"
                     >
                       <span>{t("browseCatalog")}</span>
                       <ArrowRight className="h-3 w-3 rtl:rotate-180" />
@@ -772,7 +772,7 @@ export function PublicInstructorProfileView({ instructor: initialInstructor }: P
               {displaySkills.length > 0 && (
                 <div className="space-y-3.5 pt-1">
                   <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
-                    <Layers className="h-4 w-4 text-[#0F5244]" />
+                    <Layers className="h-4 w-4 text-[var(--color-primary-main)]" />
                     <h3 className="text-base font-bold text-slate-900 tracking-tight">
                       {t("skillsTitle")}
                     </h3>
@@ -783,7 +783,7 @@ export function PublicInstructorProfileView({ instructor: initialInstructor }: P
                     {displaySkills.map((skill, index) => (
                       <span
                         key={index}
-                        className="inline-flex items-center px-3.5 py-1.5 rounded-xl bg-emerald-50/80 hover:bg-emerald-100/70 text-emerald-800 border border-emerald-200/60 hover:border-emerald-300 text-xs font-medium transition-all duration-150 shadow-2xs"
+                        className="inline-flex items-center px-3.5 py-1.5 rounded-xl bg-slate-100/80 hover:bg-slate-200/70 text-[var(--color-primary-main)] border border-slate-200/60 hover:border-slate-300 text-xs font-medium transition-all duration-150 shadow-2xs"
                       >
                         {skill}
                       </span>

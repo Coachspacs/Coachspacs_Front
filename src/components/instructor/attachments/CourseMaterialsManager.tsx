@@ -218,7 +218,7 @@ export function CourseMaterialsManager({
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-emerald-50 text-[#0F5244] flex items-center justify-center shrink-0">
+            <div className="w-8 h-8 rounded-xl bg-slate-100 text-[var(--color-primary-main)] flex items-center justify-center shrink-0">
               <Paperclip size={18} />
             </div>
             <h3 className="font-extrabold text-slate-900 text-base sm:text-lg">
@@ -250,7 +250,7 @@ export function CourseMaterialsManager({
               type="button"
               onClick={() => fileInputRef.current?.click()}
               disabled={isUploading || !courseId}
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#0F5244] hover:bg-[#07382E] text-white text-xs font-bold shadow-xs hover:shadow transition-all cursor-pointer disabled:opacity-50 disabled:pointer-events-none active:scale-[0.98]"
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-brand-dark hover:bg-[#07382E] text-white text-xs font-bold shadow-xs hover:shadow transition-all cursor-pointer disabled:opacity-50 disabled:pointer-events-none active:scale-[0.98]"
             >
               {isUploading ? (
                 <>
@@ -280,10 +280,10 @@ export function CourseMaterialsManager({
 
       {/* Upload Progress Bar Banner */}
       {isUploading && (
-        <div className="p-4 rounded-2xl bg-emerald-50/80 border border-emerald-200/80 space-y-2 animate-in fade-in">
-          <div className="flex items-center justify-between text-xs font-bold text-[#0F5244] gap-2">
+        <div className="p-4 rounded-2xl bg-slate-100/80 border border-slate-200/80 space-y-2 animate-in fade-in">
+          <div className="flex items-center justify-between text-xs font-bold text-[var(--color-primary-main)] gap-2">
             <div className="flex items-center gap-2 min-w-0">
-              <Loader2 size={14} className="animate-spin shrink-0 text-[#0F5244]" />
+              <Loader2 size={14} className="animate-spin shrink-0 text-[var(--color-primary-main)]" />
               <span className="truncate">
                 {uploadStatus === "signing" && (isAr ? "جلب توقيع الأمان..." : "Authenticating with Cloudinary...")}
                 {uploadStatus === "uploading" && (isAr ? `جار الرفع إلى Cloudinary... (${progress}%)` : `Uploading directly to Cloudinary... (${progress}%)`)}
@@ -313,9 +313,9 @@ export function CourseMaterialsManager({
             </div>
           </div>
 
-          <div className="w-full h-2 rounded-full bg-emerald-200/60 overflow-hidden">
+          <div className="w-full h-2 rounded-full bg-slate-200/60 overflow-hidden">
             <div
-              className="h-full bg-[#0F5244] transition-all duration-300 rounded-full"
+              className="h-full bg-brand-dark transition-all duration-300 rounded-full"
               style={{ width: `${progress}%` }}
             />
           </div>
@@ -327,7 +327,7 @@ export function CourseMaterialsManager({
         <div
           className={`p-3 rounded-xl text-xs font-semibold flex items-center justify-between gap-2 animate-in fade-in ${
             feedbackMsg.type === "success"
-              ? "bg-emerald-50 border border-emerald-200 text-emerald-800"
+              ? "bg-slate-100 border border-slate-200 text-[var(--color-primary-main)]"
               : "bg-rose-50 border border-rose-200 text-rose-800"
           }`}
         >
@@ -348,13 +348,13 @@ export function CourseMaterialsManager({
       {/* Attachments List */}
       {isLoading ? (
         <div className="py-8 flex flex-col items-center justify-center gap-2 text-slate-400">
-          <Loader2 size={24} className="animate-spin text-[#0F5244]" />
+          <Loader2 size={24} className="animate-spin text-[var(--color-primary-main)]" />
           <span className="text-xs font-medium">{isAr ? "جار تحميل الملفات..." : "Loading materials..."}</span>
         </div>
       ) : attachments.length === 0 ? (
         <div
           onClick={() => !readOnly && fileInputRef.current?.click()}
-          className={`py-8 px-4 rounded-2xl border-2 border-dashed border-slate-200 hover:border-[#0F5244] bg-slate-50/50 hover:bg-emerald-50/20 text-center flex flex-col items-center justify-center gap-2 transition-all ${
+          className={`py-8 px-4 rounded-2xl border-2 border-dashed border-slate-200 hover:border-brand-dark bg-slate-50/50 hover:bg-slate-100/20 text-center flex flex-col items-center justify-center gap-2 transition-all ${
             !readOnly ? "cursor-pointer" : ""
           }`}
         >
@@ -401,13 +401,13 @@ export function CourseMaterialsManager({
                         }}
                         autoFocus
                         disabled={isSavingName}
-                        className="flex-1 px-3 py-1.5 rounded-lg border border-[#0F5244] bg-white text-xs font-bold text-slate-800 focus:outline-none shadow-2xs"
+                        className="flex-1 px-3 py-1.5 rounded-lg border border-brand-dark bg-white text-xs font-bold text-slate-800 focus:outline-none shadow-2xs"
                       />
                       <button
                         type="button"
                         onClick={() => handleSaveRename(item.id)}
                         disabled={isSavingName}
-                        className="p-1.5 rounded-lg bg-[#0F5244] text-white hover:bg-[#07382E] cursor-pointer"
+                        className="p-1.5 rounded-lg bg-brand-dark text-white hover:bg-[#07382E] cursor-pointer"
                         title={isAr ? "حفظ" : "Save"}
                       >
                         {isSavingName ? <Loader2 size={14} className="animate-spin" /> : <Check size={14} />}
@@ -449,7 +449,7 @@ export function CourseMaterialsManager({
                       type="button"
                       onClick={() => handleDownload(item)}
                       title={isAr ? "تحميل الملف" : "Download file"}
-                      className="p-2 rounded-xl text-slate-600 hover:text-[#0F5244] hover:bg-white border border-transparent hover:border-slate-200 transition-all cursor-pointer"
+                      className="p-2 rounded-xl text-slate-600 hover:text-[var(--color-primary-main)] hover:bg-white border border-transparent hover:border-slate-200 transition-all cursor-pointer"
                     >
                       <Download size={15} />
                     </button>

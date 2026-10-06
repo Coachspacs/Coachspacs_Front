@@ -237,7 +237,7 @@ export function CartView({ items, onRemoveItem, onCheckout }: CartViewProps) {
           <div className="pt-2">
             <Link
               href={`/${locale}/courses`}
-              className="px-6 py-3.5 rounded-2xl bg-[#0F5244] hover:bg-[#07382E] text-white text-xs sm:text-sm font-extrabold shadow-sm hover:shadow-md active:scale-98 transition-all inline-flex items-center justify-center gap-2 cursor-pointer"
+              className="px-6 py-3.5 rounded-2xl bg-brand-dark hover:bg-[#07382E] text-white text-xs sm:text-sm font-extrabold shadow-sm hover:shadow-md active:scale-98 transition-all inline-flex items-center justify-center gap-2 cursor-pointer"
             >
               <Search className="h-4 w-4 shrink-0" />
               <span>{t("browseCatalog")}</span>
@@ -261,7 +261,7 @@ export function CartView({ items, onRemoveItem, onCheckout }: CartViewProps) {
                     alt={item.title}
                   />
                   <div className="space-y-1 min-w-0">
-                    <h3 className="text-base sm:text-lg font-black text-slate-900 line-clamp-1 tracking-tight group-hover:text-[#0F5244] transition-colors">
+                    <h3 className="text-base sm:text-lg font-black text-slate-900 line-clamp-1 tracking-tight group-hover:text-brand-dark transition-colors">
                       {item.title}
                     </h3>
                     <p className="text-xs sm:text-sm font-medium text-slate-400">
@@ -273,7 +273,7 @@ export function CartView({ items, onRemoveItem, onCheckout }: CartViewProps) {
 
                 {/* Price & Delete Action */}
                 <div className="flex sm:flex-col items-center sm:items-end justify-between w-full sm:w-auto pt-3 sm:pt-0 border-t sm:border-t-0 border-slate-100 gap-2">
-                  <span className="text-xl sm:text-2xl font-black text-[#0F5244]">
+                  <span className="text-xl sm:text-2xl font-black text-brand-dark">
                     ${item.price.toFixed(2)}
                   </span>
                   <button
@@ -314,7 +314,7 @@ export function CartView({ items, onRemoveItem, onCheckout }: CartViewProps) {
                 <span className="text-base sm:text-lg font-black text-slate-900">
                   {t("total")}
                 </span>
-                <span className="text-2xl sm:text-3xl font-black text-[#0F5244]">
+                <span className="text-2xl sm:text-3xl font-black text-brand-dark">
                   ${totalPrice.toFixed(2)}
                 </span>
               </div>
@@ -331,7 +331,7 @@ export function CartView({ items, onRemoveItem, onCheckout }: CartViewProps) {
                   type="button"
                   onClick={handleCheckoutClick}
                   disabled={isProcessingCheckout || displayItems.length === 0}
-                  className="w-full py-3.5 px-6 rounded-2xl bg-[#0F5244] hover:bg-[#07382E] active:scale-98 text-white text-xs sm:text-sm font-extrabold cursor-pointer flex items-center justify-center gap-2 transition-all shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full py-3.5 px-6 rounded-2xl bg-brand-dark hover:bg-[#07382E] active:scale-98 text-white text-xs sm:text-sm font-extrabold cursor-pointer flex items-center justify-center gap-2 transition-all shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isProcessingCheckout ? (
                     <>

@@ -81,7 +81,7 @@ function ConfirmEmailContent() {
       className="min-h-screen bg-[#F0FDF4] flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative overflow-hidden"
     >
       {/* Decorative Background Elements */}
-      <div className="absolute top-0 right-1/4 w-96 h-96 bg-emerald-200/40 rounded-full blur-3xl pointer-events-none -translate-y-1/2" />
+      <div className="absolute top-0 right-1/4 w-96 h-96 bg-slate-200/40 rounded-full blur-3xl pointer-events-none -translate-y-1/2" />
       <div className="absolute bottom-0 left-1/4 w-96 h-96 bg-[#6CF8BB]/20 rounded-full blur-3xl pointer-events-none translate-y-1/2" />
 
       <div className="sm:mx-auto sm:w-full sm:max-w-md text-center z-10">
@@ -91,12 +91,12 @@ function ConfirmEmailContent() {
       </div>
 
       <div className="mt-2 sm:mx-auto sm:w-full sm:max-w-lg z-10 px-4">
-        <div className="bg-white py-10 px-6 sm:px-10 shadow-2xl shadow-emerald-950/5 rounded-3xl border border-slate-200/80 text-center space-y-6">
+        <div className="bg-white py-10 px-6 sm:px-10 shadow-2xl shadow-brand-dark/5 rounded-3xl border border-slate-200/80 text-center space-y-6">
           
           {/* STATE 1: Confirming / Loading */}
           {confirming && (
             <div className="space-y-6 py-8">
-              <div className="relative mx-auto w-20 h-20 rounded-full bg-emerald-50 border-2 border-emerald-200 flex items-center justify-center text-[#0F5244]">
+              <div className="relative mx-auto w-20 h-20 rounded-full bg-slate-50 border-2 border-slate-200 flex items-center justify-center text-brand-dark">
                 <Loader2 className="w-10 h-10 animate-spin" />
               </div>
               <div className="space-y-2">
@@ -113,7 +113,7 @@ function ConfirmEmailContent() {
           {/* STATE 2: Confirmation Success */}
           {!confirming && confirmedSuccess && (
             <div className="space-y-6 py-4 animate-in fade-in zoom-in-95 duration-200">
-              <div className="mx-auto w-20 h-20 rounded-full bg-emerald-100 border-4 border-emerald-200 text-[#0F5244] flex items-center justify-center shadow-md">
+              <div className="mx-auto w-20 h-20 rounded-full bg-slate-100 border-4 border-slate-200 text-brand-dark flex items-center justify-center shadow-md">
                 <CheckCircle2 className="w-10 h-10" />
               </div>
               <div className="space-y-2">
@@ -128,7 +128,7 @@ function ConfirmEmailContent() {
               <div className="pt-4 flex flex-col sm:flex-row gap-3 justify-center">
                 <Link
                   href={`/${locale}/login`}
-                  className="w-full py-3.5 px-6 rounded-2xl bg-[#0F5244] hover:bg-[#07382E] text-white text-sm font-extrabold shadow-md hover:shadow-lg transition-all active:scale-98 inline-flex items-center justify-center gap-2"
+                  className="w-full py-3.5 px-6 rounded-2xl bg-brand-dark hover:bg-[#07382E] text-white text-sm font-extrabold shadow-md hover:shadow-lg transition-all active:scale-98 inline-flex items-center justify-center gap-2"
                 >
                   <span>{t("login")}</span>
                   <ArrowRight className="w-4 h-4 rtl:rotate-180" />
@@ -161,7 +161,7 @@ function ConfirmEmailContent() {
               <div className="pt-4">
                 <Link
                   href={`/${locale}/account`}
-                  className="w-full py-3.5 px-6 rounded-2xl bg-[#0F5244] hover:bg-[#07382E] text-white text-sm font-extrabold shadow-md hover:shadow-lg transition-all active:scale-98 inline-flex items-center justify-center gap-2"
+                  className="w-full py-3.5 px-6 rounded-2xl bg-brand-dark hover:bg-[#07382E] text-white text-sm font-extrabold shadow-md hover:shadow-lg transition-all active:scale-98 inline-flex items-center justify-center gap-2"
                 >
                   <span>{t("backToSettings")}</span>
                   <ArrowRight className="w-4 h-4 rtl:rotate-180" />
@@ -181,7 +181,7 @@ export default function ConfirmEmailPage() {
     <Suspense
       fallback={
         <div className="min-h-screen bg-[#F0FDF4] flex items-center justify-center">
-          <Loader2 className="w-8 h-8 text-[#0F5244] animate-spin" />
+          <Loader2 className="w-8 h-8 text-brand-dark animate-spin" />
         </div>
       }
     >

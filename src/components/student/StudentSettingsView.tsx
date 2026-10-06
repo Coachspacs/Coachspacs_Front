@@ -169,9 +169,9 @@ export function StudentSettingsView() {
       case 2:
         return { score: 2, label: tStudent("fairPassword"), color: "bg-amber-500", text: "text-amber-600" };
       case 3:
-        return { score: 3, label: tStudent("goodPassword"), color: "bg-emerald-500", text: "text-emerald-600" };
+        return { score: 3, label: tStudent("goodPassword"), color: "bg-slate-1000", text: "text-[var(--color-primary-main)]" };
       case 4:
-        return { score: 4, label: tStudent("strongPassword"), color: "bg-emerald-600", text: "text-emerald-700" };
+        return { score: 4, label: tStudent("strongPassword"), color: "bg-[var(--color-primary-dark)]", text: "text-[var(--color-primary-main)]" };
       default:
         return { score: 0, label: "", color: "bg-slate-200", text: "text-slate-400" };
     }
@@ -308,7 +308,7 @@ export function StudentSettingsView() {
       {/* Toast Feedback */}
       {toastMessage && (
         <div className="fixed bottom-6 right-6 rtl:right-auto rtl:left-6 z-50 flex items-center gap-3 bg-slate-900/95 backdrop-blur-md text-white px-5 py-3.5 rounded-2xl shadow-2xl border border-slate-700 animate-in slide-in-from-bottom-5 duration-300">
-          <div className="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
+          <div className="w-8 h-8 rounded-xl bg-slate-1000/20 text-[var(--color-primary-main)] flex items-center justify-center shrink-0">
             <CheckCircle2 className="h-5 w-5" />
           </div>
           <div className="space-y-0.5">
@@ -346,8 +346,8 @@ export function StudentSettingsView() {
           {/* ================= ULTRA-MODERN HEADER ================= */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-100">
             <div className="space-y-1">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200/60 text-emerald-800 text-[11px] font-extrabold">
-                <Sparkles className="h-3.5 w-3.5 text-emerald-600 animate-pulse" />
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-100 border border-slate-200/60 text-[var(--color-primary-main)] text-[11px] font-extrabold">
+                <Sparkles className="h-3.5 w-3.5 text-[var(--color-primary-main)] animate-pulse" />
                 <span>{tStudent("hubTitle")}</span>
               </div>
               <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
@@ -371,12 +371,12 @@ export function StudentSettingsView() {
                   onClick={() => setActiveTab(tab.id)}
                   className={`group relative flex-1 min-w-fit sm:min-w-0 flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-xs sm:text-sm font-extrabold transition-all duration-200 cursor-pointer whitespace-nowrap shrink-0 sm:shrink ${
                     active
-                      ? "bg-white text-emerald-800 shadow-sm border border-emerald-200/80 font-black"
+                      ? "bg-white text-[var(--color-primary-main)] shadow-sm border border-slate-200/80 font-black"
                       : "text-slate-600 hover:text-slate-900 hover:bg-white/60 font-bold"
                   }`}
                 >
                   <div className={`w-6 h-6 sm:w-7 sm:h-7 rounded-lg flex items-center justify-center shrink-0 transition-all ${
-                    active ? "bg-emerald-50 text-emerald-700" : "bg-transparent text-slate-400 group-hover:text-slate-600"
+                    active ? "bg-slate-100 text-[var(--color-primary-main)]" : "bg-transparent text-slate-400 group-hover:text-slate-600"
                   }`}>
                     <Icon className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                   </div>
@@ -391,10 +391,10 @@ export function StudentSettingsView() {
             <div key="profile" className="space-y-6 sm:space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
               
               {/* Avatar Upload Card with Interactive Hover */}
-              <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6 p-4 sm:p-6 rounded-2xl bg-gradient-to-br from-emerald-50/60 via-slate-50/70 to-emerald-50/30 border border-emerald-100/90 shadow-2xs">
+              <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6 p-4 sm:p-6 rounded-2xl bg-gradient-to-br from-slate-50/60 via-slate-50/70 to-slate-50/30 border border-slate-100/90 shadow-2xs">
                 <div
                   onClick={() => fileInputRef.current?.click()}
-                  className="relative group w-20 h-20 sm:w-24 sm:h-24 lg:w-28 lg:h-28 rounded-full bg-white border-2 border-emerald-300 overflow-hidden shrink-0 shadow-sm hover:shadow-md cursor-pointer flex items-center justify-center transition-transform duration-300 hover:scale-105"
+                  className="relative group w-20 h-20 sm:w-24 sm:h-24 lg:w-28 lg:h-28 rounded-full bg-white border-2 border-slate-300 overflow-hidden shrink-0 shadow-sm hover:shadow-md cursor-pointer flex items-center justify-center transition-transform duration-300 hover:scale-105"
                 >
                   {avatarPreview ? (
                     <Image
@@ -408,7 +408,7 @@ export function StudentSettingsView() {
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                     />
                   ) : (
-                    <span suppressHydrationWarning className="select-none font-black text-2xl sm:text-3xl lg:text-4xl text-emerald-700">
+                    <span suppressHydrationWarning className="select-none font-black text-2xl sm:text-3xl lg:text-4xl text-[var(--color-primary-main)]">
                       {formData.fullName ? formData.fullName.charAt(0).toUpperCase() : "U"}
                     </span>
                   )}
@@ -452,7 +452,7 @@ export function StudentSettingsView() {
                       onClick={() => fileInputRef.current?.click()}
                       className="px-4 py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-800 border border-slate-200 text-xs font-extrabold shadow-2xs hover:shadow-xs active:scale-95 transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
                     >
-                      <Camera className="h-3.5 w-3.5 text-emerald-600" />
+                      <Camera className="h-3.5 w-3.5 text-[var(--color-primary-main)]" />
                       <span>
                         {avatarPreview
                           ? t("changePhoto")
@@ -476,7 +476,7 @@ export function StudentSettingsView() {
                     value={formData.fullName}
                     onChange={handleChange}
                     required
-                    className="w-full h-11 sm:h-12 rounded-xl border border-slate-200/90 bg-slate-50/50 hover:bg-white hover:border-emerald-300 px-4 text-xs sm:text-sm font-semibold text-slate-900 focus:bg-white focus:border-emerald-600 focus:outline-none focus:ring-4 focus:ring-emerald-500/15 transition-all shadow-2xs"
+                    className="w-full h-11 sm:h-12 rounded-xl border border-slate-200/90 bg-slate-50/50 hover:bg-white hover:border-slate-300 px-4 text-xs sm:text-sm font-semibold text-slate-900 focus:bg-white focus:border-[var(--color-primary-main)] focus:outline-none focus:ring-4 focus:ring-[var(--color-primary-main)]/15 transition-all shadow-2xs"
                   />
                 </div>
 
@@ -488,7 +488,7 @@ export function StudentSettingsView() {
                     <button
                       type="button"
                       onClick={() => setShowEmailModal(true)}
-                      className="px-2.5 py-0.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-xs font-black text-emerald-700 transition-colors cursor-pointer"
+                      className="px-2.5 py-0.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-xs font-black text-[var(--color-primary-main)] transition-colors cursor-pointer"
                     >
                       {t("change")}
                     </button>
@@ -511,7 +511,7 @@ export function StudentSettingsView() {
                     name="phone"
                     value={formData.phone}
                     onChange={handleChange}
-                    className="w-full h-11 sm:h-12 rounded-xl border border-slate-200/90 bg-slate-50/50 hover:bg-white hover:border-emerald-300 px-4 text-xs sm:text-sm font-semibold text-slate-900 focus:bg-white focus:border-emerald-600 focus:outline-none focus:ring-4 focus:ring-emerald-500/15 transition-all shadow-2xs"
+                    className="w-full h-11 sm:h-12 rounded-xl border border-slate-200/90 bg-slate-50/50 hover:bg-white hover:border-slate-300 px-4 text-xs sm:text-sm font-semibold text-slate-900 focus:bg-white focus:border-[var(--color-primary-main)] focus:outline-none focus:ring-4 focus:ring-[var(--color-primary-main)]/15 transition-all shadow-2xs"
                   />
                 </div>
 
@@ -525,7 +525,7 @@ export function StudentSettingsView() {
                     value={formData.headline}
                     onChange={handleChange}
                     placeholder={tStudent("defaultHeadline")}
-                    className="w-full h-11 sm:h-12 rounded-xl border border-slate-200/90 bg-slate-50/50 hover:bg-white hover:border-emerald-300 px-4 text-xs sm:text-sm font-semibold text-slate-900 focus:bg-white focus:border-emerald-600 focus:outline-none focus:ring-4 focus:ring-emerald-500/15 transition-all shadow-2xs"
+                    className="w-full h-11 sm:h-12 rounded-xl border border-slate-200/90 bg-slate-50/50 hover:bg-white hover:border-slate-300 px-4 text-xs sm:text-sm font-semibold text-slate-900 focus:bg-white focus:border-[var(--color-primary-main)] focus:outline-none focus:ring-4 focus:ring-[var(--color-primary-main)]/15 transition-all shadow-2xs"
                   />
                 </div>
 
@@ -559,7 +559,7 @@ export function StudentSettingsView() {
                       value={formData.currentPassword}
                       onChange={handleChange}
                       placeholder="••••••••"
-                      className="w-full h-11 sm:h-12 rounded-xl border border-slate-200/90 bg-slate-50/50 hover:bg-white hover:border-emerald-300 px-4 text-xs sm:text-sm font-semibold text-slate-900 focus:bg-white focus:border-emerald-600 focus:outline-none focus:ring-4 focus:ring-emerald-500/15 transition-all shadow-2xs"
+                      className="w-full h-11 sm:h-12 rounded-xl border border-slate-200/90 bg-slate-50/50 hover:bg-white hover:border-slate-300 px-4 text-xs sm:text-sm font-semibold text-slate-900 focus:bg-white focus:border-[var(--color-primary-main)] focus:outline-none focus:ring-4 focus:ring-[var(--color-primary-main)]/15 transition-all shadow-2xs"
                     />
                     <button
                       type="button"
@@ -583,7 +583,7 @@ export function StudentSettingsView() {
                       value={formData.newPassword}
                       onChange={handleChange}
                       placeholder="••••••••"
-                      className="w-full h-11 sm:h-12 rounded-xl border border-slate-200/90 bg-slate-50/50 hover:bg-white hover:border-emerald-300 px-4 text-xs sm:text-sm font-semibold text-slate-900 focus:bg-white focus:border-emerald-600 focus:outline-none focus:ring-4 focus:ring-emerald-500/15 transition-all shadow-2xs"
+                      className="w-full h-11 sm:h-12 rounded-xl border border-slate-200/90 bg-slate-50/50 hover:bg-white hover:border-slate-300 px-4 text-xs sm:text-sm font-semibold text-slate-900 focus:bg-white focus:border-[var(--color-primary-main)] focus:outline-none focus:ring-4 focus:ring-[var(--color-primary-main)]/15 transition-all shadow-2xs"
                     />
                     <button
                       type="button"
@@ -623,7 +623,7 @@ export function StudentSettingsView() {
                       value={formData.confirmPassword}
                       onChange={handleChange}
                       placeholder="••••••••"
-                      className="w-full h-11 sm:h-12 rounded-xl border border-slate-200/90 bg-slate-50/50 hover:bg-white hover:border-emerald-300 px-4 text-xs sm:text-sm font-semibold text-slate-900 focus:bg-white focus:border-emerald-600 focus:outline-none focus:ring-4 focus:ring-emerald-500/15 transition-all shadow-2xs"
+                      className="w-full h-11 sm:h-12 rounded-xl border border-slate-200/90 bg-slate-50/50 hover:bg-white hover:border-slate-300 px-4 text-xs sm:text-sm font-semibold text-slate-900 focus:bg-white focus:border-[var(--color-primary-main)] focus:outline-none focus:ring-4 focus:ring-[var(--color-primary-main)]/15 transition-all shadow-2xs"
                     />
                     <button
                       type="button"
@@ -649,8 +649,8 @@ export function StudentSettingsView() {
               disabled={isSaving}
               className={`relative overflow-hidden px-8 py-3.5 rounded-xl font-black text-xs sm:text-sm text-white shadow-sm transition-all duration-300 flex items-center gap-2 cursor-pointer disabled:opacity-70 ${
                 isSavedCelebration
-                  ? "bg-emerald-700 shadow-emerald-500/30 scale-105"
-                  : "bg-emerald-600 hover:bg-emerald-700 hover:shadow-md active:scale-95"
+                  ? "bg-[var(--color-primary-dark)] shadow-[var(--color-primary-main)]/30 scale-105"
+                  : "bg-[var(--color-primary-dark)] hover:bg-[var(--color-primary-dark)] hover:shadow-md active:scale-95"
               }`}
             >
               {isSaving ? (
@@ -660,7 +660,7 @@ export function StudentSettingsView() {
                 </>
               ) : isSavedCelebration ? (
                 <>
-                  <Check className="h-4 w-4 text-emerald-300 animate-in zoom-in-50 duration-200" />
+                  <Check className="h-4 w-4 text-slate-300 animate-in zoom-in-50 duration-200" />
                   <span>{tStudent("saved")}</span>
                 </>
               ) : (

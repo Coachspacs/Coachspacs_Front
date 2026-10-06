@@ -38,7 +38,7 @@ export default function CheckoutCancelPage() {
         <div className="pt-2 space-y-3">
           <Link
             href={`/${locale}/cart`}
-            className="w-full py-4 px-6 rounded-2xl bg-[#0F5244] hover:bg-[#07382E] text-white text-sm font-extrabold transition-all flex items-center justify-center gap-2 shadow-md hover:shadow-lg cursor-pointer active:scale-98"
+            className="w-full py-4 px-6 rounded-2xl bg-brand-dark hover:bg-[#07382E] text-white text-sm font-extrabold transition-all flex items-center justify-center gap-2 shadow-md hover:shadow-lg cursor-pointer active:scale-98"
           >
             <ShoppingCart className="h-5 w-5" />
             <span>{isAr ? "العودة إلى سلة التسوق" : "Return to Cart"}</span>

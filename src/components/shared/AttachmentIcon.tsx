@@ -38,8 +38,8 @@ export function getFileCategory(fileName = ""): {
   if (name.endsWith(".xls") || name.endsWith(".xlsx") || name.endsWith(".csv")) {
     return {
       category: "excel",
-      colorClass: "text-emerald-600",
-      badgeBg: "bg-emerald-50 border-emerald-200/80 text-emerald-700",
+      colorClass: "text-[var(--color-primary-main)]",
+      badgeBg: "bg-slate-50 border-slate-200/80 text-brand-dark",
     };
   }
   if (name.endsWith(".ppt") || name.endsWith(".pptx")) {

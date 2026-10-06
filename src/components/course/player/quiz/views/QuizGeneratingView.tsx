@@ -37,7 +37,7 @@ export function QuizGeneratingView({
       {/* 3D Robot Mascot Toy with Jet Pulse & Glow */}
       <div className="flex justify-center">
         <div className="relative">
-          <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-32 h-8 bg-emerald-500/20 rounded-full blur-xl" />
+          <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-32 h-8 bg-slate-1000/20 rounded-full blur-xl" />
           <AnimatedRobotCharacter size="lg" />
         </div>
       </div>
@@ -65,7 +65,7 @@ export function QuizGeneratingView({
           <button
             type="button"
             onClick={onRetry}
-            className="inline-flex items-center gap-2 bg-[#0F5244] hover:bg-[#07382E] text-white text-xs sm:text-sm font-bold px-6 py-3 rounded-xl transition-all shadow-md cursor-pointer"
+            className="inline-flex items-center gap-2 bg-brand-dark hover:bg-[#07382E] text-white text-xs sm:text-sm font-bold px-6 py-3 rounded-xl transition-all shadow-md cursor-pointer"
           >
             <RotateCcw className="w-4 h-4" />
             <span>{isAr ? "إعادة المحاولة" : "Try Again"}</span>
@@ -85,8 +85,8 @@ export function QuizGeneratingView({
             <div className="flex items-center justify-between text-xs font-bold text-slate-700">
               <span className="flex items-center gap-2">
                 <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-600" />
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-light opacity-75" />
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-[var(--color-primary-dark)]" />
                 </span>
                 <span>
                   {generationPhase === 1 &&
@@ -107,14 +107,14 @@ export function QuizGeneratingView({
                       : "Finalizing interactive arena...")}
                 </span>
               </span>
-              <span className="font-mono text-emerald-700 font-extrabold">
+              <span className="font-mono text-[var(--color-primary-main)] font-extrabold">
                 {generationProgress}%
               </span>
             </div>
 
             <div className="w-full h-2.5 bg-slate-200/80 rounded-full overflow-hidden p-0.5">
               <motion.div
-                className="h-full bg-gradient-to-r from-emerald-500 to-[#0F5244] rounded-full"
+                className="h-full bg-gradient-to-r from-[var(--color-primary-main)] to-brand-dark rounded-full"
                 initial={{ width: "20%" }}
                 animate={{ width: `${generationProgress}%` }}
                 transition={{ duration: 0.6 }}

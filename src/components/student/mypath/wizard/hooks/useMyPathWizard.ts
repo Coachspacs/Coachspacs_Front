@@ -141,7 +141,7 @@ export function useMyPathWizard(t: (key: string) => string, locale: string = "en
         particleCount: 90,
         spread: 75,
         origin: { y: 0.6 },
-        colors: ["#0F5244", "#10B981", "#38E09D", "#D1FAE5", "#07382E"],
+        colors: ["var(--color-primary-main)", "var(--color-primary-light)", "var(--color-primary-main)", "var(--color-primary-main)", "var(--color-primary-dark)"],
       });
     } catch {}
   };

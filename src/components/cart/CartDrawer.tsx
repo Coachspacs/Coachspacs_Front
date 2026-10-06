@@ -295,7 +295,7 @@ export function CartDrawer() {
                 className="flex items-center justify-between px-5 sm:px-6 py-4 border-b border-slate-100 bg-white/95 backdrop-blur-md shrink-0 relative z-10"
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-xl bg-emerald-50 border border-emerald-200/70 flex items-center justify-center text-[#0F5244] shadow-2xs">
+                  <div className="w-9 h-9 rounded-xl bg-slate-50 border border-slate-200/70 flex items-center justify-center text-brand-dark shadow-2xs">
                     <ShoppingBag className="w-4.5 h-4.5" />
                   </div>
                   <div className="flex items-center gap-2.5">
@@ -312,7 +312,7 @@ export function CartDrawer() {
                           damping: 18,
                           delay: 0.25,
                         }}
-                        className="inline-flex items-center justify-center px-2.5 py-0.5 rounded-full text-xs font-black bg-[#0F5244] text-white tabular-nums shadow-sm"
+                        className="inline-flex items-center justify-center px-2.5 py-0.5 rounded-full text-xs font-black bg-brand-dark text-white tabular-nums shadow-sm"
                       >
                         {formattedItems.length}
                       </motion.span>
@@ -362,7 +362,7 @@ export function CartDrawer() {
                           repeat: Infinity,
                           ease: "easeInOut",
                         }}
-                        className="absolute inset-0 rounded-3xl bg-emerald-100/60 blur-xl"
+                        className="absolute inset-0 rounded-3xl bg-slate-100/60 blur-xl"
                       />
 
                       {/* Floating Bag */}
@@ -373,9 +373,9 @@ export function CartDrawer() {
                           repeat: Infinity,
                           ease: "easeInOut",
                         }}
-                        className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-3xl bg-emerald-50/90 border border-emerald-200/60 flex items-center justify-center shadow-lg shadow-emerald-900/5"
+                        className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-3xl bg-slate-50/90 border border-slate-200/60 flex items-center justify-center shadow-lg shadow-brand-dark/5"
                       >
-                        <ShoppingBag className="w-12 h-12 text-[#0F5244] stroke-[1.6]" />
+                        <ShoppingBag className="w-12 h-12 text-brand-dark stroke-[1.6]" />
                       </motion.div>
                     </div>
 
@@ -394,7 +394,7 @@ export function CartDrawer() {
                         whileTap={{ scale: 0.97 }}
                         type="button"
                         onClick={handleBrowseCourses}
-                        className="px-6 py-3.5 rounded-xl bg-[#0F5244] hover:bg-[#07382E] text-white text-xs sm:text-sm font-extrabold shadow-md hover:shadow-lg transition-all inline-flex items-center justify-center gap-2 cursor-pointer"
+                        className="px-6 py-3.5 rounded-xl bg-brand-dark hover:bg-[#07382E] text-white text-xs sm:text-sm font-extrabold shadow-md hover:shadow-lg transition-all inline-flex items-center justify-center gap-2 cursor-pointer"
                       >
                         <Search className="h-4 w-4 shrink-0" />
                         <span>{t("browseCatalog")}</span>
@@ -419,7 +419,7 @@ export function CartDrawer() {
                           animate="visible"
                           exit="exit"
                           whileHover={{ y: -2 }}
-                          className={`relative p-3.5 rounded-2xl bg-white border border-slate-200/80 hover:border-emerald-500/40 hover:shadow-md transition-all duration-200 flex gap-3.5 group ${
+                          className={`relative p-3.5 rounded-2xl bg-white border border-slate-200/80 hover:border-[var(--color-primary-main)]/40 hover:shadow-md transition-all duration-200 flex gap-3.5 group ${
                             removingId === item.id
                               ? "opacity-30 scale-95 pointer-events-none"
                               : ""
@@ -437,7 +437,7 @@ export function CartDrawer() {
                           <div className="flex-1 min-w-0 flex flex-col justify-between py-0.5">
                             <div className="space-y-0.5 pr-6 rtl:pr-0 rtl:pl-6">
                               <h4
-                                className="text-xs sm:text-sm font-bold text-slate-900 line-clamp-2 leading-snug group-hover:text-[#0F5244] transition-colors"
+                                className="text-xs sm:text-sm font-bold text-slate-900 line-clamp-2 leading-snug group-hover:text-brand-dark transition-colors"
                                 title={item.title}
                               >
                                 {item.title}
@@ -448,7 +448,7 @@ export function CartDrawer() {
                             </div>
 
                             <div className="flex items-center justify-between pt-1">
-                              <span className="text-sm sm:text-base font-black text-[#0F5244]">
+                              <span className="text-sm sm:text-base font-black text-brand-dark">
                                 ${item.price.toFixed(2)}
                               </span>
                             </div>
@@ -507,7 +507,7 @@ export function CartDrawer() {
                         initial={{ scale: 1.15, color: "#059669" }}
                         animate={{ scale: 1, color: "#0F5244" }}
                         transition={{ duration: 0.3 }}
-                        className="text-xl sm:text-2xl font-black text-[#0F5244] tracking-tight"
+                        className="text-xl sm:text-2xl font-black text-brand-dark tracking-tight"
                       >
                         ${totalPrice.toFixed(2)}
                       </motion.span>
@@ -523,7 +523,7 @@ export function CartDrawer() {
                       type="button"
                       onClick={handleCheckout}
                       disabled={isProcessingCheckout}
-                      className="w-full py-3.5 px-5 rounded-xl bg-[#0F5244] hover:bg-[#07382E] text-white text-xs sm:text-sm font-extrabold cursor-pointer flex items-center justify-center gap-2 transition-all shadow-md hover:shadow-lg hover:shadow-emerald-950/15 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="w-full py-3.5 px-5 rounded-xl bg-brand-dark hover:bg-[#07382E] text-white text-xs sm:text-sm font-extrabold cursor-pointer flex items-center justify-center gap-2 transition-all shadow-md hover:shadow-lg hover:shadow-brand-dark/15 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {isProcessingCheckout ? (
                         <>
@@ -541,7 +541,7 @@ export function CartDrawer() {
 
                   {/* Trust Badge / Guarantee */}
                   <div className="flex items-center justify-center gap-1.5 text-[11px] text-slate-400 font-medium pt-0.5">
-                    <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                    <ShieldCheck className="w-3.5 h-3.5 text-[var(--color-primary-main)] shrink-0" />
                     <span>{t("guarantee")}</span>
                   </div>
                 </motion.div>

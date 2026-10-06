@@ -98,7 +98,7 @@ export default function CmsOverviewPage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center p-12 sm:p-20">
-        <Loader2 className="w-8 h-8 text-[#0F5244] animate-spin" />
+        <Loader2 className="w-8 h-8 text-brand-dark animate-spin" />
       </div>
     );
   }
@@ -113,20 +113,20 @@ export default function CmsOverviewPage() {
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, ease: "easeOut" }}
-        className="relative overflow-hidden bg-gradient-to-b from-[#0F5244] via-[#0B4438] to-[#062E25] border border-emerald-700/30 rounded-2xl sm:rounded-3xl p-6 sm:p-8 md:p-10 shadow-md text-white"
+        className="relative overflow-hidden bg-gradient-to-b from-brand-dark via-[#0B4438] to-[#062E25] border border-brand-dark/30 rounded-2xl sm:rounded-3xl p-6 sm:p-8 md:p-10 shadow-md text-white"
       >
         <div className="absolute top-0 right-0 w-80 h-80 bg-white/10 rounded-full blur-3xl pointer-events-none" />
         <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
           <div className="space-y-3">
             {/* High-contrast tag badge */}
             <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/20 border border-white/35 text-white text-xs font-black backdrop-blur-md shadow-xs">
-              <Sparkles className="w-3.5 h-3.5 text-emerald-300" />
+              <Sparkles className="w-3.5 h-3.5 text-slate-300" />
               <span>{t("overview.tag")}</span>
             </div>
             <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-white tracking-tight">
               {t("overview.heading")}
             </h2>
-            <p className="text-emerald-100/90 text-xs sm:text-sm max-w-xl leading-relaxed">
+            <p className="text-slate-100/90 text-xs sm:text-sm max-w-xl leading-relaxed">
               {t("overview.description")}
             </p>
           </div>
@@ -138,7 +138,7 @@ export default function CmsOverviewPage() {
               target="_blank"
               className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3 rounded-2xl bg-white/10 hover:bg-white/20 text-white text-xs font-bold transition-all cursor-pointer border border-white/20 backdrop-blur-xs"
             >
-              <Eye className="w-4 h-4 text-emerald-300" />
+              <Eye className="w-4 h-4 text-slate-300" />
               <span>{t("overview.previewDraft")}</span>
             </Link>
 
@@ -146,10 +146,10 @@ export default function CmsOverviewPage() {
             <button
               onClick={handlePublish}
               disabled={isPublishing}
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-7 py-3.5 sm:px-8 text-xs sm:text-sm font-black bg-white hover:bg-slate-50 text-[#0F5244] rounded-2xl shadow-md shadow-black/25 hover:shadow-lg hover:shadow-black/35 active:scale-95 transition-all duration-200 cursor-pointer disabled:opacity-50"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-7 py-3.5 sm:px-8 text-xs sm:text-sm font-black bg-white hover:bg-slate-50 text-brand-dark rounded-2xl shadow-md shadow-black/25 hover:shadow-lg hover:shadow-black/35 active:scale-95 transition-all duration-200 cursor-pointer disabled:opacity-50"
             >
               {isPublishing ? (
-                <Loader2 className="w-4 h-4 animate-spin text-[#0F5244]" />
+                <Loader2 className="w-4 h-4 animate-spin text-brand-dark" />
               ) : (
                 <Send className="w-4 h-4 rtl:rotate-180" />
               )}
@@ -167,7 +167,7 @@ export default function CmsOverviewPage() {
               transition={{ duration: 0.2 }}
               className="mt-6 p-4 rounded-2xl bg-white/20 border border-white/30 text-white text-xs font-bold flex items-center gap-2 backdrop-blur-xs shadow-xs"
             >
-              <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-300" />
+              <CheckCircle2 className="w-4 h-4 shrink-0 text-slate-300" />
               <span>{statusMessage}</span>
             </motion.div>
           )}
@@ -185,12 +185,12 @@ export default function CmsOverviewPage() {
         <motion.div
           variants={cardVariants}
           whileHover={{ y: -4, transition: { duration: 0.2 } }}
-          className="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-7 flex flex-col justify-between hover:border-emerald-500/40 hover:shadow-lg hover:shadow-slate-200/60 transition-all duration-300 ease-out group"
+          className="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-7 flex flex-col justify-between hover:border-[var(--color-primary-main)]/40 hover:shadow-lg hover:shadow-slate-200/60 transition-all duration-300 ease-out group"
         >
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-[#0F5244] border border-emerald-200/80 flex items-center justify-center group-hover:scale-105 group-hover:border-emerald-300 transition-all duration-200 ease-out shrink-0">
-                <Palette className="w-6 h-6 text-[#0F5244]" />
+              <div className="w-12 h-12 rounded-2xl bg-slate-50 text-brand-dark border border-slate-200/80 flex items-center justify-center group-hover:scale-105 group-hover:border-slate-300 transition-all duration-200 ease-out shrink-0">
+                <Palette className="w-6 h-6 text-brand-dark" />
               </div>
               <span className="text-[11px] font-bold text-slate-800 px-3 py-1 rounded-full bg-slate-100 border border-slate-300/80 shadow-2xs">
                 {t("overview.brandingCard.tag")}
@@ -198,7 +198,7 @@ export default function CmsOverviewPage() {
             </div>
 
             <div className="space-y-1.5">
-              <h3 className="text-lg font-black text-slate-900 group-hover:text-[#0F5244] transition-colors">
+              <h3 className="text-lg font-black text-slate-900 group-hover:text-brand-dark transition-colors">
                 {t("overview.brandingCard.title")}
               </h3>
               <p className="text-xs text-slate-500 leading-relaxed min-h-[36px]">
@@ -237,7 +237,7 @@ export default function CmsOverviewPage() {
           <div className="pt-5 mt-auto">
             <Link
               href={`/${locale}/admin/cms/branding`}
-              className="w-full flex items-center justify-center gap-2 px-5 py-3 rounded-2xl bg-slate-50 hover:bg-[#0F5244] hover:text-white text-slate-700 text-xs font-bold transition-all duration-200 cursor-pointer border border-slate-200 hover:border-[#0F5244] shadow-2xs"
+              className="w-full flex items-center justify-center gap-2 px-5 py-3 rounded-2xl bg-slate-50 hover:bg-brand-dark hover:text-white text-slate-700 text-xs font-bold transition-all duration-200 cursor-pointer border border-slate-200 hover:border-brand-dark shadow-2xs"
             >
               <span>{t("overview.brandingCard.btn")}</span>
             </Link>
@@ -248,27 +248,27 @@ export default function CmsOverviewPage() {
         <motion.div
           variants={cardVariants}
           whileHover={{ y: -4, transition: { duration: 0.2 } }}
-          className="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-7 flex flex-col justify-between hover:border-emerald-500/40 hover:shadow-lg hover:shadow-slate-200/60 transition-all duration-300 ease-out group"
+          className="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-7 flex flex-col justify-between hover:border-[var(--color-primary-main)]/40 hover:shadow-lg hover:shadow-slate-200/60 transition-all duration-300 ease-out group"
         >
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-[#0F5244] border border-emerald-200/80 flex items-center justify-center group-hover:scale-105 group-hover:border-emerald-300 transition-all duration-200 ease-out shrink-0">
-                <FileText className="w-6 h-6 text-[#0F5244]" />
+              <div className="w-12 h-12 rounded-2xl bg-slate-50 text-brand-dark border border-slate-200/80 flex items-center justify-center group-hover:scale-105 group-hover:border-slate-300 transition-all duration-200 ease-out shrink-0">
+                <FileText className="w-6 h-6 text-brand-dark" />
               </div>
               <span
                 className={`inline-flex items-center gap-1.5 text-[11px] font-bold px-3 py-1 rounded-full border shadow-2xs ${
                   hasDraft
                     ? "bg-amber-100 text-amber-900 border-amber-300"
-                    : "bg-emerald-100 text-emerald-900 border-emerald-300"
+                    : "bg-slate-100 text-brand-dark border-slate-300"
                 }`}
               >
-                <span className={`w-1.5 h-1.5 rounded-full ${hasDraft ? "bg-amber-600" : "bg-emerald-600"}`} />
+                <span className={`w-1.5 h-1.5 rounded-full ${hasDraft ? "bg-amber-600" : "bg-[var(--color-primary-main)]"}`} />
                 <span>{hasDraft ? t("overview.draftPending") : t("overview.published")}</span>
               </span>
             </div>
 
             <div className="space-y-1.5">
-              <h3 className="text-lg font-black text-slate-900 group-hover:text-[#0F5244] transition-colors">
+              <h3 className="text-lg font-black text-slate-900 group-hover:text-brand-dark transition-colors">
                 {t("overview.landingCard.title")}
               </h3>
               <p className="text-xs text-slate-500 leading-relaxed min-h-[36px]">
@@ -290,7 +290,7 @@ export default function CmsOverviewPage() {
           <div className="pt-5 mt-auto">
             <Link
               href={`/${locale}/admin/cms/landing`}
-              className="w-full flex items-center justify-center gap-2 px-5 py-3 rounded-2xl bg-slate-50 hover:bg-[#0F5244] hover:text-white text-slate-700 text-xs font-bold transition-all duration-200 cursor-pointer border border-slate-200 hover:border-[#0F5244] shadow-2xs"
+              className="w-full flex items-center justify-center gap-2 px-5 py-3 rounded-2xl bg-slate-50 hover:bg-brand-dark hover:text-white text-slate-700 text-xs font-bold transition-all duration-200 cursor-pointer border border-slate-200 hover:border-brand-dark shadow-2xs"
             >
               <span>{t("overview.landingCard.btn")}</span>
             </Link>
@@ -301,27 +301,27 @@ export default function CmsOverviewPage() {
         <motion.div
           variants={cardVariants}
           whileHover={{ y: -4, transition: { duration: 0.2 } }}
-          className="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-7 flex flex-col justify-between hover:border-emerald-500/40 hover:shadow-lg hover:shadow-slate-200/60 transition-all duration-300 ease-out group"
+          className="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-7 flex flex-col justify-between hover:border-[var(--color-primary-main)]/40 hover:shadow-lg hover:shadow-slate-200/60 transition-all duration-300 ease-out group"
         >
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-[#0F5244] border border-emerald-200/80 flex items-center justify-center group-hover:scale-105 group-hover:border-emerald-300 transition-all duration-200 ease-out shrink-0">
-                <ShieldCheck className="w-6 h-6 text-[#0F5244]" />
+              <div className="w-12 h-12 rounded-2xl bg-slate-50 text-brand-dark border border-slate-200/80 flex items-center justify-center group-hover:scale-105 group-hover:border-slate-300 transition-all duration-200 ease-out shrink-0">
+                <ShieldCheck className="w-6 h-6 text-brand-dark" />
               </div>
               <span
                 className={`inline-flex items-center gap-1.5 text-[11px] font-bold px-3 py-1 rounded-full border shadow-2xs ${
                   hasLegalDraft
                     ? "bg-amber-100 text-amber-900 border-amber-300"
-                    : "bg-emerald-100 text-emerald-900 border-emerald-300"
+                    : "bg-slate-100 text-brand-dark border-slate-300"
                 }`}
               >
-                <span className={`w-1.5 h-1.5 rounded-full ${hasLegalDraft ? "bg-amber-600" : "bg-emerald-600"}`} />
+                <span className={`w-1.5 h-1.5 rounded-full ${hasLegalDraft ? "bg-amber-600" : "bg-[var(--color-primary-main)]"}`} />
                 <span>{hasLegalDraft ? t("overview.draftPending") : t("overview.published")}</span>
               </span>
             </div>
 
             <div className="space-y-1.5">
-              <h3 className="text-lg font-black text-slate-900 group-hover:text-[#0F5244] transition-colors">
+              <h3 className="text-lg font-black text-slate-900 group-hover:text-brand-dark transition-colors">
                 {t("overview.legalCard.title")}
               </h3>
               <p className="text-xs text-slate-500 leading-relaxed min-h-[36px]">
@@ -343,7 +343,7 @@ export default function CmsOverviewPage() {
           <div className="pt-5 mt-auto">
             <Link
               href={`/${locale}/admin/cms/pages`}
-              className="w-full flex items-center justify-center gap-2 px-5 py-3 rounded-2xl bg-slate-50 hover:bg-[#0F5244] hover:text-white text-slate-700 text-xs font-bold transition-all duration-200 cursor-pointer border border-slate-200 hover:border-[#0F5244] shadow-2xs"
+              className="w-full flex items-center justify-center gap-2 px-5 py-3 rounded-2xl bg-slate-50 hover:bg-brand-dark hover:text-white text-slate-700 text-xs font-bold transition-all duration-200 cursor-pointer border border-slate-200 hover:border-brand-dark shadow-2xs"
             >
               <span>{t("overview.legalCard.btn")}</span>
             </Link>

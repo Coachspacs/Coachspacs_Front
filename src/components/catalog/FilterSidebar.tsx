@@ -133,10 +133,10 @@ export function FilterSidebar({
             <button
               type="button"
               onClick={() => setCategoryOpen(!categoryOpen)}
-              className="w-full flex items-center justify-between text-xs font-bold text-slate-800 py-1 hover:text-[#0F5244] transition-colors"
+              className="w-full flex items-center justify-between text-xs font-bold text-slate-800 py-1 hover:text-brand-dark transition-colors"
             >
               <div className="flex items-center gap-2">
-                <Grid className="h-3.5 w-3.5 text-[#0F5244]" />
+                <Grid className="h-3.5 w-3.5 text-brand-dark" />
                 <span>{t("category")}</span>
               </div>
               {categoryOpen ? (
@@ -167,7 +167,7 @@ export function FilterSidebar({
                         type="checkbox"
                         checked={isSelected}
                         onChange={() => handleCategoryToggle(cat.id)}
-                        className="h-3.5 w-3.5 rounded border-slate-300 text-[#0F5244] focus:ring-2 focus:ring-[#0F5244]/20 accent-[#0F5244] cursor-pointer"
+                        className="h-3.5 w-3.5 rounded border-slate-300 text-brand-dark focus:ring-2 focus:ring-brand-dark/20 accent-brand-dark cursor-pointer"
                       />
                       <span suppressHydrationWarning>{translatedLabel}</span>
                     </label>
@@ -182,10 +182,10 @@ export function FilterSidebar({
             <button
               type="button"
               onClick={() => setLevelOpen(!levelOpen)}
-              className="w-full flex items-center justify-between text-xs font-bold text-slate-800 py-1 hover:text-[#0F5244] transition-colors"
+              className="w-full flex items-center justify-between text-xs font-bold text-slate-800 py-1 hover:text-brand-dark transition-colors"
             >
               <div className="flex items-center gap-2">
-                <Layers className="h-3.5 w-3.5 text-[#0F5244]" />
+                <Layers className="h-3.5 w-3.5 text-brand-dark" />
                 <span>{t("level")}</span>
               </div>
               {levelOpen ? (
@@ -209,7 +209,7 @@ export function FilterSidebar({
                       onChange={() =>
                         onFilterChange({ ...filters, selectedLevel: lvl.value })
                       }
-                      className="h-3.5 w-3.5 border-slate-300 text-[#0F5244] focus:ring-2 focus:ring-[#0F5244]/20 accent-[#0F5244] cursor-pointer"
+                      className="h-3.5 w-3.5 border-slate-300 text-brand-dark focus:ring-2 focus:ring-brand-dark/20 accent-brand-dark cursor-pointer"
                     />
                     <span>{t(lvl.labelKey)}</span>
                   </label>
@@ -223,10 +223,10 @@ export function FilterSidebar({
             <button
               type="button"
               onClick={() => setPriceOpen(!priceOpen)}
-              className="w-full flex items-center justify-between text-xs font-bold text-slate-800 py-1 hover:text-[#0F5244] transition-colors"
+              className="w-full flex items-center justify-between text-xs font-bold text-slate-800 py-1 hover:text-brand-dark transition-colors"
             >
               <div className="flex items-center gap-2">
-                <DollarSign className="h-3.5 w-3.5 text-[#0F5244]" />
+                <DollarSign className="h-3.5 w-3.5 text-brand-dark" />
                 <span>{t("price")}</span>
               </div>
               {priceOpen ? (
@@ -250,7 +250,7 @@ export function FilterSidebar({
                       onChange={() =>
                         onFilterChange({ ...filters, selectedPrice: pr.value })
                       }
-                      className="h-3.5 w-3.5 border-slate-300 text-[#0F5244] focus:ring-2 focus:ring-[#0F5244]/20 accent-[#0F5244] cursor-pointer"
+                      className="h-3.5 w-3.5 border-slate-300 text-brand-dark focus:ring-2 focus:ring-brand-dark/20 accent-brand-dark cursor-pointer"
                     />
                     <span>{t(pr.labelKey)}</span>
                   </label>
@@ -264,10 +264,10 @@ export function FilterSidebar({
             <button
               type="button"
               onClick={() => setLangOpen(!langOpen)}
-              className="w-full flex items-center justify-between text-xs font-bold text-slate-800 py-1 hover:text-[#0F5244] transition-colors"
+              className="w-full flex items-center justify-between text-xs font-bold text-slate-800 py-1 hover:text-brand-dark transition-colors"
             >
               <div className="flex items-center gap-2">
-                <Globe2 className="h-3.5 w-3.5 text-[#0F5244]" />
+                <Globe2 className="h-3.5 w-3.5 text-brand-dark" />
                 <span>{t("language")}</span>
               </div>
               {langOpen ? (
@@ -291,7 +291,7 @@ export function FilterSidebar({
                       onChange={() =>
                         onFilterChange({ ...filters, selectedLanguage: lg.value })
                       }
-                      className="h-3.5 w-3.5 border-slate-300 text-[#0F5244] focus:ring-2 focus:ring-[#0F5244]/20 accent-[#0F5244] cursor-pointer"
+                      className="h-3.5 w-3.5 border-slate-300 text-brand-dark focus:ring-2 focus:ring-brand-dark/20 accent-brand-dark cursor-pointer"
                     />
                     <span>{t(lg.labelKey)}</span>
                   </label>

@@ -76,7 +76,7 @@ export function QuizTakingView({
       {/* Header ribbon: Question Tracker & Progress */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
         <div className="flex items-center gap-2">
-          <span className="w-8 h-8 rounded-xl bg-emerald-50 border border-emerald-200/80 text-emerald-800 text-xs font-black flex items-center justify-center font-mono">
+          <span className="w-8 h-8 rounded-xl bg-slate-100 border border-slate-200/80 text-[var(--color-primary-main)] text-xs font-black flex items-center justify-center font-mono">
             {currentQuestionIndex + 1}
           </span>
           <span className="text-xs font-bold text-slate-500">
@@ -99,7 +99,7 @@ export function QuizTakingView({
                   isCurrent
                     ? "bg-slate-900 text-white shadow-xs scale-105"
                     : isAnswered
-                    ? "bg-emerald-100 text-emerald-900 border border-emerald-300"
+                    ? "bg-slate-200 text-brand-dark border border-slate-300"
                     : "bg-slate-100 text-slate-500 hover:bg-slate-200"
                 }`}
               >
@@ -161,13 +161,13 @@ export function QuizTakingView({
                   onClick={() => onSelectAnswer(currentQ.id, tf.val)}
                   className={`p-5 rounded-2xl border text-center transition-all cursor-pointer flex flex-col items-center justify-center gap-2 ${
                     isSelected
-                      ? "bg-emerald-50/90 border-emerald-500 shadow-xs ring-2 ring-emerald-500"
+                      ? "bg-slate-100/90 border-[var(--color-primary-main)] shadow-xs ring-2 ring-[var(--color-primary-main)]"
                       : "bg-white border-slate-200 hover:border-slate-300 hover:bg-slate-50/60"
                   }`}
                 >
                   <IconComponent
                     className={`w-8 h-8 ${
-                      isSelected ? "text-emerald-600" : "text-slate-400"
+                      isSelected ? "text-[var(--color-primary-main)]" : "text-slate-400"
                     }`}
                   />
                   <span className="text-sm sm:text-base font-black text-slate-900">
@@ -193,7 +193,7 @@ export function QuizTakingView({
                   onClick={() => onSelectAnswer(currentQ.id, optIdx)}
                   className={`p-4 rounded-2xl border transition-all cursor-pointer flex items-center justify-between gap-3 ${
                     isSelected
-                      ? "bg-emerald-50/80 border-emerald-500 shadow-xs ring-1 ring-emerald-500"
+                      ? "bg-slate-100/80 border-[var(--color-primary-main)] shadow-xs ring-1 ring-[var(--color-primary-main)]"
                       : "bg-white border-slate-200/90 hover:border-slate-300 hover:bg-slate-50/60"
                   }`}
                 >
@@ -201,7 +201,7 @@ export function QuizTakingView({
                     <div
                       className={`w-7 h-7 rounded-xl font-mono text-xs font-black flex items-center justify-center shrink-0 transition-colors ${
                         isSelected
-                          ? "bg-emerald-600 text-white shadow-2xs"
+                          ? "bg-[var(--color-primary-dark)] text-white shadow-2xs"
                           : "bg-slate-100 text-slate-600"
                       }`}
                     >
@@ -215,7 +215,7 @@ export function QuizTakingView({
                   <div
                     className={`w-5 h-5 rounded-full border flex items-center justify-center shrink-0 transition-colors ${
                       isSelected
-                        ? "border-emerald-600 bg-emerald-600 text-white"
+                        ? "border-[var(--color-primary-main)] bg-[var(--color-primary-dark)] text-white"
                         : "border-slate-300"
                     }`}
                   >
@@ -283,7 +283,7 @@ export function QuizTakingView({
             <button
               type="button"
               onClick={onNextQuestion}
-              className="inline-flex items-center gap-1.5 px-6 py-2.5 rounded-xl bg-slate-900 hover:bg-[#0F5244] text-white text-xs font-bold transition-all shadow-xs cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-6 py-2.5 rounded-xl bg-slate-900 hover:bg-brand-dark text-white text-xs font-bold transition-all shadow-xs cursor-pointer"
             >
               <span>{isAr ? "التالي" : "Next"}</span>
               {isAr ? <ChevronLeft className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
@@ -293,7 +293,7 @@ export function QuizTakingView({
               type="button"
               disabled={isSubmitting}
               onClick={onSubmitQuiz}
-              className="inline-flex items-center gap-2 px-7 py-2.5 rounded-xl bg-[#0F5244] hover:bg-[#07382E] text-white text-xs font-black transition-all shadow-md cursor-pointer"
+              className="inline-flex items-center gap-2 px-7 py-2.5 rounded-xl bg-brand-dark hover:bg-[#07382E] text-white text-xs font-black transition-all shadow-md cursor-pointer"
             >
               {isSubmitting ? (
                 <Loader2 className="w-4 h-4 animate-spin" />

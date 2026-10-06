@@ -29,15 +29,15 @@ export function InstructorAcademySection({ isPreview }: InstructorAcademySection
 
   const tips = [
     {
-      icon: <Mic className="w-5 h-5 text-[#0F5244]" />,
-      bg: "bg-emerald-50 border-emerald-200/70 text-[#0F5244]",
+      icon: <Mic className="w-5 h-5 text-brand-dark" />,
+      bg: "bg-slate-50 border-slate-200/70 text-brand-dark",
       pill: "Audio & Quality",
       title: t("tip1Title"),
       desc: t("tip1Desc"),
     },
     {
-      icon: <CheckSquare className="w-5 h-5 text-[#0F5244]" />,
-      bg: "bg-emerald-50 border-emerald-200/70 text-[#0F5244]",
+      icon: <CheckSquare className="w-5 h-5 text-brand-dark" />,
+      bg: "bg-slate-50 border-slate-200/70 text-brand-dark",
       pill: "Engagement",
       title: t("tip2Title"),
       desc: t("tip2Desc"),
@@ -64,8 +64,8 @@ export function InstructorAcademySection({ isPreview }: InstructorAcademySection
         
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-14">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-emerald-50 border border-emerald-200/80 text-[#0F5244] text-xs font-bold tracking-wider uppercase mb-3">
-            <Lightbulb className="w-3.5 h-3.5 text-[#0F5244]" />
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-slate-50 border border-slate-200/80 text-brand-dark text-xs font-bold tracking-wider uppercase mb-3">
+            <Lightbulb className="w-3.5 h-3.5 text-brand-dark" />
             <span>{t("instructorAcademyTitle")}</span>
           </div>
           <h2 className="text-2xl sm:text-4xl font-black text-slate-900 tracking-tight leading-[1.2]">
@@ -93,7 +93,7 @@ export function InstructorAcademySection({ isPreview }: InstructorAcademySection
                   </span>
                 </div>
 
-                <h3 className="text-lg font-black text-slate-900 mb-2 group-hover:text-[#0F5244] transition-colors">
+                <h3 className="text-lg font-black text-slate-900 mb-2 group-hover:text-brand-dark transition-colors">
                   {tip.title}
                 </h3>
                 <p className="text-slate-600 text-sm font-medium leading-relaxed">
@@ -105,11 +105,11 @@ export function InstructorAcademySection({ isPreview }: InstructorAcademySection
         </div>
 
         {/* Trending & High Demand Topics Banner (1 Shade Darker & Richer Sage-Mint Gradient) */}
-        <div className="bg-gradient-to-b from-[#E5F1EC] to-[#DAECE5] rounded-3xl p-7 sm:p-10 border border-emerald-300/80 shadow-md shadow-emerald-900/5 relative overflow-hidden">
+        <div className="bg-gradient-to-b from-[#E5F1EC] to-[#DAECE5] rounded-3xl p-7 sm:p-10 border border-slate-300/80 shadow-md shadow-brand-dark/5 relative overflow-hidden">
           
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-5 mb-8 relative z-10">
             <div>
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white text-[#0F5244] border border-emerald-300/80 text-xs font-bold tracking-wider uppercase mb-2.5 shadow-2xs">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white text-brand-dark border border-slate-300/80 text-xs font-bold tracking-wider uppercase mb-2.5 shadow-2xs">
                 <Flame className="w-3.5 h-3.5 text-amber-500" />
                 <span>{t("trendingTopicsTitle")}</span>
               </div>
@@ -121,8 +121,8 @@ export function InstructorAcademySection({ isPreview }: InstructorAcademySection
               </p>
             </div>
 
-            <div className="flex items-center gap-2 text-xs font-bold text-white bg-[#0F5244] px-4 py-2.5 rounded-xl self-start lg:self-auto shadow-md shadow-[#0F5244]/15">
-              <TrendingUp className="w-4 h-4 text-emerald-300" />
+            <div className="flex items-center gap-2 text-xs font-bold text-white bg-brand-dark px-4 py-2.5 rounded-xl self-start lg:self-auto shadow-md shadow-brand-dark/15">
+              <TrendingUp className="w-4 h-4 text-slate-300" />
               <span>{t("studentsDemandLabel")}</span>
             </div>
           </div>
@@ -132,20 +132,20 @@ export function InstructorAcademySection({ isPreview }: InstructorAcademySection
             {trendingTopics.map((topic, idx) => (
               <div
                 key={idx}
-                className="bg-white hover:bg-white rounded-2xl p-5 border border-emerald-200/80 hover:border-[#0F5244] shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 flex flex-col justify-between group cursor-pointer"
+                className="bg-white hover:bg-white rounded-2xl p-5 border border-slate-200/80 hover:border-brand-dark shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 flex flex-col justify-between group cursor-pointer"
               >
                 <div>
-                  <div className="text-[10px] font-bold uppercase text-slate-400 tracking-wider mb-2 group-hover:text-[#0F5244] transition-colors">
+                  <div className="text-[10px] font-bold uppercase text-slate-400 tracking-wider mb-2 group-hover:text-brand-dark transition-colors">
                     {topic.tag}
                   </div>
-                  <div className="text-sm font-black text-slate-900 mb-4 line-clamp-2 leading-snug group-hover:text-[#0F5244] transition-colors">
+                  <div className="text-sm font-black text-slate-900 mb-4 line-clamp-2 leading-snug group-hover:text-brand-dark transition-colors">
                     {topic.name}
                   </div>
                 </div>
 
                 <div className="flex items-center justify-between pt-3 border-t border-slate-100 text-xs">
                   <span className="text-slate-500 font-semibold">{t("studentsDemandLabel")}</span>
-                  <span className="inline-flex items-center font-black text-[#0F5244] bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200/70 text-xs shadow-2xs">
+                  <span className="inline-flex items-center font-black text-brand-dark bg-slate-50 px-2.5 py-0.5 rounded-full border border-slate-200/70 text-xs shadow-2xs">
                     {topic.growth}
                   </span>
                 </div>

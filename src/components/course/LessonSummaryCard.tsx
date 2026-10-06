@@ -173,11 +173,11 @@ export function LessonSummaryCard({
             {currentBullets.map((bullet, bIdx) => (
               <div
                 key={bIdx}
-                className="group relative bg-white/90 hover:bg-white rounded-2xl p-4 sm:p-4.5 border border-slate-200/90 hover:border-emerald-500/40 shadow-2xs hover:shadow-md hover:shadow-emerald-950/5 transition-all duration-200 flex items-start gap-3.5"
+                className="group relative bg-white/90 hover:bg-white rounded-2xl p-4 sm:p-4.5 border border-slate-200/90 hover:border-[var(--color-primary-main)]/40 shadow-2xs hover:shadow-md hover:shadow-brand-dark/5 transition-all duration-200 flex items-start gap-3.5"
               >
                 {/* Numbered Pill Badge */}
-                <div className="w-7 h-7 rounded-xl bg-emerald-100/90 border border-emerald-200/90 group-hover:bg-[#0F5244] group-hover:border-[#0F5244] flex items-center justify-center shrink-0 mt-0.5 shadow-2xs transition-all duration-200">
-                  <span className="font-black text-xs text-emerald-900 group-hover:!text-white transition-colors duration-200">
+                <div className="w-7 h-7 rounded-xl bg-slate-200/90 border border-slate-200/90 group-hover:bg-brand-dark group-hover:border-brand-dark flex items-center justify-center shrink-0 mt-0.5 shadow-2xs transition-all duration-200">
+                  <span className="font-black text-xs text-brand-dark group-hover:!text-white transition-colors duration-200">
                     {bIdx + 1}
                   </span>
                 </div>
@@ -208,8 +208,8 @@ export function LessonSummaryCard({
         flushBullets(idx);
         const titleText = trimmed.replace(/^###\s*(📌)?\s*/, "").trim();
         elements.push(
-          <div key={`title-${idx}`} className="flex items-center gap-2.5 pb-2.5 pt-1 border-b border-emerald-950/10">
-            <div className="w-7 h-7 rounded-lg bg-emerald-100/70 text-[#0F5244] flex items-center justify-center shrink-0">
+          <div key={`title-${idx}`} className="flex items-center gap-2.5 pb-2.5 pt-1 border-b border-brand-dark/10">
+            <div className="w-7 h-7 rounded-lg bg-slate-200/70 text-[var(--color-primary-main)] flex items-center justify-center shrink-0">
               <BookOpen size={15} />
             </div>
             <h4 className="text-sm sm:text-base font-black text-slate-900 tracking-tight">
@@ -239,7 +239,7 @@ export function LessonSummaryCard({
           );
         } else {
           elements.push(
-            <p key={`section-${idx}`} className="text-xs sm:text-sm font-black text-[#0F5244] pt-2">
+            <p key={`section-${idx}`} className="text-xs sm:text-sm font-black text-[var(--color-primary-main)] pt-2">
               {cleanSection}
             </p>
           );
@@ -270,15 +270,15 @@ export function LessonSummaryCard({
   }
 
   return (
-    <div className="relative bg-gradient-to-br from-emerald-500/[0.07] via-white to-teal-500/[0.05] rounded-2xl border border-emerald-900/15 shadow-xs overflow-hidden transition-all duration-300">
+    <div className="relative bg-gradient-to-br from-[var(--color-primary-main)]/[0.07] via-white to-teal-500/[0.05] rounded-2xl border border-brand-dark/15 shadow-xs overflow-hidden transition-all duration-300">
       {/* Decorative background glow */}
-      <div className="absolute top-0 right-0 w-52 h-52 bg-emerald-400/10 rounded-full blur-3xl pointer-events-none -mr-16 -mt-16" />
+      <div className="absolute top-0 right-0 w-52 h-52 bg-brand-light/10 rounded-full blur-3xl pointer-events-none -mr-16 -mt-16" />
       <div className="absolute bottom-0 left-0 w-44 h-44 bg-teal-400/10 rounded-full blur-3xl pointer-events-none -ml-16 -mb-16" />
 
       {/* Header Bar */}
-      <div className="relative p-3.5 sm:p-4 flex items-center justify-between gap-2.5 border-b border-emerald-950/5 bg-white/60 backdrop-blur-xs">
+      <div className="relative p-3.5 sm:p-4 flex items-center justify-between gap-2.5 border-b border-brand-dark/5 bg-white/60 backdrop-blur-xs">
         <div className="flex items-center gap-2.5 min-w-0">
-          <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#0F5244] to-emerald-600 text-white flex items-center justify-center shadow-xs shrink-0 ring-2 ring-emerald-500/10">
+          <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-brand-dark to-[var(--color-primary-dark)] text-white flex items-center justify-center shadow-xs shrink-0 ring-2 ring-[var(--color-primary-main)]/10">
             <Sparkles size={16} className="animate-pulse" />
           </div>
           <div className="min-w-0">
@@ -286,7 +286,7 @@ export function LessonSummaryCard({
               <h3 className="text-xs sm:text-sm font-black text-slate-900 tracking-tight truncate">
                 {isAr ? "الملخص الذكي" : "AI Lesson Summary"}
               </h3>
-              <span className="px-2 py-0.5 rounded-full text-[9px] font-extrabold bg-[#0F5244]/10 text-[#0F5244] border border-[#0F5244]/20 flex items-center gap-1 shrink-0">
+              <span className="px-2 py-0.5 rounded-full text-[9px] font-extrabold bg-brand-dark/10 text-[var(--color-primary-main)] border border-brand-dark/20 flex items-center gap-1 shrink-0">
                 <Bot size={10} />
                 <span>Gemini</span>
               </span>
@@ -303,7 +303,7 @@ export function LessonSummaryCard({
               onClick={() => handleLanguageChange("en")}
               className={`px-2 py-0.5 rounded-md font-bold text-[10px] transition-all cursor-pointer ${
                 activeLang === "en"
-                  ? "bg-[#0F5244] text-white shadow-2xs"
+                  ? "bg-brand-dark text-white shadow-2xs"
                   : "text-slate-600 hover:text-slate-900"
               }`}
             >
@@ -314,7 +314,7 @@ export function LessonSummaryCard({
               onClick={() => handleLanguageChange("ar")}
               className={`px-2 py-0.5 rounded-md font-bold text-[10px] transition-all cursor-pointer ${
                 activeLang === "ar"
-                  ? "bg-[#0F5244] text-white shadow-2xs"
+                  ? "bg-brand-dark text-white shadow-2xs"
                   : "text-slate-600 hover:text-slate-900"
               }`}
             >
@@ -337,13 +337,13 @@ export function LessonSummaryCard({
       {isExpanded && (
         <div className="relative p-3.5 sm:p-4 space-y-3">
           {!hasRequested && !currentSummary ? (
-            <div className="p-4 sm:p-5 rounded-xl bg-white/80 border border-emerald-900/10 shadow-xs backdrop-blur-xs flex flex-col items-center text-center gap-3">
-              <div className="shrink-0 p-1.5 rounded-xl bg-emerald-50/70 border border-emerald-200/60 shadow-inner">
+            <div className="p-4 sm:p-5 rounded-xl bg-white/80 border border-brand-dark/10 shadow-xs backdrop-blur-xs flex flex-col items-center text-center gap-3">
+              <div className="shrink-0 p-1.5 rounded-xl bg-slate-100/70 border border-slate-200/60 shadow-inner">
                 <AnimatedRobotCharacter size="xs" showCap={true} />
               </div>
 
               <div className="space-y-1 max-w-sm">
-                <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-100/80 text-emerald-800 text-[10px] font-black tracking-wide">
+                <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-slate-200/80 text-[var(--color-primary-main)] text-[10px] font-black tracking-wide">
                   <Sparkles size={10} />
                   <span>{isAr ? "المساعد الذكي" : "AI Study Companion"}</span>
                 </div>
@@ -361,17 +361,17 @@ export function LessonSummaryCard({
                 type="button"
                 onClick={() => fetchSummary(activeLang, false)}
                 disabled={isLoading}
-                className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#0F5244] hover:bg-[#07382E] text-white text-xs font-black shadow-xs hover:shadow-md transition-all cursor-pointer active:scale-95 disabled:opacity-50 group"
+                className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-brand-dark hover:bg-[#07382E] text-white text-xs font-black shadow-xs hover:shadow-md transition-all cursor-pointer active:scale-95 disabled:opacity-50 group"
               >
-                <Sparkles size={13} className="group-hover:rotate-12 transition-transform text-emerald-300" />
+                <Sparkles size={13} className="group-hover:rotate-12 transition-transform text-slate-300" />
                 <span>{isAr ? "تلخيص الدرس الآن" : "Summarize Lesson Now"}</span>
               </button>
             </div>
           ) : isLoading ? (
-            <div className="py-6 px-4 text-center rounded-xl bg-white/90 border border-emerald-900/10 shadow-xs flex flex-col items-center justify-center gap-3">
+            <div className="py-6 px-4 text-center rounded-xl bg-white/90 border border-brand-dark/10 shadow-xs flex flex-col items-center justify-center gap-3">
               <div className="relative">
                 <AnimatedRobotCharacter size="xs" showCap={true} />
-                <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-[#0F5244] text-white flex items-center justify-center shadow-xs">
+                <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-brand-dark text-white flex items-center justify-center shadow-xs">
                   <RotateCw size={10} className="animate-spin" />
                 </div>
               </div>
@@ -390,9 +390,9 @@ export function LessonSummaryCard({
               </div>
 
               <div className="space-y-1.5 w-full max-w-xs mx-auto pt-1">
-                <div className="h-2 bg-emerald-100/60 rounded-full animate-pulse w-5/6 mx-auto" />
-                <div className="h-2 bg-emerald-100/60 rounded-full animate-pulse w-full mx-auto" />
-                <div className="h-2 bg-emerald-100/60 rounded-full animate-pulse w-3/4 mx-auto" />
+                <div className="h-2 bg-slate-200/60 rounded-full animate-pulse w-5/6 mx-auto" />
+                <div className="h-2 bg-slate-200/60 rounded-full animate-pulse w-full mx-auto" />
+                <div className="h-2 bg-slate-200/60 rounded-full animate-pulse w-3/4 mx-auto" />
               </div>
             </div>
           ) : errorMsg ? (
@@ -418,19 +418,19 @@ export function LessonSummaryCard({
               </button>
             </div>
           ) : currentSummary?.summary || currentSummary?.content ? (
-            <div className="space-y-3 bg-white/95 rounded-xl p-3.5 sm:p-4 border border-emerald-900/10 shadow-xs animate-in fade-in zoom-in-98 duration-200">
+            <div className="space-y-3 bg-white/95 rounded-xl p-3.5 sm:p-4 border border-brand-dark/10 shadow-xs animate-in fade-in zoom-in-98 duration-200">
               {/* Meta information & actions */}
-              <div className="flex items-center justify-between gap-2 pb-2.5 border-b border-emerald-950/10">
+              <div className="flex items-center justify-between gap-2 pb-2.5 border-b border-brand-dark/10">
                 <div className="flex items-center gap-2 min-w-0">
-                  <div className="w-7 h-7 rounded-lg bg-emerald-50 border border-emerald-200/80 flex items-center justify-center shrink-0 shadow-2xs">
+                  <div className="w-7 h-7 rounded-lg bg-slate-100 border border-slate-200/80 flex items-center justify-center shrink-0 shadow-2xs">
                     <AnimatedRobotCharacter size="xs" showCap={true} />
                   </div>
                   <div className="min-w-0">
-                    <span className="font-black text-xs text-[#0F5244] truncate block">
+                    <span className="font-black text-xs text-[var(--color-primary-main)] truncate block">
                       {activeLang === "ar" ? "ملخص بالعربية" : "English Summary"}
                     </span>
                     <div className="flex items-center gap-1 text-[10px] text-slate-500 font-medium">
-                      <Clock size={10} className="text-emerald-600" />
+                      <Clock size={10} className="text-[var(--color-primary-main)]" />
                       <span>{isAr ? "دقيقة واحدة" : "1 min read"}</span>
                     </div>
                   </div>
@@ -440,13 +440,13 @@ export function LessonSummaryCard({
                   <button
                     type="button"
                     onClick={handleCopy}
-                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border border-slate-200 hover:border-emerald-300 bg-white hover:bg-emerald-50/50 text-slate-700 hover:text-[#0F5244] text-[11px] font-bold transition-all shadow-2xs cursor-pointer active:scale-95"
+                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border border-slate-200 hover:border-slate-300 bg-white hover:bg-slate-100/50 text-slate-700 hover:text-[var(--color-primary-main)] text-[11px] font-bold transition-all shadow-2xs cursor-pointer active:scale-95"
                     title={isAr ? "نسخ الملخص" : "Copy summary"}
                   >
                     {copied ? (
                       <>
-                        <Check size={12} className="text-emerald-600" />
-                        <span className="text-emerald-700 font-black">{isAr ? "تم!" : "Copied!"}</span>
+                        <Check size={12} className="text-[var(--color-primary-main)]" />
+                        <span className="text-[var(--color-primary-main)] font-black">{isAr ? "تم!" : "Copied!"}</span>
                       </>
                     ) : (
                       <>

@@ -24,7 +24,7 @@ export default function AdminRootLayout({ children }: { children: React.ReactNod
   if (!mounted || isLoading) {
     return (
       <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center text-slate-900 space-y-4">
-        <Loader2 className="w-8 h-8 text-[#0F5244] animate-spin" />
+        <Loader2 className="w-8 h-8 text-brand-dark animate-spin" />
         <p className="text-sm font-bold text-slate-600">
           {t("verifyingAccess") || "Verifying administrative access..."}
         </p>
@@ -57,7 +57,7 @@ export default function AdminRootLayout({ children }: { children: React.ReactNod
           </p>
           <Link
             href={`/${locale}`}
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[#0F5244] hover:bg-[#07382E] text-white text-xs font-black transition-all cursor-pointer shadow-lg shadow-[#0F5244]/30"
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-brand-dark hover:bg-[#07382E] text-white text-xs font-black transition-all cursor-pointer shadow-lg shadow-brand-dark/30"
           >
             {isAr ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
             <span>{t("backToPlatform") || "Back to Platform"}</span>

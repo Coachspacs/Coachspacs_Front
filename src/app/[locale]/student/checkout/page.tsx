@@ -415,12 +415,12 @@ export default function CheckoutPage() {
           <div className="relative w-24 h-24 mx-auto flex items-center justify-center">
             <div className="absolute inset-0 rounded-full bg-[#D1FAF0] animate-ping opacity-30" />
             <div className="w-20 h-20 rounded-full bg-[#D1FAF0] flex items-center justify-center shadow-xs">
-              <CheckCircle className="h-10 w-10 text-[#0F5244] stroke-[2]" />
+              <CheckCircle className="h-10 w-10 text-brand-dark stroke-[2]" />
             </div>
           </div>
 
           <div className="space-y-2">
-            <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs font-black bg-[#D1FAF0] text-[#0F5244]">
+            <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs font-black bg-[#D1FAF0] text-brand-dark">
               <Sparkles className="h-3.5 w-3.5" />
               <span>{t("successBadge")}</span>
             </span>
@@ -435,7 +435,7 @@ export default function CheckoutPage() {
           <div className="bg-slate-50 border border-slate-100 rounded-2xl p-4 text-xs font-semibold text-slate-600 space-y-2 text-start">
             <div className="flex justify-between items-center pb-2 border-b border-slate-200/60">
               <span className="text-slate-400">{t("orderNumber")}:</span>
-              <span className="font-extrabold text-[#0F5244]">{completedOrderNumber}</span>
+              <span className="font-extrabold text-brand-dark">{completedOrderNumber}</span>
             </div>
             <div className="flex justify-between items-center pb-2 border-b border-slate-200/60">
               <span className="text-slate-400">{t("amountPaid")}:</span>
@@ -443,11 +443,11 @@ export default function CheckoutPage() {
             </div>
             <div className="flex justify-between items-center pb-2 border-b border-slate-200/60">
               <span className="text-slate-400">{t("paymentGateway")}:</span>
-              <span className="font-extrabold text-[#0F5244]">{t("gatewayValue")}</span>
+              <span className="font-extrabold text-brand-dark">{t("gatewayValue")}</span>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-slate-400">{t("statusLabel")}:</span>
-              <span className="font-extrabold text-emerald-700 bg-emerald-100/80 px-2 py-0.5 rounded-md">
+              <span className="font-extrabold text-brand-dark bg-slate-100/80 px-2 py-0.5 rounded-md">
                 {t("completedStatus")}
               </span>
             </div>
@@ -456,7 +456,7 @@ export default function CheckoutPage() {
           <div className="pt-2 space-y-3">
             <Link
               href={`/${locale}/student/learn/${firstCourseId}`}
-              className="w-full py-4 px-6 rounded-2xl bg-[#0F5244] hover:bg-[#07382E] text-white text-sm font-extrabold transition-all flex items-center justify-center gap-2 shadow-md hover:shadow-lg cursor-pointer active:scale-98"
+              className="w-full py-4 px-6 rounded-2xl bg-brand-dark hover:bg-[#07382E] text-white text-sm font-extrabold transition-all flex items-center justify-center gap-2 shadow-md hover:shadow-lg cursor-pointer active:scale-98"
             >
               <BookOpen className="h-5 w-5" />
               <span>{t("goToCourse")}</span>
@@ -487,7 +487,7 @@ export default function CheckoutPage() {
       >
         <div className="w-full max-w-md bg-white rounded-3xl border border-slate-200/80 p-8 sm:p-10 shadow-sm text-center space-y-6 animate-in fade-in">
           <div className="w-20 h-20 rounded-full bg-[#D1FAF0] flex items-center justify-center mx-auto shadow-2xs">
-            <ShoppingBag className="h-9 w-9 text-[#0F5244] stroke-[1.8]" />
+            <ShoppingBag className="h-9 w-9 text-brand-dark stroke-[1.8]" />
           </div>
           <div className="space-y-2">
             <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
@@ -499,7 +499,7 @@ export default function CheckoutPage() {
           </div>
           <Link
             href={`/${locale}/courses`}
-            className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl bg-[#0F5244] hover:bg-[#07382E] text-white text-xs sm:text-sm font-extrabold transition-all cursor-pointer shadow-xs active:scale-98"
+            className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl bg-brand-dark hover:bg-[#07382E] text-white text-xs sm:text-sm font-extrabold transition-all cursor-pointer shadow-xs active:scale-98"
           >
             <span>{t("browseCourses")}</span>
             <ArrowRight className="h-4 w-4 rtl:rotate-180" />
@@ -529,8 +529,8 @@ export default function CheckoutPage() {
         
         {/* Header & Step Indicator */}
         <div className="text-center space-y-2">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200/70 text-xs font-extrabold text-[#0F5244] shadow-2xs">
-            <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-50 border border-slate-200/70 text-xs font-extrabold text-brand-dark shadow-2xs">
+            <ShieldCheck className="w-3.5 h-3.5 text-[var(--color-primary-main)]" />
             <span>{t("secureBadge")}</span>
           </div>
           <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
@@ -552,7 +552,7 @@ export default function CheckoutPage() {
             {checkoutWarningType === "already_enrolled" && (
               <Link
                 href={`/${locale}/student/learn/${checkoutItems[0]?.id || ""}`}
-                className="w-full py-2.5 px-4 rounded-xl bg-[#0F5244] hover:bg-[#07382E] text-white text-xs font-bold flex items-center justify-center gap-2 transition-colors shadow-xs"
+                className="w-full py-2.5 px-4 rounded-xl bg-brand-dark hover:bg-[#07382E] text-white text-xs font-bold flex items-center justify-center gap-2 transition-colors shadow-xs"
               >
                 <BookOpen className="h-3.5 w-3.5" />
                 <span>{t("goToLessons")}</span>
@@ -586,7 +586,7 @@ export default function CheckoutPage() {
           {/* Card Header: Order Summary */}
           <div className="flex items-center justify-between pb-3.5 border-b border-slate-100">
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-xl bg-emerald-50 text-[#0F5244] flex items-center justify-center shrink-0 border border-emerald-100 shadow-2xs">
+              <div className="w-8 h-8 rounded-xl bg-slate-50 text-brand-dark flex items-center justify-center shrink-0 border border-slate-100 shadow-2xs">
                 <ShoppingBag className="h-4 w-4" />
               </div>
               <h2 className="text-sm sm:text-base font-black text-slate-900 tracking-tight">
@@ -594,7 +594,7 @@ export default function CheckoutPage() {
               </h2>
             </div>
 
-            <span className="text-[11px] font-extrabold text-[#0F5244] bg-emerald-50 border border-emerald-200/80 px-3 py-1 rounded-full shadow-2xs">
+            <span className="text-[11px] font-extrabold text-brand-dark bg-slate-50 border border-slate-200/80 px-3 py-1 rounded-full shadow-2xs">
               {getCourseCountLabel(checkoutItems.length)}
             </span>
           </div>
@@ -621,7 +621,7 @@ export default function CheckoutPage() {
                   </p>
                 </div>
                 <div className="text-right rtl:text-left shrink-0">
-                  <div className="font-black text-xs sm:text-sm text-[#0F5244]">
+                  <div className="font-black text-xs sm:text-sm text-brand-dark">
                     ${item.price.toFixed(2)}
                   </div>
                   <button
@@ -639,7 +639,7 @@ export default function CheckoutPage() {
           </div>
 
           {/* Stripe Hosted Checkout Notice (Clear message that card details are entered on Stripe) */}
-          <div className="p-4 rounded-2xl bg-gradient-to-br from-slate-50 via-slate-50/80 to-emerald-50/30 border border-slate-200/80 space-y-2.5">
+          <div className="p-4 rounded-2xl bg-gradient-to-br from-slate-50 via-slate-50/80 to-slate-50/30 border border-slate-200/80 space-y-2.5">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <div className="w-6 h-6 rounded-lg bg-[#635BFF]/10 flex items-center justify-center text-[#635BFF] shrink-0 font-black text-xs">
@@ -689,7 +689,7 @@ export default function CheckoutPage() {
 
             <div className="flex justify-between items-center text-slate-500 font-semibold">
               <span>{t("taxes")}</span>
-              <span className="font-bold text-emerald-700">{t("free")}</span>
+              <span className="font-bold text-brand-dark">{t("free")}</span>
             </div>
 
             {/* Total Due */}
@@ -697,7 +697,7 @@ export default function CheckoutPage() {
               <span className="text-sm sm:text-base font-black text-slate-900">
                 {t("totalDue")}
               </span>
-              <span className="text-2xl sm:text-3xl font-black text-[#0F5244] tracking-tight">
+              <span className="text-2xl sm:text-3xl font-black text-brand-dark tracking-tight">
                 ${totalAmount.toFixed(2)}
               </span>
             </div>
@@ -709,7 +709,7 @@ export default function CheckoutPage() {
               type="button"
               onClick={handlePayWithStripe}
               disabled={isProcessing || checkoutItems.length === 0}
-              className="w-full h-12 sm:h-14 rounded-2xl bg-[#0F5244] hover:bg-[#07382E] active:scale-[0.99] disabled:bg-slate-300 text-white text-sm sm:text-base font-black transition-all duration-200 flex items-center justify-center gap-2.5 shadow-lg shadow-emerald-950/15 hover:shadow-xl hover:shadow-emerald-950/25 cursor-pointer disabled:cursor-not-allowed group"
+              className="w-full h-12 sm:h-14 rounded-2xl bg-brand-dark hover:bg-[#07382E] active:scale-[0.99] disabled:bg-slate-300 text-white text-sm sm:text-base font-black transition-all duration-200 flex items-center justify-center gap-2.5 shadow-lg shadow-brand-dark/15 hover:shadow-xl hover:shadow-brand-dark/25 cursor-pointer disabled:cursor-not-allowed group"
             >
               {isProcessing ? (
                 <div className="flex items-center gap-2.5">
@@ -718,7 +718,7 @@ export default function CheckoutPage() {
                 </div>
               ) : (
                 <>
-                  <Lock className="h-4 w-4 text-emerald-300 shrink-0" />
+                  <Lock className="h-4 w-4 text-slate-300 shrink-0" />
                   <span>{t("continueToStripe")}</span>
                   <ArrowRight className="h-4 w-4 rtl:rotate-180 group-hover:translate-x-1 rtl:group-hover:-translate-x-1 transition-transform shrink-0" />
                 </>
@@ -729,9 +729,9 @@ export default function CheckoutPage() {
             <div className="flex justify-center pt-1">
               <Link
                 href={`/${locale}/student/cart`}
-                className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-[#0F5244] transition-colors cursor-pointer group"
+                className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-brand-dark transition-colors cursor-pointer group"
               >
-                <ShoppingBag className="w-3.5 h-3.5 text-slate-400 group-hover:text-[#0F5244] transition-colors" />
+                <ShoppingBag className="w-3.5 h-3.5 text-slate-400 group-hover:text-brand-dark transition-colors" />
                 <span className="underline-offset-4 hover:underline">{t("modifyCart")}</span>
               </Link>
             </div>
@@ -740,17 +740,17 @@ export default function CheckoutPage() {
           {/* Trust Guarantees */}
           <div className="pt-3 border-t border-slate-100 flex flex-wrap sm:flex-nowrap items-center justify-center gap-x-4 gap-y-1.5 text-[11px] text-slate-400 font-medium">
             <span className="inline-flex items-center gap-1.5">
-              <ShieldCheck className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
+              <ShieldCheck className="h-3.5 w-3.5 text-[var(--color-primary-main)] shrink-0" />
               <span>{t("sslEncryption")}</span>
             </span>
             <span className="w-1 h-1 rounded-full bg-slate-300 shrink-0 hidden sm:inline-block" />
             <span className="inline-flex items-center gap-1.5">
-              <Award className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
+              <Award className="h-3.5 w-3.5 text-[var(--color-primary-main)] shrink-0" />
               <span>{t("verifiedCert")}</span>
             </span>
             <span className="w-1 h-1 rounded-full bg-slate-300 shrink-0 hidden sm:inline-block" />
             <span className="inline-flex items-center gap-1.5">
-              <Clock className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
+              <Clock className="h-3.5 w-3.5 text-[var(--color-primary-main)] shrink-0" />
               <span>{t("lifetimeAccess")}</span>
             </span>
           </div>

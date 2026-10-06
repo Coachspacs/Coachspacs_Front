@@ -168,14 +168,14 @@ export function InstructorPendingModal({
           <div
             className={`p-3 rounded-2xl border text-xs font-bold flex items-center gap-2 animate-in fade-in duration-150 ${
               feedback.type === "success"
-                ? "bg-emerald-50 text-emerald-800 border-emerald-200"
+                ? "bg-slate-50 text-brand-dark border-slate-200"
                 : feedback.type === "error"
                 ? "bg-red-50 text-red-800 border-red-200"
                 : "bg-amber-50 text-amber-900 border-amber-200"
             }`}
           >
             {feedback.type === "success" ? (
-              <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+              <CheckCircle2 className="w-4 h-4 text-[var(--color-primary-main)] shrink-0" />
             ) : feedback.type === "error" ? (
               <AlertCircle className="w-4 h-4 text-red-600 shrink-0" />
             ) : (
@@ -199,7 +199,7 @@ export function InstructorPendingModal({
             type="button"
             onClick={handleCheckStatus}
             disabled={isChecking}
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-[#0F5244] hover:bg-[#07382E] text-white font-bold text-xs shadow-xs transition-all active:scale-98 disabled:opacity-60 cursor-pointer"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-brand-dark hover:bg-[#07382E] text-white font-bold text-xs shadow-xs transition-all active:scale-98 disabled:opacity-60 cursor-pointer"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${isChecking ? "animate-spin" : ""}`} />
             <span>

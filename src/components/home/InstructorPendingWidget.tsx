@@ -59,12 +59,12 @@ export function InstructorPendingWidget({ isPreview }: InstructorPendingWidgetPr
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
             
             {/* Step 1: Account Created (Completed) */}
-            <div className="bg-white border-2 border-emerald-300/80 rounded-2xl p-5 sm:p-6 flex flex-col justify-between shadow-sm">
+            <div className="bg-white border-2 border-slate-300/80 rounded-2xl p-5 sm:p-6 flex flex-col justify-between shadow-sm">
               <div className="flex items-center justify-between mb-4">
-                <div className="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center shadow-md shadow-emerald-600/20">
+                <div className="w-10 h-10 rounded-xl bg-[var(--color-primary-main)] text-white flex items-center justify-center shadow-md shadow-[var(--color-primary-main)]/20">
                   <CheckCircle2 className="w-5 h-5" />
                 </div>
-                <span className="inline-flex items-center gap-1 text-[11px] font-black text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
+                <span className="inline-flex items-center gap-1 text-[11px] font-black text-brand-dark bg-slate-50 px-2.5 py-1 rounded-full border border-slate-200">
                   <CheckCircle2 className="w-3.5 h-3.5" />
                   <span>{t("statusCompleted")}</span>
                 </span>

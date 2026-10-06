@@ -86,7 +86,7 @@ export function LessonCurriculumSidebar({
           <div className="space-y-1">
             <div className="w-full bg-slate-200/70 h-1.5 rounded-full overflow-hidden">
               <div
-                className="bg-[#0F5244] h-full rounded-full transition-all duration-500"
+                className="bg-brand-dark h-full rounded-full transition-all duration-500"
                 style={{ width: `${progressPercent}%` }}
               />
             </div>
@@ -122,18 +122,18 @@ export function LessonCurriculumSidebar({
               <button
                 type="button"
                 onClick={onOpenAiQuiz}
-                className="w-full group/quiz p-2.5 rounded-xl bg-gradient-to-r from-emerald-50 via-teal-50/50 to-white hover:from-emerald-100/70 hover:to-emerald-50/60 border border-emerald-200/90 hover:border-emerald-300 transition-all flex items-center justify-between gap-2.5 shadow-2xs cursor-pointer text-start"
+                className="w-full group/quiz p-2.5 rounded-xl bg-gradient-to-r from-slate-50 via-teal-50/50 to-white hover:from-slate-100/70 hover:to-slate-50/60 border border-slate-200/90 hover:border-slate-300 transition-all flex items-center justify-between gap-2.5 shadow-2xs cursor-pointer text-start"
               >
                 <div className="flex items-center gap-2.5 min-w-0">
-                  <div className="w-7 h-7 rounded-lg bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-xs group-hover/quiz:scale-105 transition-transform">
+                  <div className="w-7 h-7 rounded-lg bg-[var(--color-primary-dark)] text-white flex items-center justify-center shrink-0 shadow-xs group-hover/quiz:scale-105 transition-transform">
                     <Sparkles size={14} className="animate-pulse" />
                   </div>
                   <div className="min-w-0">
                     <div className="flex items-center gap-1.5">
-                      <span className="text-xs font-black text-slate-900 group-hover/quiz:text-emerald-950 truncate">
+                      <span className="text-xs font-black text-slate-900 group-hover/quiz:text-brand-dark truncate">
                         {isAr ? "اختبار الذكاء الاصطناعي" : "AI Practice Quiz"}
                       </span>
-                      <span className="px-1.5 py-0.2 rounded-md bg-emerald-100 text-emerald-800 text-[9px] font-black uppercase">
+                      <span className="px-1.5 py-0.2 rounded-md bg-slate-200 text-[var(--color-primary-main)] text-[9px] font-black uppercase">
                         AI
                       </span>
                     </div>
@@ -142,7 +142,7 @@ export function LessonCurriculumSidebar({
                     </p>
                   </div>
                 </div>
-                <div className="shrink-0 text-slate-400 group-hover/quiz:text-emerald-700 transition-colors">
+                <div className="shrink-0 text-slate-400 group-hover/quiz:text-[var(--color-primary-main)] transition-colors">
                   {isAr ? <ChevronLeft size={15} /> : <ChevronRight size={15} />}
                 </div>
               </button>
@@ -247,7 +247,7 @@ export function LessonCurriculumSidebar({
                                   isDone
                                     ? "bg-slate-900 text-white shadow-xs"
                                     : isActive
-                                    ? "bg-[#0F5244] text-white ring-4 ring-[#0F5244]/20 shadow-xs"
+                                    ? "bg-brand-dark text-white ring-4 ring-brand-dark/20 shadow-xs"
                                     : isLocked
                                     ? "bg-slate-100 border border-slate-200 text-slate-400"
                                     : "bg-white border border-slate-300 text-slate-600 group-hover:border-slate-500"
@@ -282,7 +282,7 @@ export function LessonCurriculumSidebar({
                                 <div className="flex items-center gap-2 text-[10px] font-mono text-slate-400 mt-0.5">
                                   <span>{lesson.duration || `${lesson.duration_minutes || 5}:00`}</span>
                                   {lesson.is_preview && (
-                                    <span className="text-emerald-700 font-bold">· {t("free")}</span>
+                                    <span className="text-[var(--color-primary-main)] font-bold">· {t("free")}</span>
                                   )}
                                 </div>
                               </div>

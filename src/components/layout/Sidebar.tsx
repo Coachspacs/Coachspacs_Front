@@ -233,7 +233,7 @@ export function Sidebar({ activeTab, onTabChange, items, user, summary }: Sideba
         {user?.name && (
           <div className="flex items-center gap-2.5 px-3 py-2 border-b border-slate-100 bg-slate-50/50">
             <div className="relative shrink-0">
-              <div className="w-7 h-7 rounded-full bg-white border border-emerald-200 overflow-hidden flex items-center justify-center">
+              <div className="w-7 h-7 rounded-full bg-white border border-slate-200 overflow-hidden flex items-center justify-center">
                 {user.avatarUrl ? (
                   <Image
                     src={user.avatarUrl}
@@ -243,12 +243,12 @@ export function Sidebar({ activeTab, onTabChange, items, user, summary }: Sideba
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <span className="font-bold text-xs text-emerald-700">
+                  <span className="font-bold text-xs text-[var(--color-primary-main)]">
                     {user.name.charAt(0).toUpperCase()}
                   </span>
                 )}
               </div>
-              <span className="absolute bottom-0 right-0 rtl:right-auto rtl:left-0 w-2 h-2 bg-emerald-500 border border-white rounded-full" />
+              <span className="absolute bottom-0 right-0 rtl:right-auto rtl:left-0 w-2 h-2 bg-slate-1000 border border-white rounded-full" />
             </div>
             <div className="min-w-0 flex-1">
               <p className="text-xs font-bold text-slate-800 truncate">{user.name}</p>
@@ -265,13 +265,13 @@ export function Sidebar({ activeTab, onTabChange, items, user, summary }: Sideba
             className="flex-1 flex items-center justify-between gap-3 px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200/70 text-slate-900 text-xs font-extrabold hover:bg-slate-100 active:scale-[0.99] transition-all cursor-pointer"
           >
             <div className="flex items-center gap-2.5 min-w-0">
-              <ActiveIcon className="h-4 w-4 text-emerald-600 shrink-0" />
+              <ActiveIcon className="h-4 w-4 text-[var(--color-primary-main)] shrink-0" />
               <span className="truncate">{activeItem?.label || ""}</span>
             </div>
 
             <ChevronDown
               className={`h-4 w-4 text-slate-500 transition-transform duration-200 ${
-                isOpen ? "rotate-180 text-emerald-600" : ""
+                isOpen ? "rotate-180 text-[var(--color-primary-main)]" : ""
               }`}
             />
           </button>
@@ -303,10 +303,10 @@ export function Sidebar({ activeTab, onTabChange, items, user, summary }: Sideba
 
               const content = (
                 <>
-                  <Icon className={`h-4 w-4 shrink-0 ${active ? "text-emerald-700" : "text-slate-500"}`} />
+                  <Icon className={`h-4 w-4 shrink-0 ${active ? "text-[var(--color-primary-main)]" : "text-slate-500"}`} />
                   <span className="text-xs font-bold">{item.label}</span>
                   {mounted && item.id === "cart" && cartItems.length > 0 && (
-                    <span className="ml-auto rtl:ml-0 rtl:mr-auto px-1.5 py-0.5 rounded-full bg-emerald-500 text-white text-[10px] font-black">
+                    <span className="ml-auto rtl:ml-0 rtl:mr-auto px-1.5 py-0.5 rounded-full bg-slate-1000 text-white text-[10px] font-black">
                       {cartItems.length}
                     </span>
                   )}
@@ -321,7 +321,7 @@ export function Sidebar({ activeTab, onTabChange, items, user, summary }: Sideba
                     onClick={handleItemClick}
                     className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                       active
-                        ? "bg-emerald-50 text-emerald-800 border border-emerald-200/80 font-black shadow-2xs"
+                        ? "bg-slate-100 text-[var(--color-primary-main)] border border-slate-200/80 font-black shadow-2xs"
                         : "text-slate-700 hover:text-slate-900 hover:bg-white"
                     }`}
                   >
@@ -337,7 +337,7 @@ export function Sidebar({ activeTab, onTabChange, items, user, summary }: Sideba
                   onClick={() => setIsOpen(false)}
                   className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                     active
-                      ? "bg-emerald-50 text-emerald-800 border border-emerald-200/80 font-black shadow-2xs"
+                      ? "bg-slate-100 text-[var(--color-primary-main)] border border-slate-200/80 font-black shadow-2xs"
                       : "text-slate-700 hover:text-slate-900 hover:bg-white"
                   }`}
                 >
@@ -356,7 +356,7 @@ export function Sidebar({ activeTab, onTabChange, items, user, summary }: Sideba
           {user?.name && (
             <div className="flex items-center gap-3 p-3 bg-slate-50/90 rounded-2xl border border-slate-200/70">
               <div className="relative shrink-0">
-                <div className="w-10 h-10 rounded-full bg-white border border-emerald-200 overflow-hidden flex items-center justify-center shadow-2xs">
+                <div className="w-10 h-10 rounded-full bg-white border border-slate-200 overflow-hidden flex items-center justify-center shadow-2xs">
                   {user.avatarUrl ? (
                     <Image
                       src={user.avatarUrl}
@@ -366,12 +366,12 @@ export function Sidebar({ activeTab, onTabChange, items, user, summary }: Sideba
                       className="w-full h-full object-cover"
                     />
                   ) : (
-                    <span className="font-bold text-sm text-emerald-700">
+                    <span className="font-bold text-sm text-[var(--color-primary-main)]">
                       {user.name.charAt(0).toUpperCase()}
                     </span>
                   )}
                 </div>
-                <span className="absolute bottom-0 right-0 rtl:right-auto rtl:left-0 w-2.5 h-2.5 bg-emerald-500 border-2 border-white rounded-full" />
+                <span className="absolute bottom-0 right-0 rtl:right-auto rtl:left-0 w-2.5 h-2.5 bg-slate-1000 border-2 border-white rounded-full" />
               </div>
               <div className="min-w-0 flex-1">
                 <p className="text-xs sm:text-sm font-bold text-slate-900 truncate">
@@ -395,7 +395,7 @@ export function Sidebar({ activeTab, onTabChange, items, user, summary }: Sideba
                   <Icon
                     className={`h-4.5 w-4.5 shrink-0 transition-colors ${
                       active
-                        ? "text-[#0B4F3A]"
+                        ? "text-[var(--color-primary-main)]"
                         : "text-slate-400 group-hover:text-slate-700"
                     }`}
                   />
@@ -406,8 +406,8 @@ export function Sidebar({ activeTab, onTabChange, items, user, summary }: Sideba
                     <span
                       className={`ml-auto rtl:ml-0 rtl:mr-auto px-2 py-0.5 rounded-full text-[10px] font-bold ${
                         active
-                          ? "bg-[#0B4F3A] text-white"
-                          : "bg-emerald-100 text-[#0B4F3A]"
+                          ? "bg-[var(--color-primary-main)] text-white"
+                          : "bg-slate-200 text-[var(--color-primary-main)]"
                       }`}
                     >
                       {cartItems.length}
@@ -431,7 +431,7 @@ export function Sidebar({ activeTab, onTabChange, items, user, summary }: Sideba
                     }}
                     className={`group w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm transition-all cursor-pointer ${
                       active
-                        ? "bg-emerald-50/90 text-[#0F5244] font-black border border-emerald-200/80 shadow-2xs"
+                        ? "bg-slate-100/90 text-[var(--color-primary-main)] font-black border border-slate-200/80 shadow-2xs"
                         : "text-slate-600 hover:text-slate-900 hover:bg-slate-50/80 font-medium"
                     }`}
                   >
@@ -447,7 +447,7 @@ export function Sidebar({ activeTab, onTabChange, items, user, summary }: Sideba
                   aria-current={active ? "page" : undefined}
                   className={`group flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm transition-all cursor-pointer ${
                     active
-                      ? "bg-emerald-50/90 text-[#0F5244] font-black border border-emerald-200/80 shadow-2xs"
+                      ? "bg-slate-100/90 text-[var(--color-primary-main)] font-black border border-slate-200/80 shadow-2xs"
                       : "text-slate-600 hover:text-slate-900 hover:bg-slate-50/80 font-medium"
                   }`}
                 >

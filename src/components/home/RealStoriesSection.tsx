@@ -163,7 +163,7 @@ export function RealStoriesSection({ data }: RealStoriesSectionProps = {}) {
           transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
           className="text-center max-w-3xl mx-auto mb-12 sm:mb-16"
         >
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#0F5244]/10 border border-[#0F5244]/20 text-[#0F5244] text-xs font-bold tracking-wider uppercase mb-3">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-brand-dark/10 border border-brand-dark/20 text-brand-dark text-xs font-bold tracking-wider uppercase mb-3">
             <span>{t("storiesBadge")}</span>
           </div>
           <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight">
@@ -189,7 +189,7 @@ export function RealStoriesSection({ data }: RealStoriesSectionProps = {}) {
               type="button"
               onClick={isRtl ? handleNext : handlePrev}
               aria-label={isRtl ? t("nextSlide") : t("prevSlide")}
-              className="absolute -left-2 sm:-left-6 top-1/2 -translate-y-1/2 z-20 w-11 h-11 sm:w-13 sm:h-13 rounded-full bg-white/95 backdrop-blur-md border border-[#0F5244]/25 text-[#0F5244] shadow-lg shadow-[#0F5244]/10 hover:bg-[#0F5244] hover:text-white hover:border-[#0F5244] hover:scale-110 transition-all duration-300 flex items-center justify-center cursor-pointer group active:scale-95"
+              className="absolute -left-2 sm:-left-6 top-1/2 -translate-y-1/2 z-20 w-11 h-11 sm:w-13 sm:h-13 rounded-full bg-white/95 backdrop-blur-md border border-brand-dark/25 text-brand-dark shadow-lg shadow-brand-dark/10 hover:bg-brand-dark hover:text-white hover:border-brand-dark hover:scale-110 transition-all duration-300 flex items-center justify-center cursor-pointer group active:scale-95"
             >
               <ChevronLeft className="w-6 h-6 stroke-[2.2] group-hover:-translate-x-0.5 transition-transform" />
             </button>
@@ -272,7 +272,7 @@ export function RealStoriesSection({ data }: RealStoriesSectionProps = {}) {
               type="button"
               onClick={isRtl ? handlePrev : handleNext}
               aria-label={isRtl ? t("prevSlide") : t("nextSlide")}
-              className="absolute -right-2 sm:-right-6 top-1/2 -translate-y-1/2 z-20 w-11 h-11 sm:w-13 sm:h-13 rounded-full bg-white/95 backdrop-blur-md border border-[#0F5244]/25 text-[#0F5244] shadow-lg shadow-[#0F5244]/10 hover:bg-[#0F5244] hover:text-white hover:border-[#0F5244] hover:scale-110 transition-all duration-300 flex items-center justify-center cursor-pointer group active:scale-95"
+              className="absolute -right-2 sm:-right-6 top-1/2 -translate-y-1/2 z-20 w-11 h-11 sm:w-13 sm:h-13 rounded-full bg-white/95 backdrop-blur-md border border-brand-dark/25 text-brand-dark shadow-lg shadow-brand-dark/10 hover:bg-brand-dark hover:text-white hover:border-brand-dark hover:scale-110 transition-all duration-300 flex items-center justify-center cursor-pointer group active:scale-95"
             >
               <ChevronRight className="w-6 h-6 stroke-[2.2] group-hover:translate-x-0.5 transition-transform" />
             </button>
@@ -282,7 +282,7 @@ export function RealStoriesSection({ data }: RealStoriesSectionProps = {}) {
         {/* Enhanced Pagination Controls Bar */}
         {maxIndex > 0 && (
           <div className="flex items-center justify-center gap-3 mt-10">
-            <span className="text-xs font-extrabold text-[#0F5244]/70 tracking-wider">
+            <span className="text-xs font-extrabold text-brand-dark/70 tracking-wider">
               {activePage + 1} / {totalPages}
             </span>
             <div className="flex items-center gap-2">
@@ -294,8 +294,8 @@ export function RealStoriesSection({ data }: RealStoriesSectionProps = {}) {
                   aria-label={isRtl ? `الانتقال إلى شريحة ${idx + 1}` : `Go to slide ${idx + 1}`}
                   className={`h-2.5 rounded-full transition-all duration-500 cursor-pointer ${
                     activePage === idx
-                      ? "w-10 bg-[#0F5244] shadow-xs shadow-[#0F5244]/30"
-                      : "w-3 bg-[#0F5244]/20 hover:bg-[#0F5244]/40 hover:w-5"
+                      ? "w-10 bg-brand-dark shadow-xs shadow-brand-dark/30"
+                      : "w-3 bg-brand-dark/20 hover:bg-brand-dark/40 hover:w-5"
                   }`}
                 />
               ))}

@@ -665,7 +665,7 @@ export function StudentWorkspace({
         <div className="bg-white rounded-2xl sm:rounded-3xl border border-slate-200/80 p-4 sm:p-8 shadow-2xs flex flex-col md:flex-row items-center justify-between gap-4 sm:gap-6">
           <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-5 text-center sm:text-start">
             <div className="relative group shrink-0">
-              <div className="w-16 h-16 sm:w-24 sm:h-24 rounded-full bg-[#E8F3F1] border-2 border-emerald-200/80 overflow-hidden shadow-2xs flex items-center justify-center">
+              <div className="w-16 h-16 sm:w-24 sm:h-24 rounded-full bg-[#E8F3F1] border-2 border-slate-200/80 overflow-hidden shadow-2xs flex items-center justify-center">
                 {getSafeAvatar(avatarPreview) ? (
                   <Image
                     src={getSafeAvatar(avatarPreview)!}
@@ -676,12 +676,12 @@ export function StudentWorkspace({
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <span className="font-black text-2xl sm:text-3xl text-[#0F5244]">
+                  <span className="font-black text-2xl sm:text-3xl text-[var(--color-primary-main)]">
                     {formData.fullName.charAt(0)}
                   </span>
                 )}
               </div>
-              <span className="absolute bottom-0 right-0 rtl:right-auto rtl:left-0 w-3.5 h-3.5 bg-emerald-500 border-2 border-white rounded-full" />
+              <span className="absolute bottom-0 right-0 rtl:right-auto rtl:left-0 w-3.5 h-3.5 bg-slate-1000 border-2 border-white rounded-full" />
             </div>
 
             <div className="space-y-1">
@@ -689,7 +689,7 @@ export function StudentWorkspace({
                 <h1 className="text-lg sm:text-2xl font-black text-slate-900">
                   {formData.fullName}
                 </h1>
-                <span className="px-2.5 py-0.5 rounded-full bg-emerald-100 text-[#0F5244] text-[11px] font-extrabold">
+                <span className="px-2.5 py-0.5 rounded-full bg-slate-200 text-[var(--color-primary-main)] text-[11px] font-extrabold">
                   {(user?.role || "").toLowerCase() === "instructor" ||
                   (user?.role || "").toLowerCase() === "coach"
                     ? tWs("instructorAccount")

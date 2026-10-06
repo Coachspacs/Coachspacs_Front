@@ -46,7 +46,7 @@ function renderLegalContent(text: string) {
   if (/<[a-z][\s\S]*>/i.test(text)) {
     return (
       <div
-        className="space-y-3 leading-relaxed [&_ul]:list-disc [&_ul]:ps-5 [&_ul]:space-y-1.5 [&_ol]:list-decimal [&_ol]:ps-5 [&_ol]:space-y-1.5 [&_p]:mb-2 [&_a]:text-emerald-700 [&_a]:underline [&_a]:font-semibold"
+        className="space-y-3 leading-relaxed [&_ul]:list-disc [&_ul]:ps-5 [&_ul]:space-y-1.5 [&_ol]:list-decimal [&_ol]:ps-5 [&_ol]:space-y-1.5 [&_p]:mb-2 [&_a]:text-brand-dark [&_a]:underline [&_a]:font-semibold"
         dangerouslySetInnerHTML={{ __html: sanitizeLegalHtml(text) }}
       />
     );

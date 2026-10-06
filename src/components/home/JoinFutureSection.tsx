@@ -51,18 +51,18 @@ export function JoinFutureSection({ data, isPreview }: JoinFutureSectionProps = 
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-40px" }}
           transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
-          className="relative bg-gradient-to-br from-[#EBF5F3] via-[#F4F9F8] to-[#E2F1EE] rounded-3xl lg:rounded-[36px] overflow-hidden grid grid-cols-1 lg:grid-cols-12 shadow-lg border border-[#0F5244]/15 group/banner"
+          className="relative bg-gradient-to-br from-[#EBF5F3] via-[#F4F9F8] to-[#E2F1EE] rounded-3xl lg:rounded-[36px] overflow-hidden grid grid-cols-1 lg:grid-cols-12 shadow-lg border border-brand-dark/15 group/banner"
         >
           
           {/* Subtle Decorative Background Elements */}
           <div className="absolute top-0 right-1/4 w-96 h-96 bg-[#45D1B4]/20 rounded-full blur-3xl pointer-events-none animate-aurora-drift" />
-          <div className="absolute bottom-0 left-0 w-80 h-80 bg-[#0F5244]/5 rounded-full blur-2xl pointer-events-none animate-float-delayed" />
+          <div className="absolute bottom-0 left-0 w-80 h-80 bg-brand-dark/5 rounded-full blur-2xl pointer-events-none animate-float-delayed" />
 
           {/* Left Column (Content & Actions) */}
           <div className="col-span-1 lg:col-span-7 p-7 sm:p-10 lg:p-14 flex flex-col justify-center text-left rtl:text-right space-y-6 z-20">
             {/* Pill Badge */}
-            <div className="inline-flex items-center gap-2 self-start bg-[#0F5244]/10 border border-[#0F5244]/15 px-3.5 py-1.5 rounded-full text-[#0F5244] text-xs font-extrabold tracking-wide">
-              <Sparkles className="w-3.5 h-3.5 text-[#0F5244]" />
+            <div className="inline-flex items-center gap-2 self-start bg-brand-dark/10 border border-brand-dark/15 px-3.5 py-1.5 rounded-full text-brand-dark text-xs font-extrabold tracking-wide">
+              <Sparkles className="w-3.5 h-3.5 text-brand-dark" />
               <span>{t("becomeInstructor")}</span>
             </div>
 
@@ -78,7 +78,7 @@ export function JoinFutureSection({ data, isPreview }: JoinFutureSectionProps = 
             <div className="flex flex-wrap items-center gap-4 sm:gap-6 pt-2">
               <Link
                 href={buttonLink}
-                className="bg-[#0F5244] hover:bg-[#08382E] active:scale-95 text-white text-sm sm:text-base font-black px-8 py-3.5 rounded-full transition-all duration-200 shadow-md hover:shadow-xl inline-flex items-center justify-center cursor-pointer animate-shimmer"
+                className="bg-brand-dark hover:bg-[#08382E] active:scale-95 text-white text-sm sm:text-base font-black px-8 py-3.5 rounded-full transition-all duration-200 shadow-md hover:shadow-xl inline-flex items-center justify-center cursor-pointer animate-shimmer"
               >
                 {buttonText}
               </Link>
@@ -87,7 +87,7 @@ export function JoinFutureSection({ data, isPreview }: JoinFutureSectionProps = 
                 href={`/${locale}/become-instructor`}
                 aria-label={`${t("learnMore")} - ${t("becomeInstructor")}`}
                 title={`${t("learnMore")} - ${t("becomeInstructor")}`}
-                className="text-[#0F5244] hover:text-[#08382E] text-sm sm:text-base font-bold transition-colors inline-flex items-center gap-1.5 group cursor-pointer"
+                className="text-brand-dark hover:text-[#08382E] text-sm sm:text-base font-bold transition-colors inline-flex items-center gap-1.5 group cursor-pointer"
               >
                 <span>{t("learnMore")}</span>
                 <ChevronRight className="w-4 h-4 rtl:rotate-180 group-hover:translate-x-1 rtl:group-hover:-translate-x-1 transition-transform" />

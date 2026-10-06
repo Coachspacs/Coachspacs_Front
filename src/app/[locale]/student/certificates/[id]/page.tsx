@@ -516,7 +516,7 @@ export default function CertificatePage() {
   if (isLoading) {
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center gap-3">
-        <Loader2 className="w-8 h-8 text-[#0F5244] animate-spin" />
+        <Loader2 className="w-8 h-8 text-brand-dark animate-spin" />
         <span className="text-xs text-slate-500 font-medium">
           {t('loadingCertificate')}
         </span>
@@ -540,7 +540,7 @@ export default function CertificatePage() {
         </div>
         <Link
           href={`/${locale}/student/certificates`}
-          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#0F5244] hover:bg-[#07382E] text-white text-xs font-bold transition-all shadow-xs"
+          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-brand-dark hover:bg-[#07382E] text-white text-xs font-bold transition-all shadow-xs"
         >
           {isAr ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
           <span>{t('backToCertificates')}</span>
@@ -562,7 +562,7 @@ export default function CertificatePage() {
             {isAr ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
           </Link>
           <h1 className="text-2xl font-extrabold text-slate-900 flex items-center gap-2">
-            <Award className="w-6 h-6 text-[#0F5244]" />
+            <Award className="w-6 h-6 text-brand-dark" />
             <span>{t('title')}</span>
           </h1>
         </div>
@@ -585,10 +585,10 @@ export default function CertificatePage() {
             href={`/${locale}/certificates/verify/${encodeURIComponent(certificateData.certificateCode || certificateData.id)}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl border border-emerald-300/80 bg-emerald-50/80 hover:bg-emerald-100 text-[#0F5244] text-xs font-bold transition-all shadow-2xs active:scale-98 cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl border border-slate-300/80 bg-slate-50/80 hover:bg-slate-100 text-brand-dark text-xs font-bold transition-all shadow-2xs active:scale-98 cursor-pointer"
             title={t('verifyCertificate')}
           >
-            <ShieldCheck className="w-4 h-4 text-emerald-600" />
+            <ShieldCheck className="w-4 h-4 text-[var(--color-primary-main)]" />
             <span>{t('verify')}</span>
           </Link>
 
@@ -597,7 +597,7 @@ export default function CertificatePage() {
             type="button"
             onClick={handleDownloadPdf}
             disabled={isDownloading}
-            className="inline-flex items-center gap-2 px-5 sm:px-6 py-2.5 rounded-xl bg-[#0F5244] hover:bg-[#07382E] text-white text-xs font-bold transition-all shadow-xs hover:shadow-sm active:scale-98 cursor-pointer disabled:opacity-75 disabled:cursor-not-allowed"
+            className="inline-flex items-center gap-2 px-5 sm:px-6 py-2.5 rounded-xl bg-brand-dark hover:bg-[#07382E] text-white text-xs font-bold transition-all shadow-xs hover:shadow-sm active:scale-98 cursor-pointer disabled:opacity-75 disabled:cursor-not-allowed"
           >
             {isDownloading ? (
               <>
@@ -606,7 +606,7 @@ export default function CertificatePage() {
               </>
             ) : (
               <>
-                <Download className="w-4 h-4 text-emerald-100" />
+                <Download className="w-4 h-4 text-slate-100" />
                 <span>{t('downloadPdf')}</span>
               </>
             )}

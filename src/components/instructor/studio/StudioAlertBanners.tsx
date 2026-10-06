@@ -82,8 +82,8 @@ export function StudioAlertBanners({
 
       {/* Save Draft Success Notification Toast */}
       {saveSuccess && (
-        <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs sm:text-sm font-bold flex items-center gap-2 animate-in fade-in">
-          <CheckCircle2 size={18} className="text-emerald-600 shrink-0" />
+        <div className="p-4 rounded-2xl bg-slate-100 border border-slate-200 text-[var(--color-primary-main)] text-xs sm:text-sm font-bold flex items-center gap-2 animate-in fade-in">
+          <CheckCircle2 size={18} className="text-[var(--color-primary-main)] shrink-0" />
           <span>{t("draftSavedSuccess")}</span>
         </div>
       )}

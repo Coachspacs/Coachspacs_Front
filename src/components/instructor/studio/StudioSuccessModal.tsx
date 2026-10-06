@@ -25,7 +25,7 @@ export function StudioSuccessModal({
   return (
     <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
       <div className="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 space-y-5 shadow-2xl animate-in zoom-in-95 text-center">
-        <div className="w-16 h-16 rounded-3xl bg-emerald-100 text-[#0F5244] flex items-center justify-center mx-auto shadow-sm">
+        <div className="w-16 h-16 rounded-3xl bg-slate-200 text-[var(--color-primary-main)] flex items-center justify-center mx-auto shadow-sm">
           <Sparkles size={32} />
         </div>
 
@@ -48,7 +48,7 @@ export function StudioSuccessModal({
             onClose();
             router.push(`/${locale}/instructor/courses`);
           }}
-          className="w-full py-3 rounded-2xl bg-[#0F5244] hover:bg-[#07382E] text-white text-xs sm:text-sm font-black shadow-md transition-all cursor-pointer"
+          className="w-full py-3 rounded-2xl bg-brand-dark hover:bg-[#07382E] text-white text-xs sm:text-sm font-black shadow-md transition-all cursor-pointer"
         >
           {t("backToCourses")}
         </button>

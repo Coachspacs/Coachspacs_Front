@@ -72,7 +72,7 @@ export function InstructorSettingsTab({
       {/* Avatar Section */}
       <div className="p-6 rounded-3xl bg-slate-50/70 border border-slate-200/80 flex flex-col sm:flex-row items-center gap-6">
         <div className="relative group">
-          <div className="w-24 h-24 rounded-full bg-[#0F5244]/10 text-[#0F5244] border-2 border-[#0F5244]/20 flex items-center justify-center font-black text-2xl overflow-hidden shadow-xs">
+          <div className="w-24 h-24 rounded-full bg-brand-dark/10 text-[var(--color-primary-main)] border-2 border-brand-dark/20 flex items-center justify-center font-black text-2xl overflow-hidden shadow-xs">
             {avatarPreview ? (
               <Image
                 src={avatarPreview}
@@ -89,7 +89,7 @@ export function InstructorSettingsTab({
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
-            className="absolute bottom-0 end-0 p-2 rounded-full bg-[#0F5244] text-white shadow-md hover:bg-[#08382E] transition-all cursor-pointer"
+            className="absolute bottom-0 end-0 p-2 rounded-full bg-brand-dark text-white shadow-md hover:bg-[#08382E] transition-all cursor-pointer"
           >
             <Camera className="w-4 h-4" />
           </button>
@@ -114,7 +114,7 @@ export function InstructorSettingsTab({
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
-            className="mt-2 inline-flex items-center gap-1.5 text-xs font-bold text-[#0F5244] hover:underline cursor-pointer"
+            className="mt-2 inline-flex items-center gap-1.5 text-xs font-bold text-[var(--color-primary-main)] hover:underline cursor-pointer"
           >
             {isAr ? "رفع صورة جديدة" : "Upload new picture"}
           </button>
@@ -134,7 +134,7 @@ export function InstructorSettingsTab({
             value={formData.fullName}
             onChange={onInputChange}
             required
-            className="w-full h-11 rounded-2xl border border-slate-200 bg-slate-50/60 px-4 text-xs font-semibold text-slate-900 focus:bg-white focus:border-[#0F5244] focus:ring-2 focus:ring-[#0F5244]/10 focus:outline-none transition-all"
+            className="w-full h-11 rounded-2xl border border-slate-200 bg-slate-50/60 px-4 text-xs font-semibold text-slate-900 focus:bg-white focus:border-brand-dark focus:ring-2 focus:ring-brand-dark/10 focus:outline-none transition-all"
           />
         </div>
 
@@ -147,7 +147,7 @@ export function InstructorSettingsTab({
             <button
               type="button"
               onClick={onOpenEmailModal}
-              className="text-[11px] font-bold text-[#0F5244] hover:underline cursor-pointer"
+              className="text-[11px] font-bold text-[var(--color-primary-main)] hover:underline cursor-pointer"
             >
               {isAr ? "تغيير البريد" : "Change Email"}
             </button>
@@ -174,7 +174,7 @@ export function InstructorSettingsTab({
             value={formData.specialization}
             onChange={onInputChange}
             placeholder={isAr ? "مثال: الذكاء الاصطناعي، البرمجة..." : "e.g. Fullstack Web, AI Engineering"}
-            className="w-full h-11 rounded-2xl border border-slate-200 bg-slate-50/60 px-4 text-xs font-semibold text-slate-900 focus:bg-white focus:border-[#0F5244] focus:ring-2 focus:ring-[#0F5244]/10 focus:outline-none transition-all"
+            className="w-full h-11 rounded-2xl border border-slate-200 bg-slate-50/60 px-4 text-xs font-semibold text-slate-900 focus:bg-white focus:border-brand-dark focus:ring-2 focus:ring-brand-dark/10 focus:outline-none transition-all"
           />
         </div>
 
@@ -190,7 +190,7 @@ export function InstructorSettingsTab({
             onChange={onInputChange}
             min={0}
             max={50}
-            className="w-full h-11 rounded-2xl border border-slate-200 bg-slate-50/60 px-4 text-xs font-semibold text-slate-900 focus:bg-white focus:border-[#0F5244] focus:ring-2 focus:ring-[#0F5244]/10 focus:outline-none transition-all"
+            className="w-full h-11 rounded-2xl border border-slate-200 bg-slate-50/60 px-4 text-xs font-semibold text-slate-900 focus:bg-white focus:border-brand-dark focus:ring-2 focus:ring-brand-dark/10 focus:outline-none transition-all"
           />
         </div>
 
@@ -205,7 +205,7 @@ export function InstructorSettingsTab({
             value={formData.headline}
             onChange={onInputChange}
             placeholder={isAr ? "عنوان احترافي يظهر بجانب اسمك" : "Professional title shown on your profile"}
-            className="w-full h-11 rounded-2xl border border-slate-200 bg-slate-50/60 px-4 text-xs font-semibold text-slate-900 focus:bg-white focus:border-[#0F5244] focus:ring-2 focus:ring-[#0F5244]/10 focus:outline-none transition-all"
+            className="w-full h-11 rounded-2xl border border-slate-200 bg-slate-50/60 px-4 text-xs font-semibold text-slate-900 focus:bg-white focus:border-brand-dark focus:ring-2 focus:ring-brand-dark/10 focus:outline-none transition-all"
           />
         </div>
 
@@ -220,7 +220,7 @@ export function InstructorSettingsTab({
             value={formData.bio}
             onChange={onInputChange}
             placeholder={isAr ? "نبذة تعريفية مختصرة عن مسيرتك وخبراتك..." : "Short bio about your background, experience and passion..."}
-            className="w-full rounded-2xl border border-slate-200 bg-slate-50/60 p-4 text-xs font-medium text-slate-900 focus:bg-white focus:border-[#0F5244] focus:ring-2 focus:ring-[#0F5244]/10 focus:outline-none transition-all resize-none"
+            className="w-full rounded-2xl border border-slate-200 bg-slate-50/60 p-4 text-xs font-medium text-slate-900 focus:bg-white focus:border-brand-dark focus:ring-2 focus:ring-brand-dark/10 focus:outline-none transition-all resize-none"
           />
         </div>
 
@@ -237,7 +237,7 @@ export function InstructorSettingsTab({
               onChange={onInputChange}
               placeholder="https://yourwebsite.com"
               dir="ltr"
-              className="w-full h-11 rounded-2xl border border-slate-200 bg-slate-50/60 px-4 rtl:pr-10 ltr:pl-10 text-xs font-semibold text-slate-900 focus:bg-white focus:border-[#0F5244] focus:ring-2 focus:ring-[#0F5244]/10 focus:outline-none transition-all"
+              className="w-full h-11 rounded-2xl border border-slate-200 bg-slate-50/60 px-4 rtl:pr-10 ltr:pl-10 text-xs font-semibold text-slate-900 focus:bg-white focus:border-brand-dark focus:ring-2 focus:ring-brand-dark/10 focus:outline-none transition-all"
             />
             <Globe className="absolute top-1/2 -translate-y-1/2 rtl:right-3.5 ltr:left-3.5 w-4 h-4 text-slate-400" />
           </div>
@@ -256,7 +256,7 @@ export function InstructorSettingsTab({
               onChange={onInputChange}
               placeholder="https://linkedin.com/in/username"
               dir="ltr"
-              className="w-full h-11 rounded-2xl border border-slate-200 bg-slate-50/60 px-4 rtl:pr-10 ltr:pl-10 text-xs font-semibold text-slate-900 focus:bg-white focus:border-[#0F5244] focus:ring-2 focus:ring-[#0F5244]/10 focus:outline-none transition-all"
+              className="w-full h-11 rounded-2xl border border-slate-200 bg-slate-50/60 px-4 rtl:pr-10 ltr:pl-10 text-xs font-semibold text-slate-900 focus:bg-white focus:border-brand-dark focus:ring-2 focus:ring-brand-dark/10 focus:outline-none transition-all"
             />
             <Linkedin className="absolute top-1/2 -translate-y-1/2 rtl:right-3.5 ltr:left-3.5 w-4 h-4 text-slate-400" />
           </div>
@@ -268,7 +268,7 @@ export function InstructorSettingsTab({
         <button
           type="submit"
           disabled={isSaving}
-          className="inline-flex items-center gap-2 px-8 py-3 rounded-2xl bg-[#0F5244] hover:bg-[#08382E] text-white text-xs font-black shadow-sm active:scale-98 transition-all cursor-pointer disabled:opacity-50"
+          className="inline-flex items-center gap-2 px-8 py-3 rounded-2xl bg-brand-dark hover:bg-[#08382E] text-white text-xs font-black shadow-sm active:scale-98 transition-all cursor-pointer disabled:opacity-50"
         >
           {isSaving ? (
             <>

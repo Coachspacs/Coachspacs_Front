@@ -105,7 +105,7 @@ export function LegalClauseCard({
         hasErrors
           ? "border-rose-300 ring-2 ring-rose-200/50"
           : isExpanded
-          ? "border-[#0F5244]/40 ring-2 ring-[#0F5244]/5"
+          ? "border-brand-dark/40 ring-2 ring-brand-dark/5"
           : "border-slate-200/90 hover:border-slate-300"
       }`}
     >
@@ -120,7 +120,7 @@ export function LegalClauseCard({
         <div className="flex items-center gap-3 min-w-0 flex-1">
           {/* Auto-Number Badge */}
           <span
-            className="w-8 h-8 rounded-xl bg-emerald-50 text-[#0F5244] border border-emerald-200/80 font-black text-xs sm:text-sm flex items-center justify-center shrink-0 shadow-2xs"
+            className="w-8 h-8 rounded-xl bg-slate-50 text-brand-dark border border-slate-200/80 font-black text-xs sm:text-sm flex items-center justify-center shrink-0 shadow-2xs"
             title={`Clause #${index + 1}`}
           >
             {index + 1}
@@ -128,7 +128,7 @@ export function LegalClauseCard({
 
           {/* Icon Badge */}
           <div className="w-8 h-8 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center shrink-0 border border-slate-200/60 hidden sm:flex">
-            <IconComp className="w-4 h-4 text-[#0F5244]" />
+            <IconComp className="w-4 h-4 text-brand-dark" />
           </div>
 
           {/* Titles in Collapsed Mode */}
@@ -169,7 +169,7 @@ export function LegalClauseCard({
             type="button"
             onClick={onDuplicate}
             title={isAr ? "تكرار هذا البند" : "Duplicate Clause"}
-            className="p-2 rounded-xl text-slate-500 hover:text-[#0F5244] hover:bg-emerald-50 transition-colors cursor-pointer"
+            className="p-2 rounded-xl text-slate-500 hover:text-brand-dark hover:bg-slate-50 transition-colors cursor-pointer"
           >
             <Copy className="w-4 h-4" />
           </button>
@@ -194,7 +194,7 @@ export function LegalClauseCard({
           >
             <ChevronDown
               className={`w-4 h-4 transition-transform duration-200 ${
-                isExpanded ? "rotate-180 text-[#0F5244]" : "rotate-0"
+                isExpanded ? "rotate-180 text-brand-dark" : "rotate-0"
               }`}
             />
           </button>
@@ -216,7 +216,7 @@ export function LegalClauseCard({
               {/* Icon Selection & Guidance */}
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80">
                 <div className="flex items-center gap-2.5">
-                  <div className="w-9 h-9 rounded-xl bg-white text-[#0F5244] flex items-center justify-center shrink-0 border border-slate-200 shadow-2xs">
+                  <div className="w-9 h-9 rounded-xl bg-white text-brand-dark flex items-center justify-center shrink-0 border border-slate-200 shadow-2xs">
                     <IconComp className="w-5 h-5" />
                   </div>
                   <div>
@@ -232,7 +232,7 @@ export function LegalClauseCard({
                 <select
                   value={clause.icon || "Shield"}
                   onChange={(e) => onUpdate("icon", e.target.value)}
-                  className="bg-white border border-slate-200 text-slate-800 text-xs font-bold rounded-xl px-3.5 py-2 focus:outline-none focus:border-[#0F5244] cursor-pointer shadow-2xs"
+                  className="bg-white border border-slate-200 text-slate-800 text-xs font-bold rounded-xl px-3.5 py-2 focus:outline-none focus:border-brand-dark cursor-pointer shadow-2xs"
                 >
                   {LEGAL_ICON_OPTIONS.map((opt) => (
                     <option key={opt.id} value={opt.id}>
@@ -250,7 +250,7 @@ export function LegalClauseCard({
                       <span>{isAr ? "عنوان البند (عربي)" : "Clause Title (Arabic)"}</span>
                       <span className="text-rose-500">*</span>
                     </label>
-                    <span className="text-[10px] text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md font-semibold border border-emerald-200/60 leading-none">
+                    <span className="text-[10px] text-brand-dark bg-slate-50 px-2 py-0.5 rounded-md font-semibold border border-slate-200/60 leading-none">
                       {isAr ? "الترقيم تلقائي" : "Auto-numbered"}
                     </span>
                   </div>
@@ -260,7 +260,7 @@ export function LegalClauseCard({
                     value={displayTitleAr}
                     onChange={handleTitleArChange}
                     placeholder="مثال: جمع البيانات واستخدامها"
-                    className={`w-full bg-white border rounded-xl px-3.5 py-2.5 text-xs text-right text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#0F5244] focus:ring-1 focus:ring-[#0F5244]/20 transition-all font-bold ${
+                    className={`w-full bg-white border rounded-xl px-3.5 py-2.5 text-xs text-right text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-brand-dark focus:ring-1 focus:ring-brand-dark/20 transition-all font-bold ${
                       isArTitleEmpty ? "border-amber-300 bg-amber-50/20" : "border-slate-200/90"
                     }`}
                   />
@@ -275,7 +275,7 @@ export function LegalClauseCard({
                       <span>Clause Title (English)</span>
                       <span className="text-rose-500">*</span>
                     </label>
-                    <span className="text-[10px] text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md font-semibold border border-emerald-200/60 leading-none">
+                    <span className="text-[10px] text-brand-dark bg-slate-50 px-2 py-0.5 rounded-md font-semibold border border-slate-200/60 leading-none">
                       Auto-numbered
                     </span>
                   </div>
@@ -285,7 +285,7 @@ export function LegalClauseCard({
                     value={displayTitleEn}
                     onChange={handleTitleEnChange}
                     placeholder="e.g. Data Collection & Usage"
-                    className={`w-full bg-white border rounded-xl px-3.5 py-2.5 text-xs text-left text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#0F5244] focus:ring-1 focus:ring-[#0F5244]/20 transition-all font-bold ${
+                    className={`w-full bg-white border rounded-xl px-3.5 py-2.5 text-xs text-left text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-brand-dark focus:ring-1 focus:ring-brand-dark/20 transition-all font-bold ${
                       isEnTitleEmpty ? "border-amber-300 bg-amber-50/20" : "border-slate-200/90"
                     }`}
                   />

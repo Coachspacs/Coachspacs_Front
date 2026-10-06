@@ -52,7 +52,7 @@ export function QuizConfigView({
       className="space-y-6"
     >
       {/* Greeting banner with AI Toy */}
-      <div className="flex items-center justify-between gap-4 p-4 rounded-2xl bg-emerald-50/70 border border-emerald-100">
+      <div className="flex items-center justify-between gap-4 p-4 rounded-2xl bg-slate-100/70 border border-slate-100">
         <div className="flex items-center gap-3">
           <div className="shrink-0">
             <AnimatedRobotCharacter size="xs" />
@@ -109,12 +109,12 @@ export function QuizConfigView({
                 onClick={() => onQuestionCountChange(item.count)}
                 className={`relative p-4 rounded-2xl border transition-all cursor-pointer ${
                   isSelected
-                    ? "bg-emerald-50/80 border-emerald-500 shadow-sm ring-1 ring-emerald-500"
+                    ? "bg-slate-100/80 border-[var(--color-primary-main)] shadow-sm ring-1 ring-[var(--color-primary-main)]"
                     : "bg-white border-slate-200/80 hover:border-slate-300"
                 }`}
               >
                 {item.popular && (
-                  <span className="absolute -top-2.5 end-3 px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-emerald-600 text-white shadow-2xs">
+                  <span className="absolute -top-2.5 end-3 px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-[var(--color-primary-dark)] text-white shadow-2xs">
                     {isAr ? "موصى به" : "Popular"}
                   </span>
                 )}
@@ -123,7 +123,7 @@ export function QuizConfigView({
                   <div
                     className={`w-5 h-5 rounded-full border flex items-center justify-center transition-colors ${
                       isSelected
-                        ? "border-emerald-600 bg-emerald-600 text-white"
+                        ? "border-[var(--color-primary-main)] bg-[var(--color-primary-dark)] text-white"
                         : "border-slate-300"
                     }`}
                   >
@@ -144,7 +144,7 @@ export function QuizConfigView({
             <label className="text-xs font-black uppercase tracking-wider text-slate-500">
               {isAr ? "2. اختر الدروس المراد تضمينها" : "2. Select Lessons to Include"}
             </label>
-            <span className="ms-2 text-xs font-bold text-emerald-700">
+            <span className="ms-2 text-xs font-bold text-[var(--color-primary-main)]">
               ({selectedLessonIds.length} / 10 {isAr ? "محددة" : "selected"})
             </span>
           </div>
@@ -153,7 +153,7 @@ export function QuizConfigView({
             <button
               type="button"
               onClick={onSelectAllUnlocked}
-              className="text-xs font-bold text-[#0F5244] hover:underline cursor-pointer"
+              className="text-xs font-bold text-[var(--color-primary-main)] hover:underline cursor-pointer"
             >
               {isAr ? "تحديد الكل (حتى 10)" : "Select Available (Max 10)"}
             </button>
@@ -186,7 +186,7 @@ export function QuizConfigView({
                   isLocked
                     ? "opacity-50 bg-slate-50/50 cursor-not-allowed"
                     : isSelected
-                    ? "bg-emerald-50/40 hover:bg-emerald-50/60 cursor-pointer"
+                    ? "bg-slate-100/40 hover:bg-slate-100/60 cursor-pointer"
                     : "hover:bg-slate-50 cursor-pointer"
                 }`}
               >
@@ -194,7 +194,7 @@ export function QuizConfigView({
                   <div
                     className={`w-5 h-5 rounded-md border flex items-center justify-center shrink-0 transition-colors ${
                       isSelected
-                        ? "bg-emerald-600 border-emerald-600 text-white"
+                        ? "bg-[var(--color-primary-dark)] border-[var(--color-primary-main)] text-white"
                         : "border-slate-300 bg-white"
                     }`}
                   >
@@ -216,8 +216,8 @@ export function QuizConfigView({
 
                 <div className="flex items-center gap-2 shrink-0">
                   {isDone && (
-                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 flex items-center gap-1">
-                      <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-200 text-[var(--color-primary-main)] flex items-center gap-1">
+                      <CheckCircle2 className="w-3 h-3 text-[var(--color-primary-main)]" />
                       <span>{isAr ? "مكتمل" : "Completed"}</span>
                     </span>
                   )}
@@ -259,7 +259,7 @@ export function QuizConfigView({
           type="button"
           disabled={selectedLessonIds.length === 0 || selectedLessonIds.length > 10}
           onClick={onStartGeneration}
-          className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-[#0F5244] hover:bg-[#07382E] disabled:bg-slate-300 disabled:cursor-not-allowed text-white text-xs sm:text-sm font-bold px-8 py-3.5 rounded-2xl shadow-md transition-all cursor-pointer"
+          className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-brand-dark hover:bg-[#07382E] disabled:bg-slate-300 disabled:cursor-not-allowed text-white text-xs sm:text-sm font-bold px-8 py-3.5 rounded-2xl shadow-md transition-all cursor-pointer"
         >
           <Sparkles className="w-4 h-4" />
           <span>

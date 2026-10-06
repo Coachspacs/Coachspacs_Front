@@ -158,8 +158,8 @@ export function LiveCoursePreviewModal({
       {/* Top Floating Simulator Control Bar */}
       <div className="sticky top-0 z-40 w-full bg-slate-900/95 border-b border-slate-800/80 backdrop-blur px-4 sm:px-8 py-3 flex items-center justify-between text-white shadow-lg">
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2 px-2.5 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-bold">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+          <div className="flex items-center gap-2 px-2.5 py-1 rounded-lg bg-[var(--color-primary-main)]/10 border border-[var(--color-primary-main)]/30 text-brand-light text-xs font-bold">
+            <span className="w-2 h-2 rounded-full bg-brand-light animate-ping" />
             <span>{tp("previewModeNotice")}</span>
           </div>
 
@@ -170,7 +170,7 @@ export function LiveCoursePreviewModal({
               onClick={() => setPreviewLang("ar")}
               className={`px-3 py-1 rounded-lg transition-all ${
                 previewLang === "ar"
-                  ? "bg-[#0F5244] text-white shadow-xs"
+                  ? "bg-brand-dark text-white shadow-xs"
                   : "text-slate-400 hover:text-white"
               }`}
             >
@@ -181,7 +181,7 @@ export function LiveCoursePreviewModal({
               onClick={() => setPreviewLang("en")}
               className={`px-3 py-1 rounded-lg transition-all ${
                 previewLang === "en"
-                  ? "bg-[#0F5244] text-white shadow-xs"
+                  ? "bg-brand-dark text-white shadow-xs"
                   : "text-slate-400 hover:text-white"
               }`}
             >
@@ -211,8 +211,8 @@ export function LiveCoursePreviewModal({
           <div className="lg:col-span-2 space-y-5">
             {/* Badges Row */}
             <div className="flex items-center gap-2.5 flex-wrap">
-              <span className="px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-extrabold flex items-center gap-1 shadow-2xs">
-                <Layers className="w-3.5 h-3.5 text-emerald-600" />
+              <span className="px-3 py-1 rounded-full bg-slate-50 border border-slate-200 text-brand-dark text-xs font-extrabold flex items-center gap-1 shadow-2xs">
+                <Layers className="w-3.5 h-3.5 text-[var(--color-primary-main)]" />
                 <span>{categoryName || tp("defaultCategory")}</span>
               </span>
 
@@ -288,8 +288,8 @@ export function LiveCoursePreviewModal({
                   }
                   className="absolute inset-0 bg-slate-900/40 hover:bg-slate-900/50 flex flex-col items-center justify-center gap-2 text-white transition-all cursor-pointer"
                 >
-                  <div className="w-14 h-14 rounded-full bg-white/95 text-[#0F5244] flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform">
-                    <Play className="w-6 h-6 fill-[#0F5244] ml-0.5 rtl:mr-0.5" />
+                  <div className="w-14 h-14 rounded-full bg-white/95 text-brand-dark flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform">
+                    <Play className="w-6 h-6 fill-brand-dark ml-0.5 rtl:mr-0.5" />
                   </div>
                   <span className="text-xs font-black tracking-wide drop-shadow-md">
                     {tp("previewLessonBadge")}
@@ -309,7 +309,7 @@ export function LiveCoursePreviewModal({
             <div className="space-y-2.5">
               <button
                 type="button"
-                className="w-full py-3.5 rounded-2xl bg-[#0F5244] text-white text-sm font-black shadow-md flex items-center justify-center gap-2 cursor-not-allowed opacity-90"
+                className="w-full py-3.5 rounded-2xl bg-brand-dark text-white text-sm font-black shadow-md flex items-center justify-center gap-2 cursor-not-allowed opacity-90"
               >
                 <span>{tp("enrollPreviewBtn", { price: formattedPrice })}</span>
               </button>
@@ -327,19 +327,19 @@ export function LiveCoursePreviewModal({
               <h4 className="font-extrabold text-slate-900 text-xs">{tp("courseIncludes")}</h4>
               <ul className="space-y-2 text-slate-600">
                 <li className="flex items-center gap-2">
-                  <Tv className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <Tv className="w-4 h-4 text-[var(--color-primary-main)] shrink-0" />
                   <span>{tp("featureVideos", { count: totalLessons })}</span>
                 </li>
                 <li className="flex items-center gap-2">
-                  <Award className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <Award className="w-4 h-4 text-[var(--color-primary-main)] shrink-0" />
                   <span>{tp("featureCertificate")}</span>
                 </li>
                 <li className="flex items-center gap-2">
-                  <InfinityIcon className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <InfinityIcon className="w-4 h-4 text-[var(--color-primary-main)] shrink-0" />
                   <span>{tp("featureAccess")}</span>
                 </li>
                 <li className="flex items-center gap-2">
-                  <Smartphone className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <Smartphone className="w-4 h-4 text-[var(--color-primary-main)] shrink-0" />
                   <span>{tp("featureDevices")}</span>
                 </li>
               </ul>
@@ -391,7 +391,7 @@ export function LiveCoursePreviewModal({
                       className="w-full p-4 sm:p-5 flex items-center justify-between gap-3 bg-slate-50/70 hover:bg-slate-100/70 text-left rtl:text-right transition-colors cursor-pointer"
                     >
                       <div className="flex items-center gap-3 min-w-0">
-                        <span className="w-7 h-7 rounded-xl bg-emerald-100 text-[#0F5244] font-black text-xs flex items-center justify-center shrink-0">
+                        <span className="w-7 h-7 rounded-xl bg-slate-100 text-brand-dark font-black text-xs flex items-center justify-center shrink-0">
                           {sIdx + 1}
                         </span>
                         <h3 className="font-extrabold text-slate-900 text-sm sm:text-base truncate">
@@ -432,12 +432,12 @@ export function LiveCoursePreviewModal({
                                 className="flex items-center justify-between p-3 rounded-xl hover:bg-slate-50/80 transition-colors text-xs"
                               >
                                 <div className="flex items-center gap-2.5 truncate">
-                                  <PlayCircle className="w-4 h-4 text-[#0F5244] shrink-0" />
+                                  <PlayCircle className="w-4 h-4 text-brand-dark shrink-0" />
                                   <span className="font-bold text-slate-800 truncate">
                                     {lIdx + 1}. {lesTitle}
                                   </span>
                                   {lesson.is_preview && (
-                                    <span className="text-[10px] font-black text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200 shrink-0">
+                                    <span className="text-[10px] font-black text-brand-dark bg-slate-50 px-2 py-0.5 rounded border border-slate-200 shrink-0">
                                       {tp("previewLessonBadge")}
                                     </span>
                                   )}
@@ -453,9 +453,9 @@ export function LiveCoursePreviewModal({
                                           url: lesson.video_url!,
                                         })
                                       }
-                                      className="text-[10px] font-black text-emerald-700 hover:text-emerald-800 bg-emerald-50 hover:bg-emerald-100 px-2 py-1 rounded border border-emerald-200 flex items-center gap-1 cursor-pointer transition-colors"
+                                      className="text-[10px] font-black text-brand-dark hover:text-brand-dark bg-slate-50 hover:bg-slate-100 px-2 py-1 rounded border border-slate-200 flex items-center gap-1 cursor-pointer transition-colors"
                                     >
-                                      <Play className="w-2.5 h-2.5 fill-emerald-700" />
+                                      <Play className="w-2.5 h-2.5 fill-brand-dark" />
                                       <span>{tp("videoAvailable")}</span>
                                     </button>
                                   ) : (
@@ -488,7 +488,7 @@ export function LiveCoursePreviewModal({
           <div className="bg-slate-900 rounded-3xl max-w-3xl w-full p-6 space-y-4 shadow-2xl border border-slate-800 animate-in zoom-in-95">
             <div className="flex items-center justify-between text-white border-b border-slate-800 pb-3">
               <div className="flex items-center gap-2">
-                <PlayCircle className="w-5 h-5 text-emerald-400" />
+                <PlayCircle className="w-5 h-5 text-brand-light" />
                 <h3 className="text-sm sm:text-base font-black truncate">{activeVideoModal.title}</h3>
               </div>
               <button

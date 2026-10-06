@@ -109,9 +109,9 @@ export function AiCopywriteButton({
       <button
         type="button"
         onClick={handleOpen}
-        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-emerald-50 via-teal-50/80 to-emerald-50 hover:from-emerald-100 hover:to-teal-100 text-[#0F5244] border border-emerald-200/90 text-[11px] font-bold transition-all duration-200 cursor-pointer shadow-2xs hover:shadow-xs group hover:scale-[1.02] active:scale-95"
+        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-slate-50 via-teal-50/80 to-slate-50 hover:from-slate-100 hover:to-teal-100 text-brand-dark border border-slate-200/90 text-[11px] font-bold transition-all duration-200 cursor-pointer shadow-2xs hover:shadow-xs group hover:scale-[1.02] active:scale-95"
       >
-        <Sparkles className="w-3.5 h-3.5 text-[#0F5244] group-hover:rotate-12 transition-transform duration-300" />
+        <Sparkles className="w-3.5 h-3.5 text-brand-dark group-hover:rotate-12 transition-transform duration-300" />
         <span>{isAr ? "اقتراح صياغة بالذكاء الاصطناعي" : "AI Copy Suggestion"}</span>
       </button>
 
@@ -129,7 +129,7 @@ export function AiCopywriteButton({
               {/* Modal Header */}
               <div className="p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/70">
                 <div className="flex items-center gap-2.5">
-                  <div className="w-9 h-9 rounded-xl bg-[#0F5244] text-white flex items-center justify-center shadow-xs">
+                  <div className="w-9 h-9 rounded-xl bg-brand-dark text-white flex items-center justify-center shadow-xs">
                     <Sparkles className="w-4 h-4" />
                   </div>
                   <div>
@@ -167,7 +167,7 @@ export function AiCopywriteButton({
                     onClick={() => handleToneChange("inspiring")}
                     className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                       tone === "inspiring"
-                        ? "bg-[#0F5244] text-white shadow-xs"
+                        ? "bg-brand-dark text-white shadow-xs"
                         : "bg-slate-100 text-slate-600 hover:bg-slate-200"
                     }`}
                   >
@@ -180,7 +180,7 @@ export function AiCopywriteButton({
                     onClick={() => handleToneChange("professional")}
                     className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                       tone === "professional"
-                        ? "bg-[#0F5244] text-white shadow-xs"
+                        ? "bg-brand-dark text-white shadow-xs"
                         : "bg-slate-100 text-slate-600 hover:bg-slate-200"
                     }`}
                   >
@@ -193,7 +193,7 @@ export function AiCopywriteButton({
                     onClick={() => handleToneChange("direct")}
                     className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                       tone === "direct"
-                        ? "bg-[#0F5244] text-white shadow-xs"
+                        ? "bg-brand-dark text-white shadow-xs"
                         : "bg-slate-100 text-slate-600 hover:bg-slate-200"
                     }`}
                   >
@@ -206,9 +206,9 @@ export function AiCopywriteButton({
                   type="button"
                   onClick={() => fetchSuggestions(tone)}
                   disabled={isLoading}
-                  className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-bold text-slate-600 hover:text-[#0F5244] hover:bg-emerald-50 rounded-xl transition-all cursor-pointer disabled:opacity-50"
+                  className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-bold text-slate-600 hover:text-brand-dark hover:bg-slate-50 rounded-xl transition-all cursor-pointer disabled:opacity-50"
                 >
-                  <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? "animate-spin text-[#0F5244]" : ""}`} />
+                  <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? "animate-spin text-brand-dark" : ""}`} />
                   <span>{isAr ? "توليد بدائل أخرى" : "Regenerate"}</span>
                 </button>
               </div>
@@ -217,7 +217,7 @@ export function AiCopywriteButton({
               <div className="p-5 overflow-y-auto space-y-4 flex-1">
                 {isLoading ? (
                   <div className="py-12 flex flex-col items-center justify-center gap-3">
-                    <div className="w-8 h-8 rounded-full border-3 border-[#0F5244] border-t-transparent animate-spin" />
+                    <div className="w-8 h-8 rounded-full border-3 border-brand-dark border-t-transparent animate-spin" />
                     <p className="text-xs font-bold text-slate-500">
                       {isAr ? "جاري صياغة مقترحات تسويقية مبتكرة..." : "Generating creative suggestions..."}
                     </p>
@@ -233,10 +233,10 @@ export function AiCopywriteButton({
                       initial={{ opacity: 0, y: 6 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: idx * 0.08 }}
-                      className="p-4 rounded-2xl border border-slate-200 bg-white hover:border-[#0F5244]/40 hover:shadow-xs transition-all group"
+                      className="p-4 rounded-2xl border border-slate-200 bg-white hover:border-brand-dark/40 hover:shadow-xs transition-all group"
                     >
                       <div className="flex items-center justify-between mb-3 border-b border-slate-100 pb-2">
-                        <span className="text-[11px] font-black text-[#0F5244] bg-emerald-50 border border-emerald-200/70 px-2.5 py-0.5 rounded-lg">
+                        <span className="text-[11px] font-black text-brand-dark bg-slate-50 border border-slate-200/70 px-2.5 py-0.5 rounded-lg">
                           {isAr ? `الخيار #${idx + 1}` : `Option #${idx + 1}`}
                         </span>
 
@@ -248,7 +248,7 @@ export function AiCopywriteButton({
                           >
                             {copiedId === s.id ? (
                               <>
-                                <Check className="w-3 h-3 text-[#0F5244]" />
+                                <Check className="w-3 h-3 text-brand-dark" />
                                 <span>{isAr ? "تم النسخ" : "Copied"}</span>
                               </>
                             ) : (
@@ -265,7 +265,7 @@ export function AiCopywriteButton({
                             className={`inline-flex items-center gap-1.5 px-3 py-1 text-xs font-black rounded-lg transition-all cursor-pointer ${
                               appliedId === s.id
                                 ? "bg-[#07382E] text-white"
-                                : "bg-[#0F5244] hover:bg-[#07382E] text-white shadow-xs"
+                                : "bg-brand-dark hover:bg-[#07382E] text-white shadow-xs"
                             }`}
                           >
                             {appliedId === s.id ? (

@@ -199,7 +199,7 @@ export function CourseIncompleteModal({
                 <div
                   className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${
                     item.isComplete
-                      ? "bg-emerald-50 text-emerald-600"
+                      ? "bg-slate-50 text-[var(--color-primary-main)]"
                       : "bg-amber-50 text-amber-600"
                   }`}
                 >
@@ -219,7 +219,7 @@ export function CourseIncompleteModal({
               {/* Status Badge */}
               <div className="shrink-0">
                 {item.isComplete ? (
-                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 text-[10px] font-bold">
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-slate-50 text-brand-dark text-[10px] font-bold">
                     <Check className="w-3 h-3 stroke-[2.5]" />
                     <span>{t("statusReady")}</span>
                   </span>
@@ -247,7 +247,7 @@ export function CourseIncompleteModal({
           <button
             type="button"
             onClick={handleNavigateToStudio}
-            className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-xs hover:shadow transition-all active:scale-95 flex items-center gap-1.5 cursor-pointer"
+            className="px-4 py-2 rounded-xl bg-[var(--color-primary-main)] hover:bg-brand-dark text-white font-bold text-xs shadow-xs hover:shadow transition-all active:scale-95 flex items-center gap-1.5 cursor-pointer"
           >
             <span>{t("completeBtn")}</span>
             {isAr ? <ArrowLeft className="w-3.5 h-3.5" /> : <ArrowRight className="w-3.5 h-3.5" />}

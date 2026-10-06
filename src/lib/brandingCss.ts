@@ -250,7 +250,7 @@ export function generateBrandingCss(branding?: GlobalBrandingConfig | null): str
 
     /* 1. Primary Solid Backgrounds */
     .bg-\\[\\#0F5244\\],
-    [class~="bg-[#0F5244]"],
+    [class~="bg-brand-dark"],
     .bg-brand,
     .bg-brand-DEFAULT,
     .bg-brand-600 {
@@ -271,12 +271,12 @@ export function generateBrandingCss(branding?: GlobalBrandingConfig | null): str
     .text-\\[\\#0B4F3A\\],
     .text-\\[\\#0b4f3a\\],
     .text-\\[\\#148767\\],
-    [class~="text-[#0F5244]"],
+    [class~="text-brand-dark"],
     [class~="text-[#0D7A66]"],
     [class~="text-[#0d7a66]"],
-    [class~="text-[#0B4F3A]"],
+    [class~="text-brand-dark"],
     [class~="text-[#0b4f3a]"],
-    [class~="text-[#148767]"],
+    [class~="text-[var(--color-primary-main)]"],
     .text-brand,
     .text-brand-DEFAULT,
     .text-brand-600 {
@@ -285,7 +285,7 @@ export function generateBrandingCss(branding?: GlobalBrandingConfig | null): str
 
     /* 3. Primary Border Overrides */
     .border-\\[\\#0F5244\\],
-    [class~="border-[#0F5244]"],
+    [class~="border-brand-dark"],
     .border-brand,
     .border-brand-DEFAULT {
       border-color: var(--color-primary-main) !important;
@@ -323,23 +323,23 @@ export function generateBrandingCss(branding?: GlobalBrandingConfig | null): str
 
     /* 5. Primary Hover Text & Border */
     .hover\\:text-\\[\\#0F5244\\]:hover,
-    [class~="hover:text-[#0F5244]"]:hover,
+    [class~="hover:text-brand-dark"]:hover,
     .group:hover .group-hover\\:text-\\[\\#0F5244\\],
-    .group:hover [class~="group-hover:text-[#0F5244]"] {
+    .group:hover [class~="group-hover:text-brand-dark"] {
       color: var(--color-primary-main) !important;
     }
 
     .hover\\:border-\\[\\#0F5244\\]:hover,
-    [class~="hover:border-[#0F5244]"]:hover,
+    [class~="hover:border-brand-dark"]:hover,
     .group:hover .group-hover\\:border-\\[\\#0F5244\\],
-    .group:hover [class~="group-hover:border-[#0F5244]"] {
+    .group:hover [class~="group-hover:border-brand-dark"] {
       border-color: var(--color-primary-main) !important;
     }
 
     .hover\\:bg-\\[\\#0F5244\\]:hover,
-    [class~="hover:bg-[#0F5244]"]:hover,
+    [class~="hover:bg-brand-dark"]:hover,
     .group:hover .group-hover\\:bg-\\[\\#0F5244\\],
-    .group:hover [class~="group-hover:bg-[#0F5244]"] {
+    .group:hover [class~="group-hover:bg-brand-dark"] {
       background-color: var(--color-primary-main) !important;
     }
 
@@ -350,7 +350,7 @@ export function generateBrandingCss(branding?: GlobalBrandingConfig | null): str
     html:not(.dark) .bg-\\[\\#E8F3F1\\],
     html:not(.dark) .bg-\\[\\#E5F1EC\\],
     html:not(.dark) .bg-\\[\\#E6F3EF\\],
-    html:not(.dark) .bg-emerald-50,
+    html:not(.dark) .bg-slate-50,
     html:not(.dark) .bg-teal-50,
     html:not(.dark) [class~="bg-[#E6F9F3]"],
     html:not(.dark) [class~="bg-[#e2f3f0]"],
@@ -358,27 +358,27 @@ export function generateBrandingCss(branding?: GlobalBrandingConfig | null): str
     html:not(.dark) [class~="bg-[#E8F3F1]"],
     html:not(.dark) [class~="bg-[#E5F1EC]"],
     html:not(.dark) [class~="bg-[#E6F3EF]"],
-    html:not(.dark) [class~="bg-emerald-50"],
+    html:not(.dark) [class~="bg-slate-50"],
     html:not(.dark) [class~="bg-teal-50"] {
       background-color: color-mix(in srgb, var(--color-primary-main) 10%, white) !important;
     }
 
     /* 6B. Soft Tint Backgrounds - Dark Mode Adaptation (Never blinding white!) */
-    .dark .bg-emerald-50,
+    .dark .bg-slate-50,
     .dark .bg-teal-50,
-    .dark [class~="bg-emerald-50"],
+    .dark [class~="bg-slate-50"],
     .dark [class~="bg-teal-50"] {
       background-color: color-mix(in srgb, var(--color-primary-main) 16%, #0f172a) !important;
     }
 
     /* 7. Soft Border Overrides */
-    .border-emerald-100,
-    .border-emerald-200,
-    .border-emerald-300,
+    .border-slate-100,
+    .border-slate-200,
+    .border-slate-300,
     .border-teal-200,
-    [class~="border-emerald-100"],
-    [class~="border-emerald-200"],
-    [class~="border-emerald-300"],
+    [class~="border-slate-100"],
+    [class~="border-slate-200"],
+    [class~="border-slate-300"],
     [class~="border-teal-200"] {
       border-color: color-mix(in srgb, var(--color-primary-main) 22%, transparent) !important;
     }
@@ -409,7 +409,7 @@ export function generateBrandingCss(branding?: GlobalBrandingConfig | null): str
 
     /* Darker Gradient Containers (Badges, Buttons) */
     [class*="from-[#004442]"],
-    [class*="from-[#0B4F3A]"] {
+    [class*="from-brand-dark"] {
       --tw-gradient-from: var(--color-primary-dark) var(--tw-gradient-from-position) !important;
       --tw-gradient-to: var(--color-primary-main) var(--tw-gradient-to-position) !important;
       --tw-gradient-stops: var(--tw-gradient-from), var(--color-primary-main), var(--tw-gradient-to) !important;
@@ -420,8 +420,8 @@ export function generateBrandingCss(branding?: GlobalBrandingConfig | null): str
     [class*="text-[#6CF8BB]"],
     .text-\\[\\#45D1B4\\],
     [class*="text-[#45D1B4]"],
-    .text-emerald-300,
-    .text-emerald-400 {
+    .text-slate-300,
+    .text-brand-light {
       color: var(--color-accent-mint) !important;
     }
 
@@ -438,38 +438,38 @@ export function generateBrandingCss(branding?: GlobalBrandingConfig | null): str
     [class*="bg-[#6CF8BB]/25"] {
       background-color: color-mix(in srgb, var(--color-accent-mint) 22%, transparent) !important;
     }
-    [class*="bg-[#0F5244]/8"] {
+    [class*="bg-brand-dark/8"] {
       background-color: color-mix(in srgb, var(--color-primary-main) 10%, transparent) !important;
     }
-    [class*="bg-[#0F5244]/15"],
-    [class*="bg-[#0F5244]/20"] {
+    [class*="bg-brand-dark/15"],
+    [class*="bg-brand-dark/20"] {
       background-color: color-mix(in srgb, var(--color-primary-main) 20%, transparent) !important;
     }
 
     /* 11. Emerald / Teal Text Overrides */
-    .text-emerald-700,
-    .text-emerald-800,
-    .text-emerald-900,
+    .text-brand-dark,
+    .text-brand-dark,
+    .text-brand-dark,
     .text-teal-700,
-    [class*="text-emerald-700"],
-    [class*="text-emerald-800"],
-    [class*="text-emerald-900"],
+    [class*="text-brand-dark"],
+    [class*="text-brand-dark"],
+    [class*="text-brand-dark"],
     [class*="text-teal-700"] {
       color: var(--color-primary-main) !important;
     }
 
     /* 12. Focus & Form Rings */
     .focus\\:border-\\[\\#0F5244\\]:focus,
-    [class*="focus:border-[#0F5244]"]:focus,
+    [class*="focus:border-brand-dark"]:focus,
     .focus-within\\:border-\\[\\#0F5244\\]:focus-within,
-    [class*="focus-within:border-[#0F5244]"]:focus-within {
+    [class*="focus-within:border-brand-dark"]:focus-within {
       border-color: var(--color-primary-main) !important;
     }
 
     .focus\\:ring-\\[\\#0F5244\\]:focus,
-    [class*="focus:ring-[#0F5244]"]:focus,
+    [class*="focus:ring-brand-dark"]:focus,
     .focus-within\\:ring-\\[\\#0F5244\\]:focus-within,
-    [class*="focus-within:ring-[#0F5244]"]:focus-within {
+    [class*="focus-within:ring-brand-dark"]:focus-within {
       --tw-ring-color: var(--color-primary-main) !important;
     }
 
@@ -480,8 +480,8 @@ export function generateBrandingCss(branding?: GlobalBrandingConfig | null): str
     }
 
     /* 14. Shadow Tints */
-    [class*="shadow-[#0F5244]"],
-    [class*="shadow-emerald-900"] {
+    [class*="shadow-brand-dark"],
+    [class*="shadow-brand-dark"] {
       --tw-shadow-color: var(--color-primary-main) !important;
     }
 

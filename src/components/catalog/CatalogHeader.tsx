@@ -46,9 +46,9 @@ export function CatalogHeader({ currentLocale }: CatalogHeaderProps) {
         <div className="flex items-center gap-3">
           <Link 
             href={`/${currentLocale}`} 
-            className="flex items-center gap-2 text-xl sm:text-2xl font-extrabold tracking-tight text-[#0F5244] hover:opacity-90 transition-opacity"
+            className="flex items-center gap-2 text-xl sm:text-2xl font-extrabold tracking-tight text-brand-dark hover:opacity-90 transition-opacity"
           >
-            <span className="bg-[#0F5244] text-white px-2 py-0.5 rounded-lg text-lg font-black shadow-xs">C</span>
+            <span className="bg-brand-dark text-white px-2 py-0.5 rounded-lg text-lg font-black shadow-xs">C</span>
             <span className="hidden sm:inline">{brandT("brandName")}</span>
           </Link>
         </div>
@@ -61,13 +61,13 @@ export function CatalogHeader({ currentLocale }: CatalogHeaderProps) {
               href={item.href}
               className={`relative flex items-center h-full text-sm sm:text-base font-semibold transition-colors duration-150 ${
                 item.active
-                  ? "text-[#0F5244] font-bold"
-                  : "text-slate-600 hover:text-[#0F5244]"
+                  ? "text-brand-dark font-bold"
+                  : "text-slate-600 hover:text-brand-dark"
               }`}
             >
               <span>{t(item.labelKey)}</span>
               {item.active && (
-                <span className="absolute bottom-0 left-0 right-0 h-[2.5px] bg-[#0F5244] rounded-t-full" />
+                <span className="absolute bottom-0 left-0 right-0 h-[2.5px] bg-brand-dark rounded-t-full" />
               )}
             </Link>
           ))}
@@ -78,18 +78,18 @@ export function CatalogHeader({ currentLocale }: CatalogHeaderProps) {
           {/* Notification Bell Icon */}
           <button 
             type="button" 
-            className="relative p-2 text-slate-600 hover:text-[#0F5244] hover:bg-slate-100/70 rounded-full transition-colors"
+            className="relative p-2 text-slate-600 hover:text-brand-dark hover:bg-slate-100/70 rounded-full transition-colors"
             title={t("notifications")}
             aria-label={t("notifications")}
           >
             <Bell className="h-5 w-5" />
-            <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-emerald-500 ring-2 ring-white" />
+            <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-[var(--color-primary-main)] ring-2 ring-white" />
           </button>
 
           {/* Wishlist Heart Icon */}
           <button 
             type="button" 
-            className="p-2 text-slate-600 hover:text-[#0F5244] hover:bg-slate-100/70 rounded-full transition-colors"
+            className="p-2 text-slate-600 hover:text-brand-dark hover:bg-slate-100/70 rounded-full transition-colors"
             title={t("wishlist")}
             aria-label={t("wishlist")}
           >
@@ -99,7 +99,7 @@ export function CatalogHeader({ currentLocale }: CatalogHeaderProps) {
           {/* User Avatar Circle */}
           <button 
             type="button" 
-            className="flex items-center justify-center h-9 w-9 rounded-full bg-slate-100 text-[#0F5244] border border-slate-200 hover:border-[#0F5244] transition-all shadow-2xs"
+            className="flex items-center justify-center h-9 w-9 rounded-full bg-slate-100 text-brand-dark border border-slate-200 hover:border-brand-dark transition-all shadow-2xs"
             title={t("profile")}
             aria-label={t("profile")}
           >
@@ -113,7 +113,7 @@ export function CatalogHeader({ currentLocale }: CatalogHeaderProps) {
           <button
             type="button"
             onClick={handleLanguageToggle}
-            className="inline-flex items-center gap-2 rounded-full border border-slate-300 bg-white px-3.5 py-1.5 text-xs sm:text-sm font-semibold text-slate-700 hover:bg-slate-50 hover:border-slate-400 transition-all focus:outline-none focus:ring-2 focus:ring-[#0F5244]/20 active:scale-95 shadow-2xs"
+            className="inline-flex items-center gap-2 rounded-full border border-slate-300 bg-white px-3.5 py-1.5 text-xs sm:text-sm font-semibold text-slate-700 hover:bg-slate-50 hover:border-slate-400 transition-all focus:outline-none focus:ring-2 focus:ring-brand-dark/20 active:scale-95 shadow-2xs"
             aria-label={brandT("switchLanguageLabel")}
           >
             <Globe className="h-4 w-4 text-slate-500" />
@@ -151,7 +151,7 @@ export function CatalogHeader({ currentLocale }: CatalogHeaderProps) {
               onClick={() => setMobileMenuOpen(false)}
               className={`block px-3 py-2 rounded-lg text-base font-semibold transition-colors ${
                 item.active
-                  ? "bg-[#0F5244]/10 text-[#0F5244]"
+                  ? "bg-brand-dark/10 text-brand-dark"
                   : "text-slate-700 hover:bg-slate-50"
               }`}
             >

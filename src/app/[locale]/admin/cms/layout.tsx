@@ -50,7 +50,7 @@ export default function CmsAdminLayout({ children }: { children: React.ReactNode
   if (!mounted || isLoading) {
     return (
       <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center text-slate-900 space-y-4">
-        <Loader2 className="w-8 h-8 text-[#0F5244] animate-spin" />
+        <Loader2 className="w-8 h-8 text-brand-dark animate-spin" />
         <p className="text-sm font-bold text-slate-600">
           {t("verifyingAccess")}
         </p>
@@ -83,7 +83,7 @@ export default function CmsAdminLayout({ children }: { children: React.ReactNode
           </p>
           <Link
             href={`/${locale}`}
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[#0F5244] hover:bg-[#07382E] text-white text-xs font-black transition-all cursor-pointer shadow-lg shadow-[#0F5244]/30"
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-brand-dark hover:bg-[#07382E] text-white text-xs font-black transition-all cursor-pointer shadow-lg shadow-brand-dark/30"
           >
             {isAr ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
             <span>{t("backToPlatform")}</span>
@@ -163,10 +163,10 @@ export default function CmsAdminLayout({ children }: { children: React.ReactNode
             className="flex flex-col min-w-0 transition-opacity duration-150 hover:opacity-90 group cursor-pointer"
           >
             <div className="flex items-center gap-1.5">
-              <span className="text-xl sm:text-2xl font-bold text-[#0F5244] tracking-tight leading-none truncate">
+              <span className="text-xl sm:text-2xl font-bold text-brand-dark tracking-tight leading-none truncate">
                 {headerT("brandName")}
               </span>
-              <span className="px-1.5 py-0.5 rounded text-[10px] font-extrabold uppercase bg-[#0F5244]/10 text-[#0F5244] tracking-wider leading-none shrink-0">
+              <span className="px-1.5 py-0.5 rounded text-[10px] font-extrabold uppercase bg-brand-dark/10 text-brand-dark tracking-wider leading-none shrink-0">
                 CMS
               </span>
             </div>
@@ -202,7 +202,7 @@ export default function CmsAdminLayout({ children }: { children: React.ReactNode
               onClick={() => setMobileOpen(false)}
               className={`flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-bold transition-all ${
                 isActive
-                  ? "bg-[#0F5244] text-white shadow-xs"
+                  ? "bg-brand-dark text-white shadow-xs"
                   : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
               }`}
             >
@@ -218,9 +218,9 @@ export default function CmsAdminLayout({ children }: { children: React.ReactNode
         <button
           type="button"
           onClick={handleLivePreviewClick}
-          className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-[#0F5244] hover:bg-emerald-50 text-xs font-bold transition-all cursor-pointer"
+          className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-brand-dark hover:bg-slate-50 text-xs font-bold transition-all cursor-pointer"
         >
-          <Eye className="w-4 h-4 shrink-0 text-[#0F5244]" />
+          <Eye className="w-4 h-4 shrink-0 text-brand-dark" />
           <span className="truncate">{t("nav.previewSite")}</span>
         </button>
 
@@ -292,14 +292,14 @@ export default function CmsAdminLayout({ children }: { children: React.ReactNode
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-700 text-xs font-bold transition-all cursor-pointer"
               title={isAr ? "Switch to English" : "التبديل إلى العربية"}
             >
-              <Globe className="w-3.5 h-3.5 text-[#0F5244]" />
+              <Globe className="w-3.5 h-3.5 text-brand-dark" />
               <span>{isAr ? "English" : "العربية"}</span>
             </Link>
 
-            <span className="inline-flex items-center gap-2 px-2.5 sm:px-3 py-1 rounded-full bg-[#0F5244]/10 border border-[#0F5244]/20 text-[#0F5244] text-[11px] sm:text-xs font-bold select-none">
+            <span className="inline-flex items-center gap-2 px-2.5 sm:px-3 py-1 rounded-full bg-brand-dark/10 border border-brand-dark/20 text-brand-dark text-[11px] sm:text-xs font-bold select-none">
               <span className="relative flex h-2 w-2 shrink-0">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#34D399] opacity-75" />
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#0F5244]" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-brand-dark" />
               </span>
               <span className="hidden sm:inline">{t("activeEngine")}</span>
               <span className="sm:hidden">{t("activeShort")}</span>

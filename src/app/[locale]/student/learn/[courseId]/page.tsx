@@ -324,8 +324,8 @@ export default function CoursePlayerPage() {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-[#0A0D14] flex flex-col items-center justify-center text-white space-y-4 font-sans">
-        <div className="relative w-16 h-16 rounded-3xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shadow-lg">
-          <Loader2 className="w-8 h-8 text-emerald-400 animate-spin" />
+        <div className="relative w-16 h-16 rounded-3xl bg-[var(--color-primary-main)]/10 border border-[var(--color-primary-main)]/20 flex items-center justify-center shadow-lg">
+          <Loader2 className="w-8 h-8 text-brand-light animate-spin" />
         </div>
         <p className="text-sm font-bold text-slate-300 tracking-wide animate-pulse">
           {t("loadingPlatform")}
@@ -351,7 +351,7 @@ export default function CoursePlayerPage() {
             </p>
             <Link
               href={`/${locale}/courses`}
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-[#0F5244] hover:bg-emerald-800 text-white text-xs font-black transition-all shadow-md cursor-pointer"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-brand-dark hover:bg-brand-dark text-white text-xs font-black transition-all shadow-md cursor-pointer"
             >
               <ArrowLeft className="w-4 h-4 rtl:rotate-180" />
               <span>{t("exploreCourses")}</span>

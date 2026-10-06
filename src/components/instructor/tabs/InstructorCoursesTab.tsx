@@ -179,7 +179,7 @@ export function InstructorCoursesTab({
 
         <Link
           href={`/${locale}/instructor/courses/new`}
-          className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-[#0B4F3A] hover:bg-[#08382E] text-white text-xs sm:text-sm font-bold shadow-xs hover:shadow-md active:scale-98 transition-all shrink-0 cursor-pointer self-start sm:self-auto"
+          className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-[var(--color-primary-main)] hover:bg-[#08382E] text-white text-xs sm:text-sm font-bold shadow-xs hover:shadow-md active:scale-98 transition-all shrink-0 cursor-pointer self-start sm:self-auto"
         >
           <Plus className="h-4 w-4 stroke-[2.5]" />
           <span>{isAr ? "إنشاء دورة جديدة" : "Create New Course"}</span>
@@ -202,7 +202,7 @@ export function InstructorCoursesTab({
                 ? "البحث عن دورة بالاسم أو الكلمات المفتاحية..."
                 : "Search courses by title or keywords..."
             }
-            className="w-full h-10 rounded-xl border border-slate-200/90 bg-slate-50/60 rtl:pr-10 rtl:pl-9 ltr:pl-10 ltr:pr-9 text-xs sm:text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:bg-white focus:border-[#0B4F3A] focus:ring-2 focus:ring-[#0B4F3A]/10 focus:outline-none transition-all shadow-2xs"
+            className="w-full h-10 rounded-xl border border-slate-200/90 bg-slate-50/60 rtl:pr-10 rtl:pl-9 ltr:pl-10 ltr:pr-9 text-xs sm:text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:bg-white focus:border-brand-dark focus:ring-2 focus:ring-brand-dark/10 focus:outline-none transition-all shadow-2xs"
           />
           {courseSearch && (
             <button
@@ -225,7 +225,7 @@ export function InstructorCoursesTab({
                 setCourseFilter(e.target.value as CourseLifecycleFilter)
               }
               aria-label={isAr ? "تصفية بالحالة" : "Filter by status"}
-              className="h-10 px-3 rtl:pl-8 ltr:pr-8 rounded-xl bg-slate-50/80 border border-slate-200/90 text-xs font-bold text-slate-700 hover:bg-slate-100/70 focus:bg-white focus:border-[#0B4F3A] focus:outline-none transition-all cursor-pointer appearance-none shadow-2xs"
+              className="h-10 px-3 rtl:pl-8 ltr:pr-8 rounded-xl bg-slate-50/80 border border-slate-200/90 text-xs font-bold text-slate-700 hover:bg-slate-100/70 focus:bg-white focus:border-brand-dark focus:outline-none transition-all cursor-pointer appearance-none shadow-2xs"
             >
               <option value="all">
                 {isAr ? `الحالة: الكل (${totalCount})` : `Status: All (${totalCount})`}
@@ -259,7 +259,7 @@ export function InstructorCoursesTab({
                 value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value)}
                 aria-label={isAr ? "تصفية بالتصنيف" : "Filter by category"}
-                className="h-10 px-3 rtl:pl-8 ltr:pr-8 rounded-xl bg-slate-50/80 border border-slate-200/90 text-xs font-bold text-slate-700 hover:bg-slate-100/70 focus:bg-white focus:border-[#0B4F3A] focus:outline-none transition-all cursor-pointer appearance-none shadow-2xs max-w-[150px] truncate"
+                className="h-10 px-3 rtl:pl-8 ltr:pr-8 rounded-xl bg-slate-50/80 border border-slate-200/90 text-xs font-bold text-slate-700 hover:bg-slate-100/70 focus:bg-white focus:border-brand-dark focus:outline-none transition-all cursor-pointer appearance-none shadow-2xs max-w-[150px] truncate"
               >
                 <option value="all">
                   {isAr ? "التصنيف: الكل" : "Category: All"}
@@ -280,7 +280,7 @@ export function InstructorCoursesTab({
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as CourseSortOption)}
               aria-label={isAr ? "ترتيب الدورات" : "Sort courses"}
-              className="h-10 px-3 rtl:pl-8 ltr:pr-8 rounded-xl bg-slate-50/80 border border-slate-200/90 text-xs font-bold text-slate-700 hover:bg-slate-100/70 focus:bg-white focus:border-[#0B4F3A] focus:outline-none transition-all cursor-pointer appearance-none shadow-2xs"
+              className="h-10 px-3 rtl:pl-8 ltr:pr-8 rounded-xl bg-slate-50/80 border border-slate-200/90 text-xs font-bold text-slate-700 hover:bg-slate-100/70 focus:bg-white focus:border-brand-dark focus:outline-none transition-all cursor-pointer appearance-none shadow-2xs"
             >
               <option value="newest">
                 {isAr ? "ترتيب: الأحدث" : "Sort: Newest"}
@@ -352,7 +352,7 @@ export function InstructorCoursesTab({
               ) : (
                 <Link
                   href={`/${locale}/instructor/courses/new`}
-                  className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-[#0B4F3A] hover:bg-[#08382E] text-white text-xs sm:text-sm font-bold shadow-xs transition-all cursor-pointer"
+                  className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-[var(--color-primary-main)] hover:bg-[#08382E] text-white text-xs sm:text-sm font-bold shadow-xs transition-all cursor-pointer"
                 >
                   <Plus className="h-4 w-4 stroke-[2.5]" />
                   <span>{isAr ? "إنشاء دورة جديدة" : "Create New Course"}</span>
@@ -409,7 +409,7 @@ export function InstructorCoursesTab({
                   <div className="pt-4 border-t border-slate-100 space-y-3 animate-in fade-in slide-in-from-top-2 duration-200">
                     <div className="flex items-center justify-between gap-2">
                       <div className="flex items-center gap-2">
-                        <Users className="w-4 h-4 text-[#0B4F3A]" />
+                        <Users className="w-4 h-4 text-[var(--color-primary-main)]" />
                         <h4 className="text-xs sm:text-sm font-black text-slate-900">
                           {isAr
                             ? `الطلاب المسجلون في هذه الدورة (${courseStudents.length})`
@@ -432,9 +432,9 @@ export function InstructorCoursesTab({
                         {courseStudents.map((st) => (
                           <div
                             key={st.id}
-                            className="p-3 rounded-xl bg-slate-50/90 border border-slate-200/70 flex items-center gap-3 shadow-2xs hover:bg-white hover:border-[#0B4F3A]/30 transition-all"
+                            className="p-3 rounded-xl bg-slate-50/90 border border-slate-200/70 flex items-center gap-3 shadow-2xs hover:bg-white hover:border-brand-dark/30 transition-all"
                           >
-                            <div className="w-9 h-9 rounded-full bg-[#0B4F3A]/10 text-[#0B4F3A] font-black text-xs flex items-center justify-center shrink-0 border border-[#0B4F3A]/20">
+                            <div className="w-9 h-9 rounded-full bg-[var(--color-primary-main)]/10 text-[var(--color-primary-main)] font-black text-xs flex items-center justify-center shrink-0 border border-brand-dark/20">
                               {st.avatar ? (
                                 <Image
                                   src={st.avatar}
@@ -456,7 +456,7 @@ export function InstructorCoursesTab({
                                 <span
                                   className={`text-[10px] font-bold px-2 py-0.2 rounded-full ${
                                     st.status === "completed"
-                                      ? "bg-emerald-100 text-emerald-800"
+                                      ? "bg-slate-200 text-[var(--color-primary-main)]"
                                       : "bg-blue-100 text-blue-800"
                                   }`}
                                 >
@@ -472,7 +472,7 @@ export function InstructorCoursesTab({
                               </p>
                               <div className="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden mt-1">
                                 <div
-                                  className="h-full bg-[#0B4F3A] rounded-full"
+                                  className="h-full bg-[var(--color-primary-main)] rounded-full"
                                   style={{ width: `${st.progress}%` }}
                                 />
                               </div>

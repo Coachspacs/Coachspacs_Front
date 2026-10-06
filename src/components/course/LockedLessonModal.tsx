@@ -41,7 +41,7 @@ export function LockedLessonModal({
         </button>
 
         {/* Lock Icon Circle */}
-        <div className="w-16 h-16 rounded-full bg-emerald-50 text-[#0F5244] border border-[#0F5244]/20 flex items-center justify-center mx-auto mb-4 shadow-2xs">
+        <div className="w-16 h-16 rounded-full bg-slate-100 text-[var(--color-primary-main)] border border-brand-dark/20 flex items-center justify-center mx-auto mb-4 shadow-2xs">
           <Lock className="h-8 w-8 stroke-[2.2]" />
         </div>
 
@@ -50,7 +50,7 @@ export function LockedLessonModal({
           {t("lockedModalTitle")}
         </h3>
 
-        <p className="text-xs sm:text-sm font-semibold text-slate-500 mb-1 line-clamp-1 text-emerald-800 bg-emerald-50/80 py-1 px-3 rounded-lg inline-block max-w-full">
+        <p className="text-xs sm:text-sm font-semibold text-slate-500 mb-1 line-clamp-1 text-[var(--color-primary-main)] bg-slate-100/80 py-1 px-3 rounded-lg inline-block max-w-full">
           {lessonTitle}
         </p>
 
@@ -66,7 +66,7 @@ export function LockedLessonModal({
               onClose();
               onEnroll();
             }}
-            className="w-full py-3.5 px-6 rounded-xl bg-[#0F5244] hover:bg-[#07382E] text-white text-sm font-extrabold shadow-md hover:shadow-lg transition-all active:scale-95"
+            className="w-full py-3.5 px-6 rounded-xl bg-brand-dark hover:bg-[#07382E] text-white text-sm font-extrabold shadow-md hover:shadow-lg transition-all active:scale-95"
           >
             {t("buyNow")}
           </button>

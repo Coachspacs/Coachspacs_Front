@@ -85,15 +85,15 @@ export default function CheckoutSuccessPage() {
       <div className="w-full max-w-lg bg-white rounded-3xl border border-slate-200/80 p-8 sm:p-10 shadow-xl text-center space-y-6 animate-in fade-in zoom-in-95 duration-300">
         {/* Animated Success Badge */}
         <div className="relative mx-auto w-20 h-20">
-          <div className="absolute inset-0 rounded-full bg-emerald-400/20 animate-ping opacity-60" />
-          <div className="relative w-20 h-20 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600 shadow-md">
+          <div className="absolute inset-0 rounded-full bg-brand-light/20 animate-ping opacity-60" />
+          <div className="relative w-20 h-20 rounded-full bg-slate-100 flex items-center justify-center text-[var(--color-primary-main)] shadow-md">
             <CheckCircle2 className="w-10 h-10 stroke-[2.5]" />
           </div>
         </div>
 
         {/* Title & Order info */}
         <div className="space-y-2">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-50 border border-slate-200 text-brand-dark text-xs font-bold">
             <ShieldCheck className="w-3.5 h-3.5" />
             <span>{isAr ? "دفع مؤكد بنجاح" : "Payment Confirmed"}</span>
           </div>
@@ -116,7 +116,7 @@ export default function CheckoutSuccessPage() {
               <span className="text-slate-400">
                 {isAr ? "رقم الطلب:" : "Order Number:"}
               </span>
-              <span className="font-extrabold text-[#0F5244]">
+              <span className="font-extrabold text-brand-dark">
                 #ORD-{orderId}
               </span>
             </div>
@@ -124,7 +124,7 @@ export default function CheckoutSuccessPage() {
               <span className="text-slate-400">
                 {isAr ? "حالة الكورس:" : "Course Access:"}
               </span>
-              <span className="font-extrabold text-emerald-700 bg-emerald-100/80 px-2 py-0.5 rounded-md">
+              <span className="font-extrabold text-brand-dark bg-slate-100/80 px-2 py-0.5 rounded-md">
                 {isAr ? "متاح للتعلم فوراً" : "Instant Access Enabled"}
               </span>
             </div>
@@ -133,7 +133,7 @@ export default function CheckoutSuccessPage() {
 
         {/* Countdown notice */}
         <div className="flex items-center justify-center gap-2 text-xs text-slate-400 font-medium">
-          <Loader2 className="w-3.5 h-3.5 animate-spin text-[#0F5244]" />
+          <Loader2 className="w-3.5 h-3.5 animate-spin text-brand-dark" />
           <span>
             {isAr
               ? `سيتم تحويلك إلى لوحة التحكم تلقائياً خلال ${countdown} ثوانٍ...`
@@ -145,7 +145,7 @@ export default function CheckoutSuccessPage() {
         <div className="pt-2 space-y-3">
           <Link
             href={targetSuccessUrl}
-            className="w-full py-4 px-6 rounded-2xl bg-[#0F5244] hover:bg-[#07382E] text-white text-sm font-extrabold transition-all flex items-center justify-center gap-2 shadow-md hover:shadow-lg cursor-pointer active:scale-98"
+            className="w-full py-4 px-6 rounded-2xl bg-brand-dark hover:bg-[#07382E] text-white text-sm font-extrabold transition-all flex items-center justify-center gap-2 shadow-md hover:shadow-lg cursor-pointer active:scale-98"
           >
             <BookOpen className="h-5 w-5" />
             <span>{isAr ? "الانتقال إلى الكورس الآن" : "Go to Course Now"}</span>

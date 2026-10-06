@@ -222,7 +222,7 @@ function BilingualInput({
       <div className="space-y-1.5 text-right">
         <div className="flex items-center justify-between gap-2">
           <label className="text-sm font-bold text-slate-800 tracking-tight">{labelAr}</label>
-          <span className="px-2 py-0.5 rounded-md text-xs font-black bg-emerald-50 text-[#0F5244] border border-emerald-200/80 shadow-2xs select-none tracking-wide">
+          <span className="px-2 py-0.5 rounded-md text-xs font-black bg-slate-50 text-brand-dark border border-slate-200/80 shadow-2xs select-none tracking-wide">
             عربي
           </span>
         </div>
@@ -232,8 +232,8 @@ function BilingualInput({
           value={valueAr || ""}
           onChange={(e) => onChangeAr(e.target.value)}
           placeholder={placeholderAr}
-          className={`w-full bg-slate-50/60 hover:bg-slate-50 focus:bg-white border border-slate-200/90 hover:border-slate-300 focus:border-[#0F5244] focus:ring-3 focus:ring-[#0F5244]/15 rounded-xl px-3.5 py-2.5 text-sm text-right placeholder:text-slate-400 shadow-2xs focus:shadow-xs transition-all duration-200 font-sans outline-none ${
-            highlight ? "text-[#0F5244] font-black bg-emerald-50/20 border-emerald-200" : "text-slate-900"
+          className={`w-full bg-slate-50/60 hover:bg-slate-50 focus:bg-white border border-slate-200/90 hover:border-slate-300 focus:border-brand-dark focus:ring-3 focus:ring-brand-dark/15 rounded-xl px-3.5 py-2.5 text-sm text-right placeholder:text-slate-400 shadow-2xs focus:shadow-xs transition-all duration-200 font-sans outline-none ${
+            highlight ? "text-brand-dark font-black bg-slate-50/20 border-slate-200" : "text-slate-900"
           }`}
         />
       </div>
@@ -251,8 +251,8 @@ function BilingualInput({
           value={valueEn || ""}
           onChange={(e) => onChangeEn(e.target.value)}
           placeholder={placeholderEn}
-          className={`w-full bg-slate-50/60 hover:bg-slate-50 focus:bg-white border border-slate-200/90 hover:border-slate-300 focus:border-[#0F5244] focus:ring-3 focus:ring-[#0F5244]/15 rounded-xl px-3.5 py-2.5 text-sm text-left placeholder:text-slate-400 shadow-2xs focus:shadow-xs transition-all duration-200 font-sans outline-none ${
-            highlight ? "text-[#0F5244] font-black bg-emerald-50/20 border-emerald-200" : "text-slate-900"
+          className={`w-full bg-slate-50/60 hover:bg-slate-50 focus:bg-white border border-slate-200/90 hover:border-slate-300 focus:border-brand-dark focus:ring-3 focus:ring-brand-dark/15 rounded-xl px-3.5 py-2.5 text-sm text-left placeholder:text-slate-400 shadow-2xs focus:shadow-xs transition-all duration-200 font-sans outline-none ${
+            highlight ? "text-brand-dark font-black bg-slate-50/20 border-slate-200" : "text-slate-900"
           }`}
         />
       </div>
@@ -287,7 +287,7 @@ function BilingualTextarea({
       <div className="space-y-1.5 text-right">
         <div className="flex items-center justify-between gap-2">
           <label className="text-sm font-bold text-slate-800 tracking-tight">{labelAr}</label>
-          <span className="px-2 py-0.5 rounded-md text-xs font-black bg-emerald-50 text-[#0F5244] border border-emerald-200/80 shadow-2xs select-none tracking-wide">
+          <span className="px-2 py-0.5 rounded-md text-xs font-black bg-slate-50 text-brand-dark border border-slate-200/80 shadow-2xs select-none tracking-wide">
             عربي
           </span>
         </div>
@@ -297,7 +297,7 @@ function BilingualTextarea({
           value={valueAr || ""}
           onChange={(e) => onChangeAr(e.target.value)}
           placeholder={placeholderAr}
-          className="w-full bg-slate-50/60 hover:bg-slate-50 focus:bg-white border border-slate-200/90 hover:border-slate-300 focus:border-[#0F5244] focus:ring-3 focus:ring-[#0F5244]/15 rounded-xl px-3.5 py-2.5 text-sm text-right text-slate-900 placeholder:text-slate-400 shadow-2xs focus:shadow-xs transition-all duration-200 font-sans leading-relaxed resize-y outline-none"
+          className="w-full bg-slate-50/60 hover:bg-slate-50 focus:bg-white border border-slate-200/90 hover:border-slate-300 focus:border-brand-dark focus:ring-3 focus:ring-brand-dark/15 rounded-xl px-3.5 py-2.5 text-sm text-right text-slate-900 placeholder:text-slate-400 shadow-2xs focus:shadow-xs transition-all duration-200 font-sans leading-relaxed resize-y outline-none"
         />
       </div>
 
@@ -314,7 +314,7 @@ function BilingualTextarea({
           value={valueEn || ""}
           onChange={(e) => onChangeEn(e.target.value)}
           placeholder={placeholderEn}
-          className="w-full bg-slate-50/60 hover:bg-slate-50 focus:bg-white border border-slate-200/90 hover:border-slate-300 focus:border-[#0F5244] focus:ring-3 focus:ring-[#0F5244]/15 rounded-xl px-3.5 py-2.5 text-sm text-left text-slate-900 placeholder:text-slate-400 shadow-2xs focus:shadow-xs transition-all duration-200 font-sans leading-relaxed resize-y outline-none"
+          className="w-full bg-slate-50/60 hover:bg-slate-50 focus:bg-white border border-slate-200/90 hover:border-slate-300 focus:border-brand-dark focus:ring-3 focus:ring-brand-dark/15 rounded-xl px-3.5 py-2.5 text-sm text-left text-slate-900 placeholder:text-slate-400 shadow-2xs focus:shadow-xs transition-all duration-200 font-sans leading-relaxed resize-y outline-none"
         />
       </div>
     </div>
@@ -802,7 +802,7 @@ export default function LandingEditorPage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center p-20">
-        <Loader2 className="w-8 h-8 text-[#0F5244] animate-spin" />
+        <Loader2 className="w-8 h-8 text-brand-dark animate-spin" />
       </div>
     );
   }
@@ -836,8 +836,8 @@ export default function LandingEditorPage() {
       {/* Header with structured visual hierarchy */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-slate-200">
         <div>
-          <div className="flex items-center gap-1.5 text-xs font-bold text-[#0F5244] uppercase tracking-wider mb-1">
-            <FileText className="w-3.5 h-3.5 text-[#0F5244]" />
+          <div className="flex items-center gap-1.5 text-xs font-bold text-brand-dark uppercase tracking-wider mb-1">
+            <FileText className="w-3.5 h-3.5 text-brand-dark" />
             <span>{t("landing.bilingualStudio")}</span>
           </div>
           <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
@@ -856,10 +856,10 @@ export default function LandingEditorPage() {
           <button
             type="button"
             onClick={() => setIsReorderOpen(true)}
-            className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-[#0F5244] text-xs font-bold border border-emerald-200/90 shadow-2xs hover:shadow-xs transition-all cursor-pointer active:scale-95"
+            className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 text-brand-dark text-xs font-bold border border-slate-200/90 shadow-2xs hover:shadow-xs transition-all cursor-pointer active:scale-95"
             title={isAr ? "إعادة ترتيب الأقسام بالسحب والإفلات" : "Drag & Drop Section Reorder"}
           >
-            <ArrowUpDown className="w-4 h-4 text-[#0F5244]" />
+            <ArrowUpDown className="w-4 h-4 text-brand-dark" />
             <span>{t("landing.reorderSections")}</span>
           </button>
 
@@ -879,7 +879,7 @@ export default function LandingEditorPage() {
             onClick={handlePublish}
             disabled={isPublishing}
             type="button"
-            className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#0F5244] via-[#105d4d] to-[#0d4a3d] hover:brightness-110 text-white text-xs sm:text-sm font-bold transition-all cursor-pointer shadow-md hover:shadow-lg disabled:opacity-50 active:scale-95"
+            className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-brand-dark via-[#105d4d] to-[#0d4a3d] hover:brightness-110 text-white text-xs sm:text-sm font-bold transition-all cursor-pointer shadow-md hover:shadow-lg disabled:opacity-50 active:scale-95"
           >
             {isPublishing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4 rtl:rotate-180" />}
             <span>{t("landing.publishLive")}</span>
@@ -894,16 +894,16 @@ export default function LandingEditorPage() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -8, scale: 0.98 }}
             transition={{ duration: 0.2 }}
-            className="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200/90 text-emerald-900 text-xs font-bold flex items-center justify-between gap-2"
+            className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/90 text-brand-dark text-xs font-bold flex items-center justify-between gap-2"
           >
             <div className="flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 shrink-0 text-[#0F5244]" />
+              <CheckCircle2 className="w-4 h-4 shrink-0 text-brand-dark" />
               <span>{statusMessage}</span>
             </div>
             <button
               type="button"
               onClick={() => setStatusMessage(null)}
-              className="text-emerald-700 hover:text-emerald-900 p-0.5 cursor-pointer"
+              className="text-brand-dark hover:text-brand-dark p-0.5 cursor-pointer"
             >
               <X className="w-3.5 h-3.5" />
             </button>
@@ -916,7 +916,7 @@ export default function LandingEditorPage() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <div>
             <h3 className="text-sm sm:text-base font-black text-slate-900 flex items-center gap-2.5">
-              <span className="w-6 h-6 rounded-lg bg-gradient-to-br from-[#0F5244] to-emerald-600 text-white text-xs font-black flex items-center justify-center shadow-xs">
+              <span className="w-6 h-6 rounded-lg bg-gradient-to-br from-brand-dark to-[var(--color-primary-main)] text-white text-xs font-black flex items-center justify-center shadow-xs">
                 1
               </span>
               <span>{isAr ? "اختر الصفحة المراد تخصيصها:" : "Select Target Landing Experience:"}</span>
@@ -955,7 +955,7 @@ export default function LandingEditorPage() {
                 onClick={() => handleTargetViewChange(v.id)}
                 className={`group relative text-start p-4 sm:p-5 rounded-2xl border-2 transition-all duration-300 cursor-pointer flex flex-col justify-between gap-3.5 overflow-hidden ${
                   isSelected
-                    ? "bg-gradient-to-b from-emerald-50/50 via-emerald-50/15 to-white border-[#0F5244] shadow-xs hover:shadow-sm"
+                    ? "bg-gradient-to-b from-slate-50/50 via-slate-50/15 to-white border-brand-dark shadow-xs hover:shadow-sm"
                     : "bg-white hover:bg-slate-50/70 border-slate-200 hover:border-slate-300 shadow-2xs hover:shadow-xs"
                 }`}
               >
@@ -964,8 +964,8 @@ export default function LandingEditorPage() {
                     <div
                       className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300 ${
                         isSelected
-                          ? "bg-[#0F5244] text-white shadow-xs group-hover:scale-105"
-                          : "bg-slate-100 text-slate-700 group-hover:bg-[#0F5244] group-hover:text-white group-hover:scale-105 group-hover:shadow-xs"
+                          ? "bg-brand-dark text-white shadow-xs group-hover:scale-105"
+                          : "bg-slate-100 text-slate-700 group-hover:bg-brand-dark group-hover:text-white group-hover:scale-105 group-hover:shadow-xs"
                       }`}
                     >
                       <Icon className="w-4 h-4" />
@@ -975,7 +975,7 @@ export default function LandingEditorPage() {
                         className={`text-sm sm:text-base font-black block leading-tight transition-colors ${
                           isSelected
                             ? "text-slate-900"
-                            : "text-slate-800 group-hover:text-[#0F5244]"
+                            : "text-slate-800 group-hover:text-brand-dark"
                         }`}
                       >
                         {v.title}
@@ -989,8 +989,8 @@ export default function LandingEditorPage() {
                   <div
                     className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all duration-300 ${
                       isSelected
-                        ? "border-[#0F5244] bg-[#0F5244] text-white shadow-xs group-hover:scale-105"
-                        : "border-slate-300 bg-white group-hover:border-emerald-500 group-hover:bg-emerald-50/50 group-hover:scale-105"
+                        ? "border-brand-dark bg-brand-dark text-white shadow-xs group-hover:scale-105"
+                        : "border-slate-300 bg-white group-hover:border-[var(--color-primary-main)] group-hover:bg-slate-50/50 group-hover:scale-105"
                     }`}
                   >
                     {isSelected && <CheckCircle className="w-3.5 h-3.5" />}
@@ -1005,7 +1005,7 @@ export default function LandingEditorPage() {
                   <span
                     className={
                       isSelected
-                        ? "text-[#0F5244] font-black"
+                        ? "text-brand-dark font-black"
                         : "text-slate-500 group-hover:text-slate-800 font-semibold"
                     }
                   >
@@ -1014,11 +1014,11 @@ export default function LandingEditorPage() {
                       : `${activeCount} Active Sections`}
                   </span>
                   {isSelected ? (
-                    <span className="text-emerald-800 bg-emerald-100/90 border border-emerald-200/80 px-2.5 py-0.5 rounded-full text-xs font-black shadow-2xs">
+                    <span className="text-brand-dark bg-slate-100/90 border border-slate-200/80 px-2.5 py-0.5 rounded-full text-xs font-black shadow-2xs">
                       {isAr ? "محدد حالياً" : "Active Selection"}
                     </span>
                   ) : (
-                    <span className="text-slate-400 group-hover:text-[#0F5244] text-xs font-bold opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
+                    <span className="text-slate-400 group-hover:text-brand-dark text-xs font-bold opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
                       <span>{isAr ? "تخصيص" : "Customize"}</span>
                       <span className="rtl:rotate-180 inline-block font-mono">→</span>
                     </span>
@@ -1039,7 +1039,7 @@ export default function LandingEditorPage() {
             onClick={() => setIsSectionDropdownOpen((prev) => !prev)}
             className="flex items-center gap-3 px-3 py-1.5 rounded-xl hover:bg-slate-50 text-start cursor-pointer transition-colors group flex-1 min-w-0"
           >
-            <div className="w-8 h-8 rounded-lg bg-emerald-50 text-[#0F5244] flex items-center justify-center shrink-0 group-hover:bg-emerald-100 transition-colors">
+            <div className="w-8 h-8 rounded-lg bg-slate-50 text-brand-dark flex items-center justify-center shrink-0 group-hover:bg-slate-100 transition-colors">
               <CurrentTabIcon className="w-4 h-4" />
             </div>
             <div className="min-w-0">
@@ -1101,7 +1101,7 @@ export default function LandingEditorPage() {
             <button
               type="button"
               onClick={() => setIsAddSectionModalOpen(true)}
-              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-[#0F5244] hover:bg-[#07382E] text-white text-xs font-bold transition-all shadow-2xs cursor-pointer"
+              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-brand-dark hover:bg-[#07382E] text-white text-xs font-bold transition-all shadow-2xs cursor-pointer"
               title={isAr ? "إضافة سكشن جديد" : "Add Section"}
             >
               <Plus className="w-3.5 h-3.5" />
@@ -1144,14 +1144,14 @@ export default function LandingEditorPage() {
                     }}
                     className={`group flex items-center justify-between px-3 py-2.5 rounded-xl transition-all cursor-pointer select-none ${
                       isSelected
-                        ? "bg-emerald-50/90 text-[#0F5244] font-bold"
+                        ? "bg-slate-50/90 text-brand-dark font-bold"
                         : "hover:bg-slate-50 text-slate-700 hover:text-slate-900"
                     }`}
                   >
                     <div className="flex items-center gap-3 min-w-0">
                       <span
                         className={`text-xs font-bold w-4 text-center ${
-                          isSelected ? "text-[#0F5244]" : "text-slate-300"
+                          isSelected ? "text-brand-dark" : "text-slate-300"
                         }`}
                       >
                         {indexStr}
@@ -1159,7 +1159,7 @@ export default function LandingEditorPage() {
                       <div
                         className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${
                           isSelected
-                            ? "bg-emerald-100 text-[#0F5244]"
+                            ? "bg-slate-100 text-brand-dark"
                             : "bg-slate-100 text-slate-500 group-hover:text-slate-800"
                         }`}
                       >
@@ -1177,7 +1177,7 @@ export default function LandingEditorPage() {
 
                     <div className="flex items-center gap-2 shrink-0">
                       {isSelected ? (
-                        <Check className="w-3.5 h-3.5 text-[#0F5244]" />
+                        <Check className="w-3.5 h-3.5 text-brand-dark" />
                       ) : null}
                       <button
                         type="button"
@@ -1217,7 +1217,7 @@ export default function LandingEditorPage() {
                   setIsSectionDropdownOpen(false);
                   setIsReorderOpen(true);
                 }}
-                className="text-slate-500 hover:text-[#0F5244] font-bold flex items-center gap-1.5 cursor-pointer py-1"
+                className="text-slate-500 hover:text-brand-dark font-bold flex items-center gap-1.5 cursor-pointer py-1"
               >
                 <ArrowUpDown className="w-3 h-3" />
                 <span className="text-[11px]">{isAr ? "ترتيب بالسحب" : "Reorder"}</span>
@@ -1229,7 +1229,7 @@ export default function LandingEditorPage() {
                   setIsSectionDropdownOpen(false);
                   setIsAddSectionModalOpen(true);
                 }}
-                className="text-[#0F5244] hover:text-[#07382E] font-bold flex items-center gap-1 cursor-pointer py-1"
+                className="text-brand-dark hover:text-[#07382E] font-bold flex items-center gap-1 cursor-pointer py-1"
               >
                 <Plus className="w-3 h-3" />
                 <span className="text-[11px]">{isAr ? "إضافة قسم" : "Add Section"}</span>
@@ -1254,7 +1254,7 @@ export default function LandingEditorPage() {
           {/* Section Action Bar: Soft & Clean */}
           <div className="flex items-center justify-between pb-4 border-b border-slate-100">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-50 to-emerald-100/70 border border-emerald-200/60 text-[#0F5244] flex items-center justify-center shrink-0 shadow-2xs">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-slate-50 to-slate-100/70 border border-slate-200/60 text-brand-dark flex items-center justify-center shrink-0 shadow-2xs">
                 <CurrentTabIcon className="w-5 h-5" />
               </div>
               <div>
@@ -1372,7 +1372,7 @@ export default function LandingEditorPage() {
               {/* Group C: Call To Action & Media */}
               <div className="space-y-4 pt-5 border-t border-slate-100">
                 <div className="flex items-center gap-2">
-                  <div className="h-3.5 w-1 rounded-full bg-[#0F5244]" />
+                  <div className="h-3.5 w-1 rounded-full bg-brand-dark" />
                   <h4 className="text-sm font-black text-slate-800 uppercase tracking-wider">
                     {isAr ? "الإجراء الرئيسي والوسائط" : "Call To Action & Media"}
                   </h4>
@@ -1593,7 +1593,7 @@ export default function LandingEditorPage() {
               <div className="space-y-4 pt-5 border-t border-slate-100">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <div className="h-3.5 w-1 rounded-full bg-[#0F5244]" />
+                    <div className="h-3.5 w-1 rounded-full bg-brand-dark" />
                     <span className="text-sm font-black text-slate-800 uppercase tracking-wider">
                       {isAr ? "قائمة آراء الطلاب والمهنيين" : "Learner Quotes"}
                     </span>
@@ -1621,7 +1621,7 @@ export default function LandingEditorPage() {
                         },
                       })
                     }
-                    className="inline-flex items-center gap-1 px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-[#0F5244] border border-emerald-200/80 rounded-lg text-xs font-semibold cursor-pointer transition-colors shadow-2xs"
+                    className="inline-flex items-center gap-1 px-3 py-1.5 bg-slate-50 hover:bg-slate-100 text-brand-dark border border-slate-200/80 rounded-lg text-xs font-semibold cursor-pointer transition-colors shadow-2xs"
                   >
                     <Plus className="w-3.5 h-3.5" />
                     <span>{isAr ? "إضافة رأي" : "Add Quote"}</span>
@@ -1763,7 +1763,7 @@ export default function LandingEditorPage() {
               <div className="space-y-4 pt-5 border-t border-slate-100">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <div className="h-3.5 w-1 rounded-full bg-[#0F5244]" />
+                    <div className="h-3.5 w-1 rounded-full bg-brand-dark" />
                     <span className="text-sm font-black text-slate-800 uppercase tracking-wider">
                       {isAr ? "قائمة الأسئلة والإجابات" : "Questions & Answers"}
                     </span>
@@ -1788,7 +1788,7 @@ export default function LandingEditorPage() {
                         },
                       })
                     }
-                    className="inline-flex items-center gap-1 px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-[#0F5244] border border-emerald-200/80 rounded-lg text-xs font-semibold cursor-pointer transition-colors shadow-2xs"
+                    className="inline-flex items-center gap-1 px-3 py-1.5 bg-slate-50 hover:bg-slate-100 text-brand-dark border border-slate-200/80 rounded-lg text-xs font-semibold cursor-pointer transition-colors shadow-2xs"
                   >
                     <Plus className="w-3.5 h-3.5" />
                     <span>{isAr ? "إضافة سؤال" : "Add FAQ"}</span>
@@ -1954,7 +1954,7 @@ export default function LandingEditorPage() {
           <button
             type="button"
             onClick={() => setIsAddSectionModalOpen(true)}
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#0F5244] text-white text-xs font-bold shadow-2xs hover:shadow-xs cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-brand-dark text-white text-xs font-bold shadow-2xs hover:shadow-xs cursor-pointer"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>{isAr ? "إضافة سكشن جديد" : "Add New Section"}</span>
@@ -1982,7 +1982,7 @@ export default function LandingEditorPage() {
               {/* Modal Header */}
               <div className="p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/70">
                 <div className="flex items-center gap-2.5">
-                  <div className="w-9 h-9 rounded-xl bg-[#0F5244] text-white flex items-center justify-center shadow-xs">
+                  <div className="w-9 h-9 rounded-xl bg-brand-dark text-white flex items-center justify-center shadow-xs">
                     <PlusCircle className="w-4 h-4" />
                   </div>
                   <div>
@@ -2023,10 +2023,10 @@ export default function LandingEditorPage() {
                     return (
                       <div
                         key={tab.key}
-                        className="p-3.5 rounded-2xl border border-slate-200 hover:border-emerald-300 bg-white hover:bg-emerald-50/30 transition-all flex items-center justify-between gap-3 shadow-2xs"
+                        className="p-3.5 rounded-2xl border border-slate-200 hover:border-slate-300 bg-white hover:bg-slate-50/30 transition-all flex items-center justify-between gap-3 shadow-2xs"
                       >
                         <div className="flex items-center gap-3 min-w-0">
-                          <div className="w-9 h-9 rounded-xl bg-emerald-50 text-[#0F5244] border border-emerald-100 flex items-center justify-center shrink-0">
+                          <div className="w-9 h-9 rounded-xl bg-slate-50 text-brand-dark border border-slate-100 flex items-center justify-center shrink-0">
                             <Icon className="w-4 h-4" />
                           </div>
                           <div className="min-w-0">
@@ -2042,7 +2042,7 @@ export default function LandingEditorPage() {
                         <button
                           type="button"
                           onClick={() => handleAddSection(tab.key)}
-                          className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#0F5244] hover:bg-[#07382E] text-white text-xs font-bold shrink-0 shadow-2xs hover:shadow-xs transition-all cursor-pointer"
+                          className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-brand-dark hover:bg-[#07382E] text-white text-xs font-bold shrink-0 shadow-2xs hover:shadow-xs transition-all cursor-pointer"
                         >
                           <Plus className="w-3.5 h-3.5" />
                           <span>{isAr ? "إضافة" : "Add"}</span>
@@ -2052,7 +2052,7 @@ export default function LandingEditorPage() {
                   })
                 ) : (
                   <div className="p-8 text-center space-y-2">
-                    <div className="w-12 h-12 rounded-full bg-emerald-50 text-[#0F5244] flex items-center justify-center mx-auto">
+                    <div className="w-12 h-12 rounded-full bg-slate-50 text-brand-dark flex items-center justify-center mx-auto">
                       <CheckCircle className="w-6 h-6" />
                     </div>
                     <h4 className="text-sm font-bold text-slate-900">

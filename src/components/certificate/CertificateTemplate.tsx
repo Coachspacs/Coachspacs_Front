@@ -79,13 +79,13 @@ export function CertificateTemplate({
       id={id}
       dir="ltr"
       style={{ width: "842px", height: "595px" }}
-      className={`relative w-[842px] h-[595px] min-w-[842px] min-h-[595px] max-w-[842px] max-h-[595px] rounded-3xl bg-[#FAF9F6] text-slate-800 shadow-2xl shadow-slate-900/10 border-2 border-[#0F5244]/25 p-6 select-none box-border flex flex-col justify-between overflow-hidden ${className}`}
+      className={`relative w-[842px] h-[595px] min-w-[842px] min-h-[595px] max-w-[842px] max-h-[595px] rounded-3xl bg-[#FAF9F6] text-slate-800 shadow-2xl shadow-slate-900/10 border-2 border-brand-dark/25 p-6 select-none box-border flex flex-col justify-between overflow-hidden ${className}`}
     >
       {/* Subtle Double-Line Inner Border */}
       <div className="relative w-full h-full rounded-2xl border-2 border-[#8C6512]/35 p-7 flex flex-col justify-between items-center text-center bg-white/85 backdrop-blur-xs box-border">
         
         {/* Subtle Extra Inset Hairline */}
-        <div className="absolute inset-2.5 rounded-xl border border-[#0F5244]/15 pointer-events-none" />
+        <div className="absolute inset-2.5 rounded-xl border border-brand-dark/15 pointer-events-none" />
 
         {/* 4 Minimal Corner Flourishes */}
         <SubtleCorner className="absolute top-2.5 left-2.5" />
@@ -117,14 +117,14 @@ export function CertificateTemplate({
               height={22}
               className="w-auto h-4 object-contain"
             />
-            <span className="text-[11px] font-bold text-[#0F5244] tracking-wider font-sans">
+            <span className="text-[11px] font-bold text-brand-dark tracking-wider font-sans">
               COACH SPACE
             </span>
           </div>
 
           {/* Certificate Main Title & High-Contrast Gold Subtitle */}
           <div className="space-y-1">
-            <h1 className="font-serif-luxury text-3xl font-bold tracking-[0.18em] text-[#0F5244]">
+            <h1 className="font-serif-luxury text-3xl font-bold tracking-[0.18em] text-brand-dark">
               CERTIFICATE OF ACHIEVEMENT
             </h1>
             <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-[#7E5B10]">
@@ -156,7 +156,7 @@ export function CertificateTemplate({
             In recognition of successfully fulfilling all curriculum requirements and practical coursework for:
           </p>
 
-          <h3 className="font-serif-luxury text-[22px] font-bold text-[#0F5244] leading-snug tracking-tight truncate">
+          <h3 className="font-serif-luxury text-[22px] font-bold text-brand-dark leading-snug tracking-tight truncate">
             « {courseTitle || "Specialized Professional Course"} »
           </h3>
 
@@ -182,8 +182,8 @@ export function CertificateTemplate({
                 </span>
               </div>
 
-              <div className="flex items-center gap-1.5 text-[11px] text-emerald-800 font-mono font-bold tracking-wide pt-0.5">
-                <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+              <div className="flex items-center gap-1.5 text-[11px] text-brand-dark font-mono font-bold tracking-wide pt-0.5">
+                <ShieldCheck className="w-3.5 h-3.5 text-[var(--color-primary-main)] shrink-0" />
                 <span>ID: {certificateCode}</span>
               </div>
             </div>

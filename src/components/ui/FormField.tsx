@@ -19,14 +19,14 @@ export const FormField = React.forwardRef<HTMLInputElement, FormFieldProps>(
         {label && (
           <label
             htmlFor={id}
-            className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-slate-600 transition-colors duration-200 group-focus-within:text-[#0F5244]"
+            className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-slate-600 transition-colors duration-200 group-focus-within:text-brand-dark"
           >
             {label}
           </label>
         )}
         <div className="relative flex items-center">
           {icon && (
-            <div className="pointer-events-none absolute start-3.5 top-1/2 -translate-y-1/2 flex items-center justify-center text-slate-400 transition-all duration-200 group-focus-within:text-[#0F5244] group-focus-within:scale-110">
+            <div className="pointer-events-none absolute start-3.5 top-1/2 -translate-y-1/2 flex items-center justify-center text-slate-400 transition-all duration-200 group-focus-within:text-brand-dark group-focus-within:scale-110">
               {icon}
             </div>
           )}
@@ -34,7 +34,7 @@ export const FormField = React.forwardRef<HTMLInputElement, FormFieldProps>(
             id={id}
             name={id}
             ref={ref}
-            className={`h-11 sm:h-11 w-full rounded-xl border border-slate-200/90 bg-white/95 px-3.5 text-[16px] sm:text-sm text-slate-900 font-medium leading-normal outline-none shadow-none transition-all duration-200 placeholder:text-slate-400 placeholder:font-normal hover:border-[#0F5244]/40 hover:shadow-xs focus:border-[#0F5244] focus:bg-white focus:ring-2 focus:ring-[#0F5244]/15 focus:shadow-[0_2px_8px_rgba(15,82,68,0.08)] ${
+            className={`h-11 sm:h-11 w-full rounded-xl border border-slate-200/90 bg-white/95 px-3.5 text-[16px] sm:text-sm text-slate-900 font-medium leading-normal outline-none shadow-none transition-all duration-200 placeholder:text-slate-400 placeholder:font-normal hover:border-brand-dark/40 hover:shadow-xs focus:border-brand-dark focus:bg-white focus:ring-2 focus:ring-brand-dark/15 focus:shadow-[0_2px_8px_rgba(15,82,68,0.08)] ${
               icon ? "ps-11 sm:ps-10" : ""
             } ${trailing ? "pe-11 sm:pe-10" : ""} ${
               error

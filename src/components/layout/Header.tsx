@@ -209,9 +209,9 @@ export function Header({ lang, onLanguageToggle, variant = "main", className = "
                 type="button"
                 onClick={handleLanguageToggle}
                 aria-label={tHeader("switchLanguageLabel")}
-                className="inline-flex items-center gap-1.5 rounded-full border border-slate-200/90 bg-slate-50/80 px-3 py-1.5 text-xs font-bold text-slate-700 hover:bg-white hover:border-slate-300 hover:text-[#0F5244] transition-all focus:outline-none focus:ring-2 focus:ring-[#0F5244]/20 active:scale-95 shadow-2xs cursor-pointer"
+                className="inline-flex items-center gap-1.5 rounded-full border border-slate-200/90 bg-slate-50/80 px-3 py-1.5 text-xs font-bold text-slate-700 hover:bg-white hover:border-slate-300 hover:text-[var(--color-primary-main)] transition-all focus:outline-none focus:ring-2 focus:ring-brand-dark/20 active:scale-95 shadow-2xs cursor-pointer"
               >
-                <Globe className="h-3.5 w-3.5 text-emerald-700 shrink-0" />
+                <Globe className="h-3.5 w-3.5 text-[var(--color-primary-main)] shrink-0" />
                 <span>{tHeader("switchLanguage")}</span>
               </button>
             </div>
@@ -241,7 +241,7 @@ export function Header({ lang, onLanguageToggle, variant = "main", className = "
             href={`/${locale}`}
             className={`px-3.5 py-2 rounded-xl text-xs lg:text-sm font-bold transition-all ${
               isActive("/")
-                ? "bg-emerald-50 text-[#0F5244] font-extrabold border border-emerald-200/60 shadow-2xs"
+                ? "bg-slate-100 text-[var(--color-primary-main)] font-extrabold border border-slate-200/60 shadow-2xs"
                 : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
             }`}
           >
@@ -253,7 +253,7 @@ export function Header({ lang, onLanguageToggle, variant = "main", className = "
             href={`/${locale}/courses`}
             className={`px-3.5 py-2 rounded-xl text-xs lg:text-sm font-bold transition-all ${
               isActive("/courses")
-                ? "bg-emerald-50 text-[#0F5244] font-extrabold border border-emerald-200/60 shadow-2xs"
+                ? "bg-slate-100 text-[var(--color-primary-main)] font-extrabold border border-slate-200/60 shadow-2xs"
                 : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
             }`}
           >
@@ -279,11 +279,11 @@ export function Header({ lang, onLanguageToggle, variant = "main", className = "
                 href={instructorDashboardUrl}
                 className={`px-3.5 py-2 rounded-xl text-xs lg:text-sm font-bold transition-all inline-flex items-center gap-1.5 ${
                   isActive("/instructor")
-                    ? "bg-emerald-50 text-[#0F5244] font-extrabold border border-emerald-200/60 shadow-2xs"
-                    : "text-slate-600 hover:text-[#0F5244] hover:bg-slate-50"
+                    ? "bg-slate-100 text-[var(--color-primary-main)] font-extrabold border border-slate-200/60 shadow-2xs"
+                    : "text-slate-600 hover:text-[var(--color-primary-main)] hover:bg-slate-50"
                 }`}
               >
-                <LayoutDashboard className="h-4 w-4 text-[#0F5244] shrink-0" />
+                <LayoutDashboard className="h-4 w-4 text-[var(--color-primary-main)] shrink-0" />
                 <span>{tNav("instructorStudio")}</span>
               </Link>
             ) : (
@@ -292,22 +292,22 @@ export function Header({ lang, onLanguageToggle, variant = "main", className = "
                   href={`/${locale}/student/courses`}
                   className={`px-3.5 py-2 rounded-xl text-xs lg:text-sm font-bold transition-all inline-flex items-center gap-1.5 ${
                     isActive("/student/courses")
-                      ? "bg-emerald-50 text-[#0F5244] font-extrabold border border-emerald-200/60 shadow-2xs"
+                      ? "bg-slate-100 text-[var(--color-primary-main)] font-extrabold border border-slate-200/60 shadow-2xs"
                       : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
                   }`}
                 >
-                  <BookOpen className="h-4 w-4 text-[#0F5244] shrink-0" />
+                  <BookOpen className="h-4 w-4 text-[var(--color-primary-main)] shrink-0" />
                   <span>{tNav("myLearning")}</span>
                 </Link>
                 <Link
                   href={`/${locale}/student/my-path`}
                   className={`px-3.5 py-2 rounded-xl text-xs lg:text-sm font-bold transition-all inline-flex items-center gap-1.5 ${
                     isActive("/student/my-path")
-                      ? "bg-emerald-50 text-[#0F5244] font-extrabold border border-emerald-200/60 shadow-2xs"
+                      ? "bg-slate-100 text-[var(--color-primary-main)] font-extrabold border border-slate-200/60 shadow-2xs"
                       : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
                   }`}
                 >
-                  <Sparkles className="h-4 w-4 text-[#0F5244] shrink-0" />
+                  <Sparkles className="h-4 w-4 text-[var(--color-primary-main)] shrink-0" />
                   <span>{isAr ? "مساري" : "My Path"}</span>
                 </Link>
               </>
@@ -326,10 +326,10 @@ export function Header({ lang, onLanguageToggle, variant = "main", className = "
               onClick={() => dispatch(openCartDrawer())}
               className={`relative flex items-center justify-center w-9 h-9 rounded-full border transition-all duration-300 ease-out active:scale-90 group cursor-pointer ${
                 isBadgePulsing
-                  ? "animate-cart-bounce animate-cart-glow bg-emerald-50 border-emerald-400 text-emerald-800 shadow-[0_0_16px_rgba(16,185,129,0.35)]"
+                  ? "animate-cart-bounce animate-cart-glow bg-slate-100 border-slate-300 text-[var(--color-primary-main)] shadow-[0_0_16px_rgba(0,0,0,0.1)]"
                   : isActive("/student/cart") || isActive("/cart")
-                  ? "bg-emerald-50/90 border-emerald-300 text-[#0F5244] shadow-2xs"
-                  : "bg-white hover:bg-emerald-50/50 border-slate-200/80 hover:border-emerald-300 hover:shadow-xs text-slate-700 hover:text-emerald-800"
+                  ? "bg-slate-100/90 border-slate-300 text-[var(--color-primary-main)] shadow-2xs"
+                  : "bg-white hover:bg-slate-100/50 border-slate-200/80 hover:border-slate-300 hover:shadow-xs text-slate-700 hover:text-[var(--color-primary-main)]"
               }`}
               aria-label={tHeader("cartAria")}
               title={
@@ -342,10 +342,10 @@ export function Header({ lang, onLanguageToggle, variant = "main", className = "
               <ShoppingCart
                 className={`w-[18px] h-[18px] stroke-[1.8] transition-all duration-200 group-hover:scale-110 ${
                   isBadgePulsing
-                    ? "text-emerald-800"
+                    ? "text-[var(--color-primary-main)]"
                     : isActive("/student/cart") || isActive("/cart")
-                    ? "text-[#0F5244]"
-                    : "text-slate-600 group-hover:text-[#0F5244]"
+                    ? "text-[var(--color-primary-main)]"
+                    : "text-slate-600 group-hover:text-[var(--color-primary-main)]"
                 }`}
               />
 
@@ -354,12 +354,12 @@ export function Header({ lang, onLanguageToggle, variant = "main", className = "
                 <>
                   {/* موجة الرادار المضيئة عند إضافة دورة */}
                   {isBadgePulsing && (
-                    <span className="absolute -top-1 -right-1 rtl:-left-1 rtl:right-auto flex h-[18px] w-[18px] rounded-full bg-emerald-400/80 animate-ping pointer-events-none" />
+                    <span className="absolute -top-1 -right-1 rtl:-left-1 rtl:right-auto flex h-[18px] w-[18px] rounded-full bg-[var(--color-primary-light)]/80 animate-ping pointer-events-none" />
                   )}
 
                   {/* الشارة المطورة الأنيقة */}
                   <span
-                    className={`absolute -top-1 -right-1 rtl:-left-1 rtl:right-auto flex h-[17px] min-w-[17px] items-center justify-center rounded-full bg-gradient-to-tr from-[#0B4F3A] to-[#148767] text-[9px] font-black text-white ring-2 ring-white shadow-[0_2px_6px_rgba(15,82,68,0.3)] px-1 tabular-nums pointer-events-none transition-transform duration-200 group-hover:scale-110 ${
+                    className={`absolute -top-1 -right-1 rtl:-left-1 rtl:right-auto flex h-[17px] min-w-[17px] items-center justify-center rounded-full bg-gradient-to-tr from-brand-dark to-[var(--color-primary-main)] text-[9px] font-black text-white ring-2 ring-white shadow-[0_2px_6px_rgba(15,82,68,0.3)] px-1 tabular-nums pointer-events-none transition-transform duration-200 group-hover:scale-110 ${
                       isBadgePulsing ? "animate-badge-pop" : ""
                     }`}
                   >
@@ -374,10 +374,10 @@ export function Header({ lang, onLanguageToggle, variant = "main", className = "
           <button
             type="button"
             onClick={handleLanguageToggle}
-            className="inline-flex items-center gap-1.5 rounded-full border border-slate-200/90 bg-slate-50/80 px-3 py-1.5 text-xs font-bold text-slate-700 hover:bg-white hover:border-slate-300 hover:text-[#0F5244] transition-all focus:outline-none focus:ring-2 focus:ring-[#0F5244]/20 active:scale-95 shadow-2xs cursor-pointer"
+            className="inline-flex items-center gap-1.5 rounded-full border border-slate-200/90 bg-slate-50/80 px-3 py-1.5 text-xs font-bold text-slate-700 hover:bg-white hover:border-slate-300 hover:text-[var(--color-primary-main)] transition-all focus:outline-none focus:ring-2 focus:ring-brand-dark/20 active:scale-95 shadow-2xs cursor-pointer"
             aria-label={tHeader("switchLanguageLabel")}
           >
-            <Globe className="h-3.5 w-3.5 text-emerald-700 shrink-0" />
+            <Globe className="h-3.5 w-3.5 text-[var(--color-primary-main)] shrink-0" />
             <span>{tHeader("switchLanguage")}</span>
           </button>
 
@@ -401,16 +401,16 @@ export function Header({ lang, onLanguageToggle, variant = "main", className = "
                     width={36}
                     height={36}
                     onError={() => setAvatarError(true)}
-                    className="h-9 w-9 rounded-full object-cover border border-slate-200 shadow-2xs group-hover:border-emerald-500 transition-colors"
+                    className="h-9 w-9 rounded-full object-cover border border-slate-200 shadow-2xs group-hover:border-brand transition-colors"
                   />
                 ) : (
-                  <div className="h-9 w-9 rounded-full bg-emerald-100 border border-emerald-200/90 flex items-center justify-center text-[#0F5244] font-black text-xs shadow-2xs group-hover:bg-emerald-200 transition-colors">
+                  <div className="h-9 w-9 rounded-full bg-slate-200 border border-slate-200/90 flex items-center justify-center text-[var(--color-primary-main)] font-black text-xs shadow-2xs group-hover:bg-slate-200 transition-colors">
                     {(user?.name || user?.fullName || "U").charAt(0).toUpperCase()}
                   </div>
                 )}
                 <ChevronDown
                   className={`h-3.5 w-3.5 text-slate-400 group-hover:text-slate-700 transition-transform duration-200 ${
-                    userDropdownOpen ? "rotate-180 text-[#0F5244]" : ""
+                    userDropdownOpen ? "rotate-180 text-[var(--color-primary-main)]" : ""
                   }`}
                 />
               </button>
@@ -432,8 +432,8 @@ export function Header({ lang, onLanguageToggle, variant = "main", className = "
                           isAdmin
                             ? "bg-purple-100 text-purple-800 border border-purple-200/90 font-black"
                             : isInstructor
-                            ? "bg-emerald-50 text-[#0F5244] border border-emerald-200/90 font-black"
-                            : "bg-emerald-100 text-[#0F5244] border border-emerald-200/80"
+                            ? "bg-slate-100 text-[var(--color-primary-main)] border border-slate-200/90 font-black"
+                            : "bg-slate-200 text-[var(--color-primary-main)] border border-slate-200/80"
                         }`}
                       >
                         {isAdmin ? (isAr ? "مسؤول النظام" : "Admin") : isInstructor ? tHeader("instructorRole") : tHeader("studentRole")}
@@ -466,7 +466,7 @@ export function Header({ lang, onLanguageToggle, variant = "main", className = "
                           className={`flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-bold transition-colors ${
                             isActive("/admin/cms/landing")
                               ? "bg-purple-50 text-purple-900"
-                              : "hover:bg-slate-50 text-slate-700 hover:text-[#0F5244]"
+                              : "hover:bg-slate-50 text-slate-700 hover:text-[var(--color-primary-main)]"
                           }`}
                         >
                           <Settings className="h-4 w-4 text-purple-700 shrink-0" />
@@ -480,11 +480,11 @@ export function Header({ lang, onLanguageToggle, variant = "main", className = "
                           onClick={() => setUserDropdownOpen(false)}
                           className={`flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-bold transition-colors ${
                             isActive("/instructor/settings")
-                              ? "bg-emerald-50 text-[#0F5244]"
-                              : "hover:bg-slate-50 text-slate-700 hover:text-[#0F5244]"
+                              ? "bg-slate-100 text-[var(--color-primary-main)]"
+                              : "hover:bg-slate-50 text-slate-700 hover:text-[var(--color-primary-main)]"
                           }`}
                         >
-                          <Settings className="h-4 w-4 text-[#0F5244] shrink-0" />
+                          <Settings className="h-4 w-4 text-[var(--color-primary-main)] shrink-0" />
                           <span>{tNav("accountSettings")}</span>
                         </Link>
                       </>
@@ -495,11 +495,11 @@ export function Header({ lang, onLanguageToggle, variant = "main", className = "
                           onClick={() => setUserDropdownOpen(false)}
                           className={`flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-bold transition-colors ${
                             isActive("/student/courses")
-                              ? "bg-emerald-50 text-[#0F5244]"
-                              : "hover:bg-slate-50 text-slate-700 hover:text-[#0F5244]"
+                              ? "bg-slate-100 text-[var(--color-primary-main)]"
+                              : "hover:bg-slate-50 text-slate-700 hover:text-[var(--color-primary-main)]"
                           }`}
                         >
-                          <BookOpen className="h-4 w-4 text-[#0F5244] shrink-0" />
+                          <BookOpen className="h-4 w-4 text-[var(--color-primary-main)] shrink-0" />
                           <span>{tNav("myLearning")}</span>
                         </Link>
                         <Link
@@ -507,11 +507,11 @@ export function Header({ lang, onLanguageToggle, variant = "main", className = "
                           onClick={() => setUserDropdownOpen(false)}
                           className={`flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-bold transition-colors ${
                             isActive("/student/settings")
-                              ? "bg-emerald-50 text-[#0F5244]"
-                              : "hover:bg-slate-50 text-slate-700 hover:text-[#0F5244]"
+                              ? "bg-slate-100 text-[var(--color-primary-main)]"
+                              : "hover:bg-slate-50 text-slate-700 hover:text-[var(--color-primary-main)]"
                           }`}
                         >
-                          <Settings className="h-4 w-4 text-[#0F5244] shrink-0" />
+                          <Settings className="h-4 w-4 text-[var(--color-primary-main)] shrink-0" />
                           <span>{tNav("accountSettings")}</span>
                         </Link>
                       </>
@@ -522,11 +522,11 @@ export function Header({ lang, onLanguageToggle, variant = "main", className = "
                       onClick={() => setUserDropdownOpen(false)}
                       className={`flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-bold transition-colors ${
                         isActive("/certificates/verify")
-                          ? "bg-emerald-50 text-[#0F5244]"
-                          : "hover:bg-slate-50 text-slate-700 hover:text-[#0F5244]"
+                          ? "bg-slate-100 text-[var(--color-primary-main)]"
+                          : "hover:bg-slate-50 text-slate-700 hover:text-[var(--color-primary-main)]"
                       }`}
                     >
-                      <ShieldCheck className="h-4 w-4 text-emerald-600 shrink-0" />
+                      <ShieldCheck className="h-4 w-4 text-[var(--color-primary-main)] shrink-0" />
                       <span>{tNav("verifyCertificate")}</span>
                     </Link>
                   </div>
@@ -551,7 +551,7 @@ export function Header({ lang, onLanguageToggle, variant = "main", className = "
             <div className="flex items-center">
               <Link
                 href={`/${locale}/login`}
-                className="px-4 py-2 rounded-xl bg-[#0F5244] hover:bg-[#07382E] text-white text-xs lg:text-sm font-bold transition-all shadow-xs active:scale-98"
+                className="px-4 py-2 rounded-xl bg-brand-dark hover:bg-[#07382E] text-white text-xs lg:text-sm font-bold transition-all shadow-xs active:scale-98"
               >
                 {tNav("login")}
               </Link>
@@ -570,10 +570,10 @@ export function Header({ lang, onLanguageToggle, variant = "main", className = "
               onClick={() => dispatch(openCartDrawer())}
               className={`relative flex items-center justify-center w-8.5 h-8.5 rounded-full border transition-all duration-300 ease-out active:scale-90 group cursor-pointer ${
                 isBadgePulsing
-                  ? "animate-cart-bounce animate-cart-glow bg-emerald-50 border-emerald-400 text-emerald-800 shadow-[0_0_14px_rgba(16,185,129,0.35)]"
+                  ? "animate-cart-bounce animate-cart-glow bg-slate-100 border-slate-300 text-[var(--color-primary-main)] shadow-[0_0_14px_rgba(0,0,0,0.1)]"
                   : isActive("/student/cart") || isActive("/cart")
-                  ? "bg-emerald-50/90 border-emerald-300 text-[#0F5244] shadow-2xs"
-                  : "bg-white hover:bg-emerald-50/50 border-slate-200/80 hover:border-emerald-300 text-slate-700 hover:text-emerald-800"
+                  ? "bg-slate-100/90 border-slate-300 text-[var(--color-primary-main)] shadow-2xs"
+                  : "bg-white hover:bg-slate-100/50 border-slate-200/80 hover:border-slate-300 text-slate-700 hover:text-[var(--color-primary-main)]"
               }`}
               aria-label={tHeader("cartAria")}
               title={
@@ -585,20 +585,20 @@ export function Header({ lang, onLanguageToggle, variant = "main", className = "
               <ShoppingCart
                 className={`w-4 h-4 stroke-[1.8] transition-all duration-200 group-hover:scale-105 ${
                   isBadgePulsing
-                    ? "text-emerald-800"
+                    ? "text-[var(--color-primary-main)]"
                     : isActive("/student/cart") || isActive("/cart")
-                    ? "text-[#0F5244]"
-                    : "text-slate-600 group-hover:text-[#0F5244]"
+                    ? "text-[var(--color-primary-main)]"
+                    : "text-slate-600 group-hover:text-[var(--color-primary-main)]"
                 }`}
               />
 
               {mounted && cartItems.length > 0 && (
                 <>
                   {isBadgePulsing && (
-                    <span className="absolute -top-1 -right-1 rtl:-left-1 rtl:right-auto flex h-[16px] w-[16px] rounded-full bg-emerald-400/80 animate-ping pointer-events-none" />
+                    <span className="absolute -top-1 -right-1 rtl:-left-1 rtl:right-auto flex h-[16px] w-[16px] rounded-full bg-brand animate-ping pointer-events-none" />
                   )}
                   <span
-                    className={`absolute -top-1 -right-1 rtl:-left-1 rtl:right-auto flex h-[16px] min-w-[16px] items-center justify-center rounded-full bg-gradient-to-tr from-[#0B4F3A] to-[#148767] text-[8.5px] font-black text-white ring-2 ring-white shadow-[0_2px_6px_rgba(15,82,68,0.28)] px-1 tabular-nums pointer-events-none transition-transform duration-200 ${
+                    className={`absolute -top-1 -right-1 rtl:-left-1 rtl:right-auto flex h-[16px] min-w-[16px] items-center justify-center rounded-full bg-gradient-to-tr from-brand-dark to-[var(--color-primary-main)] text-[8.5px] font-black text-white ring-2 ring-white shadow-[0_2px_6px_rgba(15,82,68,0.28)] px-1 tabular-nums pointer-events-none transition-transform duration-200 ${
                       isBadgePulsing ? "animate-badge-pop" : ""
                     }`}
                   >
@@ -616,7 +616,7 @@ export function Header({ lang, onLanguageToggle, variant = "main", className = "
             className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[11px] font-bold text-slate-700 hover:bg-white"
             aria-label={tHeader("switchLanguageLabel")}
           >
-            <Globe className="h-3 w-3 text-emerald-700" />
+            <Globe className="h-3 w-3 text-[var(--color-primary-main)]" />
             <span>{tHeader("switchLanguage")}</span>
           </button>
 
@@ -624,7 +624,7 @@ export function Header({ lang, onLanguageToggle, variant = "main", className = "
           <button
             type="button"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="p-2 rounded-xl border border-slate-200/80 bg-slate-50 text-slate-700 hover:bg-slate-100 hover:text-[#0F5244] focus:outline-none cursor-pointer"
+            className="p-2 rounded-xl border border-slate-200/80 bg-slate-50 text-slate-700 hover:bg-slate-100 hover:text-[var(--color-primary-main)] focus:outline-none cursor-pointer"
             aria-label={mobileMenuOpen ? tHeader("closeMenu") : tHeader("menu")}
             aria-expanded={mobileMenuOpen}
           >
@@ -662,7 +662,7 @@ export function Header({ lang, onLanguageToggle, variant = "main", className = "
                     className="h-10 w-10 rounded-full object-cover border border-slate-200 shadow-2xs shrink-0"
                   />
                 ) : (
-                  <div className="h-10 w-10 rounded-full bg-emerald-100 border border-emerald-200 flex items-center justify-center text-[#0F5244] font-black text-sm shrink-0 shadow-2xs">
+                  <div className="h-10 w-10 rounded-full bg-slate-200 border border-slate-200 flex items-center justify-center text-[var(--color-primary-main)] font-black text-sm shrink-0 shadow-2xs">
                     {(user?.name || user?.fullName || "U").charAt(0).toUpperCase()}
                   </div>
                 )}
@@ -676,8 +676,8 @@ export function Header({ lang, onLanguageToggle, variant = "main", className = "
                     <span
                       className={`px-2 py-0.5 rounded-full text-[9px] font-extrabold shrink-0 ${
                         isInstructor
-                          ? "bg-emerald-50 text-[#0F5244] border border-emerald-200/90 font-black"
-                          : "bg-emerald-100 text-[#0F5244] border border-emerald-200/80"
+                          ? "bg-slate-100 text-[var(--color-primary-main)] border border-slate-200/90 font-black"
+                          : "bg-slate-200 text-[var(--color-primary-main)] border border-slate-200/80"
                       }`}
                     >
                       {isInstructor ? tHeader("instructorRole") : tHeader("studentRole")}
@@ -693,7 +693,7 @@ export function Header({ lang, onLanguageToggle, variant = "main", className = "
                 <Link
                   href={`/${locale}/login`}
                   onClick={() => setMobileMenuOpen(false)}
-                  className="block w-full py-2.5 rounded-xl bg-[#0F5244] text-center text-xs font-bold text-white hover:bg-[#07382E] shadow-xs"
+                  className="block w-full py-2.5 rounded-xl bg-brand-dark text-center text-xs font-bold text-white hover:bg-[#07382E] shadow-xs"
                 >
                   {tNav("login")}
                 </Link>
@@ -709,11 +709,11 @@ export function Header({ lang, onLanguageToggle, variant = "main", className = "
                 onClick={() => setMobileMenuOpen(false)}
                 className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all ${
                   isActive("/")
-                    ? "bg-[#0F5244] text-white shadow-xs"
+                    ? "bg-brand-dark text-white shadow-xs"
                     : "text-slate-700 hover:bg-slate-50"
                 }`}
               >
-                <LayoutDashboard className={`h-4 w-4 ${isActive("/") ? "text-white" : "text-emerald-700"}`} />
+                <LayoutDashboard className={`h-4 w-4 ${isActive("/") ? "text-white" : "text-[var(--color-primary-main)]"}`} />
                 <span>{tNav("home")}</span>
               </Link>
 
@@ -723,11 +723,11 @@ export function Header({ lang, onLanguageToggle, variant = "main", className = "
                 onClick={() => setMobileMenuOpen(false)}
                 className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all ${
                   isActive("/courses")
-                    ? "bg-[#0F5244] text-white shadow-xs"
+                    ? "bg-brand-dark text-white shadow-xs"
                     : "text-slate-700 hover:bg-slate-50"
                 }`}
               >
-                <BookOpen className={`h-4 w-4 ${isActive("/courses") ? "text-white" : "text-emerald-700"}`} />
+                <BookOpen className={`h-4 w-4 ${isActive("/courses") ? "text-white" : "text-[var(--color-primary-main)]"}`} />
                 <span>{tNav("courses")}</span>
               </Link>
 
@@ -767,11 +767,11 @@ export function Header({ lang, onLanguageToggle, variant = "main", className = "
                       onClick={() => setMobileMenuOpen(false)}
                       className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all ${
                         isActive("/instructor/dashboard") || (isActive("/instructor") && !isActive("/instructor/settings"))
-                          ? "bg-[#0F5244] text-white shadow-xs"
+                          ? "bg-brand-dark text-white shadow-xs"
                           : "text-slate-700 hover:bg-slate-50"
                       }`}
                     >
-                      <LayoutDashboard className="h-4 w-4 text-emerald-700" />
+                      <LayoutDashboard className="h-4 w-4 text-[var(--color-primary-main)]" />
                       <span>{tNav("instructorDashboard")}</span>
                     </Link>
 
@@ -780,11 +780,11 @@ export function Header({ lang, onLanguageToggle, variant = "main", className = "
                       onClick={() => setMobileMenuOpen(false)}
                       className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all ${
                         isActive("/instructor/settings")
-                          ? "bg-[#0F5244] text-white shadow-xs"
+                          ? "bg-brand-dark text-white shadow-xs"
                           : "text-slate-700 hover:bg-slate-50"
                       }`}
                     >
-                      <Settings className="h-4 w-4 text-emerald-700" />
+                      <Settings className="h-4 w-4 text-[var(--color-primary-main)]" />
                       <span>{tNav("accountSettings")}</span>
                     </Link>
                   </>
@@ -795,11 +795,11 @@ export function Header({ lang, onLanguageToggle, variant = "main", className = "
                       onClick={() => setMobileMenuOpen(false)}
                       className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all ${
                         isActive("/student/courses")
-                          ? "bg-[#0F5244] text-white shadow-xs"
+                          ? "bg-brand-dark text-white shadow-xs"
                           : "text-slate-700 hover:bg-slate-50"
                       }`}
                     >
-                      <BookOpen className="h-4 w-4 text-emerald-700" />
+                      <BookOpen className="h-4 w-4 text-[var(--color-primary-main)]" />
                       <span>{tNav("myLearning")}</span>
                     </Link>
 
@@ -808,11 +808,11 @@ export function Header({ lang, onLanguageToggle, variant = "main", className = "
                       onClick={() => setMobileMenuOpen(false)}
                       className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all ${
                         isActive("/student/my-path")
-                          ? "bg-[#0F5244] text-white shadow-xs"
+                          ? "bg-brand-dark text-white shadow-xs"
                           : "text-slate-700 hover:bg-slate-50"
                       }`}
                     >
-                      <Sparkles className="h-4 w-4 text-emerald-700" />
+                      <Sparkles className="h-4 w-4 text-[var(--color-primary-main)]" />
                       <span>{isAr ? "مساري (My Path)" : "My Path"}</span>
                     </Link>
 
@@ -821,11 +821,11 @@ export function Header({ lang, onLanguageToggle, variant = "main", className = "
                       onClick={() => setMobileMenuOpen(false)}
                       className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all ${
                         isActive("/student/settings")
-                          ? "bg-[#0F5244] text-white shadow-xs"
+                          ? "bg-brand-dark text-white shadow-xs"
                           : "text-slate-700 hover:bg-slate-50"
                       }`}
                     >
-                      <Settings className="h-4 w-4 text-emerald-700" />
+                      <Settings className="h-4 w-4 text-[var(--color-primary-main)]" />
                       <span>{tNav("accountSettings")}</span>
                     </Link>
                   </>
@@ -838,11 +838,11 @@ export function Header({ lang, onLanguageToggle, variant = "main", className = "
                 onClick={() => setMobileMenuOpen(false)}
                 className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all ${
                   isActive("/certificates/verify")
-                    ? "bg-[#0F5244] text-white shadow-xs"
+                    ? "bg-brand-dark text-white shadow-xs"
                     : "text-slate-700 hover:bg-slate-50"
                 }`}
               >
-                <ShieldCheck className={`h-4 w-4 ${isActive("/certificates/verify") ? "text-white" : "text-emerald-700"}`} />
+                <ShieldCheck className={`h-4 w-4 ${isActive("/certificates/verify") ? "text-white" : "text-[var(--color-primary-main)]"}`} />
                 <span>{tNav("verifyCertificate")}</span>
               </Link>
 
@@ -856,16 +856,16 @@ export function Header({ lang, onLanguageToggle, variant = "main", className = "
                   }}
                   className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                     isActive("/student/cart") || isActive("/cart")
-                      ? "bg-[#0F5244] text-white shadow-xs"
+                      ? "bg-brand-dark text-white shadow-xs"
                       : "text-slate-700 hover:bg-slate-50"
                   }`}
                 >
                   <div className="flex items-center gap-3">
-                    <ShoppingCart className={`h-4 w-4 ${isActive("/student/cart") || isActive("/cart") ? "text-white" : "text-emerald-700"}`} />
+                    <ShoppingCart className={`h-4 w-4 ${isActive("/student/cart") || isActive("/cart") ? "text-white" : "text-[var(--color-primary-main)]"}`} />
                     <span>{tHeader("cartAria")}</span>
                   </div>
                   {mounted && cartItems.length > 0 && (
-                    <span className="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-emerald-500 px-1.5 text-[11px] font-black text-white">
+                    <span className="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-slate-1000 px-1.5 text-[11px] font-black text-white">
                       {cartItems.length}
                     </span>
                   )}

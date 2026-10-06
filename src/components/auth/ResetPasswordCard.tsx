@@ -108,8 +108,8 @@ export function ResetPasswordCard({ lang }: ResetPasswordCardProps) {
 
       {resetSuccess ? (
         <div className="py-4 text-center animate-in fade-in duration-200">
-          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-emerald-50 text-[#0F5244] border border-emerald-200 shadow-xs">
-            <CheckCircle2 size={28} className="text-[#0F5244]" />
+          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-slate-50 text-brand-dark border border-slate-200 shadow-xs">
+            <CheckCircle2 size={28} className="text-brand-dark" />
           </div>
 
           <h3 className="text-lg font-extrabold text-slate-900">
@@ -145,7 +145,7 @@ export function ResetPasswordCard({ lang }: ResetPasswordCardProps) {
                 type="button"
                 aria-label={showPassword ? t("hidePassword") : t("showPassword")}
                 onClick={() => setShowPassword((prev) => !prev)}
-                className="rounded p-1 text-slate-400 hover:text-[#0F5244] focus:outline-none transition-colors"
+                className="rounded p-1 text-slate-400 hover:text-brand-dark focus:outline-none transition-colors"
               >
                 {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
@@ -170,7 +170,7 @@ export function ResetPasswordCard({ lang }: ResetPasswordCardProps) {
               type="button"
               aria-label={showConfirmPassword ? t("hidePassword") : t("showPassword")}
               onClick={() => setShowConfirmPassword((prev) => !prev)}
-              className="rounded p-1 text-slate-400 hover:text-[#0F5244] focus:outline-none transition-colors"
+              className="rounded p-1 text-slate-400 hover:text-brand-dark focus:outline-none transition-colors"
             >
               {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
             </button>
@@ -180,7 +180,7 @@ export function ResetPasswordCard({ lang }: ResetPasswordCardProps) {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="group relative flex h-11 sm:h-12 w-full items-center justify-center gap-2 rounded-md bg-[#0F5244] hover:bg-[#083A30] px-6 text-xs sm:text-sm font-extrabold text-white shadow-md transition-all duration-200 active:scale-[0.99] disabled:opacity-70 focus:outline-none focus:ring-4 focus:ring-[#0F5244]/20 cursor-pointer"
+          className="group relative flex h-11 sm:h-12 w-full items-center justify-center gap-2 rounded-md bg-brand-dark hover:bg-[#083A30] px-6 text-xs sm:text-sm font-extrabold text-white shadow-md transition-all duration-200 active:scale-[0.99] disabled:opacity-70 focus:outline-none focus:ring-4 focus:ring-brand-dark/20 cursor-pointer"
         >
           {isSubmitting ? (
             <Loader2 className="h-5 w-5 animate-spin" />
@@ -201,7 +201,7 @@ export function ResetPasswordCard({ lang }: ResetPasswordCardProps) {
 
       {/* Security Badge */}
       <div className="mt-4 flex items-center justify-center gap-1.5 text-[11px] text-slate-400 font-semibold">
-        <ShieldCheck size={13} className="text-[#0F5244]" />
+        <ShieldCheck size={13} className="text-brand-dark" />
         <span>{t("encryptedConnection")}</span>
       </div>
 
@@ -210,7 +210,7 @@ export function ResetPasswordCard({ lang }: ResetPasswordCardProps) {
         {t("rememberOldPassword")}{" "}
         <Link
           href={`/${currentLocale}/login`}
-          className="font-bold text-[#0F5244] transition-colors hover:underline"
+          className="font-bold text-brand-dark transition-colors hover:underline"
         >
           {t("login")}
         </Link>

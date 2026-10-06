@@ -70,7 +70,7 @@ export function StudentHomeWidget() {
         {/* Bento Strip Header */}
         <div className="flex items-center justify-between mb-4 sm:mb-6">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-[#0F5244]/10 text-[#0F5244] flex items-center justify-center">
+            <div className="w-8 h-8 rounded-xl bg-brand-dark/10 text-brand-dark flex items-center justify-center">
               <Sparkles className="w-4 h-4" />
             </div>
             <h2 className="text-lg sm:text-xl font-black text-slate-900">
@@ -80,7 +80,7 @@ export function StudentHomeWidget() {
 
           <Link
             href={`/${locale}/student/courses`}
-            className="text-xs sm:text-sm font-bold text-[#0F5244] hover:underline inline-flex items-center gap-1 group cursor-pointer"
+            className="text-xs sm:text-sm font-bold text-brand-dark hover:underline inline-flex items-center gap-1 group cursor-pointer"
           >
             <span>{t("myLearning")}</span>
             <ArrowRight className="w-3.5 h-3.5 rtl:rotate-180 group-hover:translate-x-0.5 rtl:group-hover:-translate-x-0.5 transition-transform" />
@@ -94,8 +94,8 @@ export function StudentHomeWidget() {
           <div className="lg:col-span-5 grid grid-cols-3 gap-3 sm:gap-4">
             
             {/* Metric 1 */}
-            <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-100 shadow-sm flex flex-col justify-between hover:border-emerald-200 transition-all">
-              <div className="w-9 h-9 rounded-xl bg-emerald-50 text-[#0F5244] flex items-center justify-center mb-3">
+            <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-100 shadow-sm flex flex-col justify-between hover:border-slate-200 transition-all">
+              <div className="w-9 h-9 rounded-xl bg-slate-50 text-brand-dark flex items-center justify-center mb-3">
                 <BookOpen className="w-4 h-4" />
               </div>
               <div>
@@ -109,7 +109,7 @@ export function StudentHomeWidget() {
             </div>
 
             {/* Metric 2 */}
-            <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-100 shadow-sm flex flex-col justify-between hover:border-emerald-200 transition-all">
+            <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-100 shadow-sm flex flex-col justify-between hover:border-slate-200 transition-all">
               <div className="w-9 h-9 rounded-xl bg-teal-50 text-teal-700 flex items-center justify-center mb-3">
                 <CheckCircle2 className="w-4 h-4" />
               </div>
@@ -124,7 +124,7 @@ export function StudentHomeWidget() {
             </div>
 
             {/* Metric 3 */}
-            <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-100 shadow-sm flex flex-col justify-between hover:border-emerald-200 transition-all">
+            <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-100 shadow-sm flex flex-col justify-between hover:border-slate-200 transition-all">
               <div className="w-9 h-9 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center mb-3">
                 <Award className="w-4 h-4" />
               </div>
@@ -141,14 +141,14 @@ export function StudentHomeWidget() {
           </div>
 
           {/* Right: Continue Learning Highlight Card (Col 7) */}
-          <div className="lg:col-span-7 bg-gradient-to-br from-[#EBF5F3] via-[#F4F9F8] to-[#E2F1EE] border border-[#0F5244]/15 rounded-2xl sm:rounded-3xl p-5 sm:p-6 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5 relative overflow-hidden">
+          <div className="lg:col-span-7 bg-gradient-to-br from-[#EBF5F3] via-[#F4F9F8] to-[#E2F1EE] border border-brand-dark/15 rounded-2xl sm:rounded-3xl p-5 sm:p-6 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5 relative overflow-hidden">
             
             {/* Ambient Background Glow */}
             <div className="absolute top-0 right-0 w-64 h-64 bg-[#45D1B4]/15 rounded-full blur-3xl pointer-events-none" />
 
             <div className="space-y-3 z-10 flex-1 min-w-0">
-              <div className="inline-flex items-center gap-1.5 bg-[#0F5244]/10 border border-[#0F5244]/15 px-3 py-1 rounded-full text-[11px] font-bold text-[#0F5244]">
-                <span className="w-2 h-2 rounded-full bg-[#0F5244] animate-pulse" />
+              <div className="inline-flex items-center gap-1.5 bg-brand-dark/10 border border-brand-dark/15 px-3 py-1 rounded-full text-[11px] font-bold text-brand-dark">
+                <span className="w-2 h-2 rounded-full bg-brand-dark animate-pulse" />
                 <span>{t("continueLearningBadge")}</span>
               </div>
 
@@ -165,9 +165,9 @@ export function StudentHomeWidget() {
 
             <Link
               href={enrolledCourses.length > 0 ? `/${locale}/student/learn/${enrolledCourses[0].id}` : `/${locale}/courses`}
-              className="z-10 bg-[#0F5244] hover:bg-[#08382E] active:scale-95 text-white font-black text-xs sm:text-sm px-6 py-3.5 rounded-xl transition-all shadow-md hover:shadow-lg inline-flex items-center justify-center gap-2 shrink-0 w-full sm:w-auto cursor-pointer"
+              className="z-10 bg-brand-dark hover:bg-[#08382E] active:scale-95 text-white font-black text-xs sm:text-sm px-6 py-3.5 rounded-xl transition-all shadow-md hover:shadow-lg inline-flex items-center justify-center gap-2 shrink-0 w-full sm:w-auto cursor-pointer"
             >
-              <BookOpen className="w-4 h-4 text-emerald-300" />
+              <BookOpen className="w-4 h-4 text-slate-300" />
               <span>{enrolledCourses.length > 0 ? t("myLearning") : t("exploreCourses")}</span>
             </Link>
 

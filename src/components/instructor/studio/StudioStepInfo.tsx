@@ -120,7 +120,7 @@ export function StudioStepInfo({
             {isSaving ? (
               <Loader2 className="w-3.5 h-3.5 animate-spin" />
             ) : (
-              <Save className="w-3.5 h-3.5 text-[#0F5244]" />
+              <Save className="w-3.5 h-3.5 text-[var(--color-primary-main)]" />
             )}
             <span>{t("saveDraft")}</span>
           </button>
@@ -168,8 +168,8 @@ export function StudioStepInfo({
         <div className="lg:col-span-2 space-y-6">
           {/* 1. Basic Information Card */}
           <div className="bg-white rounded-3xl border border-slate-200/90 p-6 shadow-2xs space-y-5">
-            <div className="flex items-center gap-2 border-b border-slate-100 pb-3 text-[#0F5244]">
-              <FileText size={18} className="shrink-0 text-[#0F5244]" />
+            <div className="flex items-center gap-2 border-b border-slate-100 pb-3 text-[var(--color-primary-main)]">
+              <FileText size={18} className="shrink-0 text-[var(--color-primary-main)]" />
               <h2 className="font-extrabold text-slate-900 text-base sm:text-lg">
                 {t("basicInfoTitle")}
               </h2>
@@ -195,7 +195,7 @@ export function StudioStepInfo({
                         ? "bg-slate-100/80 cursor-not-allowed text-slate-600 border-slate-200"
                         : step1Submitted && !titleEn.trim()
                           ? "border-rose-300 focus:border-rose-500 focus:ring-rose-200 bg-rose-50/20"
-                          : "border-slate-200 focus:border-[#0F5244] focus:ring-[#0F5244]/10"
+                          : "border-slate-200 focus:border-brand-dark focus:ring-brand-dark/10"
                     }`}
                   />
                   {step1Submitted && !titleEn.trim() && (
@@ -219,7 +219,7 @@ export function StudioStepInfo({
                         ? "bg-slate-100/80 cursor-not-allowed text-slate-600 border-slate-200"
                         : step1Submitted && !titleAr.trim()
                           ? "border-rose-300 focus:border-rose-500 focus:ring-rose-200 bg-rose-50/20"
-                          : "border-slate-200 focus:border-[#0F5244] focus:ring-[#0F5244]/10"
+                          : "border-slate-200 focus:border-brand-dark focus:ring-brand-dark/10"
                     }`}
                   />
                   {step1Submitted && !titleAr.trim() && (
@@ -251,7 +251,7 @@ export function StudioStepInfo({
                         ? "bg-slate-100/80 cursor-not-allowed text-slate-600 border-slate-200"
                         : step1Submitted && !descEn.trim()
                           ? "border-rose-300 focus:border-rose-500 focus:ring-rose-200 bg-rose-50/20"
-                          : "border-slate-200 focus:border-[#0F5244] focus:ring-[#0F5244]/10"
+                          : "border-slate-200 focus:border-brand-dark focus:ring-brand-dark/10"
                     }`}
                   />
                   {step1Submitted && !descEn.trim() && (
@@ -275,7 +275,7 @@ export function StudioStepInfo({
                         ? "bg-slate-100/80 cursor-not-allowed text-slate-600 border-slate-200"
                         : step1Submitted && !descAr.trim()
                           ? "border-rose-300 focus:border-rose-500 focus:ring-rose-200 bg-rose-50/20"
-                          : "border-slate-200 focus:border-[#0F5244] focus:ring-[#0F5244]/10"
+                          : "border-slate-200 focus:border-brand-dark focus:ring-brand-dark/10"
                     }`}
                   />
                   {step1Submitted && !descAr.trim() && (
@@ -290,8 +290,8 @@ export function StudioStepInfo({
 
           {/* 2. Attributes & Pricing Card */}
           <div className="bg-white rounded-3xl border border-slate-200/90 p-6 shadow-2xs space-y-5">
-            <div className="flex items-center gap-2 border-b border-slate-100 pb-3 text-[#0F5244]">
-              <Layers size={18} className="shrink-0 text-[#0F5244]" />
+            <div className="flex items-center gap-2 border-b border-slate-100 pb-3 text-[var(--color-primary-main)]">
+              <Layers size={18} className="shrink-0 text-[var(--color-primary-main)]" />
               <h2 className="font-extrabold text-slate-900 text-base sm:text-lg">
                 {t("attributesPricingTitle")}
               </h2>
@@ -314,7 +314,7 @@ export function StudioStepInfo({
                       ? "bg-slate-100/80 cursor-not-allowed text-slate-600 border-slate-200"
                       : step1Submitted && !category
                         ? "border-rose-300 focus:border-rose-500 focus:ring-rose-200 bg-rose-50/20"
-                        : "border-slate-200 focus:border-[#0F5244] focus:ring-[#0F5244]/10"
+                        : "border-slate-200 focus:border-brand-dark focus:ring-brand-dark/10"
                   }`}
                 >
                   <option value="">{t("selectCategory")}</option>
@@ -353,7 +353,7 @@ export function StudioStepInfo({
                   value={level}
                   disabled={isLockedForReview}
                   onChange={(e) => setLevel(e.target.value)}
-                  className={`w-full h-11 rounded-2xl border border-slate-200 px-3.5 text-xs sm:text-sm text-slate-800 focus:border-[#0F5244] focus:outline-none focus:ring-2 focus:ring-[#0F5244]/10 bg-slate-50/50 ${
+                  className={`w-full h-11 rounded-2xl border border-slate-200 px-3.5 text-xs sm:text-sm text-slate-800 focus:border-brand-dark focus:outline-none focus:ring-2 focus:ring-brand-dark/10 bg-slate-50/50 ${
                     isLockedForReview
                       ? "bg-slate-100/80 cursor-not-allowed text-slate-600"
                       : ""
@@ -376,7 +376,7 @@ export function StudioStepInfo({
                   value={language}
                   disabled={isLockedForReview}
                   onChange={(e) => setLanguage(e.target.value)}
-                  className={`w-full h-11 rounded-2xl border border-slate-200 px-3.5 text-xs sm:text-sm text-slate-800 focus:border-[#0F5244] focus:outline-none focus:ring-2 focus:ring-[#0F5244]/10 bg-slate-50/50 ${
+                  className={`w-full h-11 rounded-2xl border border-slate-200 px-3.5 text-xs sm:text-sm text-slate-800 focus:border-brand-dark focus:outline-none focus:ring-2 focus:ring-brand-dark/10 bg-slate-50/50 ${
                     isLockedForReview
                       ? "bg-slate-100/80 cursor-not-allowed text-slate-600"
                       : ""
@@ -413,7 +413,7 @@ export function StudioStepInfo({
                         : step1Submitted &&
                             (isNaN(Number(price)) || Number(price) < 0)
                           ? "border-rose-300 focus:border-rose-500 focus:ring-rose-200 bg-rose-50/20"
-                          : "border-slate-200 focus:border-[#0F5244] focus:ring-[#0F5244]/10"
+                          : "border-slate-200 focus:border-brand-dark focus:ring-brand-dark/10"
                     }`}
                   />
                 </div>
@@ -430,8 +430,8 @@ export function StudioStepInfo({
 
         {/* Right Column (1 Col): Big Cover Image Upload Card */}
         <div className="bg-white rounded-3xl border border-slate-200/90 p-6 shadow-2xs space-y-4">
-          <div className="flex items-center gap-2 border-b border-slate-100 pb-3 text-[#0F5244]">
-            <ImageIcon size={18} className="shrink-0 text-[#0F5244]" />
+          <div className="flex items-center gap-2 border-b border-slate-100 pb-3 text-[var(--color-primary-main)]">
+            <ImageIcon size={18} className="shrink-0 text-[var(--color-primary-main)]" />
             <h2 className="font-extrabold text-slate-900 text-base">
               {t("courseCoverTitle")}{" "}
               <span className="text-rose-500">*</span>
@@ -461,8 +461,8 @@ export function StudioStepInfo({
                 : step1Submitted && !isCoverValid
                   ? "border-rose-300 bg-rose-50/30 cursor-pointer"
                   : isCoverValid
-                    ? "border-emerald-300 bg-emerald-50/20 cursor-pointer"
-                    : "border-slate-300 hover:border-[#0F5244] hover:bg-emerald-50/20 cursor-pointer"
+                    ? "border-slate-300 bg-slate-100/20 cursor-pointer"
+                    : "border-slate-300 hover:border-brand-dark hover:bg-slate-100/20 cursor-pointer"
             }`}
           >
             {isCoverValid && coverPreview ? (
@@ -477,7 +477,7 @@ export function StudioStepInfo({
                 />
                 {!isLockedForReview && (
                   <div className="absolute inset-0 bg-slate-900/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
-                    <span className="text-white text-xs font-extrabold bg-[#0F5244] px-4 py-2 rounded-xl shadow-md">
+                    <span className="text-white text-xs font-extrabold bg-brand-dark px-4 py-2 rounded-xl shadow-md">
                       {t("changeCover")}
                     </span>
                   </div>
@@ -485,7 +485,7 @@ export function StudioStepInfo({
               </div>
             ) : (
               <>
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-50 text-[#0F5244]">
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-100 text-[var(--color-primary-main)]">
                   <ImageIcon size={24} />
                 </div>
                 <div className="space-y-1">
@@ -524,7 +524,7 @@ export function StudioStepInfo({
         <button
           type="button"
           onClick={() => router.push(`/${locale}/instructor/courses`)}
-          className="inline-flex items-center gap-2 text-xs sm:text-sm font-bold text-slate-600 hover:text-[#0F5244] transition-colors cursor-pointer"
+          className="inline-flex items-center gap-2 text-xs sm:text-sm font-bold text-slate-600 hover:text-[var(--color-primary-main)] transition-colors cursor-pointer"
         >
           <ArrowLeft className="w-4 h-4 rtl:rotate-180" />
           <span>{t("backToCourses")}</span>
@@ -535,7 +535,7 @@ export function StudioStepInfo({
           onClick={handleContinueToCurriculum}
           className={`px-6 py-3 rounded-2xl text-xs sm:text-sm font-extrabold flex items-center gap-2 shadow-md transition-all ${
             isStep1Valid
-              ? "bg-[#0F5244] hover:bg-[#07382E] text-white cursor-pointer hover:shadow-lg hover:scale-[1.01]"
+              ? "bg-brand-dark hover:bg-[#07382E] text-white cursor-pointer hover:shadow-lg hover:scale-[1.01]"
               : "bg-slate-200 text-slate-500 hover:bg-slate-300 cursor-pointer shadow-none"
           }`}
         >

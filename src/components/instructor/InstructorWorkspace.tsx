@@ -884,12 +884,12 @@ export function InstructorWorkspace({
                     className="w-full h-full object-cover rounded-full"
                   />
                 ) : (
-                  <span className="font-extrabold text-2xl text-[#0F5244]">
+                  <span className="font-extrabold text-2xl text-[var(--color-primary-main)]">
                     {formData.fullName.charAt(0)}
                   </span>
                 )}
               </div>
-              <span className="absolute bottom-0 right-0 rtl:right-auto rtl:left-0 w-3.5 h-3.5 bg-emerald-500 border-2 border-white rounded-full" />
+              <span className="absolute bottom-0 right-0 rtl:right-auto rtl:left-0 w-3.5 h-3.5 bg-slate-1000 border-2 border-white rounded-full" />
             </div>
 
             <div className="space-y-1">
@@ -919,7 +919,7 @@ export function InstructorWorkspace({
             <div
               className={`p-2 rounded-2xl border shrink-0 ${
                 approvalStatus === "approved"
-                  ? "bg-emerald-50 text-[#0F5244] border-emerald-200"
+                  ? "bg-slate-100 text-[var(--color-primary-main)] border-slate-200"
                   : approvalStatus === "rejected"
                     ? "bg-rose-50 text-rose-700 border-rose-200"
                     : "bg-amber-50 text-amber-800 border-amber-200"
@@ -941,7 +941,7 @@ export function InstructorWorkspace({
                 <span
                   className={`px-2.5 py-0.5 rounded-full text-[11px] font-extrabold ${
                     approvalStatus === "approved"
-                      ? "bg-emerald-100 text-[#0F5244] border border-emerald-200"
+                      ? "bg-slate-200 text-[var(--color-primary-main)] border border-slate-200"
                       : approvalStatus === "rejected"
                         ? "bg-rose-100 text-rose-800 border border-rose-200"
                         : "bg-amber-50 text-amber-800 border border-amber-200/90 inline-flex items-center gap-1.5"

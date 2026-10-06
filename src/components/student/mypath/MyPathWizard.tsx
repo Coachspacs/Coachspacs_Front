@@ -60,7 +60,7 @@ export function MyPathWizard() {
         {/* Subtle Ambient Background Gradient matching Coach Space emerald tone */}
         {step !== 7 && (
           <div
-            className="absolute top-0 right-0 w-96 h-96 bg-emerald-500/5 rounded-full blur-3xl pointer-events-none"
+            className="absolute top-0 right-0 w-96 h-96 bg-slate-1000/5 rounded-full blur-3xl pointer-events-none"
             aria-hidden="true"
           />
         )}

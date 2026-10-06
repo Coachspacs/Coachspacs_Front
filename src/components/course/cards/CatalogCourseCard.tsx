@@ -52,7 +52,7 @@ export const CatalogCourseCard: React.FC<CourseCardProps> = (props) => {
   const getBadgeStyle = (badge?: string) => {
     if (badge === "Bestseller") return "bg-[#45D1B4] text-slate-900 font-black";
     if (badge === "New") return "bg-[#38BDF8] text-slate-900 font-black";
-    return "bg-emerald-500 text-white font-black";
+    return "bg-slate-1000 text-white font-black";
   };
 
   const getBadgeText = (badge?: string) => {
@@ -65,7 +65,7 @@ export const CatalogCourseCard: React.FC<CourseCardProps> = (props) => {
   return (
     <>
       <Link href={coursePath} className={`block group h-full ${className}`}>
-        <div className="flex flex-col justify-between h-full rounded-2xl bg-white border border-slate-200/80 shadow-2xs hover:shadow-xl hover:border-[#0F5244]/30 hover:-translate-y-1 transition-all duration-300 overflow-hidden cursor-pointer">
+        <div className="flex flex-col justify-between h-full rounded-2xl bg-white border border-slate-200/80 shadow-2xs hover:shadow-xl hover:border-brand-dark/30 hover:-translate-y-1 transition-all duration-300 overflow-hidden cursor-pointer">
           {/* Top Image Banner */}
           <div className="relative w-full aspect-[16/10] bg-slate-100 overflow-hidden">
             {!imgError && imgSrc ? (
@@ -89,8 +89,8 @@ export const CatalogCourseCard: React.FC<CourseCardProps> = (props) => {
             {/* Enrolled Badge on Top Corner */}
             {enrolledState && (
               <div className="absolute top-3 right-3 rtl:right-auto rtl:left-3 z-10">
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-extrabold rounded-md bg-emerald-700 text-white shadow-md backdrop-blur-xs">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-200" />
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-extrabold rounded-md bg-[var(--color-primary-dark)] text-white shadow-md backdrop-blur-xs">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-slate-200" />
                   <span>{isAr ? "مسجل" : "Enrolled"}</span>
                 </span>
               </div>
@@ -116,14 +116,14 @@ export const CatalogCourseCard: React.FC<CourseCardProps> = (props) => {
               {/* Category */}
               {displayCategory && (
                 <div className="flex items-center justify-between">
-                  <span className="text-[11px] font-black uppercase tracking-wider text-[#0F5244] bg-[#E8F3F1] px-2.5 py-0.5 rounded-md">
+                  <span className="text-[11px] font-black uppercase tracking-wider text-[var(--color-primary-main)] bg-[#E8F3F1] px-2.5 py-0.5 rounded-md">
                     {displayCategory}
                   </span>
                 </div>
               )}
 
               {/* Course Title */}
-              <h3 className="text-base font-extrabold text-slate-900 group-hover:text-[#0F5244] transition-colors line-clamp-2 leading-snug tracking-tight">
+              <h3 className="text-base font-extrabold text-slate-900 group-hover:text-[var(--color-primary-main)] transition-colors line-clamp-2 leading-snug tracking-tight">
                 {displayTitle}
               </h3>
 
@@ -135,10 +135,10 @@ export const CatalogCourseCard: React.FC<CourseCardProps> = (props) => {
                     e.stopPropagation();
                     router.push(`/${currentLocale}/instructors/${instructorTarget}`);
                   }}
-                  className="flex items-center gap-1.5 text-xs font-medium text-slate-500 hover:text-[#0F5244] pt-0.5 w-fit cursor-pointer transition-colors group/inst"
+                  className="flex items-center gap-1.5 text-xs font-medium text-slate-500 hover:text-[var(--color-primary-main)] pt-0.5 w-fit cursor-pointer transition-colors group/inst"
                   title={isAr ? "عرض ملف المدرب" : "View Instructor Profile"}
                 >
-                  <User className="h-3.5 w-3.5 text-slate-400 group-hover/inst:text-[#0F5244] transition-colors" />
+                  <User className="h-3.5 w-3.5 text-slate-400 group-hover/inst:text-[var(--color-primary-main)] transition-colors" />
                   <span className="hover:underline font-semibold">
                     {instructorName}
                   </span>
@@ -178,11 +178,11 @@ export const CatalogCourseCard: React.FC<CourseCardProps> = (props) => {
                 <div className="flex items-center">
                   <span className="text-lg font-black text-slate-900 leading-tight">
                     {enrolledState ? (
-                      <span className="text-emerald-700 font-extrabold text-sm sm:text-base">
+                      <span className="text-[var(--color-primary-main)] font-extrabold text-sm sm:text-base">
                         {isAr ? "مسجل" : "Enrolled"}
                       </span>
                     ) : isFree ? (
-                      <span className="text-emerald-600 font-extrabold">
+                      <span className="text-[var(--color-primary-main)] font-extrabold">
                         {isAr ? "مجاني" : "Free"}
                       </span>
                     ) : (
@@ -201,7 +201,7 @@ export const CatalogCourseCard: React.FC<CourseCardProps> = (props) => {
                         router.push(`/${currentLocale}/instructor/courses/create?id=${course.id}`);
                       }}
                       title={isAr ? "إدارة الدورة" : "Manage in Studio"}
-                      className="px-4 py-2 rounded-full bg-[#0F5244] hover:bg-[#07382E] text-white transition-all cursor-pointer flex items-center justify-center gap-2 text-xs font-bold shadow-2xs active:scale-95 shrink-0"
+                      className="px-4 py-2 rounded-full bg-brand-dark hover:bg-[#07382E] text-white transition-all cursor-pointer flex items-center justify-center gap-2 text-xs font-bold shadow-2xs active:scale-95 shrink-0"
                     >
                       <Edit className="h-4 w-4" />
                       <span>{isAr ? "إدارة الدورة" : "Manage in Studio"}</span>
@@ -215,7 +215,7 @@ export const CatalogCourseCard: React.FC<CourseCardProps> = (props) => {
                         router.push(coursePath);
                       }}
                       title={isAr ? "معاينة الدورة" : "Preview Course"}
-                      className="px-4 py-2 rounded-full border border-slate-200 bg-slate-50 hover:bg-emerald-50 text-slate-700 hover:text-[#0F5244] hover:border-emerald-200 transition-all cursor-pointer flex items-center justify-center gap-2 text-xs font-bold shadow-2xs active:scale-95 shrink-0"
+                      className="px-4 py-2 rounded-full border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 hover:text-[var(--color-primary-main)] hover:border-slate-200 transition-all cursor-pointer flex items-center justify-center gap-2 text-xs font-bold shadow-2xs active:scale-95 shrink-0"
                     >
                       <Eye className="h-4 w-4" />
                       <span>{isAr ? "معاينة الدورة" : "Preview Course"}</span>
@@ -230,7 +230,7 @@ export const CatalogCourseCard: React.FC<CourseCardProps> = (props) => {
                       router.push(`/${currentLocale}/student/learn/${course.id}`);
                     }}
                     title={isAr ? "تابع التعلم" : "Continue Learning"}
-                    className="px-4 py-2 rounded-full bg-[#0F5244] hover:bg-[#07382E] text-white transition-all cursor-pointer flex items-center justify-center gap-2 text-xs font-bold shadow-2xs active:scale-95 shrink-0"
+                    className="px-4 py-2 rounded-full bg-brand-dark hover:bg-[#07382E] text-white transition-all cursor-pointer flex items-center justify-center gap-2 text-xs font-bold shadow-2xs active:scale-95 shrink-0"
                   >
                     <Play className="h-3.5 w-3.5 fill-current" />
                     <span>{isAr ? "تابع التعلم" : "Continue Learning"}</span>
@@ -241,7 +241,7 @@ export const CatalogCourseCard: React.FC<CourseCardProps> = (props) => {
                     onClick={handleFreeEnroll}
                     disabled={isEnrolling}
                     title={isAr ? "سجل مجاناً" : "Enroll Free"}
-                    className="px-4 py-2 rounded-full bg-[#0F5244] hover:bg-[#07382E] text-white transition-all cursor-pointer flex items-center justify-center gap-2 text-xs font-bold shadow-2xs active:scale-95 shrink-0 disabled:opacity-70"
+                    className="px-4 py-2 rounded-full bg-brand-dark hover:bg-[#07382E] text-white transition-all cursor-pointer flex items-center justify-center gap-2 text-xs font-bold shadow-2xs active:scale-95 shrink-0 disabled:opacity-70"
                   >
                     {isEnrolling ? (
                       <>
@@ -270,8 +270,8 @@ export const CatalogCourseCard: React.FC<CourseCardProps> = (props) => {
                     }
                     className={`px-4 py-2 rounded-full border transition-all cursor-pointer flex items-center justify-center gap-2 text-xs font-bold shadow-2xs active:scale-95 shrink-0 ${
                       isInCart
-                        ? "bg-emerald-700 text-white border-emerald-700 hover:bg-emerald-800"
-                        : "bg-emerald-50 text-emerald-800 border-emerald-200/90 hover:bg-emerald-600 hover:text-white"
+                        ? "bg-[var(--color-primary-dark)] text-white border-brand-dark hover:bg-brand-dark"
+                        : "bg-slate-100 text-[var(--color-primary-main)] border-slate-200/90 hover:bg-[var(--color-primary-dark)] hover:text-white"
                     }`}
                   >
                     {isInCart ? (

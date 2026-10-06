@@ -22,7 +22,7 @@ export default function LocaleNotFound() {
         
         {/* Visual 404 Display */}
         <div className="space-y-2">
-          <span className="text-6xl sm:text-7xl font-black text-[#0F5244]/20 tracking-tighter">
+          <span className="text-6xl sm:text-7xl font-black text-brand-dark/20 tracking-tighter">
             404
           </span>
           <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
@@ -37,7 +37,7 @@ export default function LocaleNotFound() {
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
           <Link
             href={`/${locale}`}
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-[#0F5244] hover:bg-[#07382E] text-white text-xs sm:text-sm font-extrabold shadow-md hover:shadow-lg transition-all active:scale-98"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-brand-dark hover:bg-[#07382E] text-white text-xs sm:text-sm font-extrabold shadow-md hover:shadow-lg transition-all active:scale-98"
           >
             <Home className="w-4 h-4" />
             <span>{tError("home")}</span>

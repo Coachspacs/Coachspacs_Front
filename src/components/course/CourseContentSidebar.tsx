@@ -63,8 +63,8 @@ export function CourseContentSidebar({
       <div className="p-5 border-b border-slate-100/90 bg-gradient-to-b from-slate-50/70 to-white space-y-4 shrink-0">
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-2.5 min-w-0">
-            <div className="w-9 h-9 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-[#0F5244] shadow-xs shrink-0">
-              <BookOpen size={17} className="text-[#0F5244]" />
+            <div className="w-9 h-9 rounded-2xl bg-slate-1000/10 border border-[var(--color-primary-main)]/20 flex items-center justify-center text-[var(--color-primary-main)] shadow-xs shrink-0">
+              <BookOpen size={17} className="text-[var(--color-primary-main)]" />
             </div>
             <div className="min-w-0">
               <h3 className="text-sm font-black text-slate-900 tracking-tight flex items-center gap-1.5 truncate">
@@ -78,9 +78,9 @@ export function CourseContentSidebar({
 
           <div className="flex items-center gap-2 shrink-0">
             {/* Progress Percentage Badge */}
-            <div className="flex items-center gap-1.5 bg-emerald-50 border border-emerald-200/80 px-2.5 py-1 rounded-xl shrink-0">
-              <Sparkles size={12} className="text-emerald-600 shrink-0" />
-              <span className="font-mono text-xs font-black text-[#0F5244]">
+            <div className="flex items-center gap-1.5 bg-slate-100 border border-slate-200/80 px-2.5 py-1 rounded-xl shrink-0">
+              <Sparkles size={12} className="text-[var(--color-primary-main)] shrink-0" />
+              <span className="font-mono text-xs font-black text-[var(--color-primary-main)]">
                 {progressPercent}%
               </span>
             </div>
@@ -103,7 +103,7 @@ export function CourseContentSidebar({
         <div className="space-y-1.5">
           <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden p-0.5">
             <div
-              className="bg-gradient-to-r from-emerald-600 via-[#0F5244] to-[#45D1B4] h-full rounded-full transition-all duration-500 shadow-xs"
+              className="bg-gradient-to-r from-[var(--color-primary-dark)] via-brand-dark to-[#45D1B4] h-full rounded-full transition-all duration-500 shadow-xs"
               style={{ width: `${progressPercent}%` }}
             />
           </div>
@@ -123,7 +123,7 @@ export function CourseContentSidebar({
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
             placeholder={t("searchLessons")}
-            className="w-full bg-slate-50 hover:bg-slate-100/70 focus:bg-white border border-slate-200/90 focus:border-[#0F5244] focus:ring-2 focus:ring-[#0F5244]/10 rounded-2xl pl-10 rtl:pr-10 pr-8 rtl:pl-8 py-2 text-xs text-slate-800 placeholder-slate-400 focus:outline-none transition-all shadow-xs"
+            className="w-full bg-slate-50 hover:bg-slate-100/70 focus:bg-white border border-slate-200/90 focus:border-brand-dark focus:ring-2 focus:ring-brand-dark/10 rounded-2xl pl-10 rtl:pr-10 pr-8 rtl:pl-8 py-2 text-xs text-slate-800 placeholder-slate-400 focus:outline-none transition-all shadow-xs"
           />
           {searchQuery && (
             <button
@@ -217,7 +217,7 @@ export function CourseContentSidebar({
                               : "cursor-pointer group hover:bg-slate-50/90"
                           } ${
                             isActive
-                              ? "bg-gradient-to-r from-emerald-50 via-emerald-50/40 to-white text-[#0F5244] font-bold border-s-4 border-[#0F5244] shadow-xs"
+                              ? "bg-gradient-to-r from-slate-50 via-slate-50/40 to-white text-[var(--color-primary-main)] font-bold border-s-4 border-brand-dark shadow-xs"
                               : "border-s-4 border-transparent"
                           }`}
                         >
@@ -230,14 +230,14 @@ export function CourseContentSidebar({
                                   e.stopPropagation();
                                   onToggleLessonCompletion(lesson.id);
                                 }}
-                                className="w-5 h-5 rounded-full flex items-center justify-center shrink-0 transition-all cursor-pointer bg-[#0F5244] text-white shadow-2xs scale-100 hover:bg-emerald-700"
+                                className="w-5 h-5 rounded-full flex items-center justify-center shrink-0 transition-all cursor-pointer bg-brand-dark text-white shadow-2xs scale-100 hover:bg-[var(--color-primary-dark)]"
                                 title={t("completed")}
                               >
                                 <Check size={11} strokeWidth={3} />
                               </button>
                             ) : isActive ? (
                               <div
-                                className="w-5 h-5 rounded-full bg-[#0F5244] text-white flex items-center justify-center shrink-0 shadow-xs ring-4 ring-emerald-500/20"
+                                className="w-5 h-5 rounded-full bg-brand-dark text-white flex items-center justify-center shrink-0 shadow-xs ring-4 ring-[var(--color-primary-main)]/20"
                                 title={t("playing")}
                               >
                                 <Play size={9} className="fill-white ms-0.5" />
@@ -256,7 +256,7 @@ export function CourseContentSidebar({
                                   e.stopPropagation();
                                   onToggleLessonCompletion(lesson.id);
                                 }}
-                                className="w-5 h-5 rounded-full border-2 border-slate-300 hover:border-emerald-600 bg-white flex items-center justify-center shrink-0 transition-all cursor-pointer"
+                                className="w-5 h-5 rounded-full border-2 border-slate-300 hover:border-[var(--color-primary-main)] bg-white flex items-center justify-center shrink-0 transition-all cursor-pointer"
                                 title={t("markCompleted")}
                               />
                             )}
@@ -266,15 +266,15 @@ export function CourseContentSidebar({
                               <div className="flex items-center gap-2 truncate">
                                 {isActive && (
                                   <span className="flex items-center gap-0.5 shrink-0" title={t("playing")}>
-                                    <span className="w-1 h-3 bg-emerald-600 rounded-full animate-pulse" />
-                                    <span className="w-1 h-4 bg-emerald-500 rounded-full animate-pulse delay-75" />
-                                    <span className="w-1 h-2 bg-emerald-700 rounded-full animate-pulse delay-150" />
+                                    <span className="w-1 h-3 bg-[var(--color-primary-dark)] rounded-full animate-pulse" />
+                                    <span className="w-1 h-4 bg-slate-1000 rounded-full animate-pulse delay-75" />
+                                    <span className="w-1 h-2 bg-[var(--color-primary-dark)] rounded-full animate-pulse delay-150" />
                                   </span>
                                 )}
                                 <span
                                   className={`truncate block leading-tight ${
                                     isActive
-                                      ? "font-black text-[#0F5244]"
+                                      ? "font-black text-[var(--color-primary-main)]"
                                       : isDone
                                       ? "text-slate-500 font-medium"
                                       : "text-slate-700 font-semibold group-hover:text-slate-900"
@@ -288,7 +288,7 @@ export function CourseContentSidebar({
 
                           <div className="flex items-center gap-2 shrink-0">
                             {lesson.is_preview && (
-                              <span className="text-[9px] font-black text-[#0F5244] bg-emerald-50 border border-emerald-200/90 px-2 py-0.5 rounded-lg shadow-2xs">
+                              <span className="text-[9px] font-black text-[var(--color-primary-main)] bg-slate-100 border border-slate-200/90 px-2 py-0.5 rounded-lg shadow-2xs">
                                 {t("free")}
                               </span>
                             )}

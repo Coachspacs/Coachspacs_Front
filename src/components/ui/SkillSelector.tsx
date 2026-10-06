@@ -210,7 +210,7 @@ export function SkillSelector({
             className="px-3.5 py-1.5 rounded-xl bg-slate-100 text-slate-700 border border-slate-300 text-xs font-bold shadow-lg flex items-center gap-1.5"
           >
             <span>{ghost.skill}</span>
-            <Check className="h-3 w-3 text-emerald-600" />
+            <Check className="h-3 w-3 text-[var(--color-primary-main)]" />
           </motion.div>
         ))}
       </AnimatePresence>
@@ -219,7 +219,7 @@ export function SkillSelector({
       <div className="flex items-center justify-between">
         <div>
           <label className="block text-xs font-bold text-slate-800 flex items-center gap-1.5">
-            <Sparkles className="h-3.5 w-3.5 text-[#0F5244]" />
+            <Sparkles className="h-3.5 w-3.5 text-brand-dark" />
             <span>
               {label || t("defaultLabel")}
             </span>
@@ -235,7 +235,7 @@ export function SkillSelector({
             className={`text-xs font-extrabold px-2.5 py-0.5 rounded-full border transition-colors ${
               isMaxReached
                 ? "bg-amber-50 text-amber-700 border-amber-200"
-                : "bg-emerald-50 text-[#0F5244] border-emerald-200/70"
+                : "bg-slate-50 text-brand-dark border-slate-200/70"
             }`}
           >
             {selectedSkills.length} / {maxSkills}
@@ -265,7 +265,7 @@ export function SkillSelector({
       <LayoutGroup id="selected-skills-group">
         <div
           ref={selectedContainerRef}
-          className="p-3.5 rounded-2xl border-2 border-slate-200/90 bg-white min-h-[64px] flex flex-wrap items-center gap-2 shadow-2xs transition-all focus-within:border-[#0F5244] focus-within:ring-4 focus-within:ring-[#0F5244]/10"
+          className="p-3.5 rounded-2xl border-2 border-slate-200/90 bg-white min-h-[64px] flex flex-wrap items-center gap-2 shadow-2xs transition-all focus-within:border-brand-dark focus-within:ring-4 focus-within:ring-brand-dark/10"
         >
           {/* Selected Skills Tags */}
           <AnimatePresence mode="popLayout">
@@ -285,7 +285,7 @@ export function SkillSelector({
                   opacity: { duration: 0.25 },
                   scale: { duration: 0.28, ease: [0.22, 1, 0.36, 1] },
                 }}
-                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#E6F3EF] text-[#0F5244] border border-[#A7E2D4] text-xs font-bold shadow-2xs group hover:bg-[#D9EFE8] transition-colors"
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#E6F3EF] text-brand-dark border border-[#A7E2D4] text-xs font-bold shadow-2xs group hover:bg-[#D9EFE8] transition-colors"
               >
                 <span>{skill}</span>
                 <button
@@ -294,7 +294,7 @@ export function SkillSelector({
                     e.stopPropagation();
                     handleRemoveSkill(skill);
                   }}
-                  className="hover:text-rose-600 transition-colors cursor-pointer p-0.5 rounded-full hover:bg-rose-50 text-[#0F5244]/70"
+                  className="hover:text-rose-600 transition-colors cursor-pointer p-0.5 rounded-full hover:bg-rose-50 text-brand-dark/70"
                   title={t("removeSkill", { skill })}
                   aria-label={`Remove ${skill}`}
                 >
@@ -344,7 +344,7 @@ export function SkillSelector({
       <div className="space-y-2 pt-1">
         <div className="flex items-center justify-between text-xs font-bold text-slate-600">
           <div className="flex items-center gap-1.5">
-            <span className="h-1.5 w-1.5 rounded-full bg-[#0F5244]" />
+            <span className="h-1.5 w-1.5 rounded-full bg-brand-dark" />
             <span>
               {searchQuery.trim()
                 ? t("matchingResults")
@@ -373,7 +373,7 @@ export function SkillSelector({
                     transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
                     type="button"
                     onClick={(e) => handleAddSkill(searchQuery, e.currentTarget)}
-                    className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#0F5244] text-white text-xs font-bold shadow-xs hover:bg-[#0A3D32] active:scale-95 transition-all cursor-pointer"
+                    className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-brand-dark text-white text-xs font-bold shadow-xs hover:bg-[#0A3D32] active:scale-95 transition-all cursor-pointer"
                   >
                     <Plus className="h-3 w-3 text-[#45D1B4]" />
                     <span>
@@ -407,14 +407,14 @@ export function SkillSelector({
                     className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl border text-xs font-medium transition-all duration-200 ${
                       isMaxReached
                         ? "bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed opacity-60"
-                        : "bg-slate-100/90 hover:bg-[#E6F3EF] text-slate-700 hover:text-[#0F5244] border-slate-200/80 hover:border-[#A7E2D4] shadow-2xs hover:shadow-xs active:scale-95 cursor-pointer group"
+                        : "bg-slate-100/90 hover:bg-[#E6F3EF] text-slate-700 hover:text-brand-dark border-slate-200/80 hover:border-[#A7E2D4] shadow-2xs hover:shadow-xs active:scale-95 cursor-pointer group"
                     }`}
                   >
                     <Plus
                       className={`h-3 w-3 transition-colors ${
                         isMaxReached
                           ? "text-slate-300"
-                          : "text-slate-400 group-hover:text-[#0F5244]"
+                          : "text-slate-400 group-hover:text-brand-dark"
                       }`}
                     />
                     <span>{skill}</span>

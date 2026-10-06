@@ -87,8 +87,8 @@ export function ForgotPasswordCard({ lang }: ForgotPasswordCardProps) {
 
       {isSubmitted ? (
         <div className="py-2 text-center animate-in fade-in duration-200">
-          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-emerald-50 text-[#0F5244] border border-emerald-200 shadow-xs">
-            <CheckCircle2 size={28} className="text-[#0F5244]" />
+          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-slate-50 text-brand-dark border border-slate-200 shadow-xs">
+            <CheckCircle2 size={28} className="text-brand-dark" />
           </div>
 
           <h3 className="text-lg font-extrabold text-slate-900">
@@ -99,7 +99,7 @@ export function ForgotPasswordCard({ lang }: ForgotPasswordCardProps) {
             {t("resetInstructionsSent")}
           </p>
 
-          <div className="my-3 inline-block rounded-md bg-[#0F5244]/10 px-4 py-2 border border-[#0F5244]/20 text-xs sm:text-sm font-bold text-[#0F5244]">
+          <div className="my-3 inline-block rounded-md bg-brand-dark/10 px-4 py-2 border border-brand-dark/20 text-xs sm:text-sm font-bold text-brand-dark">
             {submittedEmail}
           </div>
 
@@ -111,7 +111,7 @@ export function ForgotPasswordCard({ lang }: ForgotPasswordCardProps) {
             <button
               type="button"
               onClick={() => setIsSubmitted(false)}
-              className="inline-flex items-center gap-2 text-xs font-bold text-[#0F5244] hover:underline transition-colors cursor-pointer"
+              className="inline-flex items-center gap-2 text-xs font-bold text-brand-dark hover:underline transition-colors cursor-pointer"
             >
               <RotateCcw size={14} />
               <span>{t("resendEmail")}</span>
@@ -150,7 +150,7 @@ export function ForgotPasswordCard({ lang }: ForgotPasswordCardProps) {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="group relative flex h-11 sm:h-12 w-full items-center justify-center gap-2 rounded-md bg-[#0F5244] hover:bg-[#083A30] px-6 text-xs sm:text-sm font-extrabold text-white shadow-md transition-all duration-200 active:scale-[0.99] disabled:opacity-70 focus:outline-none focus:ring-4 focus:ring-[#0F5244]/20 cursor-pointer"
+            className="group relative flex h-11 sm:h-12 w-full items-center justify-center gap-2 rounded-md bg-brand-dark hover:bg-[#083A30] px-6 text-xs sm:text-sm font-extrabold text-white shadow-md transition-all duration-200 active:scale-[0.99] disabled:opacity-70 focus:outline-none focus:ring-4 focus:ring-brand-dark/20 cursor-pointer"
           >
             {isSubmitting ? (
               <Loader2 className="h-5 w-5 animate-spin" />
@@ -171,7 +171,7 @@ export function ForgotPasswordCard({ lang }: ForgotPasswordCardProps) {
 
       {/* Security Badge */}
       <div className="mt-5 flex items-center justify-center gap-1.5 text-[11px] text-slate-400 font-semibold">
-        <ShieldCheck size={13} className="text-[#0F5244]" />
+        <ShieldCheck size={13} className="text-brand-dark" />
         <span>{t("encryptedConnection")}</span>
       </div>
 
@@ -179,7 +179,7 @@ export function ForgotPasswordCard({ lang }: ForgotPasswordCardProps) {
         <div className="mt-4 border-t border-slate-200/80 pt-4 text-center text-xs text-slate-500 font-medium">
           <Link
             href={`/${currentLocale}/login`}
-            className="inline-flex items-center gap-1.5 font-bold text-[#0F5244] transition-colors hover:underline"
+            className="inline-flex items-center gap-1.5 font-bold text-brand-dark transition-colors hover:underline"
           >
             {isAr ? (
               <>

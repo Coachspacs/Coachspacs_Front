@@ -118,8 +118,8 @@ export function TopCategoriesSection({ data }: TopCategoriesSectionProps = {}) {
           className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 mb-8 sm:mb-12 pb-5 border-b border-slate-100"
         >
           <div className="space-y-2">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#6CF8BB]/20 text-[#0F5244] border border-[#6CF8BB]/40 text-xs font-extrabold tracking-wider uppercase shadow-2xs">
-              <Sparkles className="w-3.5 h-3.5 text-[#0F5244]" />
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#6CF8BB]/20 text-brand-dark border border-[#6CF8BB]/40 text-xs font-extrabold tracking-wider uppercase shadow-2xs">
+              <Sparkles className="w-3.5 h-3.5 text-brand-dark" />
               <span>{t("browseByTopic")}</span>
             </div>
             
@@ -133,7 +133,7 @@ export function TopCategoriesSection({ data }: TopCategoriesSectionProps = {}) {
 
           <Link
             href={`/${locale}/courses`}
-            className="inline-flex items-center gap-2.5 text-[#0F5244] hover:text-white bg-[#0F5244]/10 hover:bg-[#0F5244] px-5 py-2.5 rounded-full text-sm font-extrabold transition-all duration-300 shadow-2xs hover:shadow-md shrink-0 self-start sm:self-auto group"
+            className="inline-flex items-center gap-2.5 text-brand-dark hover:text-white bg-brand-dark/10 hover:bg-brand-dark px-5 py-2.5 rounded-full text-sm font-extrabold transition-all duration-300 shadow-2xs hover:shadow-md shrink-0 self-start sm:self-auto group"
           >
             <span>{t("viewAllCategories")}</span>
             <ArrowRight className="w-4 h-4 rtl:rotate-180 group-hover:translate-x-1 rtl:group-hover:-translate-x-1 transition-transform" />
@@ -164,23 +164,23 @@ export function TopCategoriesSection({ data }: TopCategoriesSectionProps = {}) {
               >
                 <Link
                   href={cat.href}
-                  className="group relative bg-white hover:bg-gradient-to-b hover:from-emerald-50/30 hover:to-white rounded-2xl sm:rounded-3xl p-5 sm:p-6 min-h-[105px] sm:min-h-[120px] flex flex-col items-center justify-center text-center border border-slate-200/90 hover:border-[#0F5244]/35 shadow-2xs hover:shadow-lg hover:shadow-emerald-950/8 transition-all duration-300 hover:-translate-y-1 overflow-hidden w-full h-full block"
+                  className="group relative bg-white hover:bg-gradient-to-b hover:from-slate-50/30 hover:to-white rounded-2xl sm:rounded-3xl p-5 sm:p-6 min-h-[105px] sm:min-h-[120px] flex flex-col items-center justify-center text-center border border-slate-200/90 hover:border-brand-dark/35 shadow-2xs hover:shadow-lg hover:shadow-brand-dark/8 transition-all duration-300 hover:-translate-y-1 overflow-hidden w-full h-full block"
                 >
                   {/* Subtle ambient corner light */}
-                  <div className="pointer-events-none absolute -top-8 -right-8 w-20 h-20 bg-emerald-400/10 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  <div className="pointer-events-none absolute -top-8 -right-8 w-20 h-20 bg-brand-light/10 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
                   {/* Top-Right Arrow Indicator */}
-                  <div className="absolute top-3 right-3 rtl:right-auto rtl:left-3 w-5 h-5 rounded-full bg-slate-100 group-hover:bg-[#0F5244] text-slate-400 group-hover:text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 shadow-2xs scale-75 group-hover:scale-100">
+                  <div className="absolute top-3 right-3 rtl:right-auto rtl:left-3 w-5 h-5 rounded-full bg-slate-100 group-hover:bg-brand-dark text-slate-400 group-hover:text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 shadow-2xs scale-75 group-hover:scale-100">
                     <ArrowUpRight className="w-3 h-3 rtl:-rotate-90" />
                   </div>
 
                   {/* Dynamic Category Title */}
-                  <h3 className="relative z-10 text-slate-900 font-black text-sm sm:text-base group-hover:text-[#0F5244] transition-colors leading-snug px-2">
+                  <h3 className="relative z-10 text-slate-900 font-black text-sm sm:text-base group-hover:text-brand-dark transition-colors leading-snug px-2">
                     {cat.title}
                   </h3>
 
                   {/* Subtle dynamic bottom accent line on hover */}
-                  <div className="absolute bottom-0 inset-x-8 h-0.5 bg-[#0F5244] scale-x-0 group-hover:scale-x-100 transition-transform duration-300 rounded-full" />
+                  <div className="absolute bottom-0 inset-x-8 h-0.5 bg-brand-dark scale-x-0 group-hover:scale-x-100 transition-transform duration-300 rounded-full" />
                 </Link>
               </motion.div>
             );

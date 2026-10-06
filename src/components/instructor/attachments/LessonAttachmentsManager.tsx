@@ -233,7 +233,7 @@ export function LessonAttachmentsManager({
       {/* Header */}
       <div className="flex items-center justify-between gap-3 pb-3 border-b border-slate-100">
         <div className="flex items-center gap-2">
-          <div className="w-7 h-7 rounded-lg bg-emerald-50 text-[#0F5244] flex items-center justify-center shrink-0">
+          <div className="w-7 h-7 rounded-lg bg-slate-100 text-[var(--color-primary-main)] flex items-center justify-center shrink-0">
             <Paperclip size={15} />
           </div>
           <div>
@@ -259,7 +259,7 @@ export function LessonAttachmentsManager({
             type="button"
             onClick={() => fileInputRef.current?.click()}
             disabled={isUploading}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-[#0F5244] hover:text-white text-slate-700 text-xs font-bold transition-all cursor-pointer disabled:opacity-50 disabled:pointer-events-none shadow-2xs"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-brand-dark hover:text-white text-slate-700 text-xs font-bold transition-all cursor-pointer disabled:opacity-50 disabled:pointer-events-none shadow-2xs"
           >
             {isUploading ? (
               <>
@@ -288,10 +288,10 @@ export function LessonAttachmentsManager({
 
       {/* Upload progress */}
       {isUploading && (
-        <div className="p-3.5 rounded-2xl bg-emerald-50/90 border border-emerald-200/90 space-y-2 animate-in fade-in">
-          <div className="flex items-center justify-between text-xs font-bold text-[#0F5244] gap-2">
+        <div className="p-3.5 rounded-2xl bg-slate-100/90 border border-slate-200/90 space-y-2 animate-in fade-in">
+          <div className="flex items-center justify-between text-xs font-bold text-[var(--color-primary-main)] gap-2">
             <div className="flex items-center gap-1.5 min-w-0">
-              <Loader2 size={13} className="animate-spin shrink-0 text-[#0F5244]" />
+              <Loader2 size={13} className="animate-spin shrink-0 text-[var(--color-primary-main)]" />
               <span className="truncate">
                 {uploadStatus === "uploading"
                   ? isAr
@@ -325,9 +325,9 @@ export function LessonAttachmentsManager({
             </div>
           </div>
 
-          <div className="w-full h-1.5 rounded-full bg-emerald-200/80 overflow-hidden">
+          <div className="w-full h-1.5 rounded-full bg-slate-200/80 overflow-hidden">
             <div
-              className="h-full bg-[#0F5244] transition-all duration-200 rounded-full"
+              className="h-full bg-brand-dark transition-all duration-200 rounded-full"
               style={{ width: `${progress}%` }}
             />
           </div>
@@ -339,7 +339,7 @@ export function LessonAttachmentsManager({
         <div
           className={`p-2.5 rounded-xl text-xs font-semibold flex items-center justify-between gap-2 animate-in fade-in ${
             feedbackMsg.type === "success"
-              ? "bg-emerald-50 text-emerald-800 border border-emerald-200"
+              ? "bg-slate-100 text-[var(--color-primary-main)] border border-slate-200"
               : "bg-rose-50 text-rose-800 border border-rose-200"
           }`}
         >
@@ -360,7 +360,7 @@ export function LessonAttachmentsManager({
       {/* Attachments List */}
       {isLoading ? (
         <div className="py-4 flex items-center justify-center gap-2 text-slate-400">
-          <Loader2 size={16} className="animate-spin text-[#0F5244]" />
+          <Loader2 size={16} className="animate-spin text-[var(--color-primary-main)]" />
           <span className="text-xs">{isAr ? "تحميل المرفقات..." : "Loading..."}</span>
         </div>
       ) : attachments.length === 0 ? (
@@ -397,13 +397,13 @@ export function LessonAttachmentsManager({
                         }}
                         autoFocus
                         disabled={isSavingName}
-                        className="flex-1 px-2.5 py-1 rounded border border-[#0F5244] bg-white text-xs font-bold text-slate-800 focus:outline-none"
+                        className="flex-1 px-2.5 py-1 rounded border border-brand-dark bg-white text-xs font-bold text-slate-800 focus:outline-none"
                       />
                       <button
                         type="button"
                         onClick={() => handleSaveRename(item.id)}
                         disabled={isSavingName}
-                        className="p-1 rounded bg-[#0F5244] text-white hover:bg-[#07382E] cursor-pointer"
+                        className="p-1 rounded bg-brand-dark text-white hover:bg-[#07382E] cursor-pointer"
                       >
                         <Check size={13} />
                       </button>
@@ -439,7 +439,7 @@ export function LessonAttachmentsManager({
                       type="button"
                       onClick={() => handleDownload(item)}
                       title={isAr ? "تحميل" : "Download"}
-                      className="p-1.5 rounded-lg text-slate-500 hover:text-[#0F5244] hover:bg-white transition-colors cursor-pointer"
+                      className="p-1.5 rounded-lg text-slate-500 hover:text-[var(--color-primary-main)] hover:bg-white transition-colors cursor-pointer"
                     >
                       <Download size={13} />
                     </button>

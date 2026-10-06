@@ -53,7 +53,7 @@ export default function LocaleError({ error, reset }: ErrorProps) {
           <button
             type="button"
             onClick={() => reset()}
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-[#0F5244] hover:bg-[#07382E] text-white text-xs sm:text-sm font-extrabold shadow-md hover:shadow-lg transition-all active:scale-98 cursor-pointer"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-brand-dark hover:bg-[#07382E] text-white text-xs sm:text-sm font-extrabold shadow-md hover:shadow-lg transition-all active:scale-98 cursor-pointer"
           >
             <RefreshCw className="w-4 h-4" />
             <span>{tryAgainText}</span>

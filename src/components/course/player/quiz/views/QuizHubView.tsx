@@ -39,10 +39,10 @@ export function QuizHubView({
       className="space-y-6"
     >
       {/* Hero Greeting with AI Mascot */}
-      <div className="bg-gradient-to-br from-emerald-50 via-white to-teal-50/30 p-6 sm:p-7 rounded-3xl border border-emerald-100 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-6">
+      <div className="bg-gradient-to-br from-slate-50 via-white to-teal-50/30 p-6 sm:p-7 rounded-3xl border border-slate-100 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-6">
         <div className="space-y-2 text-center sm:text-start flex-1">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100/70 text-emerald-800 text-xs font-bold">
-            <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-200/70 text-[var(--color-primary-main)] text-xs font-bold">
+            <Sparkles className="w-3.5 h-3.5 text-[var(--color-primary-main)]" />
             <span>{isAr ? "مدربك الذكي الشخصي" : "Your AI Study Companion"}</span>
           </div>
           <h3 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
@@ -59,7 +59,7 @@ export function QuizHubView({
             <button
               type="button"
               onClick={onCreateNew}
-              className="inline-flex items-center gap-2 bg-[#0F5244] hover:bg-[#07382E] text-white text-xs sm:text-sm font-bold px-6 py-3 rounded-2xl shadow-md transition-all cursor-pointer"
+              className="inline-flex items-center gap-2 bg-brand-dark hover:bg-[#07382E] text-white text-xs sm:text-sm font-bold px-6 py-3 rounded-2xl shadow-md transition-all cursor-pointer"
             >
               <PlusCircle className="w-4 h-4" />
               <span>{isAr ? "إنشاء اختبار تجريبي جديد" : "Create New Practice Quiz"}</span>
@@ -71,7 +71,7 @@ export function QuizHubView({
         {/* 3D Animated AI Mascot Toy */}
         <div className="shrink-0 flex justify-center">
           <div className="relative">
-            <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-24 h-6 bg-emerald-500/20 rounded-full blur-md" />
+            <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-24 h-6 bg-slate-1000/20 rounded-full blur-md" />
             <AnimatedRobotCharacter size="md" />
           </div>
         </div>
@@ -81,7 +81,7 @@ export function QuizHubView({
       <div className="space-y-3">
         <div className="flex items-center justify-between">
           <h4 className="text-sm font-black text-slate-900 flex items-center gap-2">
-            <Layers className="w-4 h-4 text-emerald-600" />
+            <Layers className="w-4 h-4 text-[var(--color-primary-main)]" />
             <span>
               {isAr
                 ? "الاختبارات التي تم إنشاؤها لهذه الدورة"
@@ -95,7 +95,7 @@ export function QuizHubView({
 
         {isLoadingPastQuizzes ? (
           <div className="py-12 flex flex-col items-center justify-center text-slate-400 space-y-2">
-            <Loader2 className="w-8 h-8 text-emerald-600 animate-spin" />
+            <Loader2 className="w-8 h-8 text-[var(--color-primary-main)] animate-spin" />
             <p className="text-xs font-bold">
               {isAr ? "جاري تحميل سجل الاختبارات..." : "Loading previous quizzes..."}
             </p>
@@ -140,7 +140,7 @@ export function QuizHubView({
                       <span
                         className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
                           quiz.status === "ready"
-                            ? "bg-emerald-50 text-emerald-700 border border-emerald-200/70"
+                            ? "bg-slate-100 text-[var(--color-primary-main)] border border-slate-200/70"
                             : quiz.status === "failed"
                             ? "bg-rose-50 text-rose-700 border border-rose-200"
                             : "bg-amber-50 text-amber-700 border border-amber-200 animate-pulse"
@@ -151,7 +151,7 @@ export function QuizHubView({
                     </div>
 
                     <div className="flex items-center gap-2 text-xs font-bold text-slate-800">
-                      <Award className="w-4 h-4 text-emerald-600" />
+                      <Award className="w-4 h-4 text-[var(--color-primary-main)]" />
                       <span>
                         {quiz.question_count || 5} {isAr ? "أسئلة" : "Questions"}
                       </span>
@@ -167,7 +167,7 @@ export function QuizHubView({
                         <div
                           className={`px-2.5 py-1 rounded-lg text-xs font-black ${
                             isScoreGood
-                              ? "bg-emerald-100/80 text-emerald-800 border border-emerald-300"
+                              ? "bg-slate-200/80 text-[var(--color-primary-main)] border border-slate-300"
                               : "bg-amber-100/80 text-amber-800 border border-amber-300"
                           }`}
                         >
@@ -192,7 +192,7 @@ export function QuizHubView({
                     <button
                       type="button"
                       onClick={() => onOpenQuiz(quiz.id)}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-[#0F5244] text-white text-xs font-bold transition-all shadow-2xs cursor-pointer"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-brand-dark text-white text-xs font-bold transition-all shadow-2xs cursor-pointer"
                     >
                       <span>
                         {hasAttempt

@@ -91,13 +91,13 @@ export function InstructorOverviewTab({
           <motion.div
             variants={itemVariants}
             whileHover={{ y: -3, transition: { duration: 0.2 } }}
-            className="p-5 rounded-2xl bg-white border border-slate-200/80 shadow-xs hover:shadow-md hover:border-emerald-500/40 transition-all duration-200 cursor-pointer"
+            className="p-5 rounded-2xl bg-white border border-slate-200/80 shadow-xs hover:shadow-md hover:border-[var(--color-primary-main)]/40 transition-all duration-200 cursor-pointer"
           >
             <div className="flex items-center justify-between gap-2">
               <span className="text-xs font-bold text-slate-500">
                 {tInst("enrolledStudentsNav")}
               </span>
-              <div className="w-9 h-9 rounded-xl bg-emerald-50 text-[#0F5244] ring-1 ring-emerald-100 flex items-center justify-center shrink-0">
+              <div className="w-9 h-9 rounded-xl bg-slate-100 text-[var(--color-primary-main)] ring-1 ring-slate-100 flex items-center justify-center shrink-0">
                 <Users className="w-4.5 h-4.5" />
               </div>
             </div>
@@ -138,7 +138,7 @@ export function InstructorOverviewTab({
           <div className="px-5 py-4 sm:px-6 sm:py-4.5 border-b border-slate-100 flex items-center justify-between gap-3 bg-slate-50/40">
             <div className="space-y-0.5">
               <h3 className="text-sm sm:text-base font-black text-slate-900 flex items-center gap-2">
-                <Layers className="w-4 h-4 text-[#0F5244]" />
+                <Layers className="w-4 h-4 text-[var(--color-primary-main)]" />
                 <span>{isAr ? "توزيع التسجيلات لكل دورة" : "Course Enrollment Distribution"}</span>
               </h3>
               <p className="text-xs text-slate-400 font-medium">
@@ -169,17 +169,17 @@ export function InstructorOverviewTab({
                   className="p-3 sm:p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-slate-50/80 rounded-xl transition-all group"
                 >
                   <div className="flex items-center gap-3 min-w-0">
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-50 to-slate-100 border border-slate-200/70 flex items-center justify-center shrink-0 text-[#0F5244] shadow-2xs group-hover:scale-105 transition-transform">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-slate-50 to-slate-100 border border-slate-200/70 flex items-center justify-center shrink-0 text-[var(--color-primary-main)] shadow-2xs group-hover:scale-105 transition-transform">
                       <BookOpen className="w-5 h-5" />
                     </div>
                     <div className="space-y-1 min-w-0">
-                      <h4 className="text-xs sm:text-sm font-bold text-slate-900 group-hover:text-[#0F5244] transition-colors truncate">
+                      <h4 className="text-xs sm:text-sm font-bold text-slate-900 group-hover:text-[var(--color-primary-main)] transition-colors truncate">
                         {course.title}
                       </h4>
                       <div className="flex items-center gap-2 flex-wrap">
                         {isPublished && (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200/60">
-                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-slate-100 text-[var(--color-primary-main)] border border-slate-200/60">
+                            <span className="w-1.5 h-1.5 rounded-full bg-slate-1000" />
                             <span>{isAr ? "منشورة" : "Published"}</span>
                           </span>
                         )}
@@ -204,7 +204,7 @@ export function InstructorOverviewTab({
                       href={`/${locale}/instructor/students?courseId=${course.id}`}
                       className="flex items-center gap-1.5 text-xs font-bold text-slate-700 bg-white hover:bg-slate-50 border border-slate-200/90 px-3 py-1.5 rounded-xl shadow-2xs transition-colors cursor-pointer"
                     >
-                      <Users className="w-3.5 h-3.5 text-emerald-600" />
+                      <Users className="w-3.5 h-3.5 text-[var(--color-primary-main)]" />
                       <span>
                         {course.enrollment_count ?? course.studentsCount ?? 0}{" "}
                         {isAr ? "طالب مسجل" : "learners"}
@@ -213,7 +213,7 @@ export function InstructorOverviewTab({
 
                     <Link
                       href={`/${locale}/instructor/courses/${course.id}/edit`}
-                      className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold text-slate-600 hover:text-[#0F5244] hover:bg-emerald-50 border border-transparent hover:border-emerald-200/80 transition-all"
+                      className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold text-slate-600 hover:text-[var(--color-primary-main)] hover:bg-slate-100 border border-transparent hover:border-slate-200/80 transition-all"
                     >
                       <span>{isAr ? "إدارة" : "Manage"}</span>
                       <ChevronIcon className="w-3.5 h-3.5" />

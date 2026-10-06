@@ -103,8 +103,8 @@ export function LegalReorderModal({
           {/* Modal Header */}
           <div className="flex items-center justify-between p-5 sm:p-6 border-b border-slate-100 bg-slate-50/50">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-2xl bg-emerald-50 text-[#0F5244] border border-emerald-200/80 flex items-center justify-center shrink-0 shadow-2xs">
-                <ArrowUpDown className="w-5 h-5 text-[#0F5244]" />
+              <div className="w-10 h-10 rounded-2xl bg-slate-50 text-brand-dark border border-slate-200/80 flex items-center justify-center shrink-0 shadow-2xs">
+                <ArrowUpDown className="w-5 h-5 text-brand-dark" />
               </div>
               <div>
                 <h3 className="text-base sm:text-lg font-black text-slate-900">
@@ -162,8 +162,8 @@ export function LegalReorderModal({
                     }}
                     className={`relative flex items-center justify-between gap-3 p-3 sm:p-3.5 rounded-2xl border transition-colors select-none cursor-grab active:cursor-grabbing ${
                       isDraggingThis
-                        ? "bg-emerald-50/95 border-[#0F5244] ring-2 ring-[#0F5244]/20 shadow-md"
-                        : "bg-white border-slate-200/90 hover:border-emerald-300 hover:bg-slate-50/70 shadow-2xs"
+                        ? "bg-slate-50/95 border-brand-dark ring-2 ring-brand-dark/20 shadow-md"
+                        : "bg-white border-slate-200/90 hover:border-slate-300 hover:bg-slate-50/70 shadow-2xs"
                     }`}
                     style={{ touchAction: "none" }}
                   >
@@ -172,7 +172,7 @@ export function LegalReorderModal({
                       {/* Grip Handle */}
                       <div
                         className={`p-1.5 rounded-lg shrink-0 transition-colors ${
-                          isDraggingThis ? "text-[#0F5244] bg-emerald-100" : "text-slate-400 group-hover:text-slate-600"
+                          isDraggingThis ? "text-brand-dark bg-slate-100" : "text-slate-400 group-hover:text-slate-600"
                         }`}
                       >
                         <GripVertical className="w-4 h-4" />
@@ -182,8 +182,8 @@ export function LegalReorderModal({
                       <span
                         className={`w-7 h-7 rounded-xl font-black text-xs flex items-center justify-center shrink-0 shadow-2xs transition-colors ${
                           isDraggingThis
-                            ? "bg-[#0F5244] text-white border border-[#0F5244]"
-                            : "bg-emerald-50 text-[#0F5244] border border-emerald-200/80"
+                            ? "bg-brand-dark text-white border border-brand-dark"
+                            : "bg-slate-50 text-brand-dark border border-slate-200/80"
                         }`}
                       >
                         {idx + 1}
@@ -191,7 +191,7 @@ export function LegalReorderModal({
 
                       {/* Icon */}
                       <div className="w-7 h-7 rounded-lg bg-slate-100 text-slate-700 flex items-center justify-center shrink-0 hidden sm:flex">
-                        <IconComp className="w-3.5 h-3.5 text-[#0F5244]" />
+                        <IconComp className="w-3.5 h-3.5 text-brand-dark" />
                       </div>
 
                       {/* Titles */}
@@ -258,7 +258,7 @@ export function LegalReorderModal({
               <button
                 type="button"
                 onClick={handleSave}
-                className="inline-flex items-center gap-1.5 px-5 py-2 rounded-xl bg-[#0F5244] hover:bg-[#07382E] text-white text-xs font-black transition-all cursor-pointer shadow-sm hover:shadow-md active:scale-95"
+                className="inline-flex items-center gap-1.5 px-5 py-2 rounded-xl bg-brand-dark hover:bg-[#07382E] text-white text-xs font-black transition-all cursor-pointer shadow-sm hover:shadow-md active:scale-95"
               >
                 <Check className="w-4 h-4" />
                 <span>{isAr ? "تطبيق الترتيب" : "Apply Order"}</span>

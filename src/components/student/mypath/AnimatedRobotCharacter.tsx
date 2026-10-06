@@ -32,7 +32,7 @@ export function AnimatedRobotCharacter({
         repeat: Infinity,
         ease: "easeInOut",
       }}
-      className={`relative ${sizeClasses[size]} select-none pointer-events-auto cursor-pointer filter drop-shadow-[0_10px_20px_rgba(15,82,68,0.22)] ${className}`}
+      className={`relative ${sizeClasses[size]} select-none pointer-events-auto cursor-pointer filter drop-shadow-lg ${className}`}
     >
       <svg
         viewBox="0 0 160 210"
@@ -56,7 +56,7 @@ export function AnimatedRobotCharacter({
         >
           <path
             d="M 68 175 C 68 175 74 205 80 208 C 86 205 92 175 92 175 Z"
-            fill="#38E09D"
+            fill="var(--color-primary-main)"
             opacity="0.9"
           />
           <ellipse cx="80" cy="188" rx="5" ry="8" fill="#A7F3D0" />
@@ -74,12 +74,12 @@ export function AnimatedRobotCharacter({
         />
 
         {/* Torso Center AI Core Light */}
-        <circle cx="80" cy="145" r="9" fill="#E6F7F1" stroke="#38E09D" strokeWidth="2.5" />
+        <circle cx="80" cy="145" r="9" fill="var(--color-bg-default)" stroke="var(--color-primary-main)" strokeWidth="2.5" />
         <motion.circle
           cx="80"
           cy="145"
           r="4.5"
-          fill="#38E09D"
+          fill="var(--color-primary-main)"
           animate={{ scale: [0.85, 1.25, 0.85], opacity: [0.7, 1, 0.7] }}
           transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
         />
@@ -113,7 +113,7 @@ export function AnimatedRobotCharacter({
           />
           {/* Waving Hand Mitten */}
           <ellipse cx="140" cy="105" rx="7" ry="9" fill="#FFFFFF" stroke="#CBD5E1" strokeWidth="1.5" />
-          <path d="M 136 102 C 138 97 144 98 145 103" stroke="#38E09D" strokeWidth="2" strokeLinecap="round" />
+          <path d="M 136 102 C 138 97 144 98 145 103" stroke="var(--color-primary-main)" strokeWidth="2" strokeLinecap="round" />
         </motion.g>
 
         {/* 4. ROBOT HEAD */}
@@ -131,8 +131,8 @@ export function AnimatedRobotCharacter({
           />
 
           {/* Ears / Head Antennas (Solid Mint/Cyan) */}
-          <rect x="36" y="80" width="8" height="24" rx="4" fill="#38E09D" />
-          <rect x="116" y="80" width="8" height="24" rx="4" fill="#38E09D" />
+          <rect x="36" y="80" width="8" height="24" rx="4" fill="var(--color-primary-main)" />
+          <rect x="116" y="80" width="8" height="24" rx="4" fill="var(--color-primary-main)" />
 
           {/* Dark Glass Visor Screen (Solid Deep Dark Screen) */}
           <rect x="50" y="72" width="60" height="42" rx="16" fill="#1E293B" stroke="#0F172A" strokeWidth="1" />
@@ -152,14 +152,14 @@ export function AnimatedRobotCharacter({
             {/* Left Eye (Happy arc shape) */}
             <path
               d="M 60 93 C 60 87 69 87 69 93"
-              stroke="#38E09D"
+              stroke="var(--color-primary-main)"
               strokeWidth="3.5"
               strokeLinecap="round"
             />
             {/* Right Eye (Happy arc shape) */}
             <path
               d="M 91 93 C 91 87 100 87 100 93"
-              stroke="#38E09D"
+              stroke="var(--color-primary-main)"
               strokeWidth="3.5"
               strokeLinecap="round"
             />
@@ -168,7 +168,7 @@ export function AnimatedRobotCharacter({
           {/* Cute Mint Smile */}
           <path
             d="M 74 104 C 77 107 83 107 86 104"
-            stroke="#38E09D"
+            stroke="var(--color-primary-main)"
             strokeWidth="2.2"
             strokeLinecap="round"
           />
@@ -190,7 +190,7 @@ export function AnimatedRobotCharacter({
               fill="#1E293B"
             />
             {/* Cap Button */}
-            <circle cx="0" cy="-8" r="3" fill="#38E09D" />
+            <circle cx="0" cy="-8" r="3" fill="var(--color-primary-main)" />
 
             {/* Swinging Tassel */}
             <motion.g
@@ -206,12 +206,12 @@ export function AnimatedRobotCharacter({
             >
               <path
                 d="M 0 -8 C 12 -4 28 4 32 16"
-                stroke="#38E09D"
+                stroke="var(--color-primary-main)"
                 strokeWidth="2.5"
                 strokeLinecap="round"
                 fill="none"
               />
-              <circle cx="32" cy="18" r="3.5" fill="#38E09D" />
+              <circle cx="32" cy="18" r="3.5" fill="var(--color-primary-main)" />
             </motion.g>
           </g>
         )}

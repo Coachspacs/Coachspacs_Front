@@ -111,7 +111,7 @@ export function CmsImageUpload({
         <button
           type="button"
           onClick={() => setShowUrlInput((prev) => !prev)}
-          className="text-xs font-semibold text-slate-500 hover:text-[#0F5244] inline-flex items-center gap-1 transition-colors cursor-pointer shrink-0"
+          className="text-xs font-semibold text-slate-500 hover:text-brand-dark inline-flex items-center gap-1 transition-colors cursor-pointer shrink-0"
         >
           <LinkIcon className="w-3.5 h-3.5" />
           <span>{showUrlInput ? t("hideUrl") : t("editUrl")}</span>
@@ -126,7 +126,7 @@ export function CmsImageUpload({
       <div className="space-y-2 w-full min-w-0">
         {value ? (
           /* Preview Mode with Action Overlays */
-          <div className="p-3.5 bg-slate-50/60 hover:bg-white border border-slate-200/90 hover:border-emerald-300 rounded-2xl flex flex-col gap-3 transition-all duration-200 shadow-2xs hover:shadow-xs w-full min-w-0 overflow-hidden">
+          <div className="p-3.5 bg-slate-50/60 hover:bg-white border border-slate-200/90 hover:border-slate-300 rounded-2xl flex flex-col gap-3 transition-all duration-200 shadow-2xs hover:shadow-xs w-full min-w-0 overflow-hidden">
             {/* Top Row: Thumbnail + Truncated URL + External Link */}
             <div className="flex items-center gap-3 w-full min-w-0">
               {/* Image Thumbnail */}
@@ -157,7 +157,7 @@ export function CmsImageUpload({
                   href={value}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-slate-400 hover:text-[#0F5244] shrink-0 p-1.5 rounded-lg hover:bg-slate-100 transition-colors"
+                  className="text-slate-400 hover:text-brand-dark shrink-0 p-1.5 rounded-lg hover:bg-slate-100 transition-colors"
                   title={t("openNewTab")}
                 >
                   <ExternalLink className="w-3.5 h-3.5" />
@@ -172,12 +172,12 @@ export function CmsImageUpload({
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
                 disabled={isUploading}
-                className="flex-1 inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl bg-white hover:bg-emerald-50 text-[#0F5244] hover:text-[#07382E] border border-slate-200 hover:border-emerald-300 text-xs font-bold transition-all cursor-pointer shadow-2xs hover:shadow-xs active:scale-95 disabled:opacity-50 min-w-0"
+                className="flex-1 inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl bg-white hover:bg-slate-50 text-brand-dark hover:text-[#07382E] border border-slate-200 hover:border-slate-300 text-xs font-bold transition-all cursor-pointer shadow-2xs hover:shadow-xs active:scale-95 disabled:opacity-50 min-w-0"
               >
                 {isUploading ? (
-                  <Loader2 className="w-3.5 h-3.5 animate-spin text-[#0F5244] shrink-0" />
+                  <Loader2 className="w-3.5 h-3.5 animate-spin text-brand-dark shrink-0" />
                 ) : (
-                  <UploadCloud className="w-3.5 h-3.5 text-[#0F5244] shrink-0" />
+                  <UploadCloud className="w-3.5 h-3.5 text-brand-dark shrink-0" />
                 )}
                 <span className="truncate">{t("replaceImage")}</span>
               </button>
@@ -207,20 +207,20 @@ export function CmsImageUpload({
             onClick={() => fileInputRef.current?.click()}
             className={`border-2 border-dashed rounded-2xl p-5 text-center cursor-pointer transition-all ${
               isDragOver
-                ? "border-[#0F5244] bg-emerald-50/50 scale-[1.01]"
-                : "border-slate-300/80 hover:border-[#0F5244] bg-slate-50/60 hover:bg-slate-50"
+                ? "border-brand-dark bg-slate-50/50 scale-[1.01]"
+                : "border-slate-300/80 hover:border-brand-dark bg-slate-50/60 hover:bg-slate-50"
             }`}
           >
             {isUploading ? (
               <div className="py-4 flex flex-col items-center justify-center gap-2">
-                <Loader2 className="w-7 h-7 text-[#0F5244] animate-spin" />
+                <Loader2 className="w-7 h-7 text-brand-dark animate-spin" />
                 <span className="text-xs font-bold text-slate-700">
                   {t("uploading")}
                 </span>
               </div>
             ) : (
               <div className="py-3 flex flex-col items-center justify-center gap-2">
-                <div className="w-10 h-10 rounded-full bg-emerald-50 text-[#0F5244] flex items-center justify-center shadow-2xs">
+                <div className="w-10 h-10 rounded-full bg-slate-50 text-brand-dark flex items-center justify-center shadow-2xs">
                   <UploadCloud className="w-5 h-5" />
                 </div>
                 <div>
@@ -258,7 +258,7 @@ export function CmsImageUpload({
               value={value}
               onChange={(e) => onChange(e.target.value)}
               placeholder="https://res.cloudinary.com/... or /images/..."
-              className="flex-1 bg-white border border-slate-200/90 rounded-xl px-3.5 py-2 text-xs font-mono text-slate-900 focus:outline-none focus:border-[#0F5244] focus:ring-1 focus:ring-[#0F5244]/20"
+              className="flex-1 bg-white border border-slate-200/90 rounded-xl px-3.5 py-2 text-xs font-mono text-slate-900 focus:outline-none focus:border-brand-dark focus:ring-1 focus:ring-brand-dark/20"
             />
             {value && (
               <button

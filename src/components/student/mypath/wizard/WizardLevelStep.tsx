@@ -128,7 +128,7 @@ export function WizardLevelStep({
               }}
               className={`w-full p-4 sm:p-5 rounded-2xl border text-start transition-all cursor-pointer flex items-center justify-between gap-4 ${
                 isSelected
-                  ? "bg-white border-2 border-emerald-400 shadow-xs"
+                  ? "bg-white border-2 border-slate-200 shadow-xs"
                   : "bg-white border border-slate-200/90 hover:border-slate-300 hover:bg-slate-50/40"
               }`}
             >
@@ -137,7 +137,7 @@ export function WizardLevelStep({
                 <div
                   className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
                     isSelected
-                      ? "bg-[#0F5244] text-white shadow-xs"
+                      ? "bg-[var(--color-primary-main)] text-white shadow-xs"
                       : "bg-slate-100 text-slate-500"
                   }`}
                 >
@@ -153,7 +153,7 @@ export function WizardLevelStep({
                       <span
                         className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full ${
                           isSelected
-                            ? "bg-emerald-100 text-emerald-800"
+                            ? "bg-slate-100 text-brand-dark"
                             : "bg-slate-100 text-slate-600"
                         }`}
                       >
@@ -170,7 +170,7 @@ export function WizardLevelStep({
               {/* End Side (Radio Check Indicator) */}
               <div className="shrink-0 flex items-center">
                 {isSelected ? (
-                  <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-emerald-600 text-white flex items-center justify-center shadow-xs">
+                  <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-brand text-white flex items-center justify-center shadow-xs">
                     <Check className="w-3.5 h-3.5 stroke-[3]" />
                   </div>
                 ) : (
@@ -198,7 +198,7 @@ export function WizardLevelStep({
         <button
           type="button"
           onClick={onNext}
-          className="inline-flex items-center gap-2 bg-[#0F5244] hover:bg-[#07382E] text-white text-xs sm:text-sm font-bold px-7 py-2.5 sm:py-3 rounded-xl transition-all shadow-xs hover:shadow-md cursor-pointer"
+          className="inline-flex items-center gap-2 bg-[var(--color-primary-main)] hover:bg-[var(--color-primary-dark)] text-white text-xs sm:text-sm font-bold px-7 py-2.5 sm:py-3 rounded-xl transition-all shadow-xs hover:shadow-md cursor-pointer"
         >
           <span>{t("continue")}</span>
           {isAr ? <ArrowLeft className="w-4 h-4" /> : <ArrowRight className="w-4 h-4" />}

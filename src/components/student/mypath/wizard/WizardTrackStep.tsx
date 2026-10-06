@@ -60,7 +60,7 @@ const AVAILABLE_PLATFORM_CATEGORIES: AvailableCategoryItem[] = [
     descEn: "Python programming, software development, and web systems",
     badgeAr: "دورات منشورة",
     badgeEn: "Published Courses",
-    badgeColor: "bg-emerald-100 text-emerald-800 border border-emerald-200",
+    badgeColor: "bg-slate-100 text-brand-dark border border-slate-200",
   },
   {
     id: 4,
@@ -104,7 +104,7 @@ const AVAILABLE_PLATFORM_CATEGORIES: AvailableCategoryItem[] = [
     descEn: "Strength training, home workouts, and physical wellness",
     badgeAr: "دورات منشورة",
     badgeEn: "Published Courses",
-    badgeColor: "bg-teal-100 text-teal-800 border border-teal-200",
+    badgeColor: "bg-slate-100 text-brand-dark border border-slate-200",
   },
   {
     id: 3,
@@ -239,7 +239,7 @@ export function WizardTrackStep({
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           placeholder={isAr ? "ابحث في المسارات المنشورة المتاحة..." : "Search available platform tracks..."}
-          className="w-full bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200/90 focus:border-emerald-600 rounded-2xl py-3 ps-10 pe-24 text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-emerald-600 transition-all font-medium"
+          className="w-full bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200/90 focus:border-brand rounded-2xl py-3 ps-10 pe-24 text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-brand transition-all font-medium"
         />
         <div className="absolute inset-y-0 end-0 pe-3 flex items-center pointer-events-none">
           <span className="px-2 py-0.5 rounded-lg text-[10px] font-extrabold bg-slate-200/70 text-slate-600 uppercase tracking-wider">
@@ -278,7 +278,7 @@ export function WizardTrackStep({
               }}
               className={`p-4 sm:p-5 rounded-2xl border text-start transition-all cursor-pointer flex flex-col justify-between gap-3 relative ${
                 isSelected
-                  ? "bg-white border-2 border-emerald-400 shadow-xs"
+                  ? "bg-white border-2 border-slate-200 shadow-xs"
                   : "bg-white border border-slate-200/90 hover:border-slate-300 hover:bg-slate-50/40"
               }`}
             >
@@ -286,7 +286,7 @@ export function WizardTrackStep({
                 <div
                   className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
                     isSelected
-                      ? "bg-[#0F5244] text-white shadow-xs"
+                      ? "bg-[var(--color-primary-main)] text-white shadow-xs"
                       : "bg-slate-100 text-slate-600"
                   }`}
                 >
@@ -296,13 +296,13 @@ export function WizardTrackStep({
                 <div className="flex items-center gap-1.5">
                   <span
                     className={`px-2 py-0.5 rounded text-[10px] font-extrabold uppercase tracking-wider ${
-                      cat.badgeColor || "bg-emerald-50 text-emerald-800 border border-emerald-200"
+                      cat.badgeColor || "bg-slate-100 text-brand-dark border border-slate-200"
                     }`}
                   >
                     {isAr ? cat.badgeAr : cat.badgeEn}
                   </span>
                   {isSelected ? (
-                    <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-emerald-600 text-white flex items-center justify-center shadow-xs">
+                    <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-brand text-white flex items-center justify-center shadow-xs">
                       <Check className="w-3.5 h-3.5 stroke-[3]" />
                     </div>
                   ) : (
@@ -340,7 +340,7 @@ export function WizardTrackStep({
         <button
           type="button"
           onClick={onNext}
-          className="inline-flex items-center gap-2 bg-[#0F5244] hover:bg-[#07382E] text-white text-xs sm:text-sm font-bold px-7 py-2.5 sm:py-3 rounded-xl transition-all shadow-xs hover:shadow-md cursor-pointer"
+          className="inline-flex items-center gap-2 bg-[var(--color-primary-main)] hover:bg-[var(--color-primary-dark)] text-white text-xs sm:text-sm font-bold px-7 py-2.5 sm:py-3 rounded-xl transition-all shadow-xs hover:shadow-md cursor-pointer"
         >
           <span>{t("continue")}</span>
           {isAr ? <ArrowLeft className="w-4 h-4" /> : <ArrowRight className="w-4 h-4" />}

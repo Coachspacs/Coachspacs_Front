@@ -40,7 +40,7 @@ export function Toast({
           <div
             className={`flex items-center gap-3 px-4 py-3.5 rounded-2xl shadow-xl border backdrop-blur-md transition-all ${
               type === "success"
-                ? "bg-slate-900/95 border-emerald-500/30 text-white"
+                ? "bg-slate-900/95 border-[var(--color-primary-main)]/30 text-white"
                 : type === "error"
                 ? "bg-rose-950/95 border-rose-500/30 text-white"
                 : "bg-slate-900/95 border-slate-700 text-white"
@@ -48,7 +48,7 @@ export function Toast({
           >
             <div className="shrink-0">
               {type === "success" && (
-                <div className="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
+                <div className="w-8 h-8 rounded-xl bg-[var(--color-primary-main)]/20 text-brand-light flex items-center justify-center">
                   <CheckCircle2 className="w-5 h-5" />
                 </div>
               )}

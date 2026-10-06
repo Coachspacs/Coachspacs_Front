@@ -83,8 +83,8 @@ export function LessonContentTabs({
               {activeLesson?.is_preview && (
                 <>
                   <span className="text-slate-300 font-bold">·</span>
-                  <span className="text-[#0F5244] font-bold flex items-center gap-1 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200/60">
-                    <Sparkles size={11} className="text-[#0F5244]" />
+                  <span className="text-[var(--color-primary-main)] font-bold flex items-center gap-1 bg-slate-100 px-2 py-0.5 rounded-md border border-slate-200/60">
+                    <Sparkles size={11} className="text-[var(--color-primary-main)]" />
                     <span>{t("freePreview")}</span>
                   </span>
                 </>
@@ -114,7 +114,7 @@ export function LessonContentTabs({
                 href={`/${locale}/instructors/${instructorSlug}`}
                 className="flex items-center gap-3 min-w-0 group/author"
               >
-                <div className="w-11 h-11 rounded-full overflow-hidden border border-slate-200/80 shrink-0 bg-white shadow-2xs group-hover/author:border-emerald-500/40 transition-colors">
+                <div className="w-11 h-11 rounded-full overflow-hidden border border-slate-200/80 shrink-0 bg-white shadow-2xs group-hover/author:border-[var(--color-primary-main)]/40 transition-colors">
                   {instructor?.avatar ? (
                     <Image
                       src={instructor.avatar}
@@ -124,14 +124,14 @@ export function LessonContentTabs({
                       className="w-full h-full object-cover rounded-full"
                     />
                   ) : (
-                    <div className="w-full h-full rounded-full flex items-center justify-center font-bold text-sm text-[#0F5244] bg-emerald-50">
+                    <div className="w-full h-full rounded-full flex items-center justify-center font-bold text-sm text-[var(--color-primary-main)] bg-slate-100">
                       {instructorName.charAt(0).toUpperCase()}
                     </div>
                   )}
                 </div>
                 <div className="min-w-0">
                   <div className="flex items-center gap-1.5 flex-wrap">
-                    <span className="text-xs sm:text-sm font-bold text-slate-900 group-hover/author:text-[#0F5244] transition-colors">
+                    <span className="text-xs sm:text-sm font-bold text-slate-900 group-hover/author:text-[var(--color-primary-main)] transition-colors">
                       {instructorName}
                     </span>
                     <VerifiedBadge size="sm" />
@@ -144,19 +144,19 @@ export function LessonContentTabs({
 
               <a
                 href={`/${locale}/instructors/${instructorSlug}`}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200/80 hover:border-emerald-300 bg-white hover:bg-emerald-50/60 text-slate-600 hover:text-[#0F5244] text-xs font-semibold transition-all shrink-0 self-start sm:self-center shadow-2xs"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200/80 hover:border-slate-300 bg-white hover:bg-slate-100/60 text-slate-600 hover:text-[var(--color-primary-main)] text-xs font-semibold transition-all shrink-0 self-start sm:self-center shadow-2xs"
               >
                 <span>{t("viewProfile")}</span>
-                <ArrowRight size={13} className="rtl:rotate-180 text-slate-400 group-hover:text-[#0F5244]" />
+                <ArrowRight size={13} className="rtl:rotate-180 text-slate-400 group-hover:text-[var(--color-primary-main)]" />
               </a>
             </div>
           </div>
 
           {/* AI Practice Quiz Banner */}
           {onOpenAiQuiz && (
-            <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-emerald-50 via-white to-teal-50/40 border border-emerald-200/90 shadow-2xs flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-slate-50 via-white to-teal-50/40 border border-slate-200/90 shadow-2xs flex flex-col sm:flex-row items-center justify-between gap-4">
               <div className="flex items-center gap-3.5 min-w-0">
-                <div className="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-xs">
+                <div className="w-10 h-10 rounded-xl bg-[var(--color-primary-dark)] text-white flex items-center justify-center shrink-0 shadow-xs">
                   <Sparkles size={18} className="animate-pulse" />
                 </div>
                 <div>
@@ -175,7 +175,7 @@ export function LessonContentTabs({
               <button
                 type="button"
                 onClick={onOpenAiQuiz}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-[#0F5244] hover:bg-[#07382E] text-white text-xs font-bold transition-all shadow-2xs shrink-0 cursor-pointer"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-brand-dark hover:bg-[#07382E] text-white text-xs font-bold transition-all shadow-2xs shrink-0 cursor-pointer"
               >
                 <Sparkles size={13} />
                 <span>{isAr ? "بدء الاختبار الذكي" : "Start Practice Quiz"}</span>
@@ -187,7 +187,7 @@ export function LessonContentTabs({
           {/* Overview Section */}
           <div className="space-y-3 pt-1">
             <div>
-              <div className="text-[#0F5244] font-bold text-[11px] tracking-widest uppercase mb-1">
+              <div className="text-[var(--color-primary-main)] font-bold text-[11px] tracking-widest uppercase mb-1">
                 {t("aboutThisCourseHeading")}
               </div>
               <h2 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight">
@@ -210,7 +210,7 @@ export function LessonContentTabs({
                       key={idx}
                       className="flex items-start gap-2.5 text-xs text-slate-700 bg-slate-50/60 p-2.5 rounded-lg border border-slate-100"
                     >
-                      <CheckCircle2 size={14} className="text-emerald-600 shrink-0 mt-0.5" />
+                      <CheckCircle2 size={14} className="text-[var(--color-primary-main)] shrink-0 mt-0.5" />
                       <span className="font-medium leading-relaxed">{point}</span>
                     </div>
                   ))}
@@ -227,7 +227,7 @@ export function LessonContentTabs({
           <div className="p-5 sm:p-7 space-y-4">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-xl bg-emerald-50 text-[#0F5244] flex items-center justify-center shrink-0">
+                <div className="w-8 h-8 rounded-xl bg-slate-100 text-[var(--color-primary-main)] flex items-center justify-center shrink-0">
                   <Paperclip size={16} />
                 </div>
                 <div>
@@ -251,7 +251,7 @@ export function LessonContentTabs({
                 return (
                   <div
                     key={`lesson-att-${item.id}`}
-                    className="p-3.5 rounded-xl border border-slate-200/80 bg-slate-50/70 hover:bg-slate-50 hover:border-emerald-300 transition-all flex items-center justify-between gap-3 group"
+                    className="p-3.5 rounded-xl border border-slate-200/80 bg-slate-50/70 hover:bg-slate-50 hover:border-slate-300 transition-all flex items-center justify-between gap-3 group"
                   >
                     <div className="flex items-center gap-3 min-w-0">
                       <div className="w-9 h-9 rounded-lg bg-white border border-slate-200 shadow-2xs flex items-center justify-center shrink-0">
@@ -268,7 +268,7 @@ export function LessonContentTabs({
                             </span>
                           )}
                         </div>
-                        <span className="text-[10px] text-emerald-700 font-bold bg-emerald-50 px-2 py-0.2 rounded-full inline-block">
+                        <span className="text-[10px] text-[var(--color-primary-main)] font-bold bg-slate-100 px-2 py-0.2 rounded-full inline-block">
                           {isAr ? "مرفق خاص بهذا الدرس" : "Lesson Specific File"}
                         </span>
                       </div>
@@ -278,7 +278,7 @@ export function LessonContentTabs({
                       type="button"
                       onClick={() => handleDownloadAttachment(item.id, item.file_name)}
                       disabled={isDownloading}
-                      className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#0F5244] hover:bg-[#07382E] text-white text-xs font-bold shadow-2xs hover:shadow-xs transition-all cursor-pointer disabled:opacity-50 active:scale-95 shrink-0"
+                      className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-brand-dark hover:bg-[#07382E] text-white text-xs font-bold shadow-2xs hover:shadow-xs transition-all cursor-pointer disabled:opacity-50 active:scale-95 shrink-0"
                     >
                       {isDownloading ? <Loader2 size={13} className="animate-spin" /> : <Download size={13} />}
                       <span>{isAr ? "تحميل" : "Download"}</span>
@@ -296,7 +296,7 @@ export function LessonContentTabs({
                 return (
                   <div
                     key={`course-att-${item.id}`}
-                    className="p-3.5 rounded-xl border border-slate-200/80 bg-slate-50/70 hover:bg-slate-50 hover:border-emerald-300 transition-all flex items-center justify-between gap-3 group"
+                    className="p-3.5 rounded-xl border border-slate-200/80 bg-slate-50/70 hover:bg-slate-50 hover:border-slate-300 transition-all flex items-center justify-between gap-3 group"
                   >
                     <div className="flex items-center gap-3 min-w-0">
                       <div className="w-9 h-9 rounded-lg bg-white border border-slate-200 shadow-2xs flex items-center justify-center shrink-0">

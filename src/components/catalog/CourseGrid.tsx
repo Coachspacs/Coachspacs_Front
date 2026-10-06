@@ -44,7 +44,7 @@ export function CourseGrid({
           <button
             type="button"
             onClick={onRetry}
-            className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-[#0F5244] hover:bg-[#07382E] text-white text-xs sm:text-sm font-bold transition-all shadow-sm cursor-pointer active:scale-95"
+            className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-brand-dark hover:bg-[#07382E] text-white text-xs sm:text-sm font-bold transition-all shadow-sm cursor-pointer active:scale-95"
           >
             <RotateCcw className="w-4 h-4" />
             <span>{tError("retry")}</span>
@@ -94,7 +94,7 @@ export function CourseGrid({
           <button
             type="button"
             onClick={onResetFilters}
-            className="inline-flex items-center justify-center gap-2.5 px-6 py-3 rounded-xl bg-[#0F5244] hover:bg-[#07382E] text-white text-sm font-extrabold shadow-md hover:shadow-lg transition-all duration-200 active:scale-95 cursor-pointer"
+            className="inline-flex items-center justify-center gap-2.5 px-6 py-3 rounded-xl bg-brand-dark hover:bg-[#07382E] text-white text-sm font-extrabold shadow-md hover:shadow-lg transition-all duration-200 active:scale-95 cursor-pointer"
           >
             <SlidersHorizontal className="h-4 w-4" />
             <span>{t("resetButton")}</span>

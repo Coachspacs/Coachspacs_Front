@@ -180,7 +180,7 @@ export default function BrandingSettingsPage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center p-20">
-        <Loader2 className="w-8 h-8 text-[#0F5244] animate-spin" />
+        <Loader2 className="w-8 h-8 text-brand-dark animate-spin" />
       </div>
     );
   }
@@ -191,8 +191,8 @@ export default function BrandingSettingsPage() {
       <div className="bg-white border border-slate-200/90 rounded-2xl sm:rounded-3xl p-5 sm:p-7 shadow-xs">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           <div>
-            <div className="flex items-center gap-2 text-xs font-bold text-[#0F5244] uppercase tracking-wider mb-1.5">
-              <span className="p-1 rounded-md bg-emerald-50 border border-emerald-200/70 text-[#0F5244]">
+            <div className="flex items-center gap-2 text-xs font-bold text-brand-dark uppercase tracking-wider mb-1.5">
+              <span className="p-1 rounded-md bg-slate-50 border border-slate-200/70 text-brand-dark">
                 <Palette className="w-3.5 h-3.5" />
               </span>
               <span>{t("designSystem")}</span>
@@ -227,7 +227,7 @@ export default function BrandingSettingsPage() {
               }
             >
               {isPreviewing ? (
-                <Loader2 className="w-4 h-4 animate-spin text-[#0F5244]" />
+                <Loader2 className="w-4 h-4 animate-spin text-brand-dark" />
               ) : (
                 <Eye className="w-4 h-4 text-slate-500" />
               )}
@@ -245,7 +245,7 @@ export default function BrandingSettingsPage() {
               onClick={handleSave}
               disabled={isSaving}
               type="button"
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-[#0F5244] hover:bg-[#07382E] text-white text-xs font-black transition-all cursor-pointer shadow-md shadow-[#0F5244]/20 disabled:opacity-50"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-brand-dark hover:bg-[#07382E] text-white text-xs font-black transition-all cursor-pointer shadow-md shadow-brand-dark/20 disabled:opacity-50"
             >
               {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
               <span>{t("saveApply")}</span>
@@ -254,8 +254,8 @@ export default function BrandingSettingsPage() {
         </div>
 
         {statusMessage && (
-          <div className="mt-4 p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-[#0F5244] text-xs font-bold flex items-center gap-2 animate-fade-in">
-            <CheckCircle2 className="w-4 h-4 shrink-0 text-[#0F5244]" />
+          <div className="mt-4 p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-brand-dark text-xs font-bold flex items-center gap-2 animate-fade-in">
+            <CheckCircle2 className="w-4 h-4 shrink-0 text-brand-dark" />
             <span>{statusMessage}</span>
           </div>
         )}
@@ -281,7 +281,7 @@ export default function BrandingSettingsPage() {
               <button
                 type="button"
                 onClick={handleAutoHarmonize}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 border border-emerald-200/80 text-[#0F5244] text-xs font-bold transition-all cursor-pointer shadow-2xs shrink-0"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200/80 text-brand-dark text-xs font-bold transition-all cursor-pointer shadow-2xs shrink-0"
                 title={t("autoHarmonizeTooltip")}
               >
                 <Wand2 className="w-3.5 h-3.5" />
@@ -321,7 +321,7 @@ export default function BrandingSettingsPage() {
                         colors: { ...branding.colors, primaryMain: e.target.value.toUpperCase() },
                       })
                     }
-                    className="w-24 bg-white border border-slate-200/90 rounded-lg px-2.5 py-1 text-xs font-mono text-slate-900 focus:outline-none focus:border-[#0F5244] uppercase text-center font-bold"
+                    className="w-24 bg-white border border-slate-200/90 rounded-lg px-2.5 py-1 text-xs font-mono text-slate-900 focus:outline-none focus:border-brand-dark uppercase text-center font-bold"
                   />
                 </div>
               </div>
@@ -357,7 +357,7 @@ export default function BrandingSettingsPage() {
                         colors: { ...branding.colors, primaryDark: e.target.value.toUpperCase() },
                       })
                     }
-                    className="w-24 bg-white border border-slate-200/90 rounded-lg px-2.5 py-1 text-xs font-mono text-slate-900 focus:outline-none focus:border-[#0F5244] uppercase text-center font-bold"
+                    className="w-24 bg-white border border-slate-200/90 rounded-lg px-2.5 py-1 text-xs font-mono text-slate-900 focus:outline-none focus:border-brand-dark uppercase text-center font-bold"
                   />
                 </div>
               </div>
@@ -393,7 +393,7 @@ export default function BrandingSettingsPage() {
                         colors: { ...branding.colors, primaryLight: e.target.value.toUpperCase() },
                       })
                     }
-                    className="w-24 bg-white border border-slate-200/90 rounded-lg px-2.5 py-1 text-xs font-mono text-slate-900 focus:outline-none focus:border-[#0F5244] uppercase text-center font-bold"
+                    className="w-24 bg-white border border-slate-200/90 rounded-lg px-2.5 py-1 text-xs font-mono text-slate-900 focus:outline-none focus:border-brand-dark uppercase text-center font-bold"
                   />
                 </div>
               </div>
@@ -429,7 +429,7 @@ export default function BrandingSettingsPage() {
                         colors: { ...branding.colors, accentMint: e.target.value.toUpperCase() },
                       })
                     }
-                    className="w-24 bg-white border border-slate-200/90 rounded-lg px-2.5 py-1 text-xs font-mono text-slate-900 focus:outline-none focus:border-[#0F5244] uppercase text-center font-bold"
+                    className="w-24 bg-white border border-slate-200/90 rounded-lg px-2.5 py-1 text-xs font-mono text-slate-900 focus:outline-none focus:border-brand-dark uppercase text-center font-bold"
                   />
                 </div>
               </div>
@@ -465,7 +465,7 @@ export default function BrandingSettingsPage() {
                         colors: { ...branding.colors, secondaryLight: e.target.value.toUpperCase() },
                       })
                     }
-                    className="w-24 bg-white border border-slate-200/90 rounded-lg px-2.5 py-1 text-xs font-mono text-slate-900 focus:outline-none focus:border-[#0F5244] uppercase text-center font-bold"
+                    className="w-24 bg-white border border-slate-200/90 rounded-lg px-2.5 py-1 text-xs font-mono text-slate-900 focus:outline-none focus:border-brand-dark uppercase text-center font-bold"
                   />
                 </div>
               </div>
@@ -498,7 +498,7 @@ export default function BrandingSettingsPage() {
                     onClick={() => setBranding({ ...branding, buttonRadius: rad })}
                     className={`py-2 px-2 text-xs font-bold rounded-xl border transition-all cursor-pointer text-center ${
                       branding.buttonRadius === rad
-                        ? "bg-[#0F5244] border-[#0F5244] text-white shadow-xs"
+                        ? "bg-brand-dark border-brand-dark text-white shadow-xs"
                         : "bg-slate-50 border-slate-200 text-slate-700 hover:bg-white hover:text-slate-900"
                     }`}
                   >
@@ -651,8 +651,8 @@ export default function BrandingSettingsPage() {
       {/* ========================================================================= */}
       <div className="bg-white border border-slate-200/90 rounded-2xl sm:rounded-3xl p-5 sm:p-8 space-y-6 shadow-2xs">
         <div className="flex items-center gap-3 border-b border-slate-100 pb-4">
-          <div className="w-9 h-9 rounded-xl bg-emerald-50 text-[#0F5244] border border-emerald-200/70 flex items-center justify-center shrink-0">
-            <Type className="w-5 h-5 text-[#0F5244]" />
+          <div className="w-9 h-9 rounded-xl bg-slate-50 text-brand-dark border border-slate-200/70 flex items-center justify-center shrink-0">
+            <Type className="w-5 h-5 text-brand-dark" />
           </div>
           <div>
             <h2 className="text-base font-bold text-slate-900">
@@ -673,7 +673,7 @@ export default function BrandingSettingsPage() {
             <select
               value={branding.fontFamilyAr || "Cairo"}
               onChange={(e) => setBranding({ ...branding, fontFamilyAr: e.target.value })}
-              className="w-full bg-slate-50 hover:bg-white border border-slate-200/90 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:bg-white focus:outline-none focus:border-[#0F5244] focus:ring-1 focus:ring-[#0F5244]/20 cursor-pointer transition-all font-semibold"
+              className="w-full bg-slate-50 hover:bg-white border border-slate-200/90 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:bg-white focus:outline-none focus:border-brand-dark focus:ring-1 focus:ring-brand-dark/20 cursor-pointer transition-all font-semibold"
             >
               {POPULAR_GOOGLE_FONTS_ARABIC.map((font) => (
                 <option key={font} value={font}>
@@ -695,7 +695,7 @@ export default function BrandingSettingsPage() {
               dir="ltr"
               value={branding.fontFamilyEn || "Plus Jakarta Sans"}
               onChange={(e) => setBranding({ ...branding, fontFamilyEn: e.target.value })}
-              className="w-full bg-slate-50 hover:bg-white border border-slate-200/90 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:bg-white focus:outline-none focus:border-[#0F5244] focus:ring-1 focus:ring-[#0F5244]/20 cursor-pointer transition-all font-semibold"
+              className="w-full bg-slate-50 hover:bg-white border border-slate-200/90 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:bg-white focus:outline-none focus:border-brand-dark focus:ring-1 focus:ring-brand-dark/20 cursor-pointer transition-all font-semibold"
             >
               {POPULAR_GOOGLE_FONTS_ENGLISH.map((font) => (
                 <option key={font} value={font}>
@@ -712,7 +712,7 @@ export default function BrandingSettingsPage() {
           <div className="space-y-2">
             <label className="text-xs font-bold text-slate-800 flex items-center justify-between">
               <span>{t("customFontLabel")}</span>
-              <span className="text-[10.5px] text-[#0F5244] font-semibold bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200/60">{t("optional")}</span>
+              <span className="text-[10.5px] text-brand-dark font-semibold bg-slate-50 px-2 py-0.5 rounded-md border border-slate-200/60">{t("optional")}</span>
             </label>
             <div className="flex items-center gap-2">
               <input
@@ -720,7 +720,7 @@ export default function BrandingSettingsPage() {
                 placeholder={t("customFontPlaceholder")}
                 value={branding.customGoogleFontName || ""}
                 onChange={(e) => setBranding({ ...branding, customGoogleFontName: e.target.value })}
-                className="flex-1 bg-slate-50 hover:bg-white border border-slate-200/90 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:border-[#0F5244] focus:ring-1 focus:ring-[#0F5244]/20 transition-all font-semibold"
+                className="flex-1 bg-slate-50 hover:bg-white border border-slate-200/90 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:border-brand-dark focus:ring-1 focus:ring-brand-dark/20 transition-all font-semibold"
               />
               {branding.customGoogleFontName && (
                 <button
@@ -745,7 +745,7 @@ export default function BrandingSettingsPage() {
             <span className="text-xs font-bold text-slate-700">
               {t("liveTypographyPreview")}
             </span>
-            <div className="flex items-center gap-3 text-[11px] font-mono text-[#0F5244] font-bold">
+            <div className="flex items-center gap-3 text-[11px] font-mono text-brand-dark font-bold">
               <span>AR: {branding.customGoogleFontName || branding.fontFamilyAr || "Cairo"}</span>
               <span>EN: {branding.customGoogleFontName || branding.fontFamilyEn || "Plus Jakarta Sans"}</span>
             </div>

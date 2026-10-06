@@ -75,10 +75,10 @@ export function QuizResultsView({
       className="space-y-6"
     >
       {/* Hero Results Banner with Mascot */}
-      <div className="bg-gradient-to-br from-emerald-50 via-white to-teal-50/40 p-6 sm:p-7 rounded-3xl border border-emerald-100 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-6 text-center sm:text-start">
+      <div className="bg-gradient-to-br from-slate-50 via-white to-teal-50/40 p-6 sm:p-7 rounded-3xl border border-slate-100 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-6 text-center sm:text-start">
         <div className="space-y-2 flex-1">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100/80 text-emerald-800 text-xs font-bold">
-            <Award className="w-3.5 h-3.5 text-emerald-600" />
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-200/80 text-[var(--color-primary-main)] text-xs font-bold">
+            <Award className="w-3.5 h-3.5 text-[var(--color-primary-main)]" />
             <span>{isAr ? "تم تصحيح الاختبار بنجاح" : "Quiz Scored & Reviewed"}</span>
           </div>
 
@@ -106,7 +106,7 @@ export function QuizResultsView({
             <button
               type="button"
               onClick={onRetakeQuiz}
-              className="inline-flex items-center gap-1.5 bg-[#0F5244] hover:bg-[#07382E] text-white text-xs font-bold px-5 py-2.5 rounded-xl shadow-xs transition-all cursor-pointer"
+              className="inline-flex items-center gap-1.5 bg-brand-dark hover:bg-[#07382E] text-white text-xs font-bold px-5 py-2.5 rounded-xl shadow-xs transition-all cursor-pointer"
             >
               <RotateCcw className="w-4 h-4" />
               <span>{isAr ? "إعادة المحاولة" : "Retake Quiz"}</span>
@@ -117,7 +117,7 @@ export function QuizResultsView({
               onClick={onNewQuiz}
               className="inline-flex items-center gap-1.5 bg-white border border-slate-200 text-slate-700 text-xs font-bold px-4 py-2.5 rounded-xl hover:bg-slate-50 transition-colors cursor-pointer"
             >
-              <PlusCircle className="w-4 h-4 text-emerald-600" />
+              <PlusCircle className="w-4 h-4 text-[var(--color-primary-main)]" />
               <span>{isAr ? "إنشاء اختبار جديد" : "New Quiz"}</span>
             </button>
 
@@ -134,11 +134,11 @@ export function QuizResultsView({
         {/* Score circle badge & AI Mascot Toy */}
         <div className="flex flex-col items-center gap-2 shrink-0">
           <div className="relative">
-            <div className="w-24 h-24 rounded-full bg-white border-4 border-emerald-500/80 shadow-lg flex flex-col items-center justify-center">
+            <div className="w-24 h-24 rounded-full bg-white border-4 border-[var(--color-primary-main)]/80 shadow-lg flex flex-col items-center justify-center">
               <span className="text-2xl font-black text-slate-900 font-mono">
                 {safeScore}%
               </span>
-              <span className="text-[10px] font-bold text-emerald-700 uppercase tracking-wider">
+              <span className="text-[10px] font-bold text-[var(--color-primary-main)] uppercase tracking-wider">
                 {isAr ? "النتيجة" : "Score"}
               </span>
             </div>
@@ -170,7 +170,7 @@ export function QuizResultsView({
             onClick={() => onFilterChange("correct")}
             className={`px-2.5 py-1 rounded-lg transition-colors cursor-pointer ${
               reviewFilter === "correct"
-                ? "bg-emerald-600 text-white shadow-2xs"
+                ? "bg-[var(--color-primary-dark)] text-white shadow-2xs"
                 : "text-slate-500"
             }`}
           >
@@ -260,7 +260,7 @@ export function QuizResultsView({
                 key={reviewItem.question_id || idx}
                 className={`p-5 rounded-2xl border transition-all space-y-3.5 ${
                   reviewItem.is_correct
-                    ? "bg-white border-emerald-200/80 shadow-2xs"
+                    ? "bg-white border-slate-200/80 shadow-2xs"
                     : "bg-white border-rose-200/80 shadow-2xs"
                 }`}
               >
@@ -274,13 +274,13 @@ export function QuizResultsView({
                       <span
                         className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider ${
                           reviewItem.is_correct
-                            ? "bg-emerald-100 text-emerald-800 border border-emerald-300"
+                            ? "bg-slate-200 text-[var(--color-primary-main)] border border-slate-300"
                             : "bg-rose-100 text-rose-800 border border-rose-300"
                         }`}
                       >
                         {reviewItem.is_correct ? (
                           <>
-                            <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                            <CheckCircle2 className="w-3 h-3 text-[var(--color-primary-main)]" />
                             <span>{isAr ? "إجابة صحيحة" : "Correct"}</span>
                           </>
                         ) : (
@@ -304,7 +304,7 @@ export function QuizResultsView({
                   <div
                     className={`p-2.5 rounded-xl border ${
                       reviewItem.is_correct
-                        ? "bg-emerald-50/70 border-emerald-200 text-emerald-900"
+                        ? "bg-slate-100/70 border-slate-200 text-brand-dark"
                         : "bg-rose-50/70 border-rose-200 text-rose-900"
                     }`}
                   >
@@ -315,7 +315,7 @@ export function QuizResultsView({
                   </div>
 
                   {/* Correct answer */}
-                  <div className="p-2.5 rounded-xl border bg-emerald-50/70 border-emerald-200 text-emerald-900">
+                  <div className="p-2.5 rounded-xl border bg-slate-100/70 border-slate-200 text-brand-dark">
                     <span className="text-[10px] font-bold block opacity-75">
                       {isAr ? "الإجابة الصحيحة:" : "Correct Answer:"}
                     </span>
@@ -327,7 +327,7 @@ export function QuizResultsView({
                 {reviewItem.explanation && (
                   <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 text-xs space-y-1">
                     <span className="font-bold text-slate-700 flex items-center gap-1.5">
-                      <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
+                      <Sparkles className="w-3.5 h-3.5 text-[var(--color-primary-main)]" />
                       <span>{isAr ? "توضيح الذكاء الاصطناعي:" : "AI Explanation:"}</span>
                     </span>
                     <p className="text-slate-600 leading-relaxed font-normal">
@@ -346,9 +346,9 @@ export function QuizResultsView({
                         reviewItem.source_lesson?.id &&
                         onReviewLesson(reviewItem.source_lesson.id)
                       }
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-emerald-50 hover:text-emerald-800 text-slate-700 text-xs font-bold transition-colors cursor-pointer border border-slate-200"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-100 hover:text-[var(--color-primary-main)] text-slate-700 text-xs font-bold transition-colors cursor-pointer border border-slate-200"
                     >
-                      <BookOpen className="w-3.5 h-3.5 text-emerald-600" />
+                      <BookOpen className="w-3.5 h-3.5 text-[var(--color-primary-main)]" />
                       <span>
                         {isAr
                           ? `مراجعة الدرس: ${reviewItem.source_lesson.title}`

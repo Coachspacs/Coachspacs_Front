@@ -93,7 +93,7 @@ export function CatalogPagination({
             onClick={() => onPageChange(pageNum)}
             className={`flex items-center justify-center h-8 w-8 rounded-lg text-xs font-bold transition-all ${
               isActive
-                ? "bg-[#0F5244] text-white shadow-xs"
+                ? "bg-brand-dark text-white shadow-xs"
                 : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
             }`}
           >

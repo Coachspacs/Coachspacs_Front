@@ -159,7 +159,7 @@ export function MasterYourCraftSection({ data }: MasterYourCraftSectionProps = {
             </p>
             <Link
               href={`/${locale}/courses`}
-              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-[#0F5244] hover:bg-[#07382E] text-white text-xs font-bold transition-all shadow-2xs"
+              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-brand-dark hover:bg-[#07382E] text-white text-xs font-bold transition-all shadow-2xs"
             >
               <span>{t("browseAllCourses")}</span>
             </Link>

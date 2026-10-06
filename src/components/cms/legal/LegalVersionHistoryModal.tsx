@@ -52,7 +52,7 @@ export function LegalVersionHistoryModal({
         {/* Header */}
         <div className="flex items-center justify-between gap-4 p-5 sm:p-6 border-b border-slate-100 bg-slate-50/70">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-emerald-50 text-[#0F5244] flex items-center justify-center shrink-0 border border-emerald-200/80">
+            <div className="w-10 h-10 rounded-2xl bg-slate-50 text-brand-dark flex items-center justify-center shrink-0 border border-slate-200/80">
               <History className="w-5 h-5" />
             </div>
             <div>
@@ -105,7 +105,7 @@ export function LegalVersionHistoryModal({
               return (
                 <div
                   key={ver.id || idx}
-                  className="p-4 rounded-2xl border border-slate-200/90 hover:border-emerald-300 bg-white hover:bg-emerald-50/20 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-2xs"
+                  className="p-4 rounded-2xl border border-slate-200/90 hover:border-slate-300 bg-white hover:bg-slate-50/20 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-2xs"
                 >
                   <div className="space-y-1.5 text-start">
                     <div className="flex items-center gap-2 flex-wrap">
@@ -113,7 +113,7 @@ export function LegalVersionHistoryModal({
                         {formattedDate}
                       </span>
                       {idx === 0 && (
-                        <span className="text-[10px] font-bold text-emerald-800 bg-emerald-100/80 px-2 py-0.5 rounded-full">
+                        <span className="text-[10px] font-bold text-brand-dark bg-slate-100/80 px-2 py-0.5 rounded-full">
                           {isAr ? "أحدث نسخة" : "Latest"}
                         </span>
                       )}
@@ -126,12 +126,12 @@ export function LegalVersionHistoryModal({
                       </span>
                       <span>•</span>
                       <span className="flex items-center gap-1">
-                        <Shield className="w-3.5 h-3.5 text-[#0F5244]" />
+                        <Shield className="w-3.5 h-3.5 text-brand-dark" />
                         <span>{isAr ? `${privacyClausesCount} بند خصوصية` : `${privacyClausesCount} Privacy clauses`}</span>
                       </span>
                       <span>•</span>
                       <span className="flex items-center gap-1">
-                        <FileText className="w-3.5 h-3.5 text-[#0F5244]" />
+                        <FileText className="w-3.5 h-3.5 text-brand-dark" />
                         <span>{isAr ? `${termsClausesCount} بند شروط` : `${termsClausesCount} Terms clauses`}</span>
                       </span>
                     </div>
@@ -151,7 +151,7 @@ export function LegalVersionHistoryModal({
                         onClose();
                       }
                     }}
-                    className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl bg-slate-100 hover:bg-[#0F5244] text-slate-700 hover:text-white text-xs font-bold transition-all shrink-0 cursor-pointer shadow-2xs"
+                    className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl bg-slate-100 hover:bg-brand-dark text-slate-700 hover:text-white text-xs font-bold transition-all shrink-0 cursor-pointer shadow-2xs"
                   >
                     <RotateCcw className="w-3.5 h-3.5" />
                     <span>{isAr ? "استعادة هذه النسخة" : "Restore Version"}</span>

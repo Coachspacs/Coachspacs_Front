@@ -39,7 +39,7 @@ export function PasswordStrength({ password, lang }: PasswordStrengthProps) {
       case 2:
         return { text: t("weak"), color: "bg-amber-500", textColor: "text-amber-600" };
       case 3:
-        return { text: t("good"), color: "bg-emerald-500", textColor: "text-emerald-600" };
+        return { text: t("good"), color: "bg-[var(--color-primary-main)]", textColor: "text-[var(--color-primary-main)]" };
       case 4:
         return { text: t("strong"), color: "bg-teal-600", textColor: "text-teal-700" };
       default:
@@ -74,7 +74,7 @@ export function PasswordStrength({ password, lang }: PasswordStrengthProps) {
       <div className="grid grid-cols-2 gap-1.5 pt-1 text-[11px] text-slate-600">
         <div className="flex items-center gap-1.5">
           {stats.hasLength ? (
-            <Check size={13} className="text-emerald-600 shrink-0" />
+            <Check size={13} className="text-[var(--color-primary-main)] shrink-0" />
           ) : (
             <X size={13} className="text-slate-400 shrink-0" />
           )}
@@ -82,7 +82,7 @@ export function PasswordStrength({ password, lang }: PasswordStrengthProps) {
         </div>
         <div className="flex items-center gap-1.5">
           {stats.hasUpper ? (
-            <Check size={13} className="text-emerald-600 shrink-0" />
+            <Check size={13} className="text-[var(--color-primary-main)] shrink-0" />
           ) : (
             <X size={13} className="text-slate-400 shrink-0" />
           )}
@@ -90,7 +90,7 @@ export function PasswordStrength({ password, lang }: PasswordStrengthProps) {
         </div>
         <div className="flex items-center gap-1.5">
           {stats.hasNumber ? (
-            <Check size={13} className="text-emerald-600 shrink-0" />
+            <Check size={13} className="text-[var(--color-primary-main)] shrink-0" />
           ) : (
             <X size={13} className="text-slate-400 shrink-0" />
           )}
@@ -98,7 +98,7 @@ export function PasswordStrength({ password, lang }: PasswordStrengthProps) {
         </div>
         <div className="flex items-center gap-1.5">
           {stats.hasSpecial ? (
-            <Check size={13} className="text-emerald-600 shrink-0" />
+            <Check size={13} className="text-[var(--color-primary-main)] shrink-0" />
           ) : (
             <X size={13} className="text-slate-400 shrink-0" />
           )}

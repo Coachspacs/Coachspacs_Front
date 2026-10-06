@@ -165,7 +165,7 @@ export function RegisterCard({ lang }: RegisterCardProps) {
             onClick={() => handleRoleSelect("student")}
             className={`flex items-center justify-center gap-2 rounded-md py-2 px-3 text-xs whitespace-nowrap overflow-hidden transition-all duration-200 cursor-pointer ${
               currentRole === "student"
-                ? "bg-white text-[#0F5244] shadow-sm border-2 border-[#0F5244] font-extrabold"
+                ? "bg-white text-brand-dark shadow-sm border-2 border-brand-dark font-extrabold"
                 : "border-2 border-transparent text-slate-600 hover:text-slate-900 hover:bg-white/60 font-semibold"
             }`}
           >
@@ -178,7 +178,7 @@ export function RegisterCard({ lang }: RegisterCardProps) {
             onClick={() => handleRoleSelect("instructor")}
             className={`flex items-center justify-center gap-2 rounded-md py-2 px-3 text-xs whitespace-nowrap overflow-hidden transition-all duration-200 cursor-pointer ${
               currentRole === "instructor" || currentRole === "coach"
-                ? "bg-[#0F5244] text-white shadow-sm border-2 border-[#0B4035] font-extrabold"
+                ? "bg-brand-dark text-white shadow-sm border-2 border-[#0B4035] font-extrabold"
                 : "border-2 border-transparent text-slate-600 hover:text-slate-900 hover:bg-white/60 font-semibold"
             }`}
           >
@@ -205,14 +205,14 @@ export function RegisterCard({ lang }: RegisterCardProps) {
                 <div className="flex items-center gap-2 font-bold">
                   <Link
                     href={`/${locale}/login`}
-                    className="text-[#0F5244] underline hover:text-[#083A30]"
+                    className="text-brand-dark underline hover:text-[#083A30]"
                   >
                     {t("login")}
                   </Link>
                   <span className="text-slate-300">|</span>
                   <Link
                     href={`/${locale}/verify-email?email=${encodeURIComponent(submittedEmail)}`}
-                    className="text-[#0F5244] underline hover:text-[#083A30]"
+                    className="text-brand-dark underline hover:text-[#083A30]"
                   >
                     {t("verifyEmailPageLink")}
                   </Link>
@@ -262,7 +262,7 @@ export function RegisterCard({ lang }: RegisterCardProps) {
                 type="button"
                 aria-label={showPassword ? t("hidePassword") : t("showPassword")}
                 onClick={() => setShowPassword((prev: boolean) => !prev)}
-                className="rounded p-1 text-slate-400 hover:text-[#0F5244] focus:outline-none transition-colors"
+                className="rounded p-1 text-slate-400 hover:text-brand-dark focus:outline-none transition-colors"
               >
                 {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
@@ -281,15 +281,15 @@ export function RegisterCard({ lang }: RegisterCardProps) {
               id="agreeToTerms"
               type="checkbox"
               {...register("agreeToTerms")}
-              className="mt-0.5 h-4 w-4 rounded border-slate-300 text-[#0F5244] focus:ring-2 focus:ring-[#0F5244]/20 cursor-pointer accent-[#0F5244] transition-all"
+              className="mt-0.5 h-4 w-4 rounded border-slate-300 text-brand-dark focus:ring-2 focus:ring-brand-dark/20 cursor-pointer accent-brand-dark transition-all"
             />
             <span className="group-hover:text-slate-900 transition-colors">
               {t("agreeTo")}{" "}
-              <Link href={`/${locale}/terms`} className="text-[#0F5244] hover:underline font-bold">
+              <Link href={`/${locale}/terms`} className="text-brand-dark hover:underline font-bold">
                 {t("termsOfService")}
               </Link>{" "}
               {t("and")}{" "}
-              <Link href={`/${locale}/privacy`} className="text-[#0F5244] hover:underline font-bold">
+              <Link href={`/${locale}/privacy`} className="text-brand-dark hover:underline font-bold">
                 {t("privacyPolicy")}
               </Link>
             </span>
@@ -302,7 +302,7 @@ export function RegisterCard({ lang }: RegisterCardProps) {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="group relative flex h-11 sm:h-12 w-full items-center justify-center gap-2 rounded-md bg-[#0F5244] hover:bg-[#083A30] px-6 text-xs sm:text-sm font-extrabold text-white shadow-md transition-all duration-200 active:scale-[0.99] disabled:opacity-70 focus:outline-none focus:ring-4 focus:ring-[#0F5244]/20 cursor-pointer"
+          className="group relative flex h-11 sm:h-12 w-full items-center justify-center gap-2 rounded-md bg-brand-dark hover:bg-[#083A30] px-6 text-xs sm:text-sm font-extrabold text-white shadow-md transition-all duration-200 active:scale-[0.99] disabled:opacity-70 focus:outline-none focus:ring-4 focus:ring-brand-dark/20 cursor-pointer"
         >
           {isSubmitting ? (
             <Loader2 className="h-5 w-5 animate-spin" />
@@ -322,7 +322,7 @@ export function RegisterCard({ lang }: RegisterCardProps) {
 
       {/* Connection Security Badge */}
       <div className="mt-4 flex items-center justify-center gap-1.5 text-[11px] text-slate-400 font-semibold">
-        <ShieldCheck size={13} className="text-[#0F5244]" />
+        <ShieldCheck size={13} className="text-brand-dark" />
         <span>{t("encryptedConnection")}</span>
       </div>
 
@@ -331,7 +331,7 @@ export function RegisterCard({ lang }: RegisterCardProps) {
         {t("alreadyHaveAccount")}{" "}
         <Link
           href={`/${locale}/login`}
-          className="font-bold text-[#0F5244] transition-colors hover:underline"
+          className="font-bold text-brand-dark transition-colors hover:underline"
         >
           {t("login")}
         </Link>

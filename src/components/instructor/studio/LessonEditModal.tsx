@@ -30,8 +30,8 @@ export function LessonEditModal({
       <div className="bg-white rounded-3xl max-w-xl w-full p-6 sm:p-7 space-y-5 shadow-2xl animate-in zoom-in-95 duration-150 my-8">
         <div className="flex items-center justify-between border-b border-slate-100 pb-3">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-2xl bg-emerald-50 text-[#0F5244] flex items-center justify-center">
-              <PlayCircle className="h-5 w-5 text-[#0F5244]" />
+            <div className="w-9 h-9 rounded-2xl bg-slate-100 text-[var(--color-primary-main)] flex items-center justify-center">
+              <PlayCircle className="h-5 w-5 text-[var(--color-primary-main)]" />
             </div>
             <h3 className="text-base font-black text-slate-900">
               {editingLessonInfo.isNew
@@ -77,7 +77,7 @@ export function LessonEditModal({
                   })
                 }
                 placeholder={t("lessonTitleEnPlaceholder")}
-                className="w-full h-10 px-3.5 text-xs rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:outline-none focus:border-[#0F5244]"
+                className="w-full h-10 px-3.5 text-xs rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:outline-none focus:border-brand-dark"
               />
             </div>
 
@@ -102,7 +102,7 @@ export function LessonEditModal({
                   })
                 }
                 placeholder={t("lessonTitleArPlaceholder")}
-                className="w-full h-10 px-3.5 text-xs rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:outline-none focus:border-[#0F5244] text-right"
+                className="w-full h-10 px-3.5 text-xs rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:outline-none focus:border-brand-dark text-right"
               />
             </div>
           </div>
@@ -128,7 +128,7 @@ export function LessonEditModal({
                     },
                   })
                 }
-                className="w-full h-10 px-3.5 text-xs rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:outline-none focus:border-[#0F5244]"
+                className="w-full h-10 px-3.5 text-xs rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:outline-none focus:border-brand-dark"
               />
             </div>
 
@@ -150,7 +150,7 @@ export function LessonEditModal({
                       },
                     })
                   }
-                  className="w-4 h-4 rounded text-[#0F5244] focus:ring-[#0F5244] accent-[#0F5244]"
+                  className="w-4 h-4 rounded text-[var(--color-primary-main)] focus:ring-brand-dark accent-brand-dark"
                 />
                 <span className="text-xs font-bold text-slate-700">
                   {t("freePreview")}
@@ -248,7 +248,7 @@ export function LessonEditModal({
           <button
             type="button"
             onClick={() => saveEditedLesson(editingLessonInfo.lesson)}
-            className="px-5 py-2 rounded-xl bg-[#0F5244] hover:bg-[#07382E] text-white text-xs font-extrabold shadow-md transition-all cursor-pointer"
+            className="px-5 py-2 rounded-xl bg-brand-dark hover:bg-[#07382E] text-white text-xs font-extrabold shadow-md transition-all cursor-pointer"
           >
             {t("saveLesson")}
           </button>

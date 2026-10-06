@@ -47,7 +47,7 @@ export function WizardLandingOverview({
 
       <h1
         id="mypath-heading"
-        className="text-2xl sm:text-[28px] font-black tracking-normal leading-normal mb-1.5 text-[#0F5244]"
+        className="text-2xl sm:text-[28px] font-black tracking-normal leading-normal mb-1.5 text-[var(--color-primary-main)]"
       >
         {t("title")}
       </h1>
@@ -59,7 +59,7 @@ export function WizardLandingOverview({
       <div className="w-full bg-[#F8FAFC] border border-slate-200/80 rounded-2xl p-4 sm:p-5 text-start mb-6 shadow-2xs">
         <div className="flex items-center gap-2 mb-3.5">
           <div
-            className="w-5.5 h-5.5 rounded-lg bg-[#0F5244] text-white flex items-center justify-center shadow-xs"
+            className="w-5.5 h-5.5 rounded-lg bg-[var(--color-primary-main)] text-white flex items-center justify-center shadow-xs"
             aria-hidden="true"
           >
             <Zap className="w-3 h-3 fill-current" />
@@ -77,10 +77,10 @@ export function WizardLandingOverview({
                 key={benefit.id}
                 role="listitem"
                 whileHover={{ y: -1.5 }}
-                className="flex items-start gap-3 bg-white p-3.5 rounded-xl border border-slate-200/80 hover:border-emerald-400/80 transition-all shadow-2xs group"
+                className="flex items-start gap-3 bg-white p-3.5 rounded-xl border border-slate-200/80 hover:border-slate-200 transition-all shadow-2xs group"
               >
                 <div
-                  className="w-8 h-8 rounded-lg bg-emerald-50 text-[#0F5244] flex items-center justify-center shrink-0 border border-emerald-200/60 group-hover:scale-105 transition-transform"
+                  className="w-8 h-8 rounded-lg bg-slate-100 text-[var(--color-primary-main)] flex items-center justify-center shrink-0 border border-slate-200 group-hover:scale-105 transition-transform"
                   aria-hidden="true"
                 >
                   <Icon className="w-4 h-4 stroke-[2.5]" />
@@ -115,7 +115,7 @@ export function WizardLandingOverview({
           aria-label={t("startAssessment")}
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
-          className="inline-flex items-center gap-2 bg-[#0F5244] hover:bg-[#07382E] text-white text-xs sm:text-sm font-black px-6 py-2.5 rounded-xl transition-all shadow-[0_4px_18px_rgba(15,82,68,0.28)] hover:shadow-lg cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0F5244]"
+          className="inline-flex items-center gap-2 bg-[var(--color-primary-main)] hover:bg-[var(--color-primary-dark)] text-white text-xs sm:text-sm font-black px-6 py-2.5 rounded-xl transition-all shadow-lg"
         >
           <span>{t("startAssessment")}</span>
           {isAr ? <ArrowLeft className="w-4 h-4" /> : <ArrowRight className="w-4 h-4" />}

@@ -42,7 +42,7 @@ export default function ProfileRedirectPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#FAFCFB]">
       <div className="flex flex-col items-center gap-3">
-        <div className="h-8 w-8 border-4 border-[#0F5244] border-t-transparent rounded-full animate-spin" />
+        <div className="h-8 w-8 border-4 border-brand-dark border-t-transparent rounded-full animate-spin" />
         <p className="text-xs font-semibold text-slate-500">Redirecting to profile...</p>
       </div>
     </div>

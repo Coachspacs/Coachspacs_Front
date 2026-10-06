@@ -462,7 +462,7 @@ export default function CmsLegalPagesEditor() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center p-12 sm:p-20">
-        <Loader2 className="w-8 h-8 text-[#0F5244] animate-spin" />
+        <Loader2 className="w-8 h-8 text-brand-dark animate-spin" />
       </div>
     );
   }
@@ -474,8 +474,8 @@ export default function CmsLegalPagesEditor() {
         <div className="flex items-center justify-between gap-3 max-w-5xl mx-auto">
           {/* Start: Icon, Title & Status Badge */}
           <div className="flex items-center gap-2.5 sm:gap-3 shrink-0">
-            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-gradient-to-br from-emerald-50 to-emerald-100/70 text-[#0F5244] flex items-center justify-center shrink-0 border border-emerald-200/80 shadow-2xs">
-              <ShieldCheck className="w-4 h-4 sm:w-5 sm:h-5 text-[#0F5244]" />
+            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-gradient-to-br from-slate-50 to-slate-100/70 text-brand-dark flex items-center justify-center shrink-0 border border-slate-200/80 shadow-2xs">
+              <ShieldCheck className="w-4 h-4 sm:w-5 sm:h-5 text-brand-dark" />
             </div>
 
             <div className="flex items-center gap-2 shrink-0">
@@ -488,8 +488,8 @@ export default function CmsLegalPagesEditor() {
                   <span>{isAr ? "غير محفوظ" : "Unsaved"}</span>
                 </span>
               ) : (
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-50 border border-emerald-200/90 text-emerald-800 text-[10px] font-bold shrink-0 whitespace-nowrap">
-                  <Check className="w-3 h-3 text-emerald-600" />
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-slate-50 border border-slate-200/90 text-brand-dark text-[10px] font-bold shrink-0 whitespace-nowrap">
+                  <Check className="w-3 h-3 text-[var(--color-primary-main)]" />
                   <span>{isAr ? "محفوظ" : "Saved"}</span>
                 </span>
               )}
@@ -503,11 +503,11 @@ export default function CmsLegalPagesEditor() {
               onClick={() => setActivePage("privacy")}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                 activePage === "privacy"
-                  ? "bg-white text-[#0F5244] shadow-xs"
+                  ? "bg-white text-brand-dark shadow-xs"
                   : "text-slate-600 hover:text-slate-900"
               }`}
             >
-              <Shield className="w-3.5 h-3.5 text-[#0F5244]" />
+              <Shield className="w-3.5 h-3.5 text-brand-dark" />
               <span>{isAr ? "سياسة الخصوصية" : "Privacy Policy"}</span>
             </button>
 
@@ -516,11 +516,11 @@ export default function CmsLegalPagesEditor() {
               onClick={() => setActivePage("terms")}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                 activePage === "terms"
-                  ? "bg-white text-[#0F5244] shadow-xs"
+                  ? "bg-white text-brand-dark shadow-xs"
                   : "text-slate-600 hover:text-slate-900"
               }`}
             >
-              <FileText className="w-3.5 h-3.5 text-[#0F5244]" />
+              <FileText className="w-3.5 h-3.5 text-brand-dark" />
               <span>{isAr ? "شروط الاستخدام" : "Terms of Service"}</span>
             </button>
           </div>
@@ -545,7 +545,7 @@ export default function CmsLegalPagesEditor() {
               type="button"
               onClick={handlePublish}
               disabled={isPublishing || isSaving}
-              className="inline-flex items-center justify-center gap-1.5 sm:gap-2 px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-xl bg-[#0F5244] hover:bg-[#07382E] text-white text-xs sm:text-sm font-black transition-all cursor-pointer shadow-md hover:shadow-lg disabled:opacity-50 active:scale-95 whitespace-nowrap"
+              className="inline-flex items-center justify-center gap-1.5 sm:gap-2 px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-xl bg-brand-dark hover:bg-[#07382E] text-white text-xs sm:text-sm font-black transition-all cursor-pointer shadow-md hover:shadow-lg disabled:opacity-50 active:scale-95 whitespace-nowrap"
             >
               {isPublishing ? (
                 <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -564,11 +564,11 @@ export default function CmsLegalPagesEditor() {
             onClick={() => setActivePage("privacy")}
             className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
               activePage === "privacy"
-                ? "bg-white text-[#0F5244] shadow-xs"
+                ? "bg-white text-brand-dark shadow-xs"
                 : "text-slate-600 hover:text-slate-900"
             }`}
           >
-            <Shield className="w-3.5 h-3.5 text-[#0F5244]" />
+            <Shield className="w-3.5 h-3.5 text-brand-dark" />
             <span>{isAr ? "سياسة الخصوصية" : "Privacy Policy"}</span>
           </button>
           <button
@@ -576,11 +576,11 @@ export default function CmsLegalPagesEditor() {
             onClick={() => setActivePage("terms")}
             className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
               activePage === "terms"
-                ? "bg-white text-[#0F5244] shadow-xs"
+                ? "bg-white text-brand-dark shadow-xs"
                 : "text-slate-600 hover:text-slate-900"
             }`}
           >
-            <FileText className="w-3.5 h-3.5 text-[#0F5244]" />
+            <FileText className="w-3.5 h-3.5 text-brand-dark" />
             <span>{isAr ? "شروط الاستخدام" : "Terms of Service"}</span>
           </button>
         </div>
@@ -592,7 +592,7 @@ export default function CmsLegalPagesEditor() {
         <div
           className={`p-4 rounded-2xl border text-xs sm:text-sm font-bold flex items-center justify-between gap-3 shadow-md animate-in slide-in-from-top-2 ${
             statusToast.type === "success"
-              ? "bg-emerald-50 border-emerald-200 text-emerald-950"
+              ? "bg-slate-50 border-slate-200 text-brand-dark"
               : statusToast.type === "error"
               ? "bg-rose-50 border-rose-200 text-rose-950"
               : "bg-slate-50 border-slate-200 text-slate-900"
@@ -600,7 +600,7 @@ export default function CmsLegalPagesEditor() {
         >
           <div className="flex items-center gap-2.5">
             {statusToast.type === "success" ? (
-              <CheckCircle2 className="w-5 h-5 text-[#0F5244] shrink-0" />
+              <CheckCircle2 className="w-5 h-5 text-brand-dark shrink-0" />
             ) : statusToast.type === "error" ? (
               <AlertCircle className="w-5 h-5 text-rose-600 shrink-0" />
             ) : (
@@ -629,7 +629,7 @@ export default function CmsLegalPagesEditor() {
         >
           <div className="flex items-center justify-between border-b border-slate-100 pb-3">
             <h2 className="text-sm sm:text-base font-black text-slate-900 flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-[#0F5244]" />
+              <Sparkles className="w-4 h-4 text-brand-dark" />
               <span>{isAr ? "العناوين الرئيسية والشارة" : "Page Header & Metadata"}</span>
             </h2>
             <span className="text-xs font-semibold text-slate-400">
@@ -651,7 +651,7 @@ export default function CmsLegalPagesEditor() {
                 value={currentPageData.badge_ar}
                 onChange={(e) => updateCurrentPage({ badge_ar: e.target.value })}
                 placeholder="مثال: الخصوصية أولويتنا"
-                className="w-full bg-white border border-slate-200/90 rounded-xl px-3.5 py-2.5 text-xs text-right text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#0F5244] focus:ring-1 focus:ring-[#0F5244]/20 transition-all font-bold"
+                className="w-full bg-white border border-slate-200/90 rounded-xl px-3.5 py-2.5 text-xs text-right text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-brand-dark focus:ring-1 focus:ring-brand-dark/20 transition-all font-bold"
               />
               <p className="text-[10px] text-slate-400">
                 {isAr ? "نص الشارة المعروضة أعلى عنوان الصفحة" : "Small label shown above the page title"}
@@ -668,7 +668,7 @@ export default function CmsLegalPagesEditor() {
                 value={currentPageData.badge_en}
                 onChange={(e) => updateCurrentPage({ badge_en: e.target.value })}
                 placeholder="e.g. Privacy First"
-                className="w-full bg-white border border-slate-200/90 rounded-xl px-3.5 py-2.5 text-xs text-left text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#0F5244] focus:ring-1 focus:ring-[#0F5244]/20 transition-all font-bold"
+                className="w-full bg-white border border-slate-200/90 rounded-xl px-3.5 py-2.5 text-xs text-left text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-brand-dark focus:ring-1 focus:ring-brand-dark/20 transition-all font-bold"
               />
               <p className="text-[10px] text-slate-400">
                 Label displayed inside the highlighted badge pill
@@ -689,7 +689,7 @@ export default function CmsLegalPagesEditor() {
                 value={currentPageData.title_ar}
                 onChange={(e) => updateCurrentPage({ title_ar: e.target.value })}
                 placeholder="مثال: سياسة الخصوصية"
-                className={`w-full bg-white border rounded-xl px-3.5 py-2.5 text-xs text-right text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#0F5244] focus:ring-1 focus:ring-[#0F5244]/20 transition-all font-black text-sm ${
+                className={`w-full bg-white border rounded-xl px-3.5 py-2.5 text-xs text-right text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-brand-dark focus:ring-1 focus:ring-brand-dark/20 transition-all font-black text-sm ${
                   validationErrors.title_ar ? "border-rose-300 bg-rose-50/20" : "border-slate-200/90"
                 }`}
               />
@@ -708,7 +708,7 @@ export default function CmsLegalPagesEditor() {
                 value={currentPageData.title_en}
                 onChange={(e) => updateCurrentPage({ title_en: e.target.value })}
                 placeholder="e.g. Privacy Policy"
-                className={`w-full bg-white border rounded-xl px-3.5 py-2.5 text-xs text-left text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#0F5244] focus:ring-1 focus:ring-[#0F5244]/20 transition-all font-black text-sm ${
+                className={`w-full bg-white border rounded-xl px-3.5 py-2.5 text-xs text-left text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-brand-dark focus:ring-1 focus:ring-brand-dark/20 transition-all font-black text-sm ${
                   validationErrors.title_en ? "border-rose-300 bg-rose-50/20" : "border-slate-200/90"
                 }`}
               />
@@ -730,7 +730,7 @@ export default function CmsLegalPagesEditor() {
                 value={currentPageData.subtitle_ar}
                 onChange={(e) => updateCurrentPage({ subtitle_ar: e.target.value })}
                 placeholder="شرح موجز عن أهداف الصفحة والسياسة..."
-                className="w-full bg-white border border-slate-200/90 rounded-xl p-3 text-xs text-right text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#0F5244] focus:ring-1 focus:ring-[#0F5244]/20 transition-all font-sans leading-relaxed resize-y"
+                className="w-full bg-white border border-slate-200/90 rounded-xl p-3 text-xs text-right text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-brand-dark focus:ring-1 focus:ring-brand-dark/20 transition-all font-sans leading-relaxed resize-y"
               />
             </div>
 
@@ -744,7 +744,7 @@ export default function CmsLegalPagesEditor() {
                 value={currentPageData.subtitle_en}
                 onChange={(e) => updateCurrentPage({ subtitle_en: e.target.value })}
                 placeholder="Brief summary introducing the legal document..."
-                className="w-full bg-white border border-slate-200/90 rounded-xl p-3 text-xs text-left text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#0F5244] focus:ring-1 focus:ring-[#0F5244]/20 transition-all font-sans leading-relaxed resize-y"
+                className="w-full bg-white border border-slate-200/90 rounded-xl p-3 text-xs text-left text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-brand-dark focus:ring-1 focus:ring-brand-dark/20 transition-all font-sans leading-relaxed resize-y"
               />
             </div>
           </div>
@@ -753,7 +753,7 @@ export default function CmsLegalPagesEditor() {
           <div className="p-4 sm:p-5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-xl bg-white text-[#0F5244] flex items-center justify-center shrink-0 border border-slate-200 shadow-2xs">
+                <div className="w-9 h-9 rounded-xl bg-white text-brand-dark flex items-center justify-center shrink-0 border border-slate-200 shadow-2xs">
                   <Calendar className="w-5 h-5" />
                 </div>
                 <div>
@@ -774,7 +774,7 @@ export default function CmsLegalPagesEditor() {
                   type="checkbox"
                   checked={autoDateOnPublish}
                   onChange={(e) => setAutoDateOnPublish(e.target.checked)}
-                  className="w-4 h-4 rounded text-[#0F5244] focus:ring-[#0F5244] accent-[#0F5244] cursor-pointer"
+                  className="w-4 h-4 rounded text-brand-dark focus:ring-brand-dark accent-brand-dark cursor-pointer"
                 />
                 <span>{isAr ? "تحديث التاريخ تلقائياً عند كل نشر" : "Auto-set to today on publish"}</span>
               </label>
@@ -790,7 +790,7 @@ export default function CmsLegalPagesEditor() {
                   type="date"
                   value={selectedIsoDate}
                   onChange={(e) => handleDateChange(e.target.value)}
-                  className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 font-bold focus:outline-none focus:border-[#0F5244] cursor-pointer"
+                  className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 font-bold focus:outline-none focus:border-brand-dark cursor-pointer"
                 />
               </div>
 
@@ -819,7 +819,7 @@ export default function CmsLegalPagesEditor() {
         <div className="space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-1">
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-xl bg-emerald-50 text-[#0F5244] flex items-center justify-center shrink-0 border border-emerald-100">
+              <div className="w-8 h-8 rounded-xl bg-slate-50 text-brand-dark flex items-center justify-center shrink-0 border border-slate-100">
                 <FileText className="w-4 h-4" />
               </div>
               <div>
@@ -827,7 +827,7 @@ export default function CmsLegalPagesEditor() {
                   <h2 className="text-base font-black text-slate-900">
                     {isAr ? "بنود وأقسام الصفحة" : "Page Clauses & Rules"}
                   </h2>
-                  <span className="text-xs font-bold text-[#0F5244] px-2.5 py-0.5 rounded-full bg-emerald-50 border border-emerald-200/80">
+                  <span className="text-xs font-bold text-brand-dark px-2.5 py-0.5 rounded-full bg-slate-50 border border-slate-200/80">
                     {currentPageData.sections.length}
                   </span>
                 </div>
@@ -844,10 +844,10 @@ export default function CmsLegalPagesEditor() {
               <button
                 type="button"
                 onClick={() => setIsReorderModalOpen(true)}
-                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-700 hover:text-[#0F5244] border border-slate-200 text-xs font-bold transition-all cursor-pointer shadow-2xs"
+                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-700 hover:text-brand-dark border border-slate-200 text-xs font-bold transition-all cursor-pointer shadow-2xs"
                 title={isAr ? "إعادة ترتيب وتنظيم البنود في نافذة مخصصة" : "Reorder & Organize Clauses"}
               >
-                <ArrowUpDown className="w-3.5 h-3.5 text-[#0F5244]" />
+                <ArrowUpDown className="w-3.5 h-3.5 text-brand-dark" />
                 <span>{isAr ? "إعادة ترتيب البنود" : "Reorder Clauses"}</span>
               </button>
 
@@ -865,7 +865,7 @@ export default function CmsLegalPagesEditor() {
               <button
                 type="button"
                 onClick={() => handleAddClause()}
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-[#0F5244] border border-emerald-200 text-xs font-bold transition-all cursor-pointer shadow-2xs active:scale-95"
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-slate-50 hover:bg-slate-100 text-brand-dark border border-slate-200 text-xs font-bold transition-all cursor-pointer shadow-2xs active:scale-95"
               >
                 <Plus className="w-4 h-4" />
                 <span>{isAr ? "إضافة بند جديد" : "Add Clause"}</span>
@@ -909,7 +909,7 @@ export default function CmsLegalPagesEditor() {
             <button
               type="button"
               onClick={() => handleAddClause()}
-              className="w-full py-3.5 rounded-2xl border-2 border-dashed border-emerald-300 hover:border-[#0F5244] bg-emerald-50/30 hover:bg-emerald-50/70 text-[#0F5244] text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-2 cursor-pointer shadow-2xs"
+              className="w-full py-3.5 rounded-2xl border-2 border-dashed border-slate-300 hover:border-brand-dark bg-slate-50/30 hover:bg-slate-50/70 text-brand-dark text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-2 cursor-pointer shadow-2xs"
             >
               <Plus className="w-4 h-4" />
               <span>{isAr ? "إضافة بند قانوني جديد أسفل القائمة" : "Add New Clause to Bottom"}</span>
@@ -923,7 +923,7 @@ export default function CmsLegalPagesEditor() {
         <div className="bg-white border border-slate-200/90 rounded-3xl p-5 sm:p-7 space-y-5 shadow-2xs">
           <div className="flex items-center justify-between border-b border-slate-100 pb-3">
             <h2 className="text-sm sm:text-base font-black text-slate-900 flex items-center gap-2">
-              <Mail className="w-4 h-4 text-[#0F5244]" />
+              <Mail className="w-4 h-4 text-brand-dark" />
               <span>{isAr ? "قسم التواصل والاستفسارات القانونية" : "Contact & Support Card"}</span>
             </h2>
             <span className="text-xs font-semibold text-slate-400">
@@ -942,7 +942,7 @@ export default function CmsLegalPagesEditor() {
                 value={currentPageData.contactTitle_ar}
                 onChange={(e) => updateCurrentPage({ contactTitle_ar: e.target.value })}
                 placeholder="مثال: لديك استفسار قانوني؟"
-                className="w-full bg-white border border-slate-200/90 rounded-xl px-3.5 py-2.5 text-xs text-right text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#0F5244] focus:ring-1 focus:ring-[#0F5244]/20 transition-all font-bold"
+                className="w-full bg-white border border-slate-200/90 rounded-xl px-3.5 py-2.5 text-xs text-right text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-brand-dark focus:ring-1 focus:ring-brand-dark/20 transition-all font-bold"
               />
             </div>
 
@@ -956,7 +956,7 @@ export default function CmsLegalPagesEditor() {
                 value={currentPageData.contactTitle_en}
                 onChange={(e) => updateCurrentPage({ contactTitle_en: e.target.value })}
                 placeholder="e.g. Have a Legal Question?"
-                className="w-full bg-white border border-slate-200/90 rounded-xl px-3.5 py-2.5 text-xs text-left text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#0F5244] focus:ring-1 focus:ring-[#0F5244]/20 transition-all font-bold"
+                className="w-full bg-white border border-slate-200/90 rounded-xl px-3.5 py-2.5 text-xs text-left text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-brand-dark focus:ring-1 focus:ring-brand-dark/20 transition-all font-bold"
               />
             </div>
           </div>
@@ -972,7 +972,7 @@ export default function CmsLegalPagesEditor() {
                 value={currentPageData.contactDescription_ar}
                 onChange={(e) => updateCurrentPage({ contactDescription_ar: e.target.value })}
                 placeholder="تواصل مع فريق الشؤون القانونية لأي استفسارات..."
-                className="w-full bg-white border border-slate-200/90 rounded-xl p-3 text-xs text-right text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#0F5244] focus:ring-1 focus:ring-[#0F5244]/20 transition-all font-sans leading-relaxed resize-y"
+                className="w-full bg-white border border-slate-200/90 rounded-xl p-3 text-xs text-right text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-brand-dark focus:ring-1 focus:ring-brand-dark/20 transition-all font-sans leading-relaxed resize-y"
               />
             </div>
 
@@ -986,7 +986,7 @@ export default function CmsLegalPagesEditor() {
                 value={currentPageData.contactDescription_en}
                 onChange={(e) => updateCurrentPage({ contactDescription_en: e.target.value })}
                 placeholder="Contact our legal compliance team for any clarifications..."
-                className="w-full bg-white border border-slate-200/90 rounded-xl p-3 text-xs text-left text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#0F5244] focus:ring-1 focus:ring-[#0F5244]/20 transition-all font-sans leading-relaxed resize-y"
+                className="w-full bg-white border border-slate-200/90 rounded-xl p-3 text-xs text-left text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-brand-dark focus:ring-1 focus:ring-brand-dark/20 transition-all font-sans leading-relaxed resize-y"
               />
             </div>
           </div>
@@ -1003,7 +1003,7 @@ export default function CmsLegalPagesEditor() {
               value={currentPageData.contactEmail}
               onChange={(e) => updateCurrentPage({ contactEmail: e.target.value })}
               placeholder="e.g. legal@coachspace.com"
-              className={`w-full sm:w-96 bg-white border rounded-xl px-3.5 py-2.5 text-xs text-left text-slate-900 font-mono placeholder:text-slate-400 focus:outline-none focus:border-[#0F5244] focus:ring-1 focus:ring-[#0F5244]/20 transition-all ${
+              className={`w-full sm:w-96 bg-white border rounded-xl px-3.5 py-2.5 text-xs text-left text-slate-900 font-mono placeholder:text-slate-400 focus:outline-none focus:border-brand-dark focus:ring-1 focus:ring-brand-dark/20 transition-all ${
                 validationErrors.contactEmail ? "border-rose-300 bg-rose-50/20" : "border-slate-200/90"
               }`}
             />

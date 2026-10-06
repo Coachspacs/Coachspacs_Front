@@ -71,7 +71,7 @@ export function SearchSortBar({
           value={searchQuery}
           onChange={(e) => onSearchChange(e.target.value)}
           placeholder={t("placeholder")}
-          className="h-10 w-full rounded-xl border border-slate-200 bg-slate-50/50 py-2 pl-10 pr-9 rtl:pl-9 rtl:pr-10 text-[16px] sm:text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:bg-white focus:border-[#0F5244] focus:outline-none focus:ring-2 focus:ring-[#0F5244]/15 shadow-2xs transition-all"
+          className="h-10 w-full rounded-xl border border-slate-200 bg-slate-50/50 py-2 pl-10 pr-9 rtl:pl-9 rtl:pr-10 text-[16px] sm:text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:bg-white focus:border-brand-dark focus:outline-none focus:ring-2 focus:ring-brand-dark/15 shadow-2xs transition-all"
         />
         {searchQuery && (
           <button
@@ -93,12 +93,12 @@ export function SearchSortBar({
           <button
             type="button"
             onClick={onOpenMobileFilters}
-            className="lg:hidden inline-flex items-center gap-1.5 rounded-xl bg-[#0F5244] text-white px-3 py-2 text-xs font-black shadow-2xs hover:bg-[#07382E] active:scale-98 transition-all shrink-0 cursor-pointer"
+            className="lg:hidden inline-flex items-center gap-1.5 rounded-xl bg-brand-dark text-white px-3 py-2 text-xs font-black shadow-2xs hover:bg-[#07382E] active:scale-98 transition-all shrink-0 cursor-pointer"
           >
             <Filter className="h-3.5 w-3.5" />
             <span>{tFilter("toggle")}</span>
             {selectedFiltersCount > 0 && (
-              <span className="rounded-full bg-white text-[#0F5244] px-1.5 py-0.2 text-[10px] font-black">
+              <span className="rounded-full bg-white text-brand-dark px-1.5 py-0.2 text-[10px] font-black">
                 {selectedFiltersCount}
               </span>
             )}
@@ -106,9 +106,9 @@ export function SearchSortBar({
         )}
 
         {/* Dynamic Results Pill Badge */}
-        <span className="inline-flex items-center min-h-[32px] px-3.5 py-1.5 rounded-full bg-[#E8F3F1] text-[#0F5244] text-xs font-black tracking-tight shrink-0 whitespace-nowrap">
+        <span className="inline-flex items-center min-h-[32px] px-3.5 py-1.5 rounded-full bg-[#E8F3F1] text-brand-dark text-xs font-black tracking-tight shrink-0 whitespace-nowrap">
           {isLoading ? (
-            <span className="inline-block w-16 h-3.5 bg-[#0F5244]/20 rounded-full animate-pulse my-0.5" />
+            <span className="inline-block w-16 h-3.5 bg-brand-dark/20 rounded-full animate-pulse my-0.5" />
           ) : (
             t("resultsFound", { count: totalResults })
           )}
@@ -128,12 +128,12 @@ export function SearchSortBar({
               onClick={() => setIsOpen((prev) => !prev)}
               aria-expanded={isOpen}
               aria-haspopup="listbox"
-              className="w-full flex items-center justify-between gap-2 rounded-xl border border-slate-200/90 bg-white py-2 px-3 text-xs font-extrabold text-slate-800 hover:border-[#0F5244] hover:shadow-2xs focus:border-[#0F5244] focus:outline-none focus:ring-2 focus:ring-[#0F5244]/15 transition-all cursor-pointer"
+              className="w-full flex items-center justify-between gap-2 rounded-xl border border-slate-200/90 bg-white py-2 px-3 text-xs font-extrabold text-slate-800 hover:border-brand-dark hover:shadow-2xs focus:border-brand-dark focus:outline-none focus:ring-2 focus:ring-brand-dark/15 transition-all cursor-pointer"
             >
               <span className="truncate">{currentOption.label}</span>
               <ChevronDown
                 className={`h-4 w-4 text-slate-400 shrink-0 transition-transform duration-200 ${
-                  isOpen ? "rotate-180 text-[#0F5244]" : ""
+                  isOpen ? "rotate-180 text-brand-dark" : ""
                 }`}
               />
             </button>
@@ -158,13 +158,13 @@ export function SearchSortBar({
                       }}
                       className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-extrabold transition-all cursor-pointer ${
                         isSelected
-                          ? "bg-[#E8F3F1] text-[#0F5244]"
+                          ? "bg-[#E8F3F1] text-brand-dark"
                           : "text-slate-700 hover:bg-slate-50 hover:text-slate-900 font-bold"
                       }`}
                     >
                       <span className="truncate">{option.label}</span>
                       {isSelected && (
-                        <Check className="h-4 w-4 text-[#0F5244] shrink-0" />
+                        <Check className="h-4 w-4 text-brand-dark shrink-0" />
                       )}
                     </button>
                   );

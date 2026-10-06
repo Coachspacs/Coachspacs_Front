@@ -70,7 +70,7 @@ export function InstructorPurchaseNoticeModal({
           </h3>
 
           {courseTitle && (
-            <p className="text-xs font-bold text-[#0F5244] bg-[#E8F3F1] px-3 py-1 rounded-lg inline-block line-clamp-1 max-w-full">
+            <p className="text-xs font-bold text-brand-dark bg-[#E8F3F1] px-3 py-1 rounded-lg inline-block line-clamp-1 max-w-full">
               « {courseTitle} »
             </p>
           )}
@@ -90,7 +90,7 @@ export function InstructorPurchaseNoticeModal({
           <Link
             href={`/${locale}/instructor/dashboard`}
             onClick={onClose}
-            className="w-full sm:w-auto flex-1 inline-flex items-center justify-center gap-2 px-5 py-3 rounded-2xl bg-[#0F5244] hover:bg-[#07382E] text-white text-xs sm:text-sm font-bold shadow-sm hover:shadow transition-all cursor-pointer active:scale-98"
+            className="w-full sm:w-auto flex-1 inline-flex items-center justify-center gap-2 px-5 py-3 rounded-2xl bg-brand-dark hover:bg-[#07382E] text-white text-xs sm:text-sm font-bold shadow-sm hover:shadow transition-all cursor-pointer active:scale-98"
           >
             <LayoutDashboard className="w-4 h-4 shrink-0" />
             <span>{t("goToStudio")}</span>

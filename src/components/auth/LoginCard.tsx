@@ -207,7 +207,7 @@ export function LoginCard({ lang }: LoginCardProps) {
               <div className="pt-1 border-t border-red-200/60">
                 <Link
                   href={`/${locale}/verify-email?email=${encodeURIComponent(lastSubmittedEmail)}`}
-                  className="font-bold text-[#0F5244] underline hover:text-[#083A30] text-[11px] flex items-center gap-1"
+                  className="font-bold text-brand-dark underline hover:text-[#083A30] text-[11px] flex items-center gap-1"
                 >
                   <span>
                     {isAr
@@ -247,7 +247,7 @@ export function LoginCard({ lang }: LoginCardProps) {
               type="button"
               aria-label={showPassword ? t("hidePassword") : t("showPassword")}
               onClick={() => setShowPassword((prev: boolean) => !prev)}
-              className="rounded p-1 text-slate-400 hover:text-[#0F5244] focus:outline-none transition-colors"
+              className="rounded p-1 text-slate-400 hover:text-brand-dark focus:outline-none transition-colors"
             >
               {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
             </button>
@@ -260,14 +260,14 @@ export function LoginCard({ lang }: LoginCardProps) {
               type="checkbox"
               id="rememberMe"
               {...register("rememberMe")}
-              className="h-4 w-4 rounded border-slate-300 text-[#0F5244] focus:ring-2 focus:ring-[#0F5244]/20 cursor-pointer accent-[#0F5244] transition-all"
+              className="h-4 w-4 rounded border-slate-300 text-brand-dark focus:ring-2 focus:ring-brand-dark/20 cursor-pointer accent-brand-dark transition-all"
             />
             <span className="group-hover:text-slate-900 transition-colors">{t("rememberMe")}</span>
           </label>
 
           <Link
             href={`/${locale}/forgot-password`}
-            className="font-bold text-[#0F5244] hover:underline focus:outline-none transition-colors"
+            className="font-bold text-brand-dark hover:underline focus:outline-none transition-colors"
           >
             {t("forgotPassword")}
           </Link>
@@ -276,7 +276,7 @@ export function LoginCard({ lang }: LoginCardProps) {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="group relative flex h-11 sm:h-12 w-full items-center justify-center gap-2 rounded-md bg-[#0F5244] hover:bg-[#083A30] px-6 text-xs sm:text-sm font-extrabold text-white shadow-md transition-all duration-200 active:scale-[0.99] disabled:opacity-70 focus:outline-none focus:ring-4 focus:ring-[#0F5244]/20 cursor-pointer"
+          className="group relative flex h-11 sm:h-12 w-full items-center justify-center gap-2 rounded-md bg-brand-dark hover:bg-[#083A30] px-6 text-xs sm:text-sm font-extrabold text-white shadow-md transition-all duration-200 active:scale-[0.99] disabled:opacity-70 focus:outline-none focus:ring-4 focus:ring-brand-dark/20 cursor-pointer"
         >
           {isSubmitting ? (
             <Loader2 className="h-5 w-5 animate-spin" />
@@ -296,7 +296,7 @@ export function LoginCard({ lang }: LoginCardProps) {
 
       {/* Connection Security Badge */}
       <div className="mt-4 flex items-center justify-center gap-1.5 text-[11px] text-slate-400 font-semibold">
-        <ShieldCheck size={13} className="text-[#0F5244]" />
+        <ShieldCheck size={13} className="text-brand-dark" />
         <span>{t("encryptedConnection")}</span>
       </div>
 
@@ -305,7 +305,7 @@ export function LoginCard({ lang }: LoginCardProps) {
         {t("dontHaveAccount")}{" "}
         <Link
           href={`/${locale}/register`}
-          className="font-bold text-[#0F5244] transition-colors hover:underline"
+          className="font-bold text-brand-dark transition-colors hover:underline"
         >
           {t("createAccount")}
         </Link>
@@ -314,11 +314,11 @@ export function LoginCard({ lang }: LoginCardProps) {
       {/* Terms and Privacy Policy notice */}
       <p className="mt-3 text-center text-[10.5px] text-slate-400 font-medium leading-relaxed">
         {t("agreeTo")}{" "}
-        <Link href={`/${locale}/terms`} className="text-[#0F5244] hover:underline font-bold">
+        <Link href={`/${locale}/terms`} className="text-brand-dark hover:underline font-bold">
           {t("termsOfService")}
         </Link>{" "}
         {t("and")}{" "}
-        <Link href={`/${locale}/privacy`} className="text-[#0F5244] hover:underline font-bold">
+        <Link href={`/${locale}/privacy`} className="text-brand-dark hover:underline font-bold">
           {t("privacyPolicy")}
         </Link>
       </p>

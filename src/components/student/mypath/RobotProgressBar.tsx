@@ -29,7 +29,7 @@ export function RobotProgressBar({
         <span>
           {stepBadge} • {stepCategory}
         </span>
-        <span className="font-bold text-emerald-700">{percent}%</span>
+        <span className="font-bold text-brand-dark">{percent}%</span>
       </div>
 
       {/* Track & Floating Sliding Robot */}
@@ -56,10 +56,10 @@ export function RobotProgressBar({
             animate={{ scale: 1, opacity: 1 }}
             key={currentStepIndex}
             transition={{ duration: 0.25 }}
-            className="mb-1 bg-white/95 backdrop-blur-xs border border-emerald-300 rounded-full px-2 py-0.5 shadow-xs flex items-center gap-1 whitespace-nowrap"
+            className="mb-1 bg-white/95 backdrop-blur-xs border border-slate-200 rounded-full px-2 py-0.5 shadow-xs flex items-center gap-1 whitespace-nowrap"
           >
-            <Sparkles className="w-2.5 h-2.5 text-emerald-600 animate-pulse" />
-            <span className="text-[10px] font-black text-[#0F5244]">
+            <Sparkles className="w-2.5 h-2.5 text-brand animate-pulse" />
+            <span className="text-[10px] font-black text-[var(--color-primary-main)]">
               {stepCategory}
             </span>
           </motion.div>
@@ -81,7 +81,7 @@ export function RobotProgressBar({
               stiffness: 90,
               damping: 14,
             }}
-            className="h-full bg-gradient-to-r from-[#0F5244] via-[#10B981] to-[#38E09D] rounded-full"
+            className="h-full bg-gradient-to-r from-[var(--color-primary-main)] via-[var(--color-primary-light)] to-[var(--color-primary-main)] rounded-full"
           />
         </div>
 
@@ -95,7 +95,7 @@ export function RobotProgressBar({
                 key={idx}
                 className={`w-2.5 h-2.5 rounded-full border-2 transition-all duration-300 ${
                   isPassed
-                    ? "bg-emerald-600 border-white shadow-2xs scale-110"
+                    ? "bg-brand border-white shadow-2xs scale-110"
                     : "bg-slate-200 border-white"
                 }`}
               />

@@ -164,7 +164,7 @@ export function StudentCertificatesTab({
         <div className="flex items-center gap-2.5 flex-wrap sm:flex-nowrap w-full sm:w-auto">
           {certificateList.length > 0 && (
             <div className="relative w-full sm:w-72 md:w-80 group">
-              <div className="absolute top-1/2 -translate-y-1/2 rtl:right-3.5 ltr:left-3.5 pointer-events-none flex items-center justify-center text-slate-400 group-focus-within:text-emerald-600 transition-colors">
+              <div className="absolute top-1/2 -translate-y-1/2 rtl:right-3.5 ltr:left-3.5 pointer-events-none flex items-center justify-center text-slate-400 group-focus-within:text-[var(--color-primary-main)] transition-colors">
                 <Search className="w-4 h-4 stroke-[2.2]" />
               </div>
               <input
@@ -173,7 +173,7 @@ export function StudentCertificatesTab({
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder={tWs("searchCredentialPlaceholder")}
                 style={{ outline: "none" }}
-                className="w-full h-11 rounded-2xl border border-slate-200 bg-slate-50/60 hover:bg-white hover:border-slate-300 focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/15 outline-none focus:outline-none focus-visible:outline-none transition-all duration-200 rtl:pr-11 ltr:pl-11 rtl:pl-10 ltr:pr-10 text-sm font-medium text-slate-800 placeholder:text-slate-400"
+                className="w-full h-11 rounded-2xl border border-slate-200 bg-slate-50/60 hover:bg-white hover:border-slate-300 focus:bg-white focus:border-[var(--color-primary-main)] focus:ring-2 focus:ring-[var(--color-primary-main)]/15 outline-none focus:outline-none focus-visible:outline-none transition-all duration-200 rtl:pr-11 ltr:pl-11 rtl:pl-10 ltr:pr-10 text-sm font-medium text-slate-800 placeholder:text-slate-400"
               />
               {searchQuery && (
                 <button
@@ -191,10 +191,10 @@ export function StudentCertificatesTab({
 
           <Link
             href={`/${locale}/certificates/verify`}
-            className="inline-flex items-center justify-center gap-1.5 h-11 px-4 rounded-2xl bg-emerald-50/80 hover:bg-emerald-100/80 border border-emerald-200 text-[#0F5244] text-xs font-bold transition-all shadow-2xs shrink-0 whitespace-nowrap cursor-pointer"
+            className="inline-flex items-center justify-center gap-1.5 h-11 px-4 rounded-2xl bg-slate-100/80 hover:bg-slate-200/80 border border-slate-200 text-[var(--color-primary-main)] text-xs font-bold transition-all shadow-2xs shrink-0 whitespace-nowrap cursor-pointer"
             title={isAr ? "التحقق من صحة ومصداقية أي شهادة" : "Verify Certificate Authenticity"}
           >
-            <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
+            <ShieldCheck className="w-4 h-4 text-[var(--color-primary-main)] shrink-0" />
             <span>{isAr ? "فحص شهادة" : "Verify Certificate"}</span>
           </Link>
         </div>
@@ -233,14 +233,14 @@ export function StudentCertificatesTab({
             return (
               <div
                 key={cert.certificate_code || cert.id}
-                className="relative p-5 sm:p-6 rounded-3xl border border-slate-200/90 bg-white shadow-2xs hover:border-emerald-500/35 hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 flex flex-col justify-between h-full group overflow-hidden"
+                className="relative p-5 sm:p-6 rounded-3xl border border-slate-200/90 bg-white shadow-2xs hover:border-[var(--color-primary-main)]/35 hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 flex flex-col justify-between h-full group overflow-hidden"
               >
                 {/* Subtle top accent edge highlight */}
-                <div className="absolute top-0 inset-x-0 h-[2px] bg-gradient-to-r from-transparent via-emerald-500/25 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+                <div className="absolute top-0 inset-x-0 h-[2px] bg-gradient-to-r from-transparent via-[var(--color-primary-main)]/25 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
 
                 {/* Subtle CoachSpace organic leaf watermark motif */}
                 <svg
-                  className="absolute -top-3 -end-3 w-28 h-28 text-emerald-900/[0.035] pointer-events-none transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3"
+                  className="absolute -top-3 -end-3 w-28 h-28 text-brand-dark/[0.035] pointer-events-none transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3"
                   viewBox="0 0 100 100"
                   fill="none"
                   stroke="currentColor"
@@ -257,17 +257,17 @@ export function StudentCertificatesTab({
                 {/* Top Section: Icon + Details (Verified badge, Title, ID & Date) */}
                 <div className="relative z-10">
                   <div className="flex items-start gap-3.5 sm:gap-4">
-                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-50 to-teal-50/70 text-[#0F5244] border border-emerald-100/90 flex items-center justify-center shrink-0 shadow-2xs group-hover:scale-105 transition-transform duration-300">
+                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-slate-50 to-teal-50/70 text-[var(--color-primary-main)] border border-slate-100/90 flex items-center justify-center shrink-0 shadow-2xs group-hover:scale-105 transition-transform duration-300">
                       <Award className="w-6 h-6 stroke-[1.9]" />
                     </div>
 
                     <div className="min-w-0 flex-1 space-y-1.5 text-start">
-                      <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-50/90 border border-emerald-200/60 text-[11px] font-bold text-emerald-800">
-                        <CheckCircle2 className="w-3.5 h-3.5 fill-emerald-600 text-white shrink-0" />
+                      <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-slate-100/90 border border-slate-200/60 text-[11px] font-bold text-[var(--color-primary-main)]">
+                        <CheckCircle2 className="w-3.5 h-3.5 fill-[var(--color-primary-main)] text-white shrink-0" />
                         <span>{tCert("verifiedCertificate")}</span>
                       </div>
                       <h3
-                        className="text-sm sm:text-base font-black text-slate-900 leading-snug line-clamp-2 group-hover:text-[#0F5244] transition-colors"
+                        className="text-sm sm:text-base font-black text-slate-900 leading-snug line-clamp-2 group-hover:text-[var(--color-primary-main)] transition-colors"
                         title={cert.title}
                       >
                         {cert.title}
@@ -295,10 +295,10 @@ export function StudentCertificatesTab({
                     href={`/${locale}/certificates/verify/${encodeURIComponent(cert.certificate_code || cert.id)}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-emerald-800 hover:text-emerald-950 bg-emerald-50/80 hover:bg-emerald-100/90 border border-emerald-200/70 text-xs font-bold transition-all cursor-pointer shrink-0 whitespace-nowrap shadow-2xs group/verify"
+                    className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-[var(--color-primary-main)] hover:text-brand-dark bg-slate-100/80 hover:bg-slate-200/90 border border-slate-200/70 text-xs font-bold transition-all cursor-pointer shrink-0 whitespace-nowrap shadow-2xs group/verify"
                     title={isAr ? "التحقق من صحة ومصداقية هذه الشهادة" : "Verify certificate authenticity"}
                   >
-                    <ShieldCheck className="w-4 h-4 text-emerald-600 group-hover/verify:scale-105 transition-transform shrink-0" />
+                    <ShieldCheck className="w-4 h-4 text-[var(--color-primary-main)] group-hover/verify:scale-105 transition-transform shrink-0" />
                     <span className="whitespace-nowrap">{isAr ? "تحقق" : "Verify"}</span>
                   </Link>
 
@@ -316,7 +316,7 @@ export function StudentCertificatesTab({
                     type="button"
                     onClick={() => handleDownloadPdf(cert)}
                     disabled={isThisDownloading}
-                    className="inline-flex items-center justify-center gap-2 px-4 py-2 sm:px-5 rounded-xl bg-[#0F5244] hover:bg-[#07382E] text-white text-xs font-bold transition-all shadow-xs hover:shadow-sm active:scale-98 cursor-pointer disabled:opacity-75 disabled:cursor-not-allowed shrink-0 whitespace-nowrap min-w-fit"
+                    className="inline-flex items-center justify-center gap-2 px-4 py-2 sm:px-5 rounded-xl bg-brand-dark hover:bg-[#07382E] text-white text-xs font-bold transition-all shadow-xs hover:shadow-sm active:scale-98 cursor-pointer disabled:opacity-75 disabled:cursor-not-allowed shrink-0 whitespace-nowrap min-w-fit"
                   >
                     {isThisDownloading ? (
                       <>
@@ -352,7 +352,7 @@ export function StudentCertificatesTab({
           <button
             type="button"
             onClick={() => setSearchQuery("")}
-            className="px-4 py-2 rounded-xl text-xs font-bold text-[#0F5244] bg-emerald-50 hover:bg-emerald-100 transition-colors cursor-pointer"
+            className="px-4 py-2 rounded-xl text-xs font-bold text-[var(--color-primary-main)] bg-slate-100 hover:bg-slate-200 transition-colors cursor-pointer"
           >
             {isAr ? "إلغاء البحث" : "Clear Search"}
           </button>
@@ -360,7 +360,7 @@ export function StudentCertificatesTab({
       ) : (
         /* Empty State */
         <div className="w-full max-w-md mx-auto bg-white rounded-3xl p-6 sm:p-10 border border-slate-200/80 shadow-2xs text-center space-y-5 sm:space-y-6">
-          <div className="w-20 h-20 rounded-full bg-emerald-50 border-2 border-emerald-200 flex items-center justify-center mx-auto text-[#0F5244] shadow-2xs">
+          <div className="w-20 h-20 rounded-full bg-slate-100 border-2 border-slate-200 flex items-center justify-center mx-auto text-[var(--color-primary-main)] shadow-2xs">
             <Award className="h-9 w-9 stroke-[1.8]" />
           </div>
           <div className="space-y-2">
@@ -373,7 +373,7 @@ export function StudentCertificatesTab({
           </div>
           <Link
             href={`/${locale}/courses`}
-            className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-[#0F5244] hover:bg-[#08382E] text-white text-xs font-black transition-all shadow-xs active:scale-98 cursor-pointer"
+            className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-brand-dark hover:bg-[#08382E] text-white text-xs font-black transition-all shadow-xs active:scale-98 cursor-pointer"
           >
             <span>{tWs("exploreCourses")}</span>
           </Link>

@@ -176,10 +176,10 @@ export function WizardGoalStep({
 
       {/* 3. Goal Text Input Area */}
       <div className="max-w-2xl mx-auto space-y-4">
-        <div className="bg-white rounded-3xl border border-slate-200/90 hover:border-emerald-300 shadow-xs p-5 sm:p-6 space-y-3.5 transition-all text-start">
+        <div className="bg-white rounded-3xl border border-slate-200/90 hover:border-slate-200 shadow-xs p-5 sm:p-6 space-y-3.5 transition-all text-start">
           <div className="flex items-center justify-between">
             <label className="text-xs sm:text-sm font-bold text-slate-900 flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-emerald-600" />
+              <Sparkles className="w-4 h-4 text-brand" />
               <span>{isAr ? "هدفـك المخصص (goal_text):" : "Your specific goal:"}</span>
             </label>
             <span className="text-[10px] font-bold text-slate-400">
@@ -205,7 +205,7 @@ export function WizardGoalStep({
                 ? "مثال: أريد أن أصبح مبرمج بايثون محترف، أو إطلاق مشروعي التجاري، أو الاستعداد للمقابلات الوظيفية..."
                 : "e.g., I want to master Python programming, launch my coaching business, or ace job interviews..."
             }
-            className="w-full bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200/90 focus:border-emerald-600 rounded-2xl p-4 text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-emerald-600 transition-all resize-none font-medium leading-relaxed"
+            className="w-full bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200/90 focus:border-brand rounded-2xl p-4 text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-brand transition-all resize-none font-medium leading-relaxed"
           />
 
           {/* Smart Category Suggestions */}
@@ -225,7 +225,7 @@ export function WizardGoalStep({
                     onClick={() => handleSelectSuggestion(suggestion)}
                     className={`text-xs px-3.5 py-2 rounded-xl border text-start transition-all cursor-pointer font-medium ${
                       isSelected
-                        ? "bg-emerald-50 border-emerald-400 text-emerald-950 font-bold shadow-2xs"
+                        ? "bg-slate-100 border-slate-200 text-brand-dark font-bold shadow-2xs"
                         : "bg-slate-50 hover:bg-white border-slate-200/90 hover:border-slate-300 text-slate-700"
                     }`}
                   >
@@ -261,7 +261,7 @@ export function WizardGoalStep({
                   }}
                   className={`p-3 rounded-2xl border text-center transition-all cursor-pointer flex flex-col items-center justify-center gap-1.5 ${
                     isSelected
-                      ? "bg-emerald-50 border-2 border-emerald-400 text-[#0F5244] font-bold shadow-xs"
+                      ? "bg-slate-100 border-2 border-slate-200 text-[var(--color-primary-main)] font-bold shadow-xs"
                       : "bg-white border border-slate-200/90 hover:border-slate-300 text-slate-700 hover:bg-slate-50/50"
                   }`}
                 >
@@ -292,7 +292,7 @@ export function WizardGoalStep({
         <button
           type="button"
           onClick={handleContinue}
-          className="inline-flex items-center gap-2 bg-[#0F5244] hover:bg-[#07382E] text-white text-xs sm:text-sm font-bold px-7 py-2.5 sm:py-3 rounded-xl transition-all shadow-xs hover:shadow-md cursor-pointer"
+          className="inline-flex items-center gap-2 bg-[var(--color-primary-main)] hover:bg-[var(--color-primary-dark)] text-white text-xs sm:text-sm font-bold px-7 py-2.5 sm:py-3 rounded-xl transition-all shadow-xs hover:shadow-md cursor-pointer"
         >
           <span>{t("continue")}</span>
           {isAr ? <ArrowLeft className="w-4 h-4" /> : <ArrowRight className="w-4 h-4" />}

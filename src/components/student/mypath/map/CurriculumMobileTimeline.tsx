@@ -35,21 +35,21 @@ export function CurriculumMobileTimeline({
   handleMoveMilestone,
 }: CurriculumMobileTimelineProps) {
   return (
-    <div className="block md:hidden relative rounded-3xl bg-gradient-to-b from-[#EBF7F2] via-[#F2FAF6] to-[#E5F5EE] border-2 border-emerald-300/80 shadow-[0_12px_36px_-6px_rgba(15,82,68,0.12)] p-4 overflow-hidden select-none">
+    <div className="block md:hidden relative rounded-3xl bg-gradient-to-b from-[var(--color-bg-default)] via-[var(--color-bg-default)] to-[var(--color-bg-default)] border-2 border-slate-200 shadow-lg p-4 overflow-hidden select-none">
       {/* Soft Grid Terrain Background */}
       <div
         className="absolute inset-0 opacity-[0.25] pointer-events-none"
         style={{
           backgroundImage:
-            "radial-gradient(#0F5244 1.2px, transparent 1.2px)",
+            "radial-gradient(var(--color-primary-main) 1.2px, transparent 1.2px)",
           backgroundSize: "24px 24px",
         }}
       />
 
       {/* Roadmap Start Line Header */}
       <div className="flex justify-center pb-5 relative z-10">
-        <div className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-white/90 border border-emerald-600/25 text-emerald-800 text-xs font-bold shadow-xs backdrop-blur-xs">
-          <Flag className="w-3.5 h-3.5 text-emerald-600" />
+        <div className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-white/90 border border-brand text-brand-dark text-xs font-bold shadow-xs backdrop-blur-xs">
+          <Flag className="w-3.5 h-3.5 text-brand" />
           <span>{isAr ? "نقطة انطلاق المسار" : "Roadmap Start Line"}</span>
         </div>
       </div>
@@ -58,7 +58,7 @@ export function CurriculumMobileTimeline({
       <div className="relative z-10 space-y-4">
         {/* Continuous Glowing Vertical Track behind the Nodes */}
         <div
-          className={`absolute top-6 bottom-6 w-1 rounded-full bg-gradient-to-b from-emerald-400 via-[#38E09D] to-teal-600 shadow-[0_0_10px_rgba(56,224,157,0.5)] ${
+          className={`absolute top-6 bottom-6 w-1 rounded-full bg-gradient-to-b from-slate-100 via-[var(--color-primary-main)] to-brand shadow-md ${
             isAr ? "right-5" : "left-5"
           }`}
         />
@@ -112,14 +112,14 @@ export function CurriculumMobileTimeline({
                   }
                   className={`w-11 h-11 sm:w-12 sm:h-12 rounded-2xl flex flex-col items-center justify-center font-black transition-all cursor-pointer relative shadow-md ${
                     isCompleted
-                      ? "bg-gradient-to-tr from-emerald-600 to-[#0F5244] text-white border-2 border-emerald-200 shadow-[0_4px_14px_rgba(16,185,129,0.3)]"
+                      ? "bg-gradient-to-tr from-brand to-[var(--color-primary-main)] text-white border-2 border-slate-200 shadow-lg"
                       : isSkipped
                         ? "bg-slate-200 text-slate-500 border-2 border-slate-300"
                         : isActive
-                          ? "bg-gradient-to-tr from-[#0F5244] via-[#146654] to-[#1E8A73] text-white border-2 border-[#38E09D] ring-4 ring-emerald-400/40 shadow-lg"
+                          ? "bg-gradient-to-tr from-[var(--color-primary-main)] via-[var(--color-primary-main)] to-[var(--color-primary-light)] text-white border-2 border-[var(--color-primary-main)] ring-4 ring-slate-200 shadow-lg"
                           : isCapstone
-                            ? "bg-gradient-to-tr from-[#0F5244] to-[#1a7763] text-[#38E09D] border-2 border-[#38E09D]"
-                            : "bg-gradient-to-br from-[#E6F7F0] via-[#D1FAE5] to-[#B8F0DA] text-[#0F5244] border-2 border-emerald-400/70"
+                            ? "bg-gradient-to-tr from-[var(--color-primary-main)] to-[var(--color-primary-main)] text-white border-2 border-[var(--color-primary-main)]"
+                            : "bg-gradient-to-br from-white via-slate-50 to-slate-100 text-[var(--color-primary-main)] border-2 border-slate-200"
                   }`}
                 >
                   {isCompleted ? (
@@ -127,22 +127,22 @@ export function CurriculumMobileTimeline({
                   ) : isSkipped ? (
                     <SkipForward className="w-4 h-4 text-slate-400" />
                   ) : isCapstone ? (
-                    <Trophy className="w-5 h-5 text-[#38E09D]" />
+                    <Trophy className="w-5 h-5 text-white" />
                   ) : isActive ? (
                     <>
                       <span className="text-xs font-mono font-black leading-none">
                         0{idx + 1}
                       </span>
-                      <span className="text-[8px] font-black uppercase text-[#38E09D] tracking-wider mt-0.5">
+                      <span className="text-[8px] font-black uppercase text-white tracking-wider mt-0.5">
                         {isAr ? "نشطة" : "LIVE"}
                       </span>
                     </>
                   ) : (
                     <>
-                      <span className="text-xs font-mono font-black leading-none text-[#0F5244]">
+                      <span className="text-xs font-mono font-black leading-none text-[var(--color-primary-main)]">
                         0{idx + 1}
                       </span>
-                      <span className="text-[8px] font-bold text-emerald-800/80 uppercase tracking-wider mt-0.5">
+                      <span className="text-[8px] font-bold text-brand-dark uppercase tracking-wider mt-0.5">
                         {isAr ? "محطة" : "LVL"}
                       </span>
                     </>
@@ -157,12 +157,12 @@ export function CurriculumMobileTimeline({
                   <motion.div
                     initial={{ opacity: 0, y: -6 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="flex items-center gap-2 bg-gradient-to-r from-emerald-100/90 to-teal-50 px-3 py-1 rounded-xl border border-emerald-300/70 shadow-2xs"
+                    className="flex items-center gap-2 bg-gradient-to-r from-slate-100 to-slate-100 px-3 py-1 rounded-xl border border-slate-200 shadow-2xs"
                   >
                     <div className="shrink-0 origin-center">
                       <AnimatedRobotCharacter size="sm" showCap={true} />
                     </div>
-                    <span className="text-[11px] font-black text-emerald-900">
+                    <span className="text-[11px] font-black text-brand-dark">
                       {isAr
                         ? "أنت هنا الآن! تابع تقدمك في هذه المحطة"
                         : "You are here! Keep making progress"}
@@ -202,8 +202,8 @@ export function CurriculumMobileTimeline({
 
       {/* Capstone Goal Marker at the bottom */}
       <div className="flex justify-center pt-5 relative z-10">
-        <div className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-[#0F5244]/95 text-white text-xs font-black shadow-md border border-[#38E09D]/40 backdrop-blur-xs">
-          <Trophy className="w-3.5 h-3.5 text-[#38E09D]" />
+        <div className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-[var(--color-primary-main)]/95 text-white text-xs font-black shadow-md border border-[var(--color-primary-main)]/40 backdrop-blur-xs">
+          <Trophy className="w-3.5 h-3.5 text-[var(--color-primary-main)]" />
           <span>
             {isAr
               ? "هدف المسار: الإتقان والجاهزية الوظيفية"

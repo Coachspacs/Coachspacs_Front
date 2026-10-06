@@ -41,7 +41,7 @@ export function RobotJourneyBanner({
   }, [currentStepIndex]);
 
   return (
-    <div className="w-full h-44 sm:h-52 relative rounded-3xl overflow-hidden border border-emerald-200/70 shadow-xs select-none mb-4 bg-emerald-50/20">
+    <div className="w-full h-44 sm:h-52 relative rounded-3xl overflow-hidden border border-slate-200 shadow-xs select-none mb-4 bg-slate-100">
       {/* Background Scenic Landscape */}
       <Image
         src="/images/mypath/mypath-daylight-hero.jpg"
@@ -70,7 +70,7 @@ export function RobotJourneyBanner({
           <ellipse cx="20" cy="50" rx="14" ry="3.5" fill="rgba(15,82,68,0.24)" />
 
           {/* Grass Blades at Base (Left) */}
-          <path d="M10 50C9 45 7 40 4 38C7 43 8 47 10 50Z" fill="#10B981" />
+          <path d="M10 50C9 45 7 40 4 38C7 43 8 47 10 50Z" fill="var(--color-primary-light)" />
           <path d="M12 50C12 44 11 38 9 35C11 42 12 46 13 50Z" fill="#059669" />
           <path d="M14 50C15 45 17 40 19 37C17 43 16 47 14 50Z" fill="#34D399" />
 
@@ -101,7 +101,7 @@ export function RobotJourneyBanner({
             y="35"
             fontSize="12.5"
             fontWeight="900"
-            fill="#0F5244"
+            fill="var(--color-primary-main)"
             textAnchor="middle"
             dominantBaseline="middle"
             fontFamily="system-ui, -apple-system, sans-serif"
@@ -149,7 +149,7 @@ export function RobotJourneyBanner({
               y2="16"
               gradientUnits="userSpaceOnUse"
             >
-              <stop stopColor="#10B981" />
+              <stop stopColor="var(--color-primary-light)" />
               <stop offset="1" stopColor="#0B6B55" />
             </linearGradient>
           </defs>
@@ -166,7 +166,7 @@ export function RobotJourneyBanner({
           left: `${activeWaypoint.x}%`,
           top: `${activeWaypoint.y}%`,
         }}
-        className="absolute w-12 h-12 rounded-full border-2 border-emerald-400 bg-emerald-400/25 -translate-x-1/2 -translate-y-1/2 pointer-events-none z-10"
+        className="absolute w-12 h-12 rounded-full border-2 border-slate-200 bg-slate-100 -translate-x-1/2 -translate-y-1/2 pointer-events-none z-10"
       />
 
       {/* Centered Soft Emerald Ambient Halo behind Robot */}
@@ -183,11 +183,11 @@ export function RobotJourneyBanner({
           damping: 14,
           mass: 0.6,
         }}
-        className="absolute w-16 h-16 rounded-full bg-emerald-400/35 blur-md -translate-x-1/2 -translate-y-1/2 pointer-events-none z-20"
+        className="absolute w-16 h-16 rounded-full bg-slate-100 blur-md -translate-x-1/2 -translate-y-1/2 pointer-events-none z-20"
       />
 
       {/* Soft Ambient Light Gradient on edge */}
-      <div className="absolute inset-0 bg-gradient-to-t from-emerald-950/10 via-transparent to-transparent pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-t from-brand-dark via-transparent to-transparent pointer-events-none" />
 
       {/* ========================================================================= */}
       {/* ANIMATED ROBOT GLIDING SMOOTHLY ABOVE MILESTONES (1 -> 2 -> 3 -> 4) */}

@@ -247,9 +247,9 @@ export function useCurriculumMap({
     const endY = 80; // Well-spaced clearance above Goal Marker
 
     return milestonesState.map((_, idx) => {
-      // Alternate left and right closer to center for a smoother S-Curve and to prevent tablet overflow
+      // Alternate left (~25%) and right (~75%)
       const isEven = idx % 2 === 0;
-      const xPercent = isEven ? 38 : 62;
+      const xPercent = isEven ? 25 : 75;
       const yPercent =
         totalCount <= 1
           ? 50
@@ -302,7 +302,7 @@ export function useCurriculumMap({
         particleCount: 110,
         spread: 85,
         origin: { y: 0.6 },
-        colors: ["#0F5244", "#10B981", "#38E09D", "#F59E0B", "#D1FAE5"],
+        colors: ["var(--color-primary-main)", "var(--color-primary-light)", "var(--color-primary-main)", "#F59E0B", "var(--color-primary-main)"],
       });
     } catch {}
   };
@@ -360,7 +360,7 @@ export function useCurriculumMap({
   const isAnyExpanded = Boolean(expandedMilestoneId);
   const dynamicMinHeight = Math.max(
     800,
-    totalCount * (isAnyExpanded ? 340 : 250),
+    totalCount * (isAnyExpanded ? 270 : 190),
   );
 
   return {

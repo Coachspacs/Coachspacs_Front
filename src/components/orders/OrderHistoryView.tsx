@@ -277,7 +277,7 @@ export function OrderHistoryView({ orders: initialOrders }: OrderHistoryViewProp
   if (isLoading) {
     return (
       <div className="w-full py-20 flex flex-col items-center justify-center space-y-4 animate-in fade-in duration-150">
-        <Loader2 className="h-10 w-10 text-[#0F5244] animate-spin" />
+        <Loader2 className="h-10 w-10 text-brand-dark animate-spin" />
         <p className="text-xs sm:text-sm font-semibold text-slate-500">
           {isAr ? "جاري تحميل سجل الطلبات والفواتير..." : "Loading order history and invoices..."}
         </p>
@@ -291,11 +291,11 @@ export function OrderHistoryView({ orders: initialOrders }: OrderHistoryViewProp
       <div dir={isAr ? "rtl" : "ltr"} className="w-full py-12 font-sans animate-in fade-in duration-200">
         <div className="w-full max-w-md mx-auto bg-white rounded-3xl p-8 sm:p-10 border border-slate-200/80 shadow-sm text-center space-y-6">
           <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-[#D1FAF0] flex items-center justify-center mx-auto shadow-2xs">
-            <Receipt className="h-9 w-9 text-[#0F5244] stroke-[1.8]" />
+            <Receipt className="h-9 w-9 text-brand-dark stroke-[1.8]" />
           </div>
 
           <div className="space-y-2">
-            <h2 className="text-xl sm:text-2xl font-black text-[#0F5244] tracking-tight">
+            <h2 className="text-xl sm:text-2xl font-black text-brand-dark tracking-tight">
               {t("emptyTitle")}
             </h2>
             <p className="text-xs sm:text-sm text-slate-500 font-medium leading-relaxed max-w-xs mx-auto">
@@ -306,7 +306,7 @@ export function OrderHistoryView({ orders: initialOrders }: OrderHistoryViewProp
           <div className="pt-2">
             <Link
               href={`/${locale}/courses`}
-              className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl bg-[#0F5244] hover:bg-[#07382E] text-white text-xs sm:text-sm font-extrabold transition-all cursor-pointer shadow-xs hover:shadow-md active:scale-98"
+              className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl bg-brand-dark hover:bg-[#07382E] text-white text-xs sm:text-sm font-extrabold transition-all cursor-pointer shadow-xs hover:shadow-md active:scale-98"
             >
               <Search className="h-4 w-4" />
               <span>{t("browseCourses")}</span>
@@ -322,7 +322,7 @@ export function OrderHistoryView({ orders: initialOrders }: OrderHistoryViewProp
       
       {/* Header: Title & Subtitle */}
       <div className="space-y-1.5">
-        <h1 className="text-2xl sm:text-3xl font-black text-[#0F5244] tracking-tight">
+        <h1 className="text-2xl sm:text-3xl font-black text-brand-dark tracking-tight">
           {t("title")}
         </h1>
         <p className="text-xs sm:text-sm text-slate-500 font-medium leading-relaxed max-w-3xl">
@@ -340,7 +340,7 @@ export function OrderHistoryView({ orders: initialOrders }: OrderHistoryViewProp
             onClick={() => setStatusFilter("all")}
             className={`px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-extrabold transition-all cursor-pointer whitespace-nowrap ${
               statusFilter === "all"
-                ? "bg-white text-[#0F5244] shadow-xs"
+                ? "bg-white text-brand-dark shadow-xs"
                 : "text-slate-500 hover:text-slate-900"
             }`}
           >
@@ -362,7 +362,7 @@ export function OrderHistoryView({ orders: initialOrders }: OrderHistoryViewProp
             onClick={() => setStatusFilter("completed")}
             className={`px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-extrabold transition-all cursor-pointer whitespace-nowrap ${
               statusFilter === "completed"
-                ? "bg-white text-emerald-800 shadow-xs"
+                ? "bg-white text-brand-dark shadow-xs"
                 : "text-slate-500 hover:text-slate-900"
             }`}
           >
@@ -378,7 +378,7 @@ export function OrderHistoryView({ orders: initialOrders }: OrderHistoryViewProp
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder={t("searchPlaceholder")}
-              className="w-full h-11 rounded-2xl border border-slate-200/90 bg-white pl-10 rtl:pl-10 rtl:pr-10 text-xs sm:text-sm font-semibold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#0F5244] focus:ring-2 focus:ring-[#0F5244]/15 transition-all shadow-2xs"
+              className="w-full h-11 rounded-2xl border border-slate-200/90 bg-white pl-10 rtl:pl-10 rtl:pr-10 text-xs sm:text-sm font-semibold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-brand-dark focus:ring-2 focus:ring-brand-dark/15 transition-all shadow-2xs"
             />
             <Search className="h-4 w-4 text-slate-400 absolute left-3.5 rtl:left-auto rtl:right-3.5 top-1/2 -translate-y-1/2" />
             {searchQuery && (
@@ -432,7 +432,7 @@ export function OrderHistoryView({ orders: initialOrders }: OrderHistoryViewProp
                       className="hover:bg-slate-50/60 transition-colors group"
                     >
                       {/* Order Number */}
-                      <td className="py-5 px-6 font-extrabold text-[#0F5244] text-sm tracking-tight">
+                      <td className="py-5 px-6 font-extrabold text-brand-dark text-sm tracking-tight">
                         {order.orderNumber}
                       </td>
 
@@ -465,7 +465,7 @@ export function OrderHistoryView({ orders: initialOrders }: OrderHistoryViewProp
                       {/* Status Badge */}
                       <td className="py-5 px-6">
                         {order.status === "completed" && (
-                          <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-extrabold bg-[#D1FAF0] text-[#064E3B] border border-emerald-200/60">
+                          <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-extrabold bg-[#D1FAF0] text-[#064E3B] border border-slate-200/60">
                             <CheckCircle2 className="h-3 w-3" />
                             <span>{t("statusCompleted")}</span>
                           </span>
@@ -491,7 +491,7 @@ export function OrderHistoryView({ orders: initialOrders }: OrderHistoryViewProp
                             type="button"
                             onClick={() => handlePrintReceipt(order)}
                             title={t("downloadReceipt")}
-                            className="px-3.5 py-1.5 rounded-xl bg-slate-100 hover:bg-[#D1FAF0] text-slate-700 hover:text-[#0F5244] font-extrabold text-xs inline-flex items-center gap-1.5 transition-all shadow-2xs active:scale-98 cursor-pointer"
+                            className="px-3.5 py-1.5 rounded-xl bg-slate-100 hover:bg-[#D1FAF0] text-slate-700 hover:text-brand-dark font-extrabold text-xs inline-flex items-center gap-1.5 transition-all shadow-2xs active:scale-98 cursor-pointer"
                           >
                             <Download className="h-3.5 w-3.5" />
                             <span>{t("downloadReceipt")}</span>
@@ -528,7 +528,7 @@ export function OrderHistoryView({ orders: initialOrders }: OrderHistoryViewProp
               onClick={() => setActivePage(pageNum)}
               className={`w-9 h-9 rounded-xl font-extrabold text-xs flex items-center justify-center cursor-pointer transition-all active:scale-98 shadow-2xs ${
                 activePage === pageNum
-                  ? "bg-[#0F5244] text-white"
+                  ? "bg-brand-dark text-white"
                   : "border border-slate-200/80 bg-white hover:bg-slate-50 text-slate-700"
               }`}
             >

@@ -49,13 +49,13 @@ export function InstructorHero() {
             
             {/* Status Pill Badge */}
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white border border-slate-200/80 shadow-xs mb-5 text-xs font-bold text-slate-800">
-              <span className="w-2 h-2 rounded-full bg-[#0F5244] animate-pulse" />
+              <span className="w-2 h-2 rounded-full bg-brand-dark animate-pulse" />
               <span>{t("welcomeInstructor", { name: displayName })}</span>
               {isApproved && <VerifiedBadge size="xs" />}
               <span
                 className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider ${
                   isApproved
-                    ? "bg-emerald-50 text-[#0F5244] border border-emerald-200/70"
+                    ? "bg-slate-50 text-brand-dark border border-slate-200/70"
                     : "bg-amber-50 text-amber-900 border border-amber-300"
                 }`}
               >
@@ -79,7 +79,7 @@ export function InstructorHero() {
                 <>
                   <Link
                     href={`/${locale}/instructor/courses/new`}
-                    className="inline-flex items-center gap-2.5 bg-[#0F5244] hover:bg-[#08382E] active:scale-95 text-white font-bold text-sm sm:text-base px-7 py-3.5 rounded-2xl shadow-lg shadow-[#0F5244]/15 transition-all duration-200 cursor-pointer group"
+                    className="inline-flex items-center gap-2.5 bg-brand-dark hover:bg-[#08382E] active:scale-95 text-white font-bold text-sm sm:text-base px-7 py-3.5 rounded-2xl shadow-lg shadow-brand-dark/15 transition-all duration-200 cursor-pointer group"
                   >
                     <PlusCircle className="w-4 h-4 transition-transform group-hover:rotate-90" />
                     <span>{t("createNewCourse")}</span>
@@ -115,7 +115,7 @@ export function InstructorHero() {
                 {/* Card Top Strip */}
                 <div className="flex items-center justify-between mb-5 pb-4 border-b border-slate-100">
                   <div className="flex items-center gap-2.5">
-                    <div className="w-8 h-8 rounded-xl bg-[#0F5244]/10 text-[#0F5244] flex items-center justify-center font-black text-xs">
+                    <div className="w-8 h-8 rounded-xl bg-brand-dark/10 text-brand-dark flex items-center justify-center font-black text-xs">
                       CS
                     </div>
                     <div>
@@ -123,8 +123,8 @@ export function InstructorHero() {
                       <div className="text-[10px] font-medium text-slate-400">Live Studio Analytics</div>
                     </div>
                   </div>
-                  <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200/60">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  <span className="inline-flex items-center gap-1 text-[11px] font-bold text-brand-dark bg-slate-50 px-2.5 py-0.5 rounded-full border border-slate-200/60">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-primary-main)] animate-pulse" />
                     Live
                   </span>
                 </div>
@@ -136,7 +136,7 @@ export function InstructorHero() {
                   <div className="bg-slate-50/80 rounded-2xl p-3.5 border border-slate-100">
                     <div className="flex items-center justify-between text-slate-400 mb-1.5">
                       <Users className="w-4 h-4 text-blue-600" />
-                      <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.2 rounded">+14%</span>
+                      <span className="text-[10px] font-bold text-brand-dark bg-slate-50 px-1.5 py-0.2 rounded">+14%</span>
                     </div>
                     <div className="text-xl font-black text-slate-900">1,420</div>
                     <div className="text-[11px] font-semibold text-slate-500">{t("totalStudentsCount")}</div>
@@ -145,7 +145,7 @@ export function InstructorHero() {
                   {/* Metric 2 */}
                   <div className="bg-slate-50/80 rounded-2xl p-3.5 border border-slate-100">
                     <div className="flex items-center justify-between text-slate-400 mb-1.5">
-                      <BookOpen className="w-4 h-4 text-[#0F5244]" />
+                      <BookOpen className="w-4 h-4 text-brand-dark" />
                       <span className="text-[10px] font-bold text-slate-500 bg-white px-1.5 py-0.2 rounded border">4 Pub</span>
                     </div>
                     <div className="text-xl font-black text-slate-900">6</div>
@@ -157,7 +157,7 @@ export function InstructorHero() {
                 {/* Footer Status */}
                 <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500">
                   <span className="font-medium">{t("nextPayoutNotice")}</span>
-                  <span className="font-black text-[#0F5244]">$3,850.00</span>
+                  <span className="font-black text-brand-dark">$3,850.00</span>
                 </div>
 
               </div>

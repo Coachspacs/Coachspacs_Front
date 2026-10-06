@@ -170,17 +170,17 @@ export function AiArchitectGenerationScreen({
       className="max-w-2xl mx-auto py-6 sm:py-10 px-4 sm:px-6 relative z-10"
     >
       {/* Background soft glow halos */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-emerald-400/10 rounded-full blur-3xl pointer-events-none -z-10" />
-      <div className="absolute bottom-1/3 left-1/2 -translate-x-1/2 w-64 h-64 bg-teal-400/10 rounded-full blur-2xl pointer-events-none -z-10" />
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-slate-100 rounded-full blur-3xl pointer-events-none -z-10" />
+      <div className="absolute bottom-1/3 left-1/2 -translate-x-1/2 w-64 h-64 bg-slate-100 rounded-full blur-2xl pointer-events-none -z-10" />
 
       {/* 1. Top Architect Badge */}
       <div className="flex justify-center mb-6">
         <motion.div
           initial={{ y: -10, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-50 border border-emerald-200/80 shadow-xs text-xs font-bold text-emerald-800"
+          className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-100 border border-slate-200 shadow-xs text-xs font-bold text-brand-dark"
         >
-          <Sparkles className="w-3.5 h-3.5 text-emerald-600 animate-pulse" />
+          <Sparkles className="w-3.5 h-3.5 text-brand animate-pulse" />
           <span className="tracking-wide">
             {isAr ? "AI ARCHITECT • محرك الذكاء الاصطناعي للمسارات" : "AI ARCHITECT • Learning Path Generator"}
           </span>
@@ -190,7 +190,7 @@ export function AiArchitectGenerationScreen({
       {/* 2. 3D AI Robot Character */}
       <div className="flex justify-center mb-6">
         <div className="relative">
-          <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-28 h-8 bg-emerald-500/15 rounded-full blur-md" />
+          <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-28 h-8 bg-slate-1000/15 rounded-full blur-md" />
           <AnimatedRobotCharacter size="lg" />
         </div>
       </div>
@@ -241,7 +241,7 @@ export function AiArchitectGenerationScreen({
             <button
               type="button"
               onClick={onAdjustPreferences}
-              className="inline-flex items-center gap-2 bg-[#0F5244] hover:bg-[#07382E] text-white text-xs sm:text-sm font-bold px-6 py-3 rounded-xl transition-all shadow-xs cursor-pointer"
+              className="inline-flex items-center gap-2 bg-[var(--color-primary-main)] hover:bg-[var(--color-primary-dark)] text-white text-xs sm:text-sm font-bold px-6 py-3 rounded-xl transition-all shadow-xs cursor-pointer"
             >
               <span>{isAr ? "العودة واختيار مسار متوفر" : "Go Back & Select Active Track"}</span>
               {isAr ? <ArrowLeft className="w-4 h-4" /> : <ArrowRight className="w-4 h-4" />}
@@ -272,7 +272,7 @@ export function AiArchitectGenerationScreen({
             <button
               type="button"
               onClick={executeGeneration}
-              className="inline-flex items-center gap-2 bg-[#0F5244] hover:bg-[#07382E] text-white text-xs sm:text-sm font-bold px-6 py-3 rounded-xl transition-all shadow-xs cursor-pointer"
+              className="inline-flex items-center gap-2 bg-[var(--color-primary-main)] hover:bg-[var(--color-primary-dark)] text-white text-xs sm:text-sm font-bold px-6 py-3 rounded-xl transition-all shadow-xs cursor-pointer"
             >
               <RotateCcw className="w-4 h-4" />
               <span>{isAr ? "إعادة المحاولة" : "Retry"}</span>
@@ -294,8 +294,8 @@ export function AiArchitectGenerationScreen({
           <div className="flex items-center justify-between text-xs sm:text-sm font-bold text-slate-700">
             <div className="flex items-center gap-2">
               <span className="relative flex h-2.5 w-2.5">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-600" />
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-slate-100 opacity-75" />
+                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-brand" />
               </span>
               <span>
                 {phase === 1 && (isAr ? "تحليل الهدف التعليمي والمسار المختار" : "Analyzing goal & selected track")}
@@ -304,13 +304,13 @@ export function AiArchitectGenerationScreen({
                 {phase === 4 && (isAr ? "تجهيز الخارطة التفاعلية وتخصيصها..." : "Finalizing your interactive map...")}
               </span>
             </div>
-            <span className="font-mono font-extrabold text-emerald-700">{progress}%</span>
+            <span className="font-mono font-extrabold text-brand-dark">{progress}%</span>
           </div>
 
           {/* Progress Bar Container */}
           <div className="w-full h-3 bg-slate-100 rounded-full overflow-hidden p-0.5 border border-slate-200/60">
             <motion.div
-              className="h-full bg-gradient-to-r from-emerald-500 to-[#0F5244] rounded-full shadow-inner"
+              className="h-full bg-gradient-to-r from-brand to-[var(--color-primary-main)] rounded-full shadow-inner"
               initial={{ width: "15%" }}
               animate={{ width: `${progress}%` }}
               transition={{ duration: 0.6, ease: "easeInOut" }}
@@ -333,7 +333,7 @@ export function AiArchitectGenerationScreen({
             <div className="flex items-center gap-3.5 min-w-0 flex-1">
               <div
                 className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
-                  phase >= 1 ? "bg-emerald-600 text-white shadow-xs" : "bg-slate-100 text-slate-400"
+                  phase >= 1 ? "bg-brand text-white shadow-xs" : "bg-slate-100 text-slate-400"
                 }`}
               >
                 <CheckCircle2 className="w-5 h-5" />
@@ -347,7 +347,7 @@ export function AiArchitectGenerationScreen({
                 </p>
               </div>
             </div>
-            <span className="px-2.5 py-1 rounded-full text-[11px] font-extrabold uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200/60 shrink-0">
+            <span className="px-2.5 py-1 rounded-full text-[11px] font-extrabold uppercase tracking-wider bg-slate-100 text-brand-dark border border-slate-200 shrink-0">
               {isAr ? "منجز" : "Done"}
             </span>
           </motion.div>
@@ -364,10 +364,10 @@ export function AiArchitectGenerationScreen({
             <div className="flex items-center gap-3.5 min-w-0 flex-1">
               <div
                 className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
-                  phase >= 2 ? "bg-emerald-600 text-white shadow-xs" : "bg-emerald-50 text-emerald-600 border border-emerald-200"
+                  phase >= 2 ? "bg-brand text-white shadow-xs" : "bg-slate-100 text-brand border border-slate-200"
                 }`}
               >
-                {phase >= 2 ? <CheckCircle2 className="w-5 h-5" /> : <Loader2 className="w-5 h-5 animate-spin text-emerald-600" />}
+                {phase >= 2 ? <CheckCircle2 className="w-5 h-5" /> : <Loader2 className="w-5 h-5 animate-spin text-brand" />}
               </div>
               <div className="min-w-0 flex-1 text-start">
                 <h4 className="text-sm font-bold text-slate-900 leading-tight">
@@ -379,12 +379,12 @@ export function AiArchitectGenerationScreen({
               </div>
             </div>
             {phase >= 2 ? (
-              <span className="px-2.5 py-1 rounded-full text-[11px] font-extrabold uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200/60 shrink-0">
+              <span className="px-2.5 py-1 rounded-full text-[11px] font-extrabold uppercase tracking-wider bg-slate-100 text-brand-dark border border-slate-200 shrink-0">
                 {isAr ? "منجز" : "Done"}
               </span>
             ) : (
               <span className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-slate-100 text-slate-500 shrink-0 flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="w-1.5 h-1.5 rounded-full bg-brand animate-pulse" />
                 {isAr ? "جاري الفحص..." : "Scanning..."}
               </span>
             )}
@@ -402,10 +402,10 @@ export function AiArchitectGenerationScreen({
             <div className="flex items-center gap-3.5 min-w-0 flex-1">
               <div
                 className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
-                  phase >= 3 ? "bg-emerald-600 text-white shadow-xs" : phase === 2 ? "bg-emerald-50 text-emerald-600 border border-emerald-200" : "bg-slate-100 text-slate-400"
+                  phase >= 3 ? "bg-brand text-white shadow-xs" : phase === 2 ? "bg-slate-100 text-brand border border-slate-200" : "bg-slate-100 text-slate-400"
                 }`}
               >
-                {phase >= 3 ? <CheckCircle2 className="w-5 h-5" /> : phase === 2 ? <Loader2 className="w-5 h-5 animate-spin text-emerald-600" /> : <Layers className="w-5 h-5 text-slate-400" />}
+                {phase >= 3 ? <CheckCircle2 className="w-5 h-5" /> : phase === 2 ? <Loader2 className="w-5 h-5 animate-spin text-brand" /> : <Layers className="w-5 h-5 text-slate-400" />}
               </div>
               <div className="min-w-0 flex-1 text-start">
                 <h4 className="text-sm font-bold text-slate-900 leading-tight">
@@ -417,12 +417,12 @@ export function AiArchitectGenerationScreen({
               </div>
             </div>
             {phase >= 3 ? (
-              <span className="px-2.5 py-1 rounded-full text-[11px] font-extrabold uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200/60 shrink-0">
+              <span className="px-2.5 py-1 rounded-full text-[11px] font-extrabold uppercase tracking-wider bg-slate-100 text-brand-dark border border-slate-200 shrink-0">
                 {isAr ? "منجز" : "Done"}
               </span>
             ) : (
               <span className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-slate-100 text-slate-500 shrink-0 flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="w-1.5 h-1.5 rounded-full bg-brand animate-pulse" />
                 {isAr ? "جاري الترتيب..." : "Sequencing..."}
               </span>
             )}
@@ -434,16 +434,16 @@ export function AiArchitectGenerationScreen({
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.15 }}
             className={`p-4 rounded-2xl border transition-all duration-300 flex items-center justify-between gap-3 ${
-              phase >= 4 ? "bg-emerald-50/50 border-emerald-200/80 shadow-2xs" : "bg-slate-50/60 border-slate-200/40 opacity-70"
+              phase >= 4 ? "bg-slate-100 border-slate-200 shadow-2xs" : "bg-slate-50/60 border-slate-200/40 opacity-70"
             }`}
           >
             <div className="flex items-center gap-3.5 min-w-0 flex-1">
               <div
                 className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
-                  isFinalDone ? "bg-emerald-600 text-white shadow-xs" : phase >= 4 ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-slate-400"
+                  isFinalDone ? "bg-brand text-white shadow-xs" : phase >= 4 ? "bg-slate-100 text-brand-dark" : "bg-slate-100 text-slate-400"
                 }`}
               >
-                {isFinalDone ? <CheckCircle2 className="w-5 h-5" /> : phase >= 4 ? <Loader2 className="w-5 h-5 animate-spin text-emerald-600" /> : <Sparkles className="w-5 h-5 text-slate-400" />}
+                {isFinalDone ? <CheckCircle2 className="w-5 h-5" /> : phase >= 4 ? <Loader2 className="w-5 h-5 animate-spin text-brand" /> : <Sparkles className="w-5 h-5 text-slate-400" />}
               </div>
               <div className="min-w-0 flex-1 text-start">
                 <h4 className="text-sm font-bold text-slate-900 leading-tight">
@@ -455,12 +455,12 @@ export function AiArchitectGenerationScreen({
               </div>
             </div>
             {isFinalDone ? (
-              <span className="px-2.5 py-1 rounded-full text-[11px] font-extrabold uppercase tracking-wider bg-emerald-600 text-white shadow-xs shrink-0">
+              <span className="px-2.5 py-1 rounded-full text-[11px] font-extrabold uppercase tracking-wider bg-brand text-white shadow-xs shrink-0">
                 {isAr ? "مكتمل" : "Ready"}
               </span>
             ) : (
-              <span className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800 shrink-0 flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse" />
+              <span className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-slate-100 text-brand-dark shrink-0 flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-brand animate-pulse" />
                 {isAr ? "جاري التجهيز..." : "Processing..."}
               </span>
             )}

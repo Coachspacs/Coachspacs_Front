@@ -45,11 +45,11 @@ export function SectionVisibilityCard({
         <div className="flex items-center gap-2">
           <span className="relative flex h-2.5 w-2.5">
             {isVisible && (
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-light opacity-75" />
             )}
             <span
               className={`relative inline-flex rounded-full h-2.5 w-2.5 ${
-                isVisible ? "bg-[#0F5244]" : "bg-slate-400"
+                isVisible ? "bg-brand-dark" : "bg-slate-400"
               }`}
             />
           </span>
@@ -66,10 +66,10 @@ export function SectionVisibilityCard({
             onChange={(e) => onToggleVisible(e.target.checked)}
             className="sr-only peer"
           />
-          <div className="w-8 h-4.5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-3.5 after:w-3.5 after:transition-all peer-checked:bg-[#0F5244] relative"></div>
+          <div className="w-8 h-4.5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-3.5 after:w-3.5 after:transition-all peer-checked:bg-brand-dark relative"></div>
           <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full border transition-all ${
             isVisible
-              ? "text-[#0F5244] bg-emerald-50/80 border-emerald-200/80"
+              ? "text-brand-dark bg-slate-50/80 border-slate-200/80"
               : "text-slate-500 bg-slate-100 border-slate-200"
           }`}>
             {isVisible
@@ -105,11 +105,11 @@ export function SectionVisibilityCard({
                 onClick={() => onRolesChange([opt.id])}
                 className={`px-3 py-2 rounded-xl text-xs font-bold border transition-all cursor-pointer flex items-center gap-1.5 justify-center ${
                   isSelected
-                    ? "bg-[#0F5244] border-[#0F5244] text-white shadow-xs"
+                    ? "bg-brand-dark border-brand-dark text-white shadow-xs"
                     : "bg-slate-50 hover:bg-white border-slate-200/90 text-slate-700 hover:text-slate-900"
                 }`}
               >
-                <Icon className={`w-3.5 h-3.5 shrink-0 ${isSelected ? "text-emerald-300" : "text-slate-500"}`} />
+                <Icon className={`w-3.5 h-3.5 shrink-0 ${isSelected ? "text-slate-300" : "text-slate-500"}`} />
                 <span className="truncate">{isAr ? opt.labelAr : opt.labelEn}</span>
               </button>
             );

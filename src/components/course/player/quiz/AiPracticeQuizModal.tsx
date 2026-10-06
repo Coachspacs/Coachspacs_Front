@@ -489,9 +489,9 @@ export function AiPracticeQuizModal({
         className="relative w-full max-w-4xl bg-white rounded-3xl shadow-2xl border border-slate-200/80 overflow-hidden flex flex-col max-h-[92vh] z-10"
       >
         {/* Modal Top Header */}
-        <div className="px-5 sm:px-7 py-4 border-b border-slate-100 flex items-center justify-between gap-3 bg-gradient-to-r from-emerald-50/50 via-white to-slate-50 shrink-0">
+        <div className="px-5 sm:px-7 py-4 border-b border-slate-100 flex items-center justify-between gap-3 bg-gradient-to-r from-slate-50/50 via-white to-slate-50 shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-emerald-600 text-white flex items-center justify-center shadow-md shadow-emerald-600/20">
+            <div className="w-10 h-10 rounded-2xl bg-[var(--color-primary-dark)] text-white flex items-center justify-center shadow-md shadow-[var(--color-primary-main)]/20">
               <Sparkles className="w-5 h-5 animate-pulse" />
             </div>
             <div>
@@ -517,7 +517,7 @@ export function AiPracticeQuizModal({
                 }}
                 className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                   currentView === "configure"
-                    ? "bg-white text-emerald-800 shadow-xs"
+                    ? "bg-white text-[var(--color-primary-main)] shadow-xs"
                     : "text-slate-600 hover:text-slate-900"
                 }`}
               >
@@ -535,7 +535,7 @@ export function AiPracticeQuizModal({
                 }}
                 className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                   currentView === "hub"
-                    ? "bg-white text-emerald-800 shadow-xs"
+                    ? "bg-white text-[var(--color-primary-main)] shadow-xs"
                     : "text-slate-600 hover:text-slate-900"
                 }`}
               >
@@ -543,7 +543,7 @@ export function AiPracticeQuizModal({
                   <BarChart2 className="w-3.5 h-3.5" />
                   <span>{isAr ? "سجل الاختبارات" : "My Quizzes"}</span>
                   {pastQuizzes.length > 0 && (
-                    <span className="w-4 h-4 rounded-full bg-emerald-600 text-white text-[9px] flex items-center justify-center font-bold">
+                    <span className="w-4 h-4 rounded-full bg-[var(--color-primary-dark)] text-white text-[9px] flex items-center justify-center font-bold">
                       {pastQuizzes.length}
                     </span>
                   )}

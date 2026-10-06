@@ -114,8 +114,8 @@ export function ChangeEmailModal({
       >
         {/* Modal Header */}
         <div className="flex items-center justify-between border-b border-slate-100 pb-4">
-          <div className="flex items-center gap-3 text-[#0F5244]">
-            <div className="w-10 h-10 rounded-2xl bg-emerald-50 border border-emerald-100 flex items-center justify-center text-[#0F5244] shrink-0 shadow-2xs">
+          <div className="flex items-center gap-3 text-brand-dark">
+            <div className="w-10 h-10 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center text-brand-dark shrink-0 shadow-2xs">
               <Mail className="h-5 w-5" />
             </div>
             <div>
@@ -141,15 +141,15 @@ export function ChangeEmailModal({
 
         {/* Modal Content / Form */}
         {isSending ? (
-          <div className="py-8 px-4 rounded-2xl bg-emerald-50/70 border border-emerald-200/80 text-center space-y-3">
-            <Loader2 className="h-8 w-8 text-[#0F5244] mx-auto animate-spin" />
-            <p className="text-sm font-extrabold text-[#0F5244]">
+          <div className="py-8 px-4 rounded-2xl bg-slate-50/70 border border-slate-200/80 text-center space-y-3">
+            <Loader2 className="h-8 w-8 text-brand-dark mx-auto animate-spin" />
+            <p className="text-sm font-extrabold text-brand-dark">
               {t("sending")}
             </p>
           </div>
         ) : isSuccess ? (
-          <div className="py-6 px-4 rounded-2xl bg-emerald-50/80 border border-emerald-200 text-center space-y-4">
-            <div className="w-14 h-14 rounded-full bg-emerald-100 text-[#0F5244] mx-auto flex items-center justify-center shadow-xs">
+          <div className="py-6 px-4 rounded-2xl bg-slate-50/80 border border-slate-200 text-center space-y-4">
+            <div className="w-14 h-14 rounded-full bg-slate-100 text-brand-dark mx-auto flex items-center justify-center shadow-xs">
               <CheckCircle2 className="h-8 w-8" />
             </div>
             <div className="space-y-1.5">
@@ -163,7 +163,7 @@ export function ChangeEmailModal({
             <button
               type="button"
               onClick={handleClose}
-              className="w-full py-2.5 rounded-xl bg-[#0F5244] hover:bg-[#07382E] text-white text-xs sm:text-sm font-extrabold cursor-pointer shadow-xs transition-all active:scale-98"
+              className="w-full py-2.5 rounded-xl bg-brand-dark hover:bg-[#07382E] text-white text-xs sm:text-sm font-extrabold cursor-pointer shadow-xs transition-all active:scale-98"
             >
               {t("gotItBtn")}
             </button>
@@ -195,7 +195,7 @@ export function ChangeEmailModal({
                     if (error) setError(null);
                   }}
                   placeholder={t("newEmailPlaceholder")}
-                  className="w-full h-12 rounded-2xl border border-slate-200 bg-slate-50/60 px-4 pl-11 rtl:pl-4 rtl:pr-11 text-xs sm:text-sm font-semibold text-slate-900 focus:bg-white focus:border-[#0F5244] focus:outline-none focus:ring-2 focus:ring-[#0F5244]/15 transition-all"
+                  className="w-full h-12 rounded-2xl border border-slate-200 bg-slate-50/60 px-4 pl-11 rtl:pl-4 rtl:pr-11 text-xs sm:text-sm font-semibold text-slate-900 focus:bg-white focus:border-brand-dark focus:outline-none focus:ring-2 focus:ring-brand-dark/15 transition-all"
                 />
                 <Mail className="h-4 w-4 text-slate-400 absolute left-4 rtl:left-auto rtl:right-4 top-1/2 -translate-y-1/2" />
               </div>
@@ -211,7 +211,7 @@ export function ChangeEmailModal({
               </button>
               <button
                 type="submit"
-                className="px-6 py-2.5 rounded-xl bg-[#0F5244] hover:bg-[#07382E] text-white text-xs sm:text-sm font-extrabold cursor-pointer shadow-xs hover:shadow-md transition-all active:scale-98 flex items-center gap-2"
+                className="px-6 py-2.5 rounded-xl bg-brand-dark hover:bg-[#07382E] text-white text-xs sm:text-sm font-extrabold cursor-pointer shadow-xs hover:shadow-md transition-all active:scale-98 flex items-center gap-2"
               >
                 <Send className="h-3.5 w-3.5" />
                 <span>{t("submitBtn")}</span>

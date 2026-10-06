@@ -70,7 +70,7 @@ export function LegalRichTextEditor({
 
     if (!selectedText) {
       const linkText = prompt(isRtl ? "أدخل نص الرابط:" : "Enter Link Text:", url);
-      const htmlToInsert = `<a href="${url}" target="_blank" rel="noopener noreferrer" class="text-emerald-700 underline font-semibold">${linkText || url}</a>`;
+      const htmlToInsert = `<a href="${url}" target="_blank" rel="noopener noreferrer" class="text-brand-dark underline font-semibold">${linkText || url}</a>`;
       document.execCommand("insertHTML", false, htmlToInsert);
     } else {
       document.execCommand("createLink", false, url);
@@ -114,7 +114,7 @@ export function LegalRichTextEditor({
     <div
       className={`rounded-2xl border transition-all bg-white overflow-hidden shadow-2xs ${
         isFocused
-          ? "border-[#0F5244] ring-2 ring-[#0F5244]/10"
+          ? "border-brand-dark ring-2 ring-brand-dark/10"
           : "border-slate-200 hover:border-slate-300"
       } ${disabled ? "opacity-60 cursor-not-allowed bg-slate-50" : ""} ${className}`}
     >
@@ -220,7 +220,7 @@ export function LegalRichTextEditor({
             }
             className={`p-1.5 rounded-lg text-xs font-bold flex items-center gap-1 transition-colors cursor-pointer ${
               isSourceMode
-                ? "bg-emerald-100 text-[#0F5244]"
+                ? "bg-slate-100 text-brand-dark"
                 : "hover:bg-slate-200/80 text-slate-500 hover:text-slate-800"
             }`}
           >
@@ -261,7 +261,7 @@ export function LegalRichTextEditor({
         onKeyDown={handleKeyDown}
         style={{ minHeight }}
         data-placeholder={placeholder}
-        className={`p-3.5 text-xs sm:text-sm text-slate-800 focus:outline-none leading-relaxed transition-all [&_ul]:list-disc [&_ul]:ps-5 [&_ul]:space-y-1 [&_ol]:list-decimal [&_ol]:ps-5 [&_ol]:space-y-1 [&_p]:mb-2 [&_a]:text-emerald-700 [&_a]:underline [&_a]:font-semibold ${
+        className={`p-3.5 text-xs sm:text-sm text-slate-800 focus:outline-none leading-relaxed transition-all [&_ul]:list-disc [&_ul]:ps-5 [&_ul]:space-y-1 [&_ol]:list-decimal [&_ol]:ps-5 [&_ol]:space-y-1 [&_p]:mb-2 [&_a]:text-brand-dark [&_a]:underline [&_a]:font-semibold ${
           isRtl ? "text-right" : "text-left"
         } ${isSourceMode ? "hidden" : "block"}`}
       />

@@ -89,7 +89,7 @@ export function StudentLayoutClient({ children }: { children: React.ReactNode })
     return (
       <div className="min-h-screen bg-[#FAFCFB] flex items-center justify-center font-sans">
         <div className="flex flex-col items-center gap-3">
-          <div className="h-8 w-8 border-4 border-emerald-600 border-t-transparent rounded-full animate-spin" />
+          <div className="h-8 w-8 border-4 border-[var(--color-primary-main)] border-t-transparent rounded-full animate-spin" />
         </div>
       </div>
     );

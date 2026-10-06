@@ -59,7 +59,7 @@ export function LegalPageLayout({
         <div className="flex items-center justify-between gap-3">
           <Link
             href={`/${locale}`}
-            className="inline-flex items-center gap-2 text-xs sm:text-sm font-bold text-slate-500 hover:text-[#0F5244] transition-colors group cursor-pointer"
+            className="inline-flex items-center gap-2 text-xs sm:text-sm font-bold text-slate-500 hover:text-brand-dark transition-colors group cursor-pointer"
           >
             {isAr ? (
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
@@ -72,17 +72,17 @@ export function LegalPageLayout({
           {/* Language Switcher Pill */}
           <Link
             href={targetLangUrl}
-            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white hover:bg-slate-50 border border-slate-200 text-xs font-black text-slate-700 hover:text-[#0F5244] shadow-2xs transition-all cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white hover:bg-slate-50 border border-slate-200 text-xs font-black text-slate-700 hover:text-brand-dark shadow-2xs transition-all cursor-pointer"
             title={isAr ? "Switch to English" : "التبديل إلى العربية"}
           >
-            <Globe className="w-3.5 h-3.5 text-[#0F5244]" />
+            <Globe className="w-3.5 h-3.5 text-brand-dark" />
             <span>{isAr ? "English" : "العربية"}</span>
           </Link>
         </div>
 
         {/* Hero Header Card */}
         <div className="bg-white rounded-3xl border border-slate-200/80 p-6 sm:p-10 shadow-xs space-y-4">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black bg-[#D1FAF0] text-[#0F5244]">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black bg-[#D1FAF0] text-brand-dark">
             <BadgeIcon className="h-3.5 w-3.5" />
             <span>{badgeText}</span>
           </div>
@@ -108,7 +108,7 @@ export function LegalPageLayout({
                 className="bg-white rounded-2xl border border-slate-200/80 p-6 sm:p-8 shadow-2xs space-y-3 hover:border-slate-300 transition-colors"
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-xl bg-emerald-50 text-[#0F5244] flex items-center justify-center shrink-0 border border-emerald-100/60">
+                  <div className="w-8 h-8 rounded-xl bg-slate-50 text-brand-dark flex items-center justify-center shrink-0 border border-slate-100/60">
                     <Icon className="w-4 h-4" />
                   </div>
                   <h2
@@ -127,10 +127,10 @@ export function LegalPageLayout({
         </div>
 
         {/* Contact Support Footer Card */}
-        <div className="relative overflow-hidden bg-gradient-to-br from-[#EBF5F3] via-[#F4F9F8] to-[#E2F1EE] border border-[#0F5244]/15 rounded-3xl p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-sm">
+        <div className="relative overflow-hidden bg-gradient-to-br from-[#EBF5F3] via-[#F4F9F8] to-[#E2F1EE] border border-brand-dark/15 rounded-3xl p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-sm">
           {/* Subtle Ambient Background Decorative Glow */}
           <div className="absolute top-0 right-1/4 w-72 h-72 bg-[#45D1B4]/15 rounded-full blur-3xl pointer-events-none" />
-          <div className="absolute bottom-0 left-0 w-64 h-64 bg-[#0F5244]/5 rounded-full blur-2xl pointer-events-none" />
+          <div className="absolute bottom-0 left-0 w-64 h-64 bg-brand-dark/5 rounded-full blur-2xl pointer-events-none" />
 
           <div className="space-y-2 text-center sm:text-start z-10">
             <h3 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight">
@@ -143,9 +143,9 @@ export function LegalPageLayout({
 
           <a
             href={`mailto:${contactEmail}`}
-            className="z-10 inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-[#0F5244] hover:bg-[#08382E] text-white text-xs sm:text-sm font-black transition-all shadow-md hover:shadow-lg shrink-0 cursor-pointer active:scale-95"
+            className="z-10 inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-brand-dark hover:bg-[#08382E] text-white text-xs sm:text-sm font-black transition-all shadow-md hover:shadow-lg shrink-0 cursor-pointer active:scale-95"
           >
-            <Mail className="w-4 h-4 text-emerald-300" />
+            <Mail className="w-4 h-4 text-slate-300" />
             <span>{contactEmail}</span>
           </a>
         </div>

@@ -172,11 +172,11 @@ export function LessonViewerLayout(props: LessonViewerLayoutProps) {
   return (
     <div
       dir={isAr ? "rtl" : "ltr"}
-      className="min-h-screen w-full bg-[#F8FAFC] text-slate-900 flex flex-col font-sans selection:bg-emerald-800 selection:text-white"
+      className="min-h-screen w-full bg-[#F8FAFC] text-slate-900 flex flex-col font-sans selection:bg-brand-dark selection:text-white"
     >
       {/* Toast Notification */}
       {toastMessage && (
-        <div className="fixed top-20 right-6 rtl:right-auto rtl:left-6 z-50 bg-[#0F5244] text-white px-5 py-3 rounded-2xl shadow-2xl flex items-center gap-2.5 text-xs font-bold border border-emerald-500/40 animate-in fade-in slide-in-from-top-3 backdrop-blur-md">
+        <div className="fixed top-20 right-6 rtl:right-auto rtl:left-6 z-50 bg-brand-dark text-white px-5 py-3 rounded-2xl shadow-2xl flex items-center gap-2.5 text-xs font-bold border border-[var(--color-primary-main)]/40 animate-in fade-in slide-in-from-top-3 backdrop-blur-md">
           <span>{toastMessage}</span>
         </div>
       )}

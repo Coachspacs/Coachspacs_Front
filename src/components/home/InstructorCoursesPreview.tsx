@@ -188,8 +188,8 @@ export function InstructorCoursesPreview({ isPreview }: InstructorCoursesPreview
         {/* Section Header & Controls */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-5 mb-8 sm:mb-10">
           <div>
-            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-emerald-50 border border-emerald-200/80 text-[#0F5244] text-xs font-bold tracking-wider uppercase mb-2.5">
-              <BookOpen className="w-3.5 h-3.5 text-[#0F5244]" />
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-slate-50 border border-slate-200/80 text-brand-dark text-xs font-bold tracking-wider uppercase mb-2.5">
+              <BookOpen className="w-3.5 h-3.5 text-brand-dark" />
               <span>{t("myCoursesBadge")}</span>
             </div>
             <h2 className="text-2xl sm:text-4xl font-black text-slate-900 tracking-tight">
@@ -209,7 +209,7 @@ export function InstructorCoursesPreview({ isPreview }: InstructorCoursesPreview
                 onClick={() => setActiveTab("all")}
                 className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                   activeTab === "all"
-                    ? "bg-[#0F5244] text-white shadow-xs"
+                    ? "bg-brand-dark text-white shadow-xs"
                     : "text-slate-600 hover:text-slate-900"
                 }`}
               >
@@ -220,7 +220,7 @@ export function InstructorCoursesPreview({ isPreview }: InstructorCoursesPreview
                 onClick={() => setActiveTab("published")}
                 className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                   activeTab === "published"
-                    ? "bg-[#0F5244] text-white shadow-xs"
+                    ? "bg-brand-dark text-white shadow-xs"
                     : "text-slate-600 hover:text-slate-900"
                 }`}
               >
@@ -231,7 +231,7 @@ export function InstructorCoursesPreview({ isPreview }: InstructorCoursesPreview
                 onClick={() => setActiveTab("drafts")}
                 className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                   activeTab === "drafts"
-                    ? "bg-[#0F5244] text-white shadow-xs"
+                    ? "bg-brand-dark text-white shadow-xs"
                     : "text-slate-600 hover:text-slate-900"
                 }`}
               >
@@ -246,7 +246,7 @@ export function InstructorCoursesPreview({ isPreview }: InstructorCoursesPreview
                   type="button"
                   onClick={isAr ? handleNext : handlePrev}
                   aria-label="Previous"
-                  className="w-8 h-8 rounded-xl bg-slate-50 hover:bg-[#0F5244] text-slate-700 hover:text-white transition-all flex items-center justify-center cursor-pointer active:scale-95"
+                  className="w-8 h-8 rounded-xl bg-slate-50 hover:bg-brand-dark text-slate-700 hover:text-white transition-all flex items-center justify-center cursor-pointer active:scale-95"
                 >
                   <ChevronRight className="w-4 h-4 rtl:rotate-0 ltr:rotate-180" />
                 </button>
@@ -257,7 +257,7 @@ export function InstructorCoursesPreview({ isPreview }: InstructorCoursesPreview
                   type="button"
                   onClick={isAr ? handlePrev : handleNext}
                   aria-label="Next"
-                  className="w-8 h-8 rounded-xl bg-slate-50 hover:bg-[#0F5244] text-slate-700 hover:text-white transition-all flex items-center justify-center cursor-pointer active:scale-95"
+                  className="w-8 h-8 rounded-xl bg-slate-50 hover:bg-brand-dark text-slate-700 hover:text-white transition-all flex items-center justify-center cursor-pointer active:scale-95"
                 >
                   <ChevronLeft className="w-4 h-4 rtl:rotate-0 ltr:rotate-180" />
                 </button>
@@ -290,7 +290,7 @@ export function InstructorCoursesPreview({ isPreview }: InstructorCoursesPreview
             </p>
             <Link
               href={`/${locale}/instructor/courses/new`}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#0F5244] text-white text-xs font-bold hover:bg-[#07382E] transition-all shadow-md"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-brand-dark text-white text-xs font-bold hover:bg-[#07382E] transition-all shadow-md"
             >
               <PlusCircle className="w-4 h-4" />
               <span>{t("createNewCourse")}</span>
@@ -339,7 +339,7 @@ export function InstructorCoursesPreview({ isPreview }: InstructorCoursesPreview
                     aria-label={`Go to slide ${idx + 1}`}
                     className={`h-2.5 rounded-full transition-all duration-300 cursor-pointer ${
                       activePage === idx
-                        ? "w-8 bg-[#0F5244]"
+                        ? "w-8 bg-brand-dark"
                         : "w-2.5 bg-slate-200 hover:bg-slate-300"
                     }`}
                   />

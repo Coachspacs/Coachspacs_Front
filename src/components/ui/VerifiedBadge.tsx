@@ -86,7 +86,7 @@ export function VerifiedBadge({
 
   return (
     <span
-      className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-50 text-[#0F5244] border border-emerald-200/80 font-bold select-none cursor-default shadow-2xs ${className}`}
+      className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-slate-50 text-brand-dark border border-slate-200/80 font-bold select-none cursor-default shadow-2xs ${className}`}
       title={displayTooltip}
     >
       {iconElement}

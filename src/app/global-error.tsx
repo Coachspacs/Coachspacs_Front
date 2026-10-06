@@ -28,7 +28,7 @@ export default function GlobalError({
           <button
             type="button"
             onClick={() => reset()}
-            className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-[#0F5244] hover:bg-[#07382E] text-white text-sm font-extrabold shadow-md hover:shadow-lg transition-all"
+            className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-brand-dark hover:bg-[#07382E] text-white text-sm font-extrabold shadow-md hover:shadow-lg transition-all"
           >
             <RefreshCw className="w-4 h-4" />
             <span>Try Again</span>

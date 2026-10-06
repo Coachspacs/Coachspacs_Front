@@ -101,7 +101,7 @@ export default function CourseDetailsPage() {
     return (
       <div className="min-h-screen bg-[#FAFBFB] flex items-center justify-center">
         <div className="flex flex-col items-center gap-3 text-slate-500">
-          <Loader2 className="w-8 h-8 animate-spin text-[#0F5244]" />
+          <Loader2 className="w-8 h-8 animate-spin text-brand-dark" />
           <span className="text-xs font-bold">
             {t("loadingDetails")}
           </span>
@@ -125,7 +125,7 @@ export default function CourseDetailsPage() {
           </p>
           <Link
             href={`/${locale}/courses`}
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#0F5244] hover:bg-[#07382E] text-white text-xs font-bold transition-all shadow-sm"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-brand-dark hover:bg-[#07382E] text-white text-xs font-bold transition-all shadow-sm"
           >
             <ArrowLeft className="w-4 h-4 rtl:rotate-180" />
             <span>{t("browseCourses")}</span>

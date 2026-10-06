@@ -330,11 +330,11 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
         
         {/* 1. Breadcrumbs */}
         <nav className="flex items-center gap-2 text-xs sm:text-sm font-semibold text-slate-500 mb-6">
-          <Link href={`/${locale}/courses`} className="hover:text-[#0F5244] transition-colors">
+          <Link href={`/${locale}/courses`} className="hover:text-[var(--color-primary-main)] transition-colors">
             {t("browseCourses")}
           </Link>
           <span>/</span>
-          <span className="hover:text-[#0F5244] transition-colors">
+          <span className="hover:text-[var(--color-primary-main)] transition-colors">
             {isAr ? course.categoryAr || course.category : course.category}
           </span>
           <span>/</span>
@@ -377,8 +377,8 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
                 className="absolute inset-0 flex items-center justify-center group/btn cursor-pointer"
                 aria-label="Play Preview"
               >
-                <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-white/90 text-[#0F5244] shadow-2xl flex items-center justify-center group-hover/btn:scale-110 group-hover/btn:bg-white transition-all duration-300 backdrop-blur-xs">
-                  <Play className="h-7 w-7 sm:h-9 sm:w-9 fill-[#0F5244] ml-1 rtl:mr-1 rtl:ml-0" />
+                <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-white/90 text-[var(--color-primary-main)] shadow-2xl flex items-center justify-center group-hover/btn:scale-110 group-hover/btn:bg-white transition-all duration-300 backdrop-blur-xs">
+                  <Play className="h-7 w-7 sm:h-9 sm:w-9 fill-brand-dark ml-1 rtl:mr-1 rtl:ml-0" />
                 </div>
               </button>
             </div>
@@ -393,7 +393,7 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
                   </span>
                 )}
                 {course.isRealBackend && (
-                  <span className="bg-emerald-100 text-[#0F5244] text-xs font-black px-3 py-1 rounded-md tracking-wider">
+                  <span className="bg-slate-200 text-[var(--color-primary-main)] text-xs font-black px-3 py-1 rounded-md tracking-wider">
                     {t("verifiedCourse")}
                   </span>
                 )}
@@ -423,7 +423,7 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
                   className="flex items-center gap-2.5 group/inst hover:opacity-90 transition-all cursor-pointer"
                   title={t("viewInstructorProfile")}
                 >
-                  <div className="w-9 h-9 rounded-full bg-emerald-50 overflow-hidden relative border border-emerald-200/80 group-hover/inst:ring-2 group-hover/inst:ring-[#0F5244] group-hover/inst:scale-105 transition-all flex items-center justify-center text-xs font-black text-[#0F5244]">
+                  <div className="w-9 h-9 rounded-full bg-slate-100 overflow-hidden relative border border-slate-200/80 group-hover/inst:ring-2 group-hover/inst:ring-brand-dark group-hover/inst:scale-105 transition-all flex items-center justify-center text-xs font-black text-[var(--color-primary-main)]">
                     {!avatarError && (instructorObj?.avatar || course.instructorAvatar) ? (
                       <Image
                         src={instructorObj?.avatar || course.instructorAvatar || ""}
@@ -439,7 +439,7 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
                   </div>
                   <div>
                     <div className="flex items-center gap-1.5">
-                      <span className="font-extrabold text-slate-900 block leading-none group-hover/inst:text-[#0F5244] group-hover/inst:underline transition-colors">
+                      <span className="font-extrabold text-slate-900 block leading-none group-hover/inst:text-[var(--color-primary-main)] group-hover/inst:underline transition-colors">
                         {isAr ? (instructorObj?.nameAr || course.instructorNameAr || course.instructorName) : (instructorObj?.name || course.instructorName)}
                       </span>
                       <VerifiedBadge size="xs" />
@@ -470,13 +470,13 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
                   onClick={() => setActiveTab("curriculum")}
                   className={`pb-3 text-sm sm:text-base font-extrabold transition-all relative ${
                     activeTab === "curriculum"
-                      ? "text-[#0F5244]"
+                      ? "text-[var(--color-primary-main)]"
                       : "text-slate-500 hover:text-slate-800"
                   }`}
                 >
                   {t("curriculum")}
                   {activeTab === "curriculum" && (
-                    <span className="absolute bottom-0 left-0 right-0 h-1 bg-[#0F5244] rounded-t-full" />
+                    <span className="absolute bottom-0 left-0 right-0 h-1 bg-brand-dark rounded-t-full" />
                   )}
                 </button>
 
@@ -485,13 +485,13 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
                   onClick={() => setActiveTab("description")}
                   className={`pb-3 text-sm sm:text-base font-extrabold transition-all relative ${
                     activeTab === "description"
-                      ? "text-[#0F5244]"
+                      ? "text-[var(--color-primary-main)]"
                       : "text-slate-500 hover:text-slate-800"
                   }`}
                 >
                   {t("description")}
                   {activeTab === "description" && (
-                    <span className="absolute bottom-0 left-0 right-0 h-1 bg-[#0F5244] rounded-t-full" />
+                    <span className="absolute bottom-0 left-0 right-0 h-1 bg-brand-dark rounded-t-full" />
                   )}
                 </button>
 
@@ -500,13 +500,13 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
                   onClick={() => setActiveTab("instructor")}
                   className={`pb-3 text-sm sm:text-base font-extrabold transition-all relative ${
                     activeTab === "instructor"
-                      ? "text-[#0F5244]"
+                      ? "text-[var(--color-primary-main)]"
                       : "text-slate-500 hover:text-slate-800"
                   }`}
                 >
                   {t("instructor")}
                   {activeTab === "instructor" && (
-                    <span className="absolute bottom-0 left-0 right-0 h-1 bg-[#0F5244] rounded-t-full" />
+                    <span className="absolute bottom-0 left-0 right-0 h-1 bg-brand-dark rounded-t-full" />
                   )}
                 </button>
 
@@ -583,8 +583,8 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
                                 >
                                   <div className="flex items-center gap-3">
                                     {lesson.isPreview ? (
-                                      <div className="w-8 h-8 rounded-full bg-emerald-50 text-[#0F5244] flex items-center justify-center shrink-0">
-                                        <Play className="h-4 w-4 fill-[#0F5244] ml-0.5 rtl:mr-0.5 rtl:ml-0" />
+                                      <div className="w-8 h-8 rounded-full bg-slate-100 text-[var(--color-primary-main)] flex items-center justify-center shrink-0">
+                                        <Play className="h-4 w-4 fill-brand-dark ml-0.5 rtl:mr-0.5 rtl:ml-0" />
                                       </div>
                                     ) : (
                                       <div className="w-8 h-8 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center shrink-0">
@@ -594,11 +594,11 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
 
                                     <div>
                                       <div className="flex items-center gap-2">
-                                        <span className="text-xs sm:text-sm font-bold text-slate-800 group-hover:text-[#0F5244] transition-colors">
+                                        <span className="text-xs sm:text-sm font-bold text-slate-800 group-hover:text-[var(--color-primary-main)] transition-colors">
                                           {isAr ? lesson.titleAr || lesson.titleEn || lesson.title : lesson.titleEn || lesson.titleAr || lesson.title}
                                         </span>
                                         {lesson.isPreview && (
-                                          <span className="bg-[#E8F3F1] text-[#0F5244] text-[10px] font-black uppercase px-2 py-0.5 rounded-full border border-[#0F5244]/10">
+                                          <span className="bg-[#E8F3F1] text-[var(--color-primary-main)] text-[10px] font-black uppercase px-2 py-0.5 rounded-full border border-brand-dark/10">
                                             {t("previewBadge")}
                                           </span>
                                         )}
@@ -611,7 +611,7 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
 
                                   <button
                                     type="button"
-                                    className="text-xs font-bold text-[#0F5244] hover:underline opacity-0 group-hover:opacity-100 transition-opacity"
+                                    className="text-xs font-bold text-[var(--color-primary-main)] hover:underline opacity-0 group-hover:opacity-100 transition-opacity"
                                   >
                                     {lesson.isPreview ? t("playPreview") : t("lockedLesson")}
                                   </button>
@@ -645,7 +645,7 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
                     <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                       {((isAr ? course?.whatYouWillLearnAr : course?.whatYouWillLearn) || []).map((item: string, idx: number) => (
                         <li key={idx} className="flex items-center gap-2 text-xs font-semibold text-slate-700">
-                          <Check className="h-4 w-4 text-emerald-600 shrink-0" />
+                          <Check className="h-4 w-4 text-[var(--color-primary-main)] shrink-0" />
                           <span>{item}</span>
                         </li>
                       ))}
@@ -657,7 +657,7 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
 
             {/* Tab 3: INSTRUCTOR PROFILE SPOTLIGHT */}
             {activeTab === "instructor" && (
-              <div className="bg-gradient-to-br from-white via-emerald-50/20 to-white rounded-3xl p-6 sm:p-8 border border-emerald-950/10 shadow-sm space-y-6 animate-in fade-in duration-300">
+              <div className="bg-gradient-to-br from-white via-slate-50/20 to-white rounded-3xl p-6 sm:p-8 border border-brand-dark/10 shadow-sm space-y-6 animate-in fade-in duration-300">
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 pb-6 border-b border-slate-100">
                   <Link
                     href={`/${locale}/instructors/${instructorTarget}`}
@@ -668,7 +668,7 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
                     className="flex items-center gap-4 sm:gap-5 group/tabinst cursor-pointer"
                     title={t("viewInstructorProfile")}
                   >
-                    <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-white p-1 overflow-hidden relative border-2 border-emerald-500/30 shadow-md shrink-0 ring-4 ring-emerald-500/10 group-hover/tabinst:ring-emerald-500/30 group-hover/tabinst:scale-105 transition-all duration-300 flex items-center justify-center">
+                    <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-white p-1 overflow-hidden relative border-2 border-[var(--color-primary-main)]/30 shadow-md shrink-0 ring-4 ring-[var(--color-primary-main)]/10 group-hover/tabinst:ring-[var(--color-primary-main)]/30 group-hover/tabinst:scale-105 transition-all duration-300 flex items-center justify-center">
                       {!avatarError && (instructorObj?.avatar || course.instructorAvatar) ? (
                         <Image
                           src={instructorObj?.avatar || course.instructorAvatar || ""}
@@ -679,14 +679,14 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
                           className="w-full h-full object-cover rounded-xl"
                         />
                       ) : (
-                        <div className="w-full h-full rounded-xl bg-gradient-to-br from-emerald-50 via-slate-50 to-emerald-100/70 flex items-center justify-center border border-emerald-100/80 text-xl sm:text-2xl font-black text-[#0F5244]">
+                        <div className="w-full h-full rounded-xl bg-gradient-to-br from-slate-50 via-slate-50 to-slate-100/70 flex items-center justify-center border border-slate-100/80 text-xl sm:text-2xl font-black text-[var(--color-primary-main)]">
                           {((isAr ? (instructorObj?.nameAr || course.instructorNameAr || course.instructorName) : (instructorObj?.name || course.instructorName)) || "U").trim().charAt(0).toUpperCase()}
                         </div>
                       )}
                     </div>
                     <div className="space-y-1.5">
                       <div className="flex items-center gap-2">
-                        <h3 className="text-lg sm:text-2xl font-black text-slate-900 group-hover/tabinst:text-[#0F5244] group-hover/tabinst:underline transition-colors tracking-tight">
+                        <h3 className="text-lg sm:text-2xl font-black text-slate-900 group-hover/tabinst:text-[var(--color-primary-main)] group-hover/tabinst:underline transition-colors tracking-tight">
                           {isAr ? (instructorObj?.nameAr || course.instructorNameAr || course.instructorName) : (instructorObj?.name || course.instructorName)}
                         </h3>
                         <VerifiedBadge size="sm" />
@@ -696,7 +696,7 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
                       </p>
                       <div className="flex flex-wrap items-center gap-2.5 pt-0.5 text-xs text-slate-600 font-bold">
 
-                        <span className="inline-flex items-center gap-1 text-[#0F5244] bg-[#E8F3F1] px-2 py-0.5 rounded-md">
+                        <span className="inline-flex items-center gap-1 text-[var(--color-primary-main)] bg-[#E8F3F1] px-2 py-0.5 rounded-md">
                           <Users className="h-3.5 w-3.5" />
                           <span>
                             {t("studentsCount", { count: course.studentsCount || 0 })}
@@ -712,7 +712,7 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
                       e.preventDefault();
                       router.push(`/${locale}/instructors/${instructorTarget}`);
                     }}
-                    className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#0F5244] hover:bg-[#07382E] text-white font-black text-xs sm:text-sm shadow-md hover:shadow-lg transition-all active:scale-95 cursor-pointer group/btn"
+                    className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-brand-dark hover:bg-[#07382E] text-white font-black text-xs sm:text-sm shadow-md hover:shadow-lg transition-all active:scale-95 cursor-pointer group/btn"
                   >
                     <span>{t("viewFullProfile")}</span>
                     <ArrowRight className="h-4 w-4 rtl:rotate-180 group-hover/btn:translate-x-0.5 rtl:group-hover/btn:-translate-x-0.5 transition-transform" />
@@ -745,7 +745,7 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
               <div className="flex items-baseline gap-3">
                 <span className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">
                   {isFree ? (
-                    <span className="text-emerald-600 font-extrabold">{t("free")}</span>
+                    <span className="text-[var(--color-primary-main)] font-extrabold">{t("free")}</span>
                   ) : (
                     course.priceFormatted || `$${course.price}`
                   )}
@@ -774,7 +774,7 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
                     </p>
                     <Link
                       href={`/${locale}/student/learn/${course.id}`}
-                      className="inline-flex items-center justify-center gap-2 w-full py-2.5 px-4 rounded-xl bg-[#0F5244] text-white text-xs font-bold hover:bg-[#07382E] transition-colors shadow-xs cursor-pointer"
+                      className="inline-flex items-center justify-center gap-2 w-full py-2.5 px-4 rounded-xl bg-brand-dark text-white text-xs font-bold hover:bg-[#07382E] transition-colors shadow-xs cursor-pointer"
                     >
                       <Play className="h-3.5 w-3.5 fill-white" />
                       <span>{isAr ? "الدخول للدروس ومتابعة المحتوى" : "Open Course Lessons"}</span>
@@ -789,13 +789,13 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
                   </div>
                 ) : isInstructor ? (
                   isOwner ? (
-                    <div className="w-full py-4 px-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-center space-y-2.5">
-                      <p className="text-xs font-bold text-emerald-900">
+                    <div className="w-full py-4 px-4 rounded-2xl bg-slate-100 border border-slate-200 text-center space-y-2.5">
+                      <p className="text-xs font-bold text-brand-dark">
                         {t("youAreInstructor")}
                       </p>
                       <Link
                         href={`/${locale}/instructor/courses/create?id=${course.id}`}
-                        className="inline-flex items-center justify-center gap-2 w-full py-2.5 px-4 rounded-xl bg-[#0F5244] text-white text-xs font-bold hover:bg-[#07382E] transition-colors shadow-xs cursor-pointer"
+                        className="inline-flex items-center justify-center gap-2 w-full py-2.5 px-4 rounded-xl bg-brand-dark text-white text-xs font-bold hover:bg-[#07382E] transition-colors shadow-xs cursor-pointer"
                       >
                         <span>{t("editInStudio")}</span>
                         <ArrowRight className="h-4 w-4 rtl:rotate-180" />
@@ -817,7 +817,7 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
                       </button>
                       <Link
                         href={`/${locale}/instructor/dashboard`}
-                        className="inline-flex items-center justify-center gap-2 w-full py-2.5 px-4 rounded-xl bg-[#0F5244] text-white text-xs font-bold hover:bg-[#07382E] transition-colors cursor-pointer"
+                        className="inline-flex items-center justify-center gap-2 w-full py-2.5 px-4 rounded-xl bg-brand-dark text-white text-xs font-bold hover:bg-[#07382E] transition-colors cursor-pointer"
                       >
                         <span>{t("goToInstructorDashboard")}</span>
                         <ArrowRight className="h-4 w-4 rtl:rotate-180" />
@@ -829,7 +829,7 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
                   <button
                     type="button"
                     onClick={handleGoToCourse}
-                    className="w-full py-4 px-6 rounded-xl bg-[#0F5244] hover:bg-[#07382E] text-white text-base font-extrabold shadow-md hover:shadow-lg transition-all active:scale-98 flex items-center justify-center gap-2 cursor-pointer"
+                    className="w-full py-4 px-6 rounded-xl bg-brand-dark hover:bg-[#07382E] text-white text-base font-extrabold shadow-md hover:shadow-lg transition-all active:scale-98 flex items-center justify-center gap-2 cursor-pointer"
                   >
                     <span>{t("goToCourse")}</span>
                     <ArrowRight className="h-5 w-5 rtl:rotate-180" />
@@ -839,7 +839,7 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
                   <button
                     type="button"
                     onClick={handleFreeEnroll}
-                    className="w-full py-4 px-6 rounded-xl bg-[#0F5244] hover:bg-[#07382E] text-white text-base font-extrabold shadow-md hover:shadow-lg transition-all active:scale-98 flex items-center justify-center gap-2 cursor-pointer"
+                    className="w-full py-4 px-6 rounded-xl bg-brand-dark hover:bg-[#07382E] text-white text-base font-extrabold shadow-md hover:shadow-lg transition-all active:scale-98 flex items-center justify-center gap-2 cursor-pointer"
                   >
                     <span>{t("enrollFree")}</span>
                   </button>
@@ -850,7 +850,7 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
                       <button
                         type="button"
                         onClick={() => router.push(`/${locale}/student/cart`)}
-                        className="w-full py-3.5 px-6 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-base font-extrabold shadow-md hover:shadow-lg transition-all active:scale-98 flex items-center justify-center gap-2.5 cursor-pointer ring-2 ring-emerald-500/30"
+                        className="w-full py-3.5 px-6 rounded-xl bg-[var(--color-primary-dark)] hover:bg-brand-dark text-white text-base font-extrabold shadow-md hover:shadow-lg transition-all active:scale-98 flex items-center justify-center gap-2.5 cursor-pointer ring-2 ring-[var(--color-primary-main)]/30"
                       >
                         <Check className="h-5 w-5" />
                         <span>{isAr ? "في السلة (الانتقال إلى السلة)" : "In Cart (Go to Cart)"}</span>
@@ -859,7 +859,7 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
                       <button
                         type="button"
                         onClick={handleAddToCart}
-                        className="w-full py-3.5 px-6 rounded-xl bg-[#0F5244] hover:bg-[#07382E] text-white text-base font-extrabold shadow-md hover:shadow-lg transition-all active:scale-98 flex items-center justify-center gap-2 cursor-pointer"
+                        className="w-full py-3.5 px-6 rounded-xl bg-brand-dark hover:bg-[#07382E] text-white text-base font-extrabold shadow-md hover:shadow-lg transition-all active:scale-98 flex items-center justify-center gap-2 cursor-pointer"
                       >
                         <ShoppingCart className="h-5 w-5" />
                         <span>{t("addToCart")}</span>
@@ -903,13 +903,13 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
             </div>
 
             {/* Need Extra Guidance / Mentor Banner Box (Dark Forest Green) */}
-            <div className="rounded-3xl bg-[#0F5244] text-white p-6 shadow-lg space-y-3 relative overflow-hidden">
+            <div className="rounded-3xl bg-brand-dark text-white p-6 shadow-lg space-y-3 relative overflow-hidden">
               <div className="absolute top-0 right-0 w-32 h-32 bg-[#45D1B4]/10 rounded-full blur-xl pointer-events-none" />
 
               <h4 className="text-base font-extrabold tracking-tight">
                 {t("needGuidance")}
               </h4>
-              <p className="text-xs text-emerald-100/90 leading-relaxed font-medium">
+              <p className="text-xs text-slate-100/90 leading-relaxed font-medium">
                 {t("bookSession")}
               </p>
               

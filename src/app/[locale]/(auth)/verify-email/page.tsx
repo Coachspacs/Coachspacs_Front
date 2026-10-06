@@ -125,7 +125,7 @@ function VerifyEmailContent() {
       {/* STATE 1: Automatic Verification In Progress */}
       {verifying && (
         <div className="flex flex-col items-center text-center py-4 animate-in fade-in duration-200">
-          <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-50 text-[#0F5244] border border-emerald-100 shadow-xs">
+          <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-50 text-brand-dark border border-slate-100 shadow-xs">
             <Loader2 className="h-7 w-7 animate-spin" />
           </div>
           <h1 className="text-lg sm:text-xl font-extrabold text-slate-900 tracking-tight mb-1.5">
@@ -140,8 +140,8 @@ function VerifyEmailContent() {
       {/* STATE 2: Verification Succeeded */}
       {!verifying && verifiedSuccess && (
         <div className="flex flex-col items-center text-center py-2 animate-in zoom-in-95 duration-200">
-          <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-50 text-[#0F5244] border border-emerald-200 shadow-xs">
-            <CheckCircle2 size={32} className="text-[#0F5244]" />
+          <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-50 text-brand-dark border border-slate-200 shadow-xs">
+            <CheckCircle2 size={32} className="text-brand-dark" />
           </div>
           <h1 className="text-lg sm:text-xl font-extrabold text-slate-900 tracking-tight mb-1.5">
             {t("emailVerifiedTitle")}
@@ -151,7 +151,7 @@ function VerifyEmailContent() {
           </p>
           <Link
             href={`/${locale}/login`}
-            className="group flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#0F5244] hover:bg-[#083A30] px-5 text-xs sm:text-sm font-extrabold text-white shadow-md transition-all active:scale-[0.99] cursor-pointer"
+            className="group flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-brand-dark hover:bg-[#083A30] px-5 text-xs sm:text-sm font-extrabold text-white shadow-md transition-all active:scale-[0.99] cursor-pointer"
           >
             <span>{t("login")}</span>
             <ArrowRight
@@ -188,7 +188,7 @@ function VerifyEmailContent() {
                   value={emailInput}
                   onChange={(e) => setEmailInput(e.target.value)}
                   placeholder="name@example.com"
-                  className="w-full h-10 px-3 py-2 text-xs rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-[#0F5244]/20 focus:border-[#0F5244]"
+                  className="w-full h-10 px-3 py-2 text-xs rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-brand-dark/20 focus:border-brand-dark"
                 />
               </div>
             </div>
@@ -198,7 +198,7 @@ function VerifyEmailContent() {
             type="button"
             disabled={resending}
             onClick={() => handleResend()}
-            className="flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#0F5244] hover:bg-[#083A30] px-4 text-xs sm:text-sm font-extrabold text-white shadow-md transition-all disabled:opacity-70 cursor-pointer active:scale-[0.99]"
+            className="flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-brand-dark hover:bg-[#083A30] px-4 text-xs sm:text-sm font-extrabold text-white shadow-md transition-all disabled:opacity-70 cursor-pointer active:scale-[0.99]"
           >
             {resending ? (
               <Loader2 size={16} className="animate-spin" />
@@ -211,8 +211,8 @@ function VerifyEmailContent() {
           </button>
 
           {resendSuccessMessage && (
-            <div className="mt-3 flex items-center justify-center gap-1.5 text-xs font-semibold text-emerald-700 bg-emerald-50 p-2.5 rounded-xl border border-emerald-200/80 w-full">
-              <CheckCircle2 size={15} className="shrink-0 text-emerald-600" />
+            <div className="mt-3 flex items-center justify-center gap-1.5 text-xs font-semibold text-brand-dark bg-slate-50 p-2.5 rounded-xl border border-slate-200/80 w-full">
+              <CheckCircle2 size={15} className="shrink-0 text-[var(--color-primary-main)]" />
               <span>{resendSuccessMessage}</span>
             </div>
           )}
@@ -226,7 +226,7 @@ function VerifyEmailContent() {
           <div className="mt-4 pt-3 border-t border-slate-100 w-full">
             <Link
               href={`/${locale}/login`}
-              className="text-xs font-bold text-[#0F5244] hover:underline"
+              className="text-xs font-bold text-brand-dark hover:underline"
             >
               {t("backToSignIn")}
             </Link>
@@ -237,8 +237,8 @@ function VerifyEmailContent() {
       {/* STATE 4: Pending Inbox Verification (Main Screen after Register or manual navigation) */}
       {!verifying && !verifiedSuccess && !token && (
         <div className="flex flex-col items-center text-center py-1 animate-in fade-in duration-200">
-          <div className="mb-3.5 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-50 text-[#0F5244] border border-emerald-200 shadow-xs">
-            <Mail size={30} className="text-[#0F5244]" />
+          <div className="mb-3.5 flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-50 text-brand-dark border border-slate-200 shadow-xs">
+            <Mail size={30} className="text-brand-dark" />
           </div>
 
           <h1 className="text-lg sm:text-xl font-extrabold text-slate-900 tracking-tight mb-1.5">
@@ -252,7 +252,7 @@ function VerifyEmailContent() {
           {/* Clean Email Pill or Input */}
           {emailInput ? (
             <div className="my-2.5 inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-50 border border-slate-200 text-slate-700 text-xs font-semibold dir-ltr shadow-xs max-w-full truncate">
-              <span className="h-2 w-2 rounded-full bg-emerald-500 shrink-0" />
+              <span className="h-2 w-2 rounded-full bg-[var(--color-primary-main)] shrink-0" />
               <span className="truncate">{emailInput}</span>
             </div>
           ) : (
@@ -262,7 +262,7 @@ function VerifyEmailContent() {
                 value={emailInput}
                 onChange={(e) => setEmailInput(e.target.value)}
                 placeholder="name@example.com"
-                className="w-full h-10 px-3 py-2 text-xs rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-[#0F5244]/20 focus:border-[#0F5244]"
+                className="w-full h-10 px-3 py-2 text-xs rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-brand-dark/20 focus:border-brand-dark"
               />
             </div>
           )}
@@ -274,7 +274,7 @@ function VerifyEmailContent() {
           {/* Primary Action Button */}
           <Link
             href={`/${locale}/login`}
-            className="group mb-3.5 flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#0F5244] hover:bg-[#083A30] px-5 text-xs sm:text-sm font-extrabold text-white shadow-md transition-all active:scale-[0.99] cursor-pointer"
+            className="group mb-3.5 flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-brand-dark hover:bg-[#083A30] px-5 text-xs sm:text-sm font-extrabold text-white shadow-md transition-all active:scale-[0.99] cursor-pointer"
           >
             <span>{t("proceedToSignIn")}</span>
             <ArrowRight
@@ -291,7 +291,7 @@ function VerifyEmailContent() {
                 type="button"
                 disabled={resending}
                 onClick={() => handleResend()}
-                className="font-bold text-[#0F5244] hover:underline cursor-pointer disabled:opacity-50 inline-flex items-center gap-1"
+                className="font-bold text-brand-dark hover:underline cursor-pointer disabled:opacity-50 inline-flex items-center gap-1"
               >
                 {resending && <Loader2 size={12} className="animate-spin inline" />}
                 <span>{t("resendLink")}</span>
@@ -299,8 +299,8 @@ function VerifyEmailContent() {
             </div>
 
             {resendSuccessMessage && (
-              <div className="mt-2.5 flex items-center justify-center gap-1.5 rounded-xl bg-emerald-50 p-2 text-xs font-semibold text-emerald-800 border border-emerald-200/70 animate-in fade-in duration-200">
-                <CheckCircle2 size={14} className="shrink-0 text-emerald-600" />
+              <div className="mt-2.5 flex items-center justify-center gap-1.5 rounded-xl bg-slate-50 p-2 text-xs font-semibold text-brand-dark border border-slate-200/70 animate-in fade-in duration-200">
+                <CheckCircle2 size={14} className="shrink-0 text-[var(--color-primary-main)]" />
                 <span>{resendSuccessMessage}</span>
               </div>
             )}
@@ -317,7 +317,7 @@ function VerifyEmailContent() {
       {/* Footer Security Badge */}
       <div className="mt-4 border-t border-slate-100 pt-3 text-center">
         <div className="flex items-center justify-center gap-1.5 text-[11px] text-slate-400 font-medium">
-          <ShieldCheck size={13} className="text-emerald-600" />
+          <ShieldCheck size={13} className="text-[var(--color-primary-main)]" />
           <span>{t("encryptedConnection")}</span>
         </div>
       </div>
@@ -330,7 +330,7 @@ export default function VerifyEmailPage() {
     <Suspense
       fallback={
         <div className="flex min-h-[400px] items-center justify-center">
-          <Loader2 className="h-8 w-8 animate-spin text-[#0F5244]" />
+          <Loader2 className="h-8 w-8 animate-spin text-brand-dark" />
         </div>
       }
     >

@@ -340,7 +340,7 @@ export function InstructorStudentsTab({
             <h2 className="text-xl sm:text-2xl font-black text-slate-900">
               {tInst("enrolledStudentsTitle")}
             </h2>
-            <span className="px-2.5 py-0.5 rounded-full bg-emerald-50 text-[#0F5244] border border-emerald-200 text-xs font-bold">
+            <span className="px-2.5 py-0.5 rounded-full bg-slate-100 text-[var(--color-primary-main)] border border-slate-200 text-xs font-bold">
               {displayTotalCount}
             </span>
           </div>
@@ -359,7 +359,7 @@ export function InstructorStudentsTab({
               <select
                 value={selectedCourseId}
                 onChange={(e) => setSelectedCourseId(e.target.value)}
-                className="w-full h-11 rounded-2xl border border-slate-200 bg-white px-3 text-xs font-bold text-slate-800 focus:border-[#0F5244] focus:ring-2 focus:ring-[#0F5244]/10 focus:outline-none transition-all cursor-pointer truncate"
+                className="w-full h-11 rounded-2xl border border-slate-200 bg-white px-3 text-xs font-bold text-slate-800 focus:border-brand-dark focus:ring-2 focus:ring-brand-dark/10 focus:outline-none transition-all cursor-pointer truncate"
               >
                 <option value="all">
                   {isAr ? "جميع الدورات التدريبية" : "All Courses"}
@@ -381,7 +381,7 @@ export function InstructorStudentsTab({
               value={studentSearch}
               onChange={(e) => setStudentSearch(e.target.value)}
               placeholder={tDash("searchStudentPlaceholder")}
-              className="w-full h-11 rounded-2xl border border-slate-200 bg-slate-50/60 rtl:pr-10 ltr:pl-10 px-3 text-xs font-semibold text-slate-900 focus:bg-white focus:border-[#0F5244] focus:ring-2 focus:ring-[#0F5244]/10 focus:outline-none transition-all"
+              className="w-full h-11 rounded-2xl border border-slate-200 bg-slate-50/60 rtl:pr-10 ltr:pl-10 px-3 text-xs font-semibold text-slate-900 focus:bg-white focus:border-brand-dark focus:ring-2 focus:ring-brand-dark/10 focus:outline-none transition-all"
             />
           </div>
         </div>
@@ -476,7 +476,7 @@ export function InstructorStudentsTab({
                       >
                         <td className="px-5 py-4 whitespace-nowrap">
                           <div className="flex items-center gap-3">
-                            <div className="w-9 h-9 rounded-full bg-[#0F5244]/10 text-[#0F5244] font-black text-xs flex items-center justify-center shrink-0 border border-[#0F5244]/20 overflow-hidden">
+                            <div className="w-9 h-9 rounded-full bg-brand-dark/10 text-[var(--color-primary-main)] font-black text-xs flex items-center justify-center shrink-0 border border-brand-dark/20 overflow-hidden">
                               {student.avatar ? (
                                 <Image
                                   src={student.avatar}
@@ -512,8 +512,8 @@ export function InstructorStudentsTab({
                               <div
                                 className={`h-full rounded-full transition-all duration-500 ${
                                   student.progress === 100
-                                    ? "bg-emerald-600"
-                                    : "bg-[#0F5244]"
+                                    ? "bg-[var(--color-primary-dark)]"
+                                    : "bg-brand-dark"
                                 }`}
                                 style={{ width: `${Math.min(100, Math.max(0, student.progress))}%` }}
                               />
@@ -521,7 +521,7 @@ export function InstructorStudentsTab({
                             <span
                               className={`px-2 py-0.5 rounded-md text-[10px] font-black ${
                                 student.progress === 100
-                                  ? "bg-emerald-100 text-emerald-800"
+                                  ? "bg-slate-200 text-[var(--color-primary-main)]"
                                   : "bg-slate-100 text-slate-700"
                               }`}
                             >
@@ -533,13 +533,13 @@ export function InstructorStudentsTab({
                           <span
                             className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-extrabold ${
                               student.status === "completed" || student.progress === 100
-                                ? "bg-emerald-50 text-emerald-800 border border-emerald-200"
+                                ? "bg-slate-100 text-[var(--color-primary-main)] border border-slate-200"
                                 : "bg-blue-50 text-blue-800 border border-blue-200"
                             }`}
                           >
                             {student.status === "completed" || student.progress === 100 ? (
                               <>
-                                <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                                <CheckCircle2 className="w-3 h-3 text-[var(--color-primary-main)]" />
                                 <span>{isAr ? "مكتمل" : "Completed"}</span>
                               </>
                             ) : (
@@ -561,7 +561,7 @@ export function InstructorStudentsTab({
                     <div key={student.id} className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm flex flex-col gap-3">
                       <div className="flex items-start justify-between gap-2">
                         <div className="flex items-center gap-3 min-w-0">
-                          <div className="w-10 h-10 rounded-full bg-[#0F5244]/10 text-[#0F5244] font-black text-sm flex items-center justify-center shrink-0 border border-[#0F5244]/20 overflow-hidden">
+                          <div className="w-10 h-10 rounded-full bg-brand-dark/10 text-[var(--color-primary-main)] font-black text-sm flex items-center justify-center shrink-0 border border-brand-dark/20 overflow-hidden">
                             {student.avatar ? (
                               <Image
                                 src={student.avatar}
@@ -587,13 +587,13 @@ export function InstructorStudentsTab({
                         <span
                             className={`shrink-0 inline-flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-extrabold ${
                               student.status === "completed" || student.progress === 100
-                                ? "bg-emerald-50 text-emerald-800 border border-emerald-200"
+                                ? "bg-slate-100 text-[var(--color-primary-main)] border border-slate-200"
                                 : "bg-blue-50 text-blue-800 border border-blue-200"
                             }`}
                           >
                             {student.status === "completed" || student.progress === 100 ? (
                               <>
-                                <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                                <CheckCircle2 className="w-3 h-3 text-[var(--color-primary-main)]" />
                                 <span>{isAr ? "مكتمل" : "Completed"}</span>
                               </>
                             ) : (
@@ -619,14 +619,14 @@ export function InstructorStudentsTab({
                       <div className="flex flex-col gap-1.5 mt-1">
                         <div className="flex justify-between items-center text-[10px] font-bold">
                           <span className="text-slate-500 uppercase tracking-wider">{tInst("progressCol")}</span>
-                          <span className={student.progress === 100 ? "text-emerald-600" : "text-[#0F5244]"}>{student.progress}%</span>
+                          <span className={student.progress === 100 ? "text-[var(--color-primary-main)]" : "text-[var(--color-primary-main)]"}>{student.progress}%</span>
                         </div>
                         <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
                           <div
                             className={`h-full rounded-full transition-all duration-500 ${
                               student.progress === 100
-                                ? "bg-emerald-600"
-                                : "bg-[#0F5244]"
+                                ? "bg-[var(--color-primary-dark)]"
+                                : "bg-brand-dark"
                             }`}
                             style={{ width: `${Math.min(100, Math.max(0, student.progress))}%` }}
                           />

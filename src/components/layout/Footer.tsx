@@ -105,7 +105,7 @@ export function Footer({ lang, variant = "main" }: FooterProps) {
           <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-xs font-medium text-slate-500">
             {/* Copyright */}
             <div className="flex items-center gap-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#0F5244] shrink-0" />
+              <span className="w-1.5 h-1.5 rounded-full bg-brand-dark shrink-0" />
               <span suppressHydrationWarning>
                 © {new Date().getFullYear()} Coach Space. {t("rights")}
               </span>
@@ -115,21 +115,21 @@ export function Footer({ lang, variant = "main" }: FooterProps) {
             <div className="flex items-center gap-4 text-slate-500">
               <Link
                 href={`/${currentLocale}/certificates/verify`}
-                className="hover:text-[#0F5244] font-semibold transition-colors duration-150"
+                className="hover:text-brand-dark font-semibold transition-colors duration-150"
               >
                 {t("verifyCertificate")}
               </Link>
               <span className="text-slate-300">·</span>
               <Link
                 href={`/${currentLocale}/privacy`}
-                className="hover:text-[#0F5244] font-semibold transition-colors duration-150"
+                className="hover:text-brand-dark font-semibold transition-colors duration-150"
               >
                 {t("privacyPolicy")}
               </Link>
               <span className="text-slate-300">·</span>
               <Link
                 href={`/${currentLocale}/terms`}
-                className="hover:text-[#0F5244] font-semibold transition-colors duration-150"
+                className="hover:text-brand-dark font-semibold transition-colors duration-150"
               >
                 {t("termsOfService")}
               </Link>
@@ -171,7 +171,7 @@ export function Footer({ lang, variant = "main" }: FooterProps) {
   return (
     <footer
       dir={isAr ? "rtl" : "ltr"}
-      className="relative w-full bg-[#0F5244] text-white shrink-0 font-sans border-t border-[#07382E]"
+      className="relative w-full bg-brand-dark text-white shrink-0 font-sans border-t border-[#07382E]"
     >
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Main Footer Grid: 3-column layout */}
@@ -199,7 +199,7 @@ export function Footer({ lang, variant = "main" }: FooterProps) {
               </span>
             </Link>
 
-            <p className="text-[13px] sm:text-sm font-normal text-emerald-100/75 leading-relaxed max-w-md antialiased">
+            <p className="text-[13px] sm:text-sm font-normal text-slate-100/75 leading-relaxed max-w-md antialiased">
               {t("brandSubtitle")}
             </p>
 
@@ -207,12 +207,12 @@ export function Footer({ lang, variant = "main" }: FooterProps) {
             <div className="pt-1">
               <a
                 href="mailto:coachspace4@gmail.com"
-                className="inline-flex items-center gap-2.5 px-3 py-1.5 rounded-lg bg-emerald-950/40 hover:bg-emerald-900/50 border border-emerald-500/20 hover:border-[#45D1B4]/40 text-emerald-100 transition-all duration-200 group cursor-pointer shadow-2xs"
+                className="inline-flex items-center gap-2.5 px-3 py-1.5 rounded-lg bg-brand-dark/40 hover:bg-brand-dark/50 border border-[var(--color-primary-main)]/20 hover:border-[#45D1B4]/40 text-slate-100 transition-all duration-200 group cursor-pointer shadow-2xs"
               >
-                <div className="w-5 h-5 rounded-md bg-[#45D1B4]/20 flex items-center justify-center text-[#45D1B4] group-hover:bg-[#45D1B4] group-hover:text-[#0F5244] transition-colors duration-200 shrink-0">
+                <div className="w-5 h-5 rounded-md bg-[#45D1B4]/20 flex items-center justify-center text-[#45D1B4] group-hover:bg-[#45D1B4] group-hover:text-brand-dark transition-colors duration-200 shrink-0">
                   <Mail className="w-3 h-3" />
                 </div>
-                <span className="text-xs font-medium font-sans tracking-wide text-emerald-100/90 group-hover:text-white transition-colors">
+                <span className="text-xs font-medium font-sans tracking-wide text-slate-100/90 group-hover:text-white transition-colors">
                   coachspace4@gmail.com
                 </span>
               </a>
@@ -225,31 +225,31 @@ export function Footer({ lang, variant = "main" }: FooterProps) {
               <span className="w-1.5 h-1.5 rounded-full bg-[#45D1B4]" />
               {t("explore")}
             </h4>
-            <ul className="space-y-2.5 text-[13px] sm:text-sm font-normal text-emerald-100/80">
+            <ul className="space-y-2.5 text-[13px] sm:text-sm font-normal text-slate-100/80">
               <li>
                 <Link
                   href={`/${currentLocale}/courses`}
-                  className="inline-flex items-center gap-2 text-emerald-100/80 hover:text-[#45D1B4] group transition-colors duration-150"
+                  className="inline-flex items-center gap-2 text-slate-100/80 hover:text-[#45D1B4] group transition-colors duration-150"
                 >
-                  <ChevronRight className="w-3.5 h-3.5 text-emerald-400/60 rtl:rotate-180 group-hover:text-[#45D1B4] group-hover:translate-x-0.5 rtl:group-hover:-translate-x-0.5 transition-transform duration-150" />
+                  <ChevronRight className="w-3.5 h-3.5 text-brand-light/60 rtl:rotate-180 group-hover:text-[#45D1B4] group-hover:translate-x-0.5 rtl:group-hover:-translate-x-0.5 transition-transform duration-150" />
                   <span>{t("courses")}</span>
                 </Link>
               </li>
               <li>
                 <Link
                   href={`/${currentLocale}/categories`}
-                  className="inline-flex items-center gap-2 text-emerald-100/80 hover:text-[#45D1B4] group transition-colors duration-150"
+                  className="inline-flex items-center gap-2 text-slate-100/80 hover:text-[#45D1B4] group transition-colors duration-150"
                 >
-                  <ChevronRight className="w-3.5 h-3.5 text-emerald-400/60 rtl:rotate-180 group-hover:text-[#45D1B4] group-hover:translate-x-0.5 rtl:group-hover:-translate-x-0.5 transition-transform duration-150" />
+                  <ChevronRight className="w-3.5 h-3.5 text-brand-light/60 rtl:rotate-180 group-hover:text-[#45D1B4] group-hover:translate-x-0.5 rtl:group-hover:-translate-x-0.5 transition-transform duration-150" />
                   <span>{t("categories")}</span>
                 </Link>
               </li>
               <li>
                 <Link
                   href={`/${currentLocale}/certificates/verify`}
-                  className="inline-flex items-center gap-2 text-emerald-100/80 hover:text-[#45D1B4] group transition-colors duration-150"
+                  className="inline-flex items-center gap-2 text-slate-100/80 hover:text-[#45D1B4] group transition-colors duration-150"
                 >
-                  <ChevronRight className="w-3.5 h-3.5 text-emerald-400/60 rtl:rotate-180 group-hover:text-[#45D1B4] group-hover:translate-x-0.5 rtl:group-hover:-translate-x-0.5 transition-transform duration-150" />
+                  <ChevronRight className="w-3.5 h-3.5 text-brand-light/60 rtl:rotate-180 group-hover:text-[#45D1B4] group-hover:translate-x-0.5 rtl:group-hover:-translate-x-0.5 transition-transform duration-150" />
                   <span>{t("verifyCertificate")}</span>
                 </Link>
               </li>
@@ -262,7 +262,7 @@ export function Footer({ lang, variant = "main" }: FooterProps) {
               <span className="w-1.5 h-1.5 rounded-full bg-[#45D1B4]" />
               {t("connect")}
             </h4>
-            <p className="text-[13px] text-emerald-100/70 font-normal leading-relaxed">
+            <p className="text-[13px] text-slate-100/70 font-normal leading-relaxed">
               {t("connectSubtitle")}
             </p>
 
@@ -276,7 +276,7 @@ export function Footer({ lang, variant = "main" }: FooterProps) {
                     href={item.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className={`flex items-center justify-between px-3.5 py-2.5 rounded-2xl bg-white/[0.05] border border-white/[0.08] text-emerald-100 transition-all duration-200 cursor-pointer ${item.cardClass}`}
+                    className={`flex items-center justify-between px-3.5 py-2.5 rounded-2xl bg-white/[0.05] border border-white/[0.08] text-slate-100 transition-all duration-200 cursor-pointer ${item.cardClass}`}
                   >
                     <div className="flex items-center gap-3">
                       <div
@@ -289,14 +289,14 @@ export function Footer({ lang, variant = "main" }: FooterProps) {
                           {item.name}
                         </p>
                         <p
-                          className={`text-[11px] text-emerald-200/70 transition-colors duration-150 ${item.textHoverClass}`}
+                          className={`text-[11px] text-slate-200/70 transition-colors duration-150 ${item.textHoverClass}`}
                         >
                           {item.handle}
                         </p>
                       </div>
                     </div>
                     <ExternalLink
-                      className={`w-3.5 h-3.5 text-emerald-200/40 group-hover:translate-x-0.5 rtl:group-hover:-translate-x-0.5 transition-all duration-150 shrink-0 ${item.arrowHoverClass}`}
+                      className={`w-3.5 h-3.5 text-slate-200/40 group-hover:translate-x-0.5 rtl:group-hover:-translate-x-0.5 transition-all duration-150 shrink-0 ${item.arrowHoverClass}`}
                     />
                   </a>
                 );
@@ -306,7 +306,7 @@ export function Footer({ lang, variant = "main" }: FooterProps) {
         </div>
 
         {/* Bottom Section: Perfectly aligned Copyright, Legal links, and SSL status */}
-        <div className="border-t border-white/[0.08] py-5 flex flex-col md:flex-row items-center justify-between gap-3 sm:gap-4 text-xs font-medium text-emerald-200/75">
+        <div className="border-t border-white/[0.08] py-5 flex flex-col md:flex-row items-center justify-between gap-3 sm:gap-4 text-xs font-medium text-slate-200/75">
           
           {/* Copyright */}
           <div
@@ -320,21 +320,21 @@ export function Footer({ lang, variant = "main" }: FooterProps) {
           </div>
 
           {/* Legal Links */}
-          <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 text-emerald-200/85 order-1 md:order-2">
+          <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 text-slate-200/85 order-1 md:order-2">
             <Link
               href={`/${currentLocale}/privacy`}
               className="hover:text-[#45D1B4] transition-colors duration-150"
             >
               {t("privacyPolicy")}
             </Link>
-            <span className="text-emerald-400/20 select-none">·</span>
+            <span className="text-brand-light/20 select-none">·</span>
             <Link
               href={`/${currentLocale}/terms`}
               className="hover:text-[#45D1B4] transition-colors duration-150"
             >
               {t("termsOfService")}
             </Link>
-            <span className="text-emerald-400/20 select-none">·</span>
+            <span className="text-brand-light/20 select-none">·</span>
             <Link
               href={`/${currentLocale}/certificates/verify`}
               className="hover:text-[#45D1B4] transition-colors duration-150"
@@ -344,7 +344,7 @@ export function Footer({ lang, variant = "main" }: FooterProps) {
           </div>
 
           {/* SSL Security Badge */}
-          <div className="flex items-center justify-center md:justify-end gap-1.5 text-[11px] text-emerald-200/75 font-medium shrink-0 order-3">
+          <div className="flex items-center justify-center md:justify-end gap-1.5 text-[11px] text-slate-200/75 font-medium shrink-0 order-3">
             <div className="w-4 h-4 rounded-full bg-[#45D1B4]/15 border border-[#45D1B4]/25 flex items-center justify-center text-[#45D1B4] shrink-0">
               <Lock className="w-2.5 h-2.5" />
             </div>

@@ -15,7 +15,7 @@ export default function ResetPasswordPage() {
       <Suspense
         fallback={
           <div className="flex min-h-[300px] items-center justify-center">
-            <Loader2 className="h-8 w-8 animate-spin text-[#0F5244]" />
+            <Loader2 className="h-8 w-8 animate-spin text-brand-dark" />
           </div>
         }
       >

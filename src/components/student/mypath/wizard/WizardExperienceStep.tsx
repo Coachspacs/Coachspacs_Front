@@ -137,7 +137,7 @@ export function WizardExperienceStep({
               }}
               className={`w-full p-4 sm:p-5 rounded-2xl border text-start transition-all cursor-pointer flex items-center justify-between gap-4 ${
                 isSelected
-                  ? "bg-white border-2 border-emerald-400 shadow-xs"
+                  ? "bg-white border-2 border-slate-200 shadow-xs"
                   : "bg-white border border-slate-200/90 hover:border-slate-300 hover:bg-slate-50/40"
               }`}
             >
@@ -146,7 +146,7 @@ export function WizardExperienceStep({
                 <div
                   className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
                     isSelected
-                      ? "bg-[#0F5244] text-white shadow-xs"
+                      ? "bg-[var(--color-primary-main)] text-white shadow-xs"
                       : "bg-slate-100 text-slate-500"
                   }`}
                 >
@@ -159,7 +159,7 @@ export function WizardExperienceStep({
                       {isAr ? opt.titleAr : opt.titleEn}
                     </h3>
                     {opt.isRecommended && (
-                      <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200">
+                      <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-slate-100 text-brand-dark border border-slate-200">
                         {isAr ? "موصى به" : "Recommended"}
                       </span>
                     )}
@@ -173,7 +173,7 @@ export function WizardExperienceStep({
               {/* End Side (Radio Check Indicator) */}
               <div className="shrink-0 flex items-center">
                 {isSelected ? (
-                  <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-emerald-600 text-white flex items-center justify-center shadow-xs">
+                  <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-brand text-white flex items-center justify-center shadow-xs">
                     <Check className="w-3.5 h-3.5 stroke-[3]" />
                   </div>
                 ) : (
@@ -185,11 +185,11 @@ export function WizardExperienceStep({
         })}
 
         {/* AI Guarantee Note */}
-        <div className="rounded-2xl bg-gradient-to-r from-emerald-50 via-teal-50/70 to-emerald-50 border border-emerald-200/80 p-3.5 sm:p-4 flex items-center gap-3.5 shadow-2xs text-start mt-2">
-          <div className="w-9 h-9 rounded-xl bg-white border border-emerald-200/80 text-[#0F5244] flex items-center justify-center shrink-0 shadow-xs">
+        <div className="rounded-2xl bg-gradient-to-r from-slate-100 via-slate-100 to-slate-100 border border-slate-200 p-3.5 sm:p-4 flex items-center gap-3.5 shadow-2xs text-start mt-2">
+          <div className="w-9 h-9 rounded-xl bg-white border border-slate-200 text-[var(--color-primary-main)] flex items-center justify-center shrink-0 shadow-xs">
             <ShieldCheck className="w-5 h-5 stroke-[2.5]" />
           </div>
-          <p className="text-xs text-emerald-950 font-bold leading-relaxed">
+          <p className="text-xs text-brand-dark font-bold leading-relaxed">
             {isAr
               ? "سيقوم الذكاء الاصطناعي بربط مسارك بالدورات المنشورة فعلياً في المنصة لضمان إمكانية التسجيل والدراسة فوراً."
               : "AI maps your roadmap exclusively to active published courses on Coach Space for immediate study."}
@@ -213,10 +213,10 @@ export function WizardExperienceStep({
         <button
           type="button"
           onClick={onGenerate}
-          className="inline-flex items-center gap-2 bg-[#0F5244] hover:bg-[#07382E] text-white text-xs sm:text-sm font-bold px-8 py-3 sm:py-3.5 rounded-xl transition-all shadow-md hover:shadow-lg cursor-pointer transform hover:-translate-y-0.5"
+          className="inline-flex items-center gap-2 bg-[var(--color-primary-main)] hover:bg-[var(--color-primary-dark)] text-white text-xs sm:text-sm font-bold px-8 py-3 sm:py-3.5 rounded-xl transition-all shadow-md hover:shadow-lg cursor-pointer transform hover:-translate-y-0.5"
         >
           <span>{isAr ? "توليد الخارطة بالذكاء الاصطناعي" : "Generate My Roadmap with AI"}</span>
-          <Sparkles className="w-4 h-4 text-emerald-300 animate-pulse" />
+          <Sparkles className="w-4 h-4 text-brand animate-pulse" />
         </button>
       </div>
     </div>

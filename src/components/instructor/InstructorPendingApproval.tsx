@@ -135,7 +135,7 @@ export function InstructorPendingApproval() {
                       className="w-full h-full object-cover rounded-full"
                     />
                   ) : (
-                    <span className="font-extrabold text-xl text-[#0F5244]">
+                    <span className="font-extrabold text-xl text-[var(--color-primary-main)]">
                       {fullName.trim().charAt(0).toUpperCase() || "I"}
                     </span>
                   )}
@@ -227,14 +227,14 @@ export function InstructorPendingApproval() {
             <div
               className={`p-3.5 rounded-2xl border text-xs font-bold flex items-center gap-2.5 animate-in fade-in duration-150 ${
                 feedback.type === "success"
-                  ? "bg-emerald-50 text-emerald-800 border-emerald-200"
+                  ? "bg-slate-100 text-[var(--color-primary-main)] border-slate-200"
                   : feedback.type === "error"
                     ? "bg-red-50 text-red-800 border-red-200"
                     : "bg-amber-50 text-amber-900 border-amber-200"
               }`}
             >
               {feedback.type === "success" ? (
-                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                <CheckCircle2 className="w-4 h-4 text-[var(--color-primary-main)] shrink-0" />
               ) : feedback.type === "error" ? (
                 <AlertCircle className="w-4 h-4 text-red-600 shrink-0" />
               ) : (
@@ -250,7 +250,7 @@ export function InstructorPendingApproval() {
               type="button"
               onClick={handleCheckStatus}
               disabled={isChecking}
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-[#0F5244] hover:bg-[#07382E] text-white text-xs sm:text-sm font-bold shadow-xs transition-all active:scale-[0.98] disabled:opacity-60 cursor-pointer"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-brand-dark hover:bg-[#07382E] text-white text-xs sm:text-sm font-bold shadow-xs transition-all active:scale-[0.98] disabled:opacity-60 cursor-pointer"
             >
               <RefreshCw
                 className={`w-3.5 h-3.5 ${isChecking ? "animate-spin" : ""}`}

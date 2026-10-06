@@ -93,7 +93,7 @@ export function HeroSection({ data, previewView, isPreview }: HeroSectionProps =
     <section className="relative w-full overflow-hidden bg-gradient-to-b from-slate-50/80 via-white to-slate-50/40 pt-12 md:pt-16 lg:pt-20 pb-6 sm:pb-8 lg:pb-10">
       {/* Background Animated Aurora Glow */}
       <div className="absolute top-1/4 -left-20 w-96 h-96 rounded-full bg-[#6CF8BB]/15 blur-[100px] pointer-events-none animate-aurora-drift z-0" />
-      <div className="absolute top-10 right-0 w-[32rem] h-[32rem] rounded-full bg-[#0F5244]/8 blur-[120px] pointer-events-none animate-float-delayed z-0" />
+      <div className="absolute top-10 right-0 w-[32rem] h-[32rem] rounded-full bg-brand-dark/8 blur-[120px] pointer-events-none animate-float-delayed z-0" />
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-12 items-center">
@@ -109,10 +109,10 @@ export function HeroSection({ data, previewView, isPreview }: HeroSectionProps =
             {/* Dynamic Welcome Pill / Badge */}
             <motion.div variants={itemVariants}>
               {isPreview ? (
-                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#6CF8BB]/20 text-[#0F5244] border border-[#6CF8BB]/40 shadow-xs mb-6 text-xs font-bold tracking-wider uppercase">
+                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#6CF8BB]/20 text-brand-dark border border-[#6CF8BB]/40 shadow-xs mb-6 text-xs font-bold tracking-wider uppercase">
                   <VerifiedBadge size="xs" />
                   <span>{badgeText}</span>
-                  <span className="ms-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#0F5244] text-white tracking-normal normal-case">
+                  <span className="ms-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold bg-brand-dark text-white tracking-normal normal-case">
                     {previewView === "instructor"
                       ? isAr ? "معاينة: المدربين" : "Preview: Instructors"
                       : previewView === "student"
@@ -121,7 +121,7 @@ export function HeroSection({ data, previewView, isPreview }: HeroSectionProps =
                   </span>
                 </div>
               ) : mounted && isUserAuthenticated ? (
-                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#0F5244] text-white shadow-md mb-6 text-xs sm:text-sm font-bold animate-in fade-in duration-300">
+                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-brand-dark text-white shadow-md mb-6 text-xs sm:text-sm font-bold animate-in fade-in duration-300">
                   <Sparkles className="w-4 h-4 text-[#6CF8BB] shrink-0" />
                   <span>
                     {isInstructor
@@ -133,7 +133,7 @@ export function HeroSection({ data, previewView, isPreview }: HeroSectionProps =
                       className={`hidden sm:inline-block px-2 py-0.5 rounded-full text-[10px] font-bold ${
                         !isApproved
                           ? "bg-amber-400/25 text-amber-200"
-                          : "bg-white/15 text-emerald-200"
+                          : "bg-white/15 text-slate-200"
                       }`}
                     >
                       {isApproved
@@ -143,7 +143,7 @@ export function HeroSection({ data, previewView, isPreview }: HeroSectionProps =
                   )}
                 </div>
               ) : (
-                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#6CF8BB]/20 text-[#0F5244] border border-[#6CF8BB]/40 shadow-xs mb-6 text-xs font-bold tracking-wider uppercase">
+                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#6CF8BB]/20 text-brand-dark border border-[#6CF8BB]/40 shadow-xs mb-6 text-xs font-bold tracking-wider uppercase">
                   <VerifiedBadge size="xs" />
                   <span>{badgeText}</span>
                 </div>
@@ -156,7 +156,7 @@ export function HeroSection({ data, previewView, isPreview }: HeroSectionProps =
               className="text-3xl sm:text-5xl lg:text-[3.25rem] font-extrabold text-slate-900 tracking-tight leading-[1.35] mb-6"
             >
               {titleText}{" "}
-              <span className="text-[#0F5244] block mt-2 sm:mt-3">
+              <span className="text-brand-dark block mt-2 sm:mt-3">
                 {highlightText}
               </span>
             </motion.h1>
@@ -183,7 +183,7 @@ export function HeroSection({ data, previewView, isPreview }: HeroSectionProps =
                           ? `/${locale}/instructor/dashboard`
                           : `/${locale}/instructor/settings`
                       }
-                      className="inline-flex items-center gap-2.5 bg-[#0F5244] hover:bg-[#0c4337] text-white font-bold text-sm sm:text-base px-7 py-3.5 rounded-full shadow-lg shadow-[#0F5244]/20 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0 group cursor-pointer animate-shimmer"
+                      className="inline-flex items-center gap-2.5 bg-brand-dark hover:bg-[#0c4337] text-white font-bold text-sm sm:text-base px-7 py-3.5 rounded-full shadow-lg shadow-brand-dark/20 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0 group cursor-pointer animate-shimmer"
                     >
                       <span>{t("instructorDashboardBtn")}</span>
                       <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 rtl:rotate-180 group-hover:translate-x-1 rtl:group-hover:-translate-x-1 transition-transform" />
@@ -195,7 +195,7 @@ export function HeroSection({ data, previewView, isPreview }: HeroSectionProps =
                           ? `/${locale}/instructor/courses/new`
                           : `/${locale}/instructor/settings`
                       }
-                      className="inline-flex items-center gap-2 bg-white hover:bg-slate-50 text-[#0F5244] border-2 border-[#0F5244]/30 hover:border-[#0F5244] font-bold text-sm sm:text-base px-6 py-3.5 rounded-full shadow-xs transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer"
+                      className="inline-flex items-center gap-2 bg-white hover:bg-slate-50 text-brand-dark border-2 border-brand-dark/30 hover:border-brand-dark font-bold text-sm sm:text-base px-6 py-3.5 rounded-full shadow-xs transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer"
                     >
                       <span>{t("createCourseBtn")}</span>
                     </Link>
@@ -204,7 +204,7 @@ export function HeroSection({ data, previewView, isPreview }: HeroSectionProps =
                   <>
                     <Link
                       href={`/${locale}/student/courses`}
-                      className="inline-flex items-center gap-2.5 bg-[#0F5244] hover:bg-[#0c4337] text-white font-bold text-sm sm:text-base px-7 py-3.5 rounded-full shadow-lg shadow-[#0F5244]/20 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0 group cursor-pointer animate-shimmer"
+                      className="inline-flex items-center gap-2.5 bg-brand-dark hover:bg-[#0c4337] text-white font-bold text-sm sm:text-base px-7 py-3.5 rounded-full shadow-lg shadow-brand-dark/20 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0 group cursor-pointer animate-shimmer"
                     >
                       <span>{t("myLearning")}</span>
                       <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 rtl:rotate-180 group-hover:translate-x-1 rtl:group-hover:-translate-x-1 transition-transform" />
@@ -212,7 +212,7 @@ export function HeroSection({ data, previewView, isPreview }: HeroSectionProps =
 
                     <Link
                       href={`/${locale}/courses`}
-                      className="inline-flex items-center gap-2 bg-white hover:bg-slate-50 text-[#0F5244] border-2 border-[#0F5244]/30 hover:border-[#0F5244] font-bold text-sm sm:text-base px-6 py-3.5 rounded-full shadow-xs transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer"
+                      className="inline-flex items-center gap-2 bg-white hover:bg-slate-50 text-brand-dark border-2 border-brand-dark/30 hover:border-brand-dark font-bold text-sm sm:text-base px-6 py-3.5 rounded-full shadow-xs transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer"
                     >
                       <span>{t("exploreMoreCourses")}</span>
                     </Link>
@@ -222,7 +222,7 @@ export function HeroSection({ data, previewView, isPreview }: HeroSectionProps =
                 <>
                   <Link
                     href={ctaPrimaryLink}
-                    className="inline-flex items-center gap-3 bg-[#0F5244] hover:bg-[#0c4337] text-white font-bold text-sm sm:text-base px-8 py-3.5 rounded-full shadow-lg shadow-[#0F5244]/20 hover:shadow-xl hover:shadow-[#0F5244]/30 transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0 group cursor-pointer animate-shimmer"
+                    className="inline-flex items-center gap-3 bg-brand-dark hover:bg-[#0c4337] text-white font-bold text-sm sm:text-base px-8 py-3.5 rounded-full shadow-lg shadow-brand-dark/20 hover:shadow-xl hover:shadow-brand-dark/30 transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0 group cursor-pointer animate-shimmer"
                   >
                     <span>{ctaPrimaryText}</span>
                     <ArrowRight className="w-5 h-5 rtl:rotate-180 group-hover:translate-x-1 rtl:group-hover:-translate-x-1 transition-transform" />
@@ -230,7 +230,7 @@ export function HeroSection({ data, previewView, isPreview }: HeroSectionProps =
 
                   <Link
                     href={ctaSecondaryLink}
-                    className="inline-flex items-center gap-2 bg-white hover:bg-slate-50 text-[#0F5244] border-2 border-[#0F5244]/30 hover:border-[#0F5244] font-bold text-sm sm:text-base px-6 py-3.5 rounded-full shadow-xs transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer"
+                    className="inline-flex items-center gap-2 bg-white hover:bg-slate-50 text-brand-dark border-2 border-brand-dark/30 hover:border-brand-dark font-bold text-sm sm:text-base px-6 py-3.5 rounded-full shadow-xs transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer"
                   >
                     <span>{ctaSecondaryText}</span>
                   </Link>
@@ -269,7 +269,7 @@ export function HeroSection({ data, previewView, isPreview }: HeroSectionProps =
 
               {/* Floating Card 1: Students */}
               <div className="absolute -top-5 ltr:-left-6 rtl:-right-6 sm:-top-7 sm:ltr:-left-8 sm:rtl:-right-8 bg-white/95 backdrop-blur-md rounded-2xl p-3 sm:p-4 shadow-xl shadow-slate-200/70 border border-slate-100 flex items-center gap-3 sm:gap-4 transition-all duration-300 hover:shadow-2xl hover:scale-[1.05] z-20 select-none animate-float-slow">
-                <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-[#6CF8BB]/25 text-[#0F5244] flex items-center justify-center shrink-0">
+                <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-[#6CF8BB]/25 text-brand-dark flex items-center justify-center shrink-0">
                   <Users className="w-5 h-5 sm:w-6 sm:h-6" />
                 </div>
                 <div>
@@ -284,7 +284,7 @@ export function HeroSection({ data, previewView, isPreview }: HeroSectionProps =
 
               {/* Floating Card 2: Courses */}
               <div className="absolute top-1/2 ltr:-right-6 rtl:-left-6 sm:ltr:-right-8 sm:rtl:-left-8 -translate-y-1/2 bg-white/95 backdrop-blur-md rounded-2xl p-3 sm:p-4 shadow-xl shadow-slate-200/70 border border-slate-100 flex items-center gap-3 sm:gap-4 transition-all duration-300 hover:shadow-2xl hover:scale-[1.05] z-20 select-none animate-float-delayed">
-                <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-[#6CF8BB]/25 text-[#0F5244] flex items-center justify-center shrink-0">
+                <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-[#6CF8BB]/25 text-brand-dark flex items-center justify-center shrink-0">
                   <GraduationCap className="w-5 h-5 sm:w-6 sm:h-6" />
                 </div>
                 <div>
@@ -299,7 +299,7 @@ export function HeroSection({ data, previewView, isPreview }: HeroSectionProps =
 
               {/* Floating Card 3: Certificates */}
               <div className="absolute -bottom-5 ltr:left-6 rtl:right-6 sm:-bottom-7 sm:ltr:left-10 sm:rtl:right-10 bg-white/95 backdrop-blur-md rounded-2xl p-3 sm:p-4 shadow-xl shadow-slate-200/70 border border-slate-100 flex items-center gap-3 sm:gap-4 transition-all duration-300 hover:shadow-2xl hover:scale-[1.05] z-20 select-none animate-float-slow">
-                <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-[#6CF8BB]/25 text-[#0F5244] flex items-center justify-center shrink-0">
+                <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-[#6CF8BB]/25 text-brand-dark flex items-center justify-center shrink-0">
                   <Award className="w-5 h-5 sm:w-6 sm:h-6" />
                 </div>
                 <div>

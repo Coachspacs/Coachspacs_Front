@@ -137,8 +137,8 @@ export function CertificateVerifyView({
     >
       {/* Header Banner */}
       <div className="text-center space-y-3">
-        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-50 border border-emerald-200/80 text-[#0F5244] text-xs font-black shadow-2xs">
-          <ShieldCheck className="w-4 h-4 text-emerald-600" />
+        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-50 border border-slate-200/80 text-brand-dark text-xs font-black shadow-2xs">
+          <ShieldCheck className="w-4 h-4 text-[var(--color-primary-main)]" />
           <span>{t("verifyTitle")}</span>
         </div>
         <h1 className="text-2xl sm:text-4xl font-black text-slate-900 tracking-tight">
@@ -156,11 +156,11 @@ export function CertificateVerifyView({
             e.preventDefault();
             handleVerify();
           }}
-          className="relative flex items-center w-full bg-white rounded-2xl sm:rounded-full border-2 border-slate-200/90 hover:border-slate-300 focus-within:border-[#0F5244] focus-within:ring-4 focus-within:ring-[#0F5244]/15 shadow-sm p-1.5 sm:p-2 transition-all group"
+          className="relative flex items-center w-full bg-white rounded-2xl sm:rounded-full border-2 border-slate-200/90 hover:border-slate-300 focus-within:border-brand-dark focus-within:ring-4 focus-within:ring-brand-dark/15 shadow-sm p-1.5 sm:p-2 transition-all group"
         >
           {/* Search Icon / Badge */}
-          <div className="w-10 h-10 rounded-xl sm:rounded-full bg-emerald-50 border border-emerald-100/80 text-[#0F5244] flex items-center justify-center shrink-0 ms-1 shadow-2xs">
-            <Search className="w-4.5 h-4.5 text-[#0F5244]" />
+          <div className="w-10 h-10 rounded-xl sm:rounded-full bg-slate-50 border border-slate-100/80 text-brand-dark flex items-center justify-center shrink-0 ms-1 shadow-2xs">
+            <Search className="w-4.5 h-4.5 text-brand-dark" />
           </div>
 
           {/* Code Input Field */}
@@ -194,7 +194,7 @@ export function CertificateVerifyView({
           <button
             type="submit"
             disabled={isLoading || !code.trim()}
-            className="h-11 sm:h-12 px-5 sm:px-6 rounded-xl sm:rounded-full bg-[#0F5244] hover:bg-[#0b3d32] text-white text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition-all shadow-sm hover:shadow active:scale-98 disabled:opacity-40 disabled:cursor-not-allowed shrink-0 cursor-pointer"
+            className="h-11 sm:h-12 px-5 sm:px-6 rounded-xl sm:rounded-full bg-brand-dark hover:bg-[#0b3d32] text-white text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition-all shadow-sm hover:shadow active:scale-98 disabled:opacity-40 disabled:cursor-not-allowed shrink-0 cursor-pointer"
           >
             {isLoading ? (
               <>
@@ -215,8 +215,8 @@ export function CertificateVerifyView({
       {isLoading && (
         <div className="p-12 rounded-3xl bg-white border border-slate-200/80 shadow-2xs text-center space-y-4">
           <div className="relative w-16 h-16 mx-auto">
-            <div className="absolute inset-0 rounded-full bg-emerald-100 animate-ping opacity-75" />
-            <div className="relative w-16 h-16 rounded-full bg-emerald-50 border-2 border-[#0F5244] flex items-center justify-center text-[#0F5244]">
+            <div className="absolute inset-0 rounded-full bg-slate-100 animate-ping opacity-75" />
+            <div className="relative w-16 h-16 rounded-full bg-slate-50 border-2 border-brand-dark flex items-center justify-center text-brand-dark">
               <ShieldCheck className="w-8 h-8 animate-pulse" />
             </div>
           </div>
@@ -228,15 +228,15 @@ export function CertificateVerifyView({
 
       {/* Success State: Valid Certificate */}
       {!isLoading && result && (
-        <div className="rounded-3xl border-2 border-emerald-500/30 bg-gradient-to-br from-emerald-50/50 via-white to-white p-6 sm:p-10 shadow-lg relative overflow-hidden space-y-8 animate-in fade-in zoom-in-95 duration-200">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-6 border-b border-emerald-100">
+        <div className="rounded-3xl border-2 border-[var(--color-primary-main)]/30 bg-gradient-to-br from-slate-50/50 via-white to-white p-6 sm:p-10 shadow-lg relative overflow-hidden space-y-8 animate-in fade-in zoom-in-95 duration-200">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-6 border-b border-slate-100">
             <div className="flex items-center gap-3.5">
-              <div className="w-14 h-14 rounded-2xl bg-emerald-500 text-white flex items-center justify-center shrink-0 shadow-md shadow-emerald-500/20">
+              <div className="w-14 h-14 rounded-2xl bg-[var(--color-primary-main)] text-white flex items-center justify-center shrink-0 shadow-md shadow-[var(--color-primary-main)]/20">
                 <ShieldCheck className="w-8 h-8" />
               </div>
               <div>
-                <span className="inline-flex items-center gap-1 text-[11px] font-black text-emerald-800 uppercase tracking-wider">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                <span className="inline-flex items-center gap-1 text-[11px] font-black text-brand-dark uppercase tracking-wider">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-[var(--color-primary-main)]" />
                   {t("verifiedCredential")}
                 </span>
                 <h3 className="text-xl sm:text-2xl font-black text-slate-900">
@@ -252,8 +252,8 @@ export function CertificateVerifyView({
             >
               {copied ? (
                 <>
-                  <Check className="w-4 h-4 text-emerald-600" />
-                  <span className="text-emerald-700">
+                  <Check className="w-4 h-4 text-[var(--color-primary-main)]" />
+                  <span className="text-brand-dark">
                     {t("copiedLink")}
                   </span>
                 </>
@@ -290,14 +290,14 @@ export function CertificateVerifyView({
               <span className="text-xs font-bold text-slate-400 block uppercase tracking-wider">
                 {t("credentialId")}
               </span>
-              <p className="text-base sm:text-lg font-black text-emerald-800 font-mono">
+              <p className="text-base sm:text-lg font-black text-brand-dark font-mono">
                 {result.certificate_code || code}
               </p>
             </div>
           </div>
 
           {/* Authenticity Seal */}
-          <div className="pt-6 border-t border-slate-100 flex items-center gap-2 text-xs text-emerald-800 font-bold">
+          <div className="pt-6 border-t border-slate-100 flex items-center gap-2 text-xs text-brand-dark font-bold">
             <Award className="w-4 h-4 text-amber-500 shrink-0" />
             <span>{t("authenticityNotice")}</span>
           </div>

@@ -73,7 +73,7 @@ export function StudentCoursesTab({
               <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
                 {tWs("enrolledCourses")}
               </h2>
-              <span className="px-2.5 py-0.5 rounded-full bg-emerald-50 text-[#0F5244] border border-emerald-200/80 text-xs font-black shadow-2xs">
+              <span className="px-2.5 py-0.5 rounded-full bg-slate-100 text-[var(--color-primary-main)] border border-slate-200/80 text-xs font-black shadow-2xs">
                 {courses.length}
               </span>
             </div>
@@ -95,7 +95,7 @@ export function StudentCoursesTab({
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder={isAr ? "ابحث في دوراتك..." : "Search courses..."}
-              className="w-full h-10 rounded-2xl border border-slate-200 bg-slate-50/60 rtl:pr-10 ltr:pl-10 px-3 text-xs font-semibold text-slate-900 focus:bg-white focus:border-[#0F5244] focus:ring-2 focus:ring-[#0F5244]/10 focus:outline-none transition-all placeholder:text-slate-400"
+              className="w-full h-10 rounded-2xl border border-slate-200 bg-slate-50/60 rtl:pr-10 ltr:pl-10 px-3 text-xs font-semibold text-slate-900 focus:bg-white focus:border-brand-dark focus:ring-2 focus:ring-brand-dark/10 focus:outline-none transition-all placeholder:text-slate-400"
             />
           </div>
 
@@ -106,7 +106,7 @@ export function StudentCoursesTab({
               onClick={() => setCourseFilter("all")}
               className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap shrink-0 ${
                 courseFilter === "all"
-                  ? "bg-white text-[#0F5244] shadow-2xs font-black"
+                  ? "bg-white text-[var(--color-primary-main)] shadow-2xs font-black"
                   : "text-slate-600 hover:text-slate-900"
               }`}
             >
@@ -121,7 +121,7 @@ export function StudentCoursesTab({
               onClick={() => setCourseFilter("in_progress")}
               className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap shrink-0 ${
                 courseFilter === "in_progress"
-                  ? "bg-white text-[#0F5244] shadow-2xs font-black"
+                  ? "bg-white text-[var(--color-primary-main)] shadow-2xs font-black"
                   : "text-slate-600 hover:text-slate-900"
               }`}
             >
@@ -136,7 +136,7 @@ export function StudentCoursesTab({
               onClick={() => setCourseFilter("completed")}
               className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap shrink-0 ${
                 courseFilter === "completed"
-                  ? "bg-white text-[#0F5244] shadow-2xs font-black"
+                  ? "bg-white text-[var(--color-primary-main)] shadow-2xs font-black"
                   : "text-slate-600 hover:text-slate-900"
               }`}
             >
@@ -187,7 +187,7 @@ export function StudentCoursesTab({
             {courses.length === 0 && (
               <Link
                 href={`/${locale}/courses`}
-                className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-[#0F5244] hover:bg-[#08382E] text-white text-xs font-black shadow-xs transition-all cursor-pointer mt-2"
+                className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-brand-dark hover:bg-[#08382E] text-white text-xs font-black shadow-xs transition-all cursor-pointer mt-2"
               >
                 <span>{tWs("exploreCourses")}</span>
               </Link>

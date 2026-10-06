@@ -28,7 +28,7 @@ export function KeyboardShortcutsModal({
       <div className="bg-white rounded-xl border border-slate-200 max-w-lg w-full p-5 sm:p-6 space-y-4 shadow-xl select-none">
         <div className="flex items-center justify-between border-b border-slate-100 pb-3">
           <div className="flex items-center gap-2">
-            <Keyboard className="w-4 h-4 text-[#0F5244]" />
+            <Keyboard className="w-4 h-4 text-[var(--color-primary-main)]" />
             <h3 className="text-sm font-bold text-slate-900">
               {t("keyboardShortcuts")}
             </h3>
@@ -72,7 +72,7 @@ export function KeyboardShortcutsModal({
               className="flex items-center justify-between p-2 rounded bg-slate-50 border border-slate-100 text-xs"
             >
               <span className="font-medium text-slate-700">{item.desc}</span>
-              <kbd className="px-1.5 py-0.5 rounded bg-slate-900 text-emerald-400 font-mono text-[10px] font-bold shadow-xs">
+              <kbd className="px-1.5 py-0.5 rounded bg-slate-900 text-[var(--color-primary-main)] font-mono text-[10px] font-bold shadow-xs">
                 {item.keyNode}
               </kbd>
             </div>
@@ -83,7 +83,7 @@ export function KeyboardShortcutsModal({
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-1.5 rounded bg-[#0F5244] hover:bg-[#07382E] text-white text-xs font-bold transition-colors cursor-pointer"
+            className="px-4 py-1.5 rounded bg-brand-dark hover:bg-[#07382E] text-white text-xs font-bold transition-colors cursor-pointer"
           >
             {t("close")}
           </button>

@@ -43,12 +43,12 @@ export function CurriculumDesktopCanvas({
 }: CurriculumDesktopCanvasProps) {
   return (
     <div
-      className="hidden md:block relative rounded-3xl bg-gradient-to-b from-[#EBF7F2] via-[#F2FAF6] to-[#E5F5EE] border-2 border-emerald-300/80 shadow-[0_12px_36px_-6px_rgba(15,82,68,0.12)] overflow-hidden select-none py-6"
+      className="hidden md:block relative rounded-3xl bg-gradient-to-b from-[var(--color-bg-default)] via-[var(--color-bg-default)] to-[var(--color-bg-default)] border-2 border-slate-200 shadow-lg overflow-hidden select-none py-6"
       style={{ minHeight: `${dynamicMinHeight}px` }}
     >
       {/* Subtle Roadmap Origin Pin */}
-      <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10 flex items-center gap-1.5 px-4 py-1 rounded-full bg-white/90 border border-emerald-600/25 text-emerald-800 text-[11px] font-bold shadow-xs backdrop-blur-xs">
-        <Flag className="w-3.5 h-3.5 text-emerald-600" />
+      <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10 flex items-center gap-1.5 px-4 py-1 rounded-full bg-white/90 border border-brand text-brand-dark text-[11px] font-bold shadow-xs backdrop-blur-xs">
+        <Flag className="w-3.5 h-3.5 text-brand" />
         <span>
           {isAr ? "نقطة انطلاق المسار" : "Roadmap Start Line"}
         </span>
@@ -58,7 +58,7 @@ export function CurriculumDesktopCanvas({
         className="absolute inset-0 opacity-[0.28] pointer-events-none"
         style={{
           backgroundImage:
-            "radial-gradient(#0F5244 1.2px, transparent 1.2px)",
+            "radial-gradient(var(--color-primary-main) 1.2px, transparent 1.2px)",
           backgroundSize: "28px 28px",
         }}
       />
@@ -80,10 +80,10 @@ export function CurriculumDesktopCanvas({
               x2="0%"
               y2="100%"
             >
-              <stop offset="0%" stopColor="#38E09D" />
-              <stop offset="30%" stopColor="#10B981" />
-              <stop offset="65%" stopColor="#0F5244" />
-              <stop offset="100%" stopColor="#38E09D" />
+              <stop offset="0%" stopColor="var(--color-primary-main)" />
+              <stop offset="30%" stopColor="var(--color-primary-light)" />
+              <stop offset="65%" stopColor="var(--color-primary-main)" />
+              <stop offset="100%" stopColor="var(--color-primary-main)" />
             </linearGradient>
             <linearGradient
               id="trackBedGrad"
@@ -92,9 +92,9 @@ export function CurriculumDesktopCanvas({
               x2="0%"
               y2="100%"
             >
-              <stop offset="0%" stopColor="#C8EFE0" />
-              <stop offset="50%" stopColor="#B3EAD6" />
-              <stop offset="100%" stopColor="#C8EFE0" />
+              <stop offset="0%" stopColor="var(--color-primary-main)" stopOpacity="0.2" />
+              <stop offset="50%" stopColor="var(--color-primary-main)" stopOpacity="0.3" />
+              <stop offset="100%" stopColor="var(--color-primary-main)" stopOpacity="0.2" />
             </linearGradient>
             <filter
               id="neonRoadGlow"
@@ -114,7 +114,8 @@ export function CurriculumDesktopCanvas({
           {/* Ambient River Underlayer */}
           <path
             d={svgRoadPath}
-            stroke="rgba(16, 185, 129, 0.18)"
+            stroke="var(--color-primary-main)"
+            strokeOpacity="0.1"
             strokeWidth="52"
             strokeLinecap="round"
             fill="none"
@@ -132,7 +133,8 @@ export function CurriculumDesktopCanvas({
           {/* Inner Stepping Guide Track */}
           <path
             d={svgRoadPath}
-            stroke="#8CE4C3"
+            stroke="var(--color-primary-main)"
+            strokeOpacity="0.25"
             strokeWidth="20"
             strokeLinecap="round"
             fill="none"
@@ -221,14 +223,14 @@ export function CurriculumDesktopCanvas({
                   }}
                   className={`w-14 h-14 sm:w-16 sm:h-16 rounded-2xl sm:rounded-3xl flex flex-col items-center justify-center font-black transition-all cursor-pointer relative shadow-lg ${
                     isCompleted
-                      ? "bg-gradient-to-tr from-emerald-600 to-[#0F5244] text-white border-2 border-emerald-200 shadow-[0_8px_22px_rgba(16,185,129,0.38)] ring-4 ring-emerald-300/30"
+                      ? "bg-gradient-to-tr from-brand to-[var(--color-primary-main)] text-white border-2 border-slate-200 shadow-lg ring-4 ring-slate-200"
                       : isSkipped
                         ? "bg-slate-200 text-slate-500 border-2 border-slate-300"
                         : isActive
-                          ? "bg-gradient-to-tr from-[#0F5244] via-[#146654] to-[#1E8A73] text-white border-2 border-[#38E09D] shadow-[0_10px_28px_rgba(15,82,68,0.48)] ring-4 ring-emerald-400/40"
+                          ? "bg-gradient-to-tr from-[var(--color-primary-main)] via-[var(--color-primary-main)] to-[var(--color-primary-light)] text-white border-2 border-[var(--color-primary-main)] shadow-lg ring-4 ring-slate-200"
                           : isCapstone
-                            ? "bg-gradient-to-tr from-[#0F5244] to-[#1a7763] text-[#38E09D] border-2 border-[#38E09D] shadow-[0_8px_24px_rgba(56,224,157,0.35)] ring-4 ring-emerald-300/30"
-                            : "bg-gradient-to-br from-[#E6F7F0] via-[#D1FAE5] to-[#B8F0DA] text-[#0F5244] border-2 border-emerald-400/70 shadow-[0_8px_20px_rgba(15,82,68,0.12)] hover:border-emerald-500"
+                            ? "bg-gradient-to-tr from-[var(--color-primary-main)] to-[var(--color-primary-main)] text-white border-2 border-[var(--color-primary-main)] shadow-md ring-4 ring-slate-200"
+                            : "bg-gradient-to-br from-white via-slate-50 to-slate-100 text-[var(--color-primary-main)] border-2 border-slate-200 shadow-lg hover:border-brand"
                   }`}
                 >
                   {isCompleted ? (
@@ -236,22 +238,22 @@ export function CurriculumDesktopCanvas({
                   ) : isSkipped ? (
                     <SkipForward className="w-5 h-5 text-slate-400" />
                   ) : isCapstone ? (
-                    <Trophy className="w-7 h-7 sm:w-8 sm:h-8 text-[#38E09D] drop-shadow-xs" />
+                    <Trophy className="w-7 h-7 sm:w-8 sm:h-8 text-white drop-shadow-xs" />
                   ) : isActive ? (
                     <>
                       <span className="text-base sm:text-lg font-mono font-black leading-none">
                         0{idx + 1}
                       </span>
-                      <span className="text-[9px] font-black uppercase text-[#38E09D] tracking-wider mt-0.5">
+                      <span className="text-[9px] font-black uppercase text-white tracking-wider mt-0.5">
                         {isAr ? "نشطة" : "LIVE"}
                       </span>
                     </>
                   ) : (
                     <>
-                      <span className="text-base sm:text-lg font-mono font-black leading-none text-[#0F5244]">
+                      <span className="text-base sm:text-lg font-mono font-black leading-none text-[var(--color-primary-main)]">
                         0{idx + 1}
                       </span>
-                      <span className="text-[9px] font-bold text-emerald-800/80 uppercase tracking-wider mt-0.5">
+                      <span className="text-[9px] font-bold text-brand-dark uppercase tracking-wider mt-0.5">
                         {isAr ? "محطة" : "LVL"}
                       </span>
                     </>
@@ -299,8 +301,8 @@ export function CurriculumDesktopCanvas({
       })}
 
       {/* 4. Subtle Roadmap Capstone Goal Marker at the bottom */}
-      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10 flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-[#0F5244]/95 text-white text-[11px] font-black shadow-md border border-[#38E09D]/40 backdrop-blur-xs">
-        <Trophy className="w-3.5 h-3.5 text-[#38E09D]" />
+      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10 flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-brand text-white text-[11px] font-black shadow-md border border-slate-200 backdrop-blur-xs">
+        <Trophy className="w-3.5 h-3.5 text-[var(--color-primary-main)]" />
         <span>
           {isAr
             ? "هدف المسار: الإتقان والجاهزية الوظيفية"

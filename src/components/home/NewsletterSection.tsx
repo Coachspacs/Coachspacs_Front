@@ -39,14 +39,14 @@ export function NewsletterSection() {
               <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight">
                 {t("newsletterTitle")}
               </h2>
-              <p className="text-emerald-100/90 text-sm sm:text-base font-normal max-w-xl mx-auto leading-relaxed">
+              <p className="text-slate-100/90 text-sm sm:text-base font-normal max-w-xl mx-auto leading-relaxed">
                 {t("newsletterSubtitle")}
               </p>
             </div>
 
             {/* Subscription Form */}
             {submitted ? (
-              <div className="inline-flex items-center gap-2.5 px-6 py-3.5 rounded-2xl bg-emerald-500/20 border border-emerald-400/40 text-emerald-200 text-sm sm:text-base font-bold animate-fadeIn">
+              <div className="inline-flex items-center gap-2.5 px-6 py-3.5 rounded-2xl bg-[var(--color-primary-main)]/20 border border-brand-light/40 text-slate-200 text-sm sm:text-base font-bold animate-fadeIn">
                 <CheckCircle2 className="w-5 h-5 text-[#6CF8BB]" />
                 <span>{t("newsletterSuccess")}</span>
               </div>
@@ -62,7 +62,7 @@ export function NewsletterSection() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder={t("newsletterPlaceholder")}
-                    className="h-11 sm:h-12 w-full bg-white/10 border border-white/20 rounded-xl sm:rounded-2xl px-4 sm:px-5 text-white placeholder:text-emerald-100/60 text-[16px] sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#6CF8BB] focus:bg-white/15 transition-all"
+                    className="h-11 sm:h-12 w-full bg-white/10 border border-white/20 rounded-xl sm:rounded-2xl px-4 sm:px-5 text-white placeholder:text-slate-100/60 text-[16px] sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#6CF8BB] focus:bg-white/15 transition-all"
                   />
                 </div>
 

@@ -364,10 +364,10 @@ export function LessonVideoPlayer({
                   className="relative w-full h-1 hover:h-1.5 group/scrubber cursor-pointer bg-white/20 rounded transition-all duration-150 mb-2.5"
                 >
                   <div
-                    className="h-full bg-emerald-500 rounded relative"
+                    className="h-full bg-slate-1000 rounded relative"
                     style={{ width: `${duration > 0 ? (currentTime / duration) * 100 : 0}%` }}
                   >
-                    <span className="absolute top-1/2 -right-1 -translate-y-1/2 w-3 h-3 rounded-full bg-emerald-400 shadow-sm scale-0 group-hover/scrubber:scale-100 transition-transform" />
+                    <span className="absolute top-1/2 -right-1 -translate-y-1/2 w-3 h-3 rounded-full bg-brand-light shadow-sm scale-0 group-hover/scrubber:scale-100 transition-transform" />
                   </div>
                 </div>
 
@@ -466,7 +466,7 @@ export function LessonVideoPlayer({
                           setSettingsSubmenu("main");
                         }}
                         className={`p-1.5 rounded text-white/90 hover:text-white hover:bg-white/10 transition-all cursor-pointer ${
-                          settingsMenuOpen ? "rotate-45 text-emerald-400 bg-white/10" : ""
+                          settingsMenuOpen ? "rotate-45 text-[var(--color-primary-main)] bg-white/10" : ""
                         }`}
                         title={t("settings")}
                       >
@@ -507,7 +507,7 @@ export function LessonVideoPlayer({
                                   <span className="font-bold">{t("quality")}</span>
                                 </div>
                                 <div className="flex items-center gap-1 text-slate-400 font-semibold text-[11px]">
-                                  <span className="px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 text-[10px] font-bold">{selectedQuality}</span>
+                                  <span className="px-1.5 py-0.5 rounded bg-slate-1000/20 text-[var(--color-primary-main)] text-[10px] font-bold">{selectedQuality}</span>
                                   <ChevronRight size={13} className="rtl:rotate-180" />
                                 </div>
                               </button>
@@ -518,7 +518,7 @@ export function LessonVideoPlayer({
                                   type="button"
                                   onClick={() => setAutoplayNext(!autoplayNext)}
                                   className={`w-8 h-4 rounded-full transition-colors relative cursor-pointer ${
-                                    autoplayNext ? "bg-emerald-500" : "bg-neutral-700"
+                                    autoplayNext ? "bg-slate-1000" : "bg-neutral-700"
                                   }`}
                                 >
                                   <span
@@ -552,7 +552,7 @@ export function LessonVideoPlayer({
                                   className="w-full flex items-center justify-between px-3 py-1.5 rounded hover:bg-white/10 transition-colors cursor-pointer text-start font-medium"
                                 >
                                   <span>{spd === 1 ? t("normalSpeedFull") : `${spd}x`}</span>
-                                  {playbackSpeed === spd && <Check size={14} className="text-emerald-400 font-black" />}
+                                  {playbackSpeed === spd && <Check size={14} className="text-[var(--color-primary-main)] font-black" />}
                                 </button>
                               ))}
                             </div>
@@ -579,7 +579,7 @@ export function LessonVideoPlayer({
                                   className="w-full flex items-center justify-between px-3 py-1.5 rounded hover:bg-white/10 transition-colors cursor-pointer text-start font-medium"
                                 >
                                   <span>{q}</span>
-                                  {selectedQuality === q && <Check size={14} className="text-emerald-400 font-black" />}
+                                  {selectedQuality === q && <Check size={14} className="text-[var(--color-primary-main)] font-black" />}
                                 </button>
                               ))}
                             </div>
@@ -616,7 +616,7 @@ export function LessonVideoPlayer({
           {/* Autoplay Countdown Overlay Card */}
           {nextCountdown !== null && (
             <div className="absolute inset-0 z-30 bg-neutral-950/95 backdrop-blur-md flex flex-col items-center justify-center gap-4 text-center p-6 animate-in fade-in">
-              <div className="w-14 h-14 rounded-full border-2 border-emerald-400 flex items-center justify-center text-emerald-400 font-bold text-2xl animate-pulse shadow-md">
+              <div className="w-14 h-14 rounded-full border-2 border-[var(--color-primary-main)]/40 flex items-center justify-center text-[var(--color-primary-main)] font-bold text-2xl animate-pulse shadow-md">
                 {nextCountdown}
               </div>
               <div>
@@ -635,7 +635,7 @@ export function LessonVideoPlayer({
                     onNextLesson?.();
                     setIsPlaying(true);
                   }}
-                  className="px-5 py-2 rounded bg-[#0F5244] hover:bg-[#07382E] text-white font-bold text-xs cursor-pointer transition-all shadow-xs"
+                  className="px-5 py-2 rounded bg-brand-dark hover:bg-[#07382E] text-white font-bold text-xs cursor-pointer transition-all shadow-xs"
                 >
                   {t("watchNow")}
                 </button>
@@ -660,7 +660,7 @@ export function LessonVideoPlayer({
           onClick={() => onToggleComplete(activeLesson?.id || "")}
           className={`group/toggle h-9 px-3.5 sm:px-4 rounded-full text-xs font-semibold inline-flex items-center gap-2 transition-all duration-200 cursor-pointer active:scale-98 ${
             isCurrentCompleted
-              ? "bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100/80 hover:border-emerald-300"
+              ? "bg-slate-100 text-[var(--color-primary-main)] border border-slate-200 hover:bg-slate-200/80 hover:border-slate-300"
               : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 hover:text-slate-900 hover:border-slate-300"
           }`}
           title={
@@ -671,7 +671,7 @@ export function LessonVideoPlayer({
         >
           {isCurrentCompleted ? (
             <>
-              <CheckCircle2 size={15} className="text-emerald-600 shrink-0" />
+              <CheckCircle2 size={15} className="text-[var(--color-primary-main)] shrink-0" />
               <span>{t("completed")}</span>
             </>
           ) : (
@@ -701,7 +701,7 @@ export function LessonVideoPlayer({
             <button
               type="button"
               onClick={handleNavigateToCertificate}
-              className="h-9 px-4 sm:px-5 rounded-full bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold inline-flex items-center gap-1.5 shadow-xs transition-all cursor-pointer active:scale-98"
+              className="h-9 px-4 sm:px-5 rounded-full bg-[var(--color-primary-dark)] hover:bg-brand-dark text-white text-xs font-bold inline-flex items-center gap-1.5 shadow-xs transition-all cursor-pointer active:scale-98"
             >
               <Award size={14} className="text-amber-300 shrink-0" />
               <span>{t("finishCourseBtn")}</span>
@@ -710,7 +710,7 @@ export function LessonVideoPlayer({
             <button
               type="button"
               onClick={onNextLesson}
-              className="h-9 px-3.5 sm:px-4 rounded-full border border-[#0F5244] bg-[#0F5244] hover:bg-[#07382E] text-white text-xs font-semibold inline-flex items-center gap-1.5 shadow-xs transition-all cursor-pointer active:scale-98"
+              className="h-9 px-3.5 sm:px-4 rounded-full border border-brand-dark bg-brand-dark hover:bg-[#07382E] text-white text-xs font-semibold inline-flex items-center gap-1.5 shadow-xs transition-all cursor-pointer active:scale-98"
               title={t("nextLesson")}
             >
               <span>{t("next")}</span>

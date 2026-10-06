@@ -52,8 +52,8 @@ export function ArchiveCourseModal({
       >
         {/* Top Header: Warning Badge + Title */}
         <div className="flex items-start gap-4">
-          <div className="w-10 h-10 rounded-2xl bg-rose-50/80 border border-rose-100 flex items-center justify-center text-[#0F5244] shrink-0 mt-0.5 shadow-2xs">
-            <AlertTriangle className="h-5 w-5 text-emerald-800" />
+          <div className="w-10 h-10 rounded-2xl bg-rose-50/80 border border-rose-100 flex items-center justify-center text-brand-dark shrink-0 mt-0.5 shadow-2xs">
+            <AlertTriangle className="h-5 w-5 text-brand-dark" />
           </div>
 
           <div className="space-y-1 min-w-0 flex-1">
@@ -85,7 +85,7 @@ export function ArchiveCourseModal({
             type="button"
             onClick={onConfirm}
             disabled={isLoading}
-            className="px-5 py-2.5 rounded-xl bg-[#0F5244] hover:bg-[#07382E] text-white font-extrabold text-xs sm:text-sm shadow-xs hover:shadow-md cursor-pointer transition-all active:scale-98 disabled:opacity-50 flex items-center gap-2"
+            className="px-5 py-2.5 rounded-xl bg-brand-dark hover:bg-[#07382E] text-white font-extrabold text-xs sm:text-sm shadow-xs hover:shadow-md cursor-pointer transition-all active:scale-98 disabled:opacity-50 flex items-center gap-2"
           >
             {isLoading ? "..." : t("archive")}
           </button>

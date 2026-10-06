@@ -440,7 +440,7 @@ export function InstructorSettingsView() {
             initial={{ opacity: 0, y: -16, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -16, scale: 0.95 }}
-            className="fixed top-6 right-6 rtl:right-auto rtl:left-6 z-50 bg-[#0F5244] text-white px-5 py-3 rounded-2xl shadow-xl flex items-center gap-2.5 text-xs font-bold backdrop-blur-md"
+            className="fixed top-6 right-6 rtl:right-auto rtl:left-6 z-50 bg-brand-dark text-white px-5 py-3 rounded-2xl shadow-xl flex items-center gap-2.5 text-xs font-bold backdrop-blur-md"
           >
             <CheckCircle2 className="h-4 w-4 text-[#45D1B4] shrink-0" />
             <span>{toastMessage}</span>
@@ -517,7 +517,7 @@ export function InstructorSettingsView() {
             onClick={() => setActiveTab("profile")}
             className={`flex items-center gap-2 pb-3.5 px-2 text-xs sm:text-sm font-extrabold border-b-2 transition-all cursor-pointer ${
               activeTab === "profile"
-                ? "border-[#0F5244] text-[#0F5244]"
+                ? "border-brand-dark text-[var(--color-primary-main)]"
                 : "border-transparent text-slate-400 hover:text-slate-700"
             }`}
           >
@@ -530,7 +530,7 @@ export function InstructorSettingsView() {
             onClick={() => setActiveTab("security")}
             className={`flex items-center gap-2 pb-3.5 px-2 text-xs sm:text-sm font-extrabold border-b-2 transition-all cursor-pointer ${
               activeTab === "security"
-                ? "border-[#0F5244] text-[#0F5244]"
+                ? "border-brand-dark text-[var(--color-primary-main)]"
                 : "border-transparent text-slate-400 hover:text-slate-700"
             }`}
           >
@@ -554,7 +554,7 @@ export function InstructorSettingsView() {
               >
                 {/* Clean Avatar Section */}
                 <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5 p-5 rounded-2xl bg-slate-50/60 border border-slate-200/60">
-                  <div className="relative group w-20 h-20 rounded-full bg-[#0F5244]/10 text-[#0F5244] border-2 border-slate-200 overflow-hidden shrink-0 flex items-center justify-center">
+                  <div className="relative group w-20 h-20 rounded-full bg-brand-dark/10 text-[var(--color-primary-main)] border-2 border-slate-200 overflow-hidden shrink-0 flex items-center justify-center">
                     {avatarPreview ? (
                       <Image
                         suppressHydrationWarning
@@ -569,7 +569,7 @@ export function InstructorSettingsView() {
                     ) : (
                       <span
                         suppressHydrationWarning
-                        className="select-none font-bold text-2xl text-[#0F5244]"
+                        className="select-none font-bold text-2xl text-[var(--color-primary-main)]"
                       >
                         {(mounted ? formData.fullName : "")
                           .trim()
@@ -613,7 +613,7 @@ export function InstructorSettingsView() {
                         className="px-3.5 py-1.5 rounded-xl bg-white border border-slate-200 text-xs font-bold text-slate-700 hover:bg-slate-50 transition-all cursor-pointer shadow-2xs inline-flex items-center gap-1.5"
                       >
                         {isUploadingAvatar ? (
-                          <Loader2 className="h-3.5 w-3.5 animate-spin text-[#0F5244]" />
+                          <Loader2 className="h-3.5 w-3.5 animate-spin text-[var(--color-primary-main)]" />
                         ) : (
                           <Camera className="h-3.5 w-3.5 text-slate-500" />
                         )}
@@ -641,7 +641,7 @@ export function InstructorSettingsView() {
                       onChange={handleChange}
                       required
                       placeholder="e.g. Mohammed Katanani"
-                      className="w-full h-11 rounded-xl border border-slate-200 bg-slate-50/50 px-3.5 text-xs font-semibold text-slate-900 focus:bg-white focus:border-[#0F5244] focus:ring-2 focus:ring-[#0F5244]/10 focus:outline-none transition-all"
+                      className="w-full h-11 rounded-xl border border-slate-200 bg-slate-50/50 px-3.5 text-xs font-semibold text-slate-900 focus:bg-white focus:border-brand-dark focus:ring-2 focus:ring-brand-dark/10 focus:outline-none transition-all"
                     />
                   </div>
 
@@ -661,7 +661,7 @@ export function InstructorSettingsView() {
                         value={formData.specialization}
                         onChange={handleChange}
                         placeholder="e.g. Software Architecture"
-                        className="w-full h-11 rounded-xl border border-slate-200 bg-slate-50/50 pl-3.5 pr-10 rtl:pr-3.5 rtl:pl-10 text-xs font-semibold text-slate-900 focus:bg-white focus:border-[#0F5244] focus:ring-2 focus:ring-[#0F5244]/10 focus:outline-none transition-all"
+                        className="w-full h-11 rounded-xl border border-slate-200 bg-slate-50/50 pl-3.5 pr-10 rtl:pr-3.5 rtl:pl-10 text-xs font-semibold text-slate-900 focus:bg-white focus:border-brand-dark focus:ring-2 focus:ring-brand-dark/10 focus:outline-none transition-all"
                       />
                       <Briefcase className="h-4 w-4 text-slate-400 absolute right-3 rtl:right-auto rtl:left-3 top-3.5 pointer-events-none" />
                     </div>
@@ -682,7 +682,7 @@ export function InstructorSettingsView() {
                       value={formData.headline}
                       onChange={handleChange}
                       placeholder="e.g. Certified Master Coach & Tech Lead"
-                      className="w-full h-11 rounded-xl border border-slate-200 bg-slate-50/50 px-3.5 text-xs font-semibold text-slate-900 focus:bg-white focus:border-[#0F5244] focus:ring-2 focus:ring-[#0F5244]/10 focus:outline-none transition-all"
+                      className="w-full h-11 rounded-xl border border-slate-200 bg-slate-50/50 px-3.5 text-xs font-semibold text-slate-900 focus:bg-white focus:border-brand-dark focus:ring-2 focus:ring-brand-dark/10 focus:outline-none transition-all"
                     />
                   </div>
 
@@ -703,7 +703,7 @@ export function InstructorSettingsView() {
                       value={formData.experienceYears}
                       onChange={handleChange}
                       placeholder="0"
-                      className="w-full h-11 rounded-xl border border-slate-200 bg-slate-50/50 px-3.5 text-xs font-semibold text-slate-900 focus:bg-white focus:border-[#0F5244] focus:outline-none transition-all"
+                      className="w-full h-11 rounded-xl border border-slate-200 bg-slate-50/50 px-3.5 text-xs font-semibold text-slate-900 focus:bg-white focus:border-brand-dark focus:outline-none transition-all"
                     />
                   </div>
 
@@ -722,7 +722,7 @@ export function InstructorSettingsView() {
                       value={formData.phone}
                       onChange={handleChange}
                       placeholder="+962 7XXXXXXXX"
-                      className="w-full h-11 rounded-xl border border-slate-200 bg-slate-50/50 px-3.5 text-xs font-semibold text-slate-900 focus:bg-white focus:border-[#0F5244] focus:outline-none transition-all"
+                      className="w-full h-11 rounded-xl border border-slate-200 bg-slate-50/50 px-3.5 text-xs font-semibold text-slate-900 focus:bg-white focus:border-brand-dark focus:outline-none transition-all"
                     />
                   </div>
 
@@ -742,7 +742,7 @@ export function InstructorSettingsView() {
                         value={formData.location}
                         onChange={handleChange}
                         placeholder={tInst("locationPlaceholder")}
-                        className="w-full h-11 rounded-xl border border-slate-200 bg-slate-50/50 pl-3.5 pr-10 rtl:pr-3.5 rtl:pl-10 text-xs font-semibold text-slate-900 focus:bg-white focus:border-[#0F5244] focus:outline-none transition-all"
+                        className="w-full h-11 rounded-xl border border-slate-200 bg-slate-50/50 pl-3.5 pr-10 rtl:pr-3.5 rtl:pl-10 text-xs font-semibold text-slate-900 focus:bg-white focus:border-brand-dark focus:outline-none transition-all"
                       />
                       <MapPin className="h-4 w-4 text-slate-400 absolute right-3 rtl:right-auto rtl:left-3 top-3.5 pointer-events-none" />
                     </div>
@@ -764,7 +764,7 @@ export function InstructorSettingsView() {
                     value={formData.bio}
                     onChange={handleChange}
                     placeholder={tInst("bioPlaceholder")}
-                    className="w-full rounded-xl border border-slate-200 bg-slate-50/50 p-3.5 text-xs font-semibold text-slate-900 focus:bg-white focus:border-[#0F5244] focus:ring-2 focus:ring-[#0F5244]/10 focus:outline-none transition-all resize-none leading-relaxed"
+                    className="w-full rounded-xl border border-slate-200 bg-slate-50/50 p-3.5 text-xs font-semibold text-slate-900 focus:bg-white focus:border-brand-dark focus:ring-2 focus:ring-brand-dark/10 focus:outline-none transition-all resize-none leading-relaxed"
                   />
                 </div>
 
@@ -801,7 +801,7 @@ export function InstructorSettingsView() {
                         value={formData.website}
                         onChange={handleChange}
                         placeholder={isAr ? "الموقع الشخصي (https://...)" : "Personal Website"}
-                        className="w-full h-10 rounded-xl border border-slate-200 bg-slate-50/50 pl-3.5 pr-9 rtl:pr-3.5 rtl:pl-9 text-xs font-semibold text-slate-900 focus:bg-white focus:border-[#0F5244] focus:outline-none transition-all"
+                        className="w-full h-10 rounded-xl border border-slate-200 bg-slate-50/50 pl-3.5 pr-9 rtl:pr-3.5 rtl:pl-9 text-xs font-semibold text-slate-900 focus:bg-white focus:border-brand-dark focus:outline-none transition-all"
                       />
                       <Globe className="h-4 w-4 text-slate-400 absolute right-3 rtl:right-auto rtl:left-3 top-3 pointer-events-none" />
                     </div>
@@ -814,7 +814,7 @@ export function InstructorSettingsView() {
                         value={formData.linkedin}
                         onChange={handleChange}
                         placeholder={isAr ? "رابط حساب لينكد إن" : "LinkedIn Profile URL"}
-                        className="w-full h-10 rounded-xl border border-slate-200 bg-slate-50/50 pl-3.5 pr-9 rtl:pr-3.5 rtl:pl-9 text-xs font-semibold text-slate-900 focus:bg-white focus:border-[#0F5244] focus:outline-none transition-all"
+                        className="w-full h-10 rounded-xl border border-slate-200 bg-slate-50/50 pl-3.5 pr-9 rtl:pr-3.5 rtl:pl-9 text-xs font-semibold text-slate-900 focus:bg-white focus:border-brand-dark focus:outline-none transition-all"
                       />
                       <Linkedin className="h-4 w-4 text-[#0077B5] absolute right-3 rtl:right-auto rtl:left-3 top-3 pointer-events-none" />
                     </div>
@@ -827,7 +827,7 @@ export function InstructorSettingsView() {
                         value={formData.github}
                         onChange={handleChange}
                         placeholder={isAr ? "رابط جيت هب (GitHub)" : "GitHub Profile URL"}
-                        className="w-full h-10 rounded-xl border border-slate-200 bg-slate-50/50 pl-3.5 pr-9 rtl:pr-3.5 rtl:pl-9 text-xs font-semibold text-slate-900 focus:bg-white focus:border-[#0F5244] focus:outline-none transition-all"
+                        className="w-full h-10 rounded-xl border border-slate-200 bg-slate-50/50 pl-3.5 pr-9 rtl:pr-3.5 rtl:pl-9 text-xs font-semibold text-slate-900 focus:bg-white focus:border-brand-dark focus:outline-none transition-all"
                       />
                       <Github className="h-4 w-4 text-slate-800 absolute right-3 rtl:right-auto rtl:left-3 top-3 pointer-events-none" />
                     </div>
@@ -840,7 +840,7 @@ export function InstructorSettingsView() {
                         value={formData.twitter}
                         onChange={handleChange}
                         placeholder={isAr ? "رابط إكس / تويتر" : "X / Twitter URL"}
-                        className="w-full h-10 rounded-xl border border-slate-200 bg-slate-50/50 pl-3.5 pr-9 rtl:pr-3.5 rtl:pl-9 text-xs font-semibold text-slate-900 focus:bg-white focus:border-[#0F5244] focus:outline-none transition-all"
+                        className="w-full h-10 rounded-xl border border-slate-200 bg-slate-50/50 pl-3.5 pr-9 rtl:pr-3.5 rtl:pl-9 text-xs font-semibold text-slate-900 focus:bg-white focus:border-brand-dark focus:outline-none transition-all"
                       />
                       <Twitter className="h-4 w-4 text-[#1DA1F2] absolute right-3 rtl:right-auto rtl:left-3 top-3 pointer-events-none" />
                     </div>
@@ -882,7 +882,7 @@ export function InstructorSettingsView() {
                     <button
                       type="button"
                       onClick={() => setShowEmailModal(true)}
-                      className="px-3 py-1.5 rounded-xl bg-white border border-slate-200 text-xs font-bold text-[#0F5244] hover:bg-slate-50 transition-all cursor-pointer shadow-2xs"
+                      className="px-3 py-1.5 rounded-xl bg-white border border-slate-200 text-xs font-bold text-[var(--color-primary-main)] hover:bg-slate-50 transition-all cursor-pointer shadow-2xs"
                     >
                       {t("change")}
                     </button>
@@ -922,7 +922,7 @@ export function InstructorSettingsView() {
                           onChange={handleChange}
                           autoComplete="new-password"
                           placeholder="••••••••"
-                          className="w-full h-11 rounded-xl border border-slate-200 bg-slate-50/50 pl-3.5 pr-10 rtl:pr-3.5 rtl:pl-10 text-xs font-semibold text-slate-900 focus:bg-white focus:border-[#0F5244] focus:outline-none transition-all"
+                          className="w-full h-11 rounded-xl border border-slate-200 bg-slate-50/50 pl-3.5 pr-10 rtl:pr-3.5 rtl:pl-10 text-xs font-semibold text-slate-900 focus:bg-white focus:border-brand-dark focus:outline-none transition-all"
                         />
                         <button
                           type="button"
@@ -951,7 +951,7 @@ export function InstructorSettingsView() {
                           onChange={handleChange}
                           autoComplete="new-password"
                           placeholder="••••••••"
-                          className="w-full h-11 rounded-xl border border-slate-200 bg-slate-50/50 pl-3.5 pr-10 rtl:pr-3.5 rtl:pl-10 text-xs font-semibold text-slate-900 focus:bg-white focus:border-[#0F5244] focus:outline-none transition-all"
+                          className="w-full h-11 rounded-xl border border-slate-200 bg-slate-50/50 pl-3.5 pr-10 rtl:pr-3.5 rtl:pl-10 text-xs font-semibold text-slate-900 focus:bg-white focus:border-brand-dark focus:outline-none transition-all"
                         />
                         <button
                           type="button"
@@ -980,7 +980,7 @@ export function InstructorSettingsView() {
                           onChange={handleChange}
                           autoComplete="new-password"
                           placeholder="••••••••"
-                          className="w-full h-11 rounded-xl border border-slate-200 bg-slate-50/50 pl-3.5 pr-10 rtl:pr-3.5 rtl:pl-10 text-xs font-semibold text-slate-900 focus:bg-white focus:border-[#0F5244] focus:outline-none transition-all"
+                          className="w-full h-11 rounded-xl border border-slate-200 bg-slate-50/50 pl-3.5 pr-10 rtl:pr-3.5 rtl:pl-10 text-xs font-semibold text-slate-900 focus:bg-white focus:border-brand-dark focus:outline-none transition-all"
                         />
                         <button
                           type="button"
@@ -1010,7 +1010,7 @@ export function InstructorSettingsView() {
             <button
               type="submit"
               disabled={isSaving}
-              className="w-full sm:w-auto px-8 py-3 rounded-2xl bg-[#0F5244] hover:bg-[#07382E] text-white text-xs font-bold shadow-xs transition-all cursor-pointer disabled:opacity-70 flex items-center justify-center gap-2 order-1 sm:order-2 active:scale-95"
+              className="w-full sm:w-auto px-8 py-3 rounded-2xl bg-brand-dark hover:bg-[#07382E] text-white text-xs font-bold shadow-xs transition-all cursor-pointer disabled:opacity-70 flex items-center justify-center gap-2 order-1 sm:order-2 active:scale-95"
             >
               {isSaving ? (
                 <>
