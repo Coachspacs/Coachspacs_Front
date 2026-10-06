@@ -6,6 +6,7 @@ import { useTranslations, useLocale } from "next-intl";
 import { useSelector } from "react-redux";
 import { RootState } from "@/lib/store";
 import { instructorCourseService } from "@/services/instructorCourseService";
+import { instructorService } from "@/services/instructorService";
 import { Users, BookOpen, PlusCircle, LayoutDashboard, Sparkles, TrendingUp, Loader2 } from "lucide-react";
 
 interface InstructorStudioWidgetProps {
@@ -19,6 +20,7 @@ export function InstructorStudioWidget({ isPreview }: InstructorStudioWidgetProp
   const [mounted, setMounted] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [courses, setCourses] = useState<any[]>([]);
+  const [dashboardData, setDashboardData] = useState<any>(null);
   const { user, isAuthenticated } = useSelector((state: RootState) => state.auth);
 
   useEffect(() => {
@@ -28,13 +30,20 @@ export function InstructorStudioWidget({ isPreview }: InstructorStudioWidgetProp
       if (isAuthenticated && (user?.role || "").toLowerCase() === "instructor") {
         try {
           setIsLoading(true);
-          const liveCoursesRes = await instructorCourseService.getMyCourses({ per_page: 100, limit: 100 });
+          const [liveCoursesRes, dashRes] = await Promise.all([
+            instructorCourseService.getMyCourses({ per_page: 100, limit: 100 }).catch(() => null),
+            instructorService.getDashboard().catch(() => null)
+          ]);
+          
           const liveCourses = Array.isArray(liveCoursesRes) ? liveCoursesRes : (liveCoursesRes?.data || liveCoursesRes?.results || []);
           if (Array.isArray(liveCourses)) {
             setCourses(liveCourses);
           }
+          if (dashRes) {
+            setDashboardData(dashRes);
+          }
         } catch (err) {
-          console.warn("[InstructorStudioWidget] Could not load live courses:", err);
+          console.warn("[InstructorStudioWidget] Could not load live courses or dashboard data:", err);
         } finally {
           setIsLoading(false);
         }
@@ -58,7 +67,7 @@ export function InstructorStudioWidget({ isPreview }: InstructorStudioWidgetProp
   }
 
   // Calculate live statistics
-  const totalStudents = courses.reduce(
+  const totalStudents = dashboardData?.total_students ?? courses.reduce(
     (acc, curr) => acc + Number(curr.enrollment_count || curr.enrollments_count || curr.enrolled_count || curr.students_count || curr.studentsCount || curr.total_students || 0),
     0
   );
@@ -66,11 +75,17 @@ export function InstructorStudioWidget({ isPreview }: InstructorStudioWidgetProp
   const publishedCourses = courses.filter(
     (c) => c.status === "published" || c.status === "PUBLISHED" || c.is_published === true
   );
-  const publishedCount = publishedCourses.length;
-  const draftCount = courses.filter((c) => {
-    const s = String(c.status).toLowerCase();
-    return s === "draft" || s === "review" || s === "pending_review" || s === "pending";
-  }).length;
+  
+  const publishedCount = dashboardData?.courses ? dashboardData.courses.filter((c: any) => c.status === "published" || c.status === "PUBLISHED" || c.is_published === true).length : publishedCourses.length;
+  const draftCount = dashboardData?.courses 
+    ? dashboardData.courses.filter((c: any) => {
+        const s = String(c.status).toLowerCase();
+        return s === "draft" || s === "review" || s === "pending_review" || s === "pending";
+      }).length 
+    : courses.filter((c) => {
+        const s = String(c.status).toLowerCase();
+        return s === "draft" || s === "review" || s === "pending_review" || s === "pending";
+      }).length;
 
   return (
     <section className="w-full py-6 sm:py-8 font-sans">
