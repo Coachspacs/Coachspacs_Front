@@ -155,7 +155,7 @@ describe("CMS & Global Branding Architecture Tests (US-23)", () => {
     expect(css).toContain("var(--font-custom-en)");
     expect(css).toContain("'Rubik'");
     // Verifies dark mode adaptation rules exist
-    expect(css).toContain(".dark .bg-emerald-50");
+    expect(css).toContain(".dark .bg-teal-50");
   });
 
   it("verifies role-based section visibility filtering logic", async () => {
