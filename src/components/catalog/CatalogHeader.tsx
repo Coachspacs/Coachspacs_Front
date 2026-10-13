@@ -34,7 +34,7 @@ export function CatalogHeader({ currentLocale }: CatalogHeaderProps) {
   const navItems = [
     { key: "browse", labelKey: "browse", href: `/${currentLocale}/courses`, active: true },
     { key: "myLearning", labelKey: "myLearning", href: `/${currentLocale}/account`, active: false },
-    { key: "mentors", labelKey: "mentors", href: `/${currentLocale}/mentors`, active: false },
+    { key: "mentors", labelKey: "mentors", href: `/${currentLocale}/courses`, active: false },
     { key: "resources", labelKey: "resources", href: `/${currentLocale}/resources`, active: false },
   ];
 

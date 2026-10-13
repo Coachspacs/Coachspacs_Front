@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from "react";
 import { useParams } from "next/navigation";
 import { RegisterCard } from "@/components/auth/RegisterCard";
 
@@ -10,7 +11,9 @@ export default function RegisterPage() {
 
   return (
     <div className="w-full max-w-[440px]">
-      <RegisterCard lang={lang} />
+      <Suspense fallback={<div className="min-h-[400px]" />}>
+        <RegisterCard lang={lang} />
+      </Suspense>
     </div>
   );
 }

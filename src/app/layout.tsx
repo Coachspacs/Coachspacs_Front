@@ -91,13 +91,27 @@ export const metadata = {
   },
 };
 
-export default function RootLayout({
+import { headers } from 'next/headers';
+
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  let locale = 'en';
+  try {
+    const headersList = await headers();
+    const headerLocale = headersList.get('x-next-intl-locale');
+    if (headerLocale === 'ar' || headerLocale === 'en') {
+      locale = headerLocale;
+    }
+  } catch {
+    // Fallback to default
+  }
+  const dir = locale === 'ar' ? 'rtl' : 'ltr';
+
   return (
-    <html lang="en" className={`${cairo.variable} ${plusJakartaSans.variable}`} suppressHydrationWarning>
+    <html lang={locale} dir={dir} className={`${cairo.variable} ${plusJakartaSans.variable}`} suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://images.unsplash.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://images.unsplash.com" />

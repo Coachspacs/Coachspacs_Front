@@ -26,6 +26,11 @@ export default async function LocaleLayout({
 
   return (
     <div dir={dir} lang={locale} className="min-h-screen flex flex-col antialiased font-sans w-full">
+      <script
+        dangerouslySetInnerHTML={{
+          __html: `document.documentElement.lang="${locale}";document.documentElement.dir="${dir}";`,
+        }}
+      />
       <DynamicBrandingInjector isPreview={isDraftMode} />
       {isDraftMode && <PreviewModeBanner locale={locale} />}
       <StoreProvider>

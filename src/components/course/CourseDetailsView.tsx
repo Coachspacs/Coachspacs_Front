@@ -299,6 +299,71 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
   // Curriculum Data Structure strictly from real API response
   const curriculumSections = Array.isArray(course.sections) ? course.sections : [];
 
+  // Dynamic & accurate course video duration computation
+  const courseDurationLabel = React.useMemo(() => {
+    if (course.durationFormatted) {
+      return isAr ? `${course.durationFormatted} فيديو حسب الطلب` : `${course.durationFormatted} on-demand video`;
+    }
+    if (typeof course.duration === "string" && course.duration.trim()) {
+      return isAr ? `${course.duration} فيديو حسب الطلب` : `${course.duration} on-demand video`;
+    }
+    if (typeof course.duration === "number" && course.duration > 0) {
+      if (course.duration >= 60) {
+        const hrs = (course.duration / 60).toFixed(1).replace(/\.0$/, "");
+        return isAr ? `${hrs} ساعة فيديو حسب الطلب` : `${hrs} hours on-demand video`;
+      }
+      return isAr ? `${course.duration} دقيقة فيديو حسب الطلب` : `${course.duration} mins on-demand video`;
+    }
+    if (typeof (course as any).duration_hours === "number" && (course as any).duration_hours > 0) {
+      const hrs = (course as any).duration_hours;
+      return isAr ? `${hrs} ساعة فيديو حسب الطلب` : `${hrs} hours on-demand video`;
+    }
+
+    let totalMinutes = 0;
+    let hasLessonDuration = false;
+    for (const sec of curriculumSections) {
+      for (const les of (sec.lessons || [])) {
+        if (typeof les.duration_minutes === "number" && les.duration_minutes > 0) {
+          totalMinutes += les.duration_minutes;
+          hasLessonDuration = true;
+        } else if (typeof les.duration === "string") {
+          const minMatch = les.duration.match(/(\d+)\s*(?:min|m|دقيقة)?/i);
+          if (minMatch) {
+            totalMinutes += parseInt(minMatch[1], 10);
+            hasLessonDuration = true;
+          }
+        }
+      }
+    }
+
+    if (hasLessonDuration && totalMinutes > 0) {
+      if (totalMinutes >= 60) {
+        const hrs = (totalMinutes / 60).toFixed(1).replace(/\.0$/, "");
+        return isAr ? `${hrs} ساعة فيديو حسب الطلب` : `${hrs} hours on-demand video`;
+      }
+      return isAr ? `${totalMinutes} دقيقة فيديو حسب الطلب` : `${totalMinutes} mins on-demand video`;
+    }
+
+    return isAr ? "دروس فيديو عالية الدقة حسب الطلب" : "HD on-demand video lessons";
+  }, [course, curriculumSections, isAr]);
+
+  // Dynamic & accurate downloadable resources computation
+  const courseResourcesLabel = React.useMemo(() => {
+    let count = Array.isArray((course as any).attachments) ? (course as any).attachments.length : 0;
+    for (const sec of curriculumSections) {
+      for (const les of (sec.lessons || [])) {
+        if (Array.isArray(les.attachments)) {
+          count += les.attachments.length;
+        }
+      }
+    }
+
+    if (count > 0) {
+      return isAr ? `${count} مواد ومرفقات تعليمية للتحميل` : `${count} downloadable resources`;
+    }
+    return isAr ? "موارد وتمارين تعليمية وتطبيقية" : "Practical exercises & learning materials";
+  }, [course, curriculumSections, isAr]);
+
   return (
     <div dir={isAr ? "rtl" : "ltr"} className="w-full bg-[#FAFBFB] min-h-screen py-6 sm:py-10">
       <Toast message={toastMessage} onClose={() => setToastMessage(null)} />
@@ -879,11 +944,11 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
                 <ul className="space-y-2.5 text-xs font-semibold text-slate-700">
                   <li className="flex items-center gap-2.5">
                     <CheckCircle2 className="h-4 w-4 text-[#45D1B4] shrink-0" />
-                    <span>{t("hoursVideo")}</span>
+                    <span>{courseDurationLabel}</span>
                   </li>
                   <li className="flex items-center gap-2.5">
                     <CheckCircle2 className="h-4 w-4 text-[#45D1B4] shrink-0" />
-                    <span>{t("downloadableResources")}</span>
+                    <span>{courseResourcesLabel}</span>
                   </li>
                   <li className="flex items-center gap-2.5">
                     <CheckCircle2 className="h-4 w-4 text-[#45D1B4] shrink-0" />
@@ -914,7 +979,7 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
               </p>
               
               <Link
-                href={`/${locale}/mentors`}
+                href={instructorTarget ? `/${locale}/instructors/${instructorTarget}` : `/${locale}/courses`}
                 className="inline-flex items-center gap-1.5 text-xs font-black text-[#45D1B4] hover:underline pt-1 group"
               >
                 <span>{t("findMentor")}</span>

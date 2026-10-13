@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations, useLocale } from "next-intl";
 import { useDispatch } from "react-redux";
 import { useForm } from "react-hook-form";
@@ -37,6 +37,10 @@ export function RegisterCard({ lang }: RegisterCardProps) {
   const locale = useLocale() || "en";
   const isAr = locale === "ar";
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const requestedRole = searchParams.get("role");
+  const initialRole: "student" | "instructor" =
+    requestedRole === "instructor" || requestedRole === "coach" ? "instructor" : "student";
 
   const [showPassword, setShowPassword] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
@@ -52,13 +56,19 @@ export function RegisterCard({ lang }: RegisterCardProps) {
   } = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
-      role: "student",
+      role: initialRole,
       fullName: "",
       email: "",
       password: "",
       agreeToTerms: false,
     },
   });
+
+  useEffect(() => {
+    if (requestedRole === "instructor" || requestedRole === "coach") {
+      setValue("role", "instructor", { shouldValidate: true });
+    }
+  }, [requestedRole, setValue]);
 
   const currentRole = watch("role");
   const passwordValue = watch("password") || "";
