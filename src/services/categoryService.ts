@@ -42,7 +42,14 @@ export const categoryService = {
     const fetchPromise = axiosInstance
       .get<CategoryItem[]>('/catalog/categories', { headers })
       .then((res) => {
-        const data = Array.isArray(res.data) ? res.data : [];
+        const raw = res.data;
+        const data = Array.isArray(raw)
+          ? raw
+          : Array.isArray((raw as any)?.results)
+            ? (raw as any).results
+            : Array.isArray((raw as any)?.data)
+              ? (raw as any).data
+              : [];
         categoryCache.set(key, { data, timestamp: Date.now() });
         return data;
       })

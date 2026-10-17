@@ -176,30 +176,17 @@ export function HeroSection({ data, previewView, isPreview }: HeroSectionProps =
             >
               {mounted && isUserAuthenticated ? (
                 isInstructor ? (
-                  <>
-                    <Link
-                      href={
-                        isApproved
-                          ? `/${locale}/instructor/dashboard`
-                          : `/${locale}/instructor/settings`
-                      }
-                      className="inline-flex items-center gap-2.5 bg-brand-dark hover:bg-[#0c4337] text-white font-bold text-sm sm:text-base px-7 py-3.5 rounded-full shadow-lg shadow-brand-dark/20 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0 group cursor-pointer animate-shimmer"
-                    >
-                      <span>{t("instructorDashboardBtn")}</span>
-                      <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 rtl:rotate-180 group-hover:translate-x-1 rtl:group-hover:-translate-x-1 transition-transform" />
-                    </Link>
-
-                    <Link
-                      href={
-                        isApproved
-                          ? `/${locale}/instructor/courses/new`
-                          : `/${locale}/instructor/settings`
-                      }
-                      className="inline-flex items-center gap-2 bg-white hover:bg-slate-50 text-brand-dark border-2 border-brand-dark/30 hover:border-brand-dark font-bold text-sm sm:text-base px-6 py-3.5 rounded-full shadow-xs transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer"
-                    >
-                      <span>{t("createCourseBtn")}</span>
-                    </Link>
-                  </>
+                  <Link
+                    href={
+                      isApproved
+                        ? `/${locale}/instructor/dashboard`
+                        : `/${locale}/instructor/settings`
+                    }
+                    className="inline-flex items-center gap-2.5 bg-brand-dark hover:bg-[#0c4337] text-white font-bold text-sm sm:text-base px-7 py-3.5 rounded-full shadow-lg shadow-brand-dark/20 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0 group cursor-pointer animate-shimmer"
+                  >
+                    <span>{t("instructorDashboardBtn")}</span>
+                    <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 rtl:rotate-180 group-hover:translate-x-1 rtl:group-hover:-translate-x-1 transition-transform" />
+                  </Link>
                 ) : (
                   <>
                     <Link

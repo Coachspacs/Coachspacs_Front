@@ -159,7 +159,7 @@ export function RealStoriesSection({ data }: RealStoriesSectionProps = {}) {
         <motion.div
           initial={{ opacity: 0, y: 18 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-40px" }}
+          viewport={{ once: true }}
           transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
           className="text-center max-w-3xl mx-auto mb-12 sm:mb-16"
         >
@@ -178,7 +178,7 @@ export function RealStoriesSection({ data }: RealStoriesSectionProps = {}) {
         <motion.div
           initial={{ opacity: 0, scale: 0.98 }}
           whileInView={{ opacity: 1, scale: 1 }}
-          viewport={{ once: true, margin: "-40px" }}
+          viewport={{ once: true }}
           transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
           className="relative w-full px-2 sm:px-6 md:px-10"
         >

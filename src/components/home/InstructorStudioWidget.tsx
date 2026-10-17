@@ -7,7 +7,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "@/lib/store";
 import { instructorCourseService } from "@/services/instructorCourseService";
 import { instructorService } from "@/services/instructorService";
-import { Users, BookOpen, PlusCircle, LayoutDashboard, Sparkles, TrendingUp, Loader2 } from "lucide-react";
+import { Users, BookOpen, PlusCircle, Sparkles, TrendingUp, Loader2 } from "lucide-react";
 
 interface InstructorStudioWidgetProps {
   isPreview?: boolean;
@@ -67,9 +67,13 @@ export function InstructorStudioWidget({ isPreview }: InstructorStudioWidgetProp
   }
 
   // Calculate live statistics
-  const totalStudents = dashboardData?.total_students ?? courses.reduce(
+  const coursesEnrollmentsCount = courses.reduce(
     (acc, curr) => acc + Number(curr.enrollment_count || curr.enrollments_count || curr.enrolled_count || curr.students_count || curr.studentsCount || curr.total_students || 0),
     0
+  );
+  const totalStudents = Math.max(
+    Number(dashboardData?.total_students || 0),
+    coursesEnrollmentsCount
   );
 
   const publishedCourses = courses.filter(
@@ -118,14 +122,6 @@ export function InstructorStudioWidget({ isPreview }: InstructorStudioWidgetProp
               >
                 <PlusCircle className="w-4 h-4 transition-transform group-hover:rotate-90" />
                 <span>{t("createNewCourse")}</span>
-              </Link>
-
-              <Link
-                href={`/${locale}/instructor/overview`}
-                className="inline-flex items-center gap-2 bg-slate-50 hover:bg-slate-100 active:scale-95 text-slate-700 font-bold text-xs sm:text-sm px-4 py-2.5 rounded-xl border border-slate-200 transition-all duration-200 cursor-pointer"
-              >
-                <LayoutDashboard className="w-4 h-4 text-slate-500" />
-                <span>{t("instructorDashboardBtn")}</span>
               </Link>
             </div>
           </div>

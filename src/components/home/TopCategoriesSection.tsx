@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { motion, Variants } from "framer-motion";
+import { motion } from "framer-motion";
 import { useTranslations, useLocale } from "next-intl";
 import { ArrowRight, ArrowUpRight, Sparkles } from "lucide-react";
 import { categoryService } from "@/services/categoryService";
@@ -61,13 +61,25 @@ export function TopCategoriesSection({ data }: TopCategoriesSectionProps = {}) {
       .getCategories(locale)
       .then((data) => {
         if (!isSubscribed) return;
-        if (Array.isArray(data) && data.length > 0) {
-          const mapped = data.slice(0, 5).map((item) => ({
-            id: item.id,
-            title: item.name,
-            href: `/${locale}/courses?category=${item.id}`,
-          }));
-          setCategories(mapped);
+        const list = Array.isArray(data)
+          ? data
+          : Array.isArray((data as any)?.results)
+            ? (data as any).results
+            : Array.isArray((data as any)?.data)
+              ? (data as any).data
+              : [];
+        if (list.length > 0) {
+          const mapped = list
+            .filter((item: any) => Boolean(item && (item.name || item.title)))
+            .slice(0, 5)
+            .map((item: any) => ({
+              id: item.id ?? item.name,
+              title: item.name || item.title || "",
+              href: `/${locale}/courses?category=${encodeURIComponent(item.id ?? item.name)}`,
+            }));
+          if (mapped.length > 0) {
+            setCategories(mapped);
+          }
         }
       })
       .catch((err) => {
@@ -79,42 +91,20 @@ export function TopCategoriesSection({ data }: TopCategoriesSectionProps = {}) {
     };
   }, [locale]);
 
-  const containerVariants: Variants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.08,
-      },
-    },
-  };
-
-  const itemVariants: Variants = {
-    hidden: { opacity: 0, y: 16 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        duration: 0.45,
-        ease: "easeOut",
-      },
-    },
-  };
-
   if (data?.is_visible === false) {
     return null;
   }
 
   return (
-    <section suppressHydrationWarning className="w-full bg-white pt-8 pb-16 sm:pb-24 relative overflow-hidden">
+    <section suppressHydrationWarning className="w-full bg-white pt-8 pb-16 sm:pb-24 relative">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative z-10">
         
         {/* Header */}
         <motion.div
-          initial={{ opacity: 0, y: 18 }}
+          initial={{ opacity: 0, y: 14 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-40px" }}
-          transition={{ duration: 0.55, ease: "easeOut" }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.45, ease: "easeOut" }}
           className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 mb-8 sm:mb-12 pb-5 border-b border-slate-100"
         >
           <div className="space-y-2">
@@ -140,12 +130,12 @@ export function TopCategoriesSection({ data }: TopCategoriesSectionProps = {}) {
           </Link>
         </motion.div>
 
-        {/* Dynamic Clean Categories Grid (No hardcoded icons) */}
+        {/* Dynamic Clean Categories Grid */}
         <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-40px" }}
+          initial={{ opacity: 0, y: 14 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.45, ease: "easeOut" }}
           suppressHydrationWarning
           className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3.5 sm:gap-4 lg:gap-5"
         >
@@ -153,9 +143,8 @@ export function TopCategoriesSection({ data }: TopCategoriesSectionProps = {}) {
             const isLastOnMobile = idx === categories.length - 1;
 
             return (
-              <motion.div
-                key={cat.id}
-                variants={itemVariants}
+              <div
+                key={cat.id || idx}
                 className={
                   isLastOnMobile
                     ? "col-span-2 sm:col-span-1 justify-self-center w-full max-w-[280px] sm:max-w-none"
@@ -182,7 +171,7 @@ export function TopCategoriesSection({ data }: TopCategoriesSectionProps = {}) {
                   {/* Subtle dynamic bottom accent line on hover */}
                   <div className="absolute bottom-0 inset-x-8 h-0.5 bg-brand-dark scale-x-0 group-hover:scale-x-100 transition-transform duration-300 rounded-full" />
                 </Link>
-              </motion.div>
+              </div>
             );
           })}
         </motion.div>

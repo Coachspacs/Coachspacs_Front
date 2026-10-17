@@ -107,14 +107,14 @@ export function MasterYourCraftSection({ data }: MasterYourCraftSectionProps = {
   };
 
   return (
-    <section suppressHydrationWarning className="w-full bg-[#F0F3FF] py-12 sm:py-16 font-sans relative overflow-hidden">
+    <section suppressHydrationWarning className="w-full bg-[#F0F3FF] py-12 sm:py-16 font-sans relative">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative z-10">
         
         {/* Section Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-40px" }}
+          viewport={{ once: true }}
           transition={{ duration: 0.6, ease: "easeOut" }}
           className="text-center max-w-3xl mx-auto mb-10 sm:mb-14"
         >
@@ -169,7 +169,7 @@ export function MasterYourCraftSection({ data }: MasterYourCraftSectionProps = {
             variants={containerVariants}
             initial="hidden"
             whileInView="visible"
-            viewport={{ once: true, margin: "-40px" }}
+            viewport={{ once: true }}
             className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 w-full"
           >
             {courses.map((course) => (

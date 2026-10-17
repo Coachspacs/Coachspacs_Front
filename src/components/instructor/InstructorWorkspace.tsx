@@ -1039,7 +1039,11 @@ export function InstructorWorkspace({
                 exit={{ opacity: 0, y: -6 }}
                 transition={{ duration: 0.15 }}
               >
-                <InstructorOverviewTab courses={courses} dashboardData={dashboardData} />
+                <InstructorOverviewTab
+                  courses={courses}
+                  dashboardData={dashboardData}
+                  students={students}
+                />
               </motion.div>
             )}
 

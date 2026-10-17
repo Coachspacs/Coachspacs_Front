@@ -18,21 +18,45 @@ import { AnimatedCounter } from "@/components/ui/AnimatedCounter";
 interface InstructorOverviewTabProps {
   courses: any[];
   dashboardData?: InstructorDashboardResponse | null;
+  students?: any[];
 }
 
 export function InstructorOverviewTab({
   courses,
   dashboardData,
+  students = [],
 }: InstructorOverviewTabProps) {
   const tInst = useTranslations("instructorSettings");
   const locale = useLocale() || "en";
   const isAr = locale === "ar";
   const ChevronIcon = isAr ? ChevronLeft : ChevronRight;
 
-  // US-17: Distinct students count from API or fallback
-  const totalStudents =
-    dashboardData?.total_students ??
-    courses.reduce((acc, curr) => acc + Number(curr.studentsCount || 0), 0);
+  // Aggregate enrollment count across all courses
+  const coursesEnrollmentsCount = (courses || []).reduce(
+    (acc, curr) =>
+      acc +
+      Number(
+        curr.studentsCount ??
+        curr.enrollment_count ??
+        curr.enrollments_count ??
+        curr.enrolled_count ??
+        curr.students_count ??
+        curr.total_students ??
+        0
+      ),
+    0
+  );
+
+  const loadedStudentsCount = Array.isArray(students) ? students.length : 0;
+  const backendDistinctStudents = Number(dashboardData?.total_students || 0);
+
+  // Authoritative total: take the most accurate count available across
+  // backend distinct metrics, loaded enrolled students list, or sum of course enrollments
+  const totalStudents = Math.max(
+    backendDistinctStudents,
+    coursesEnrollmentsCount,
+    loadedStudentsCount
+  );
 
   // US-17: Total courses created (including drafts and archived)
   const totalCourses = dashboardData?.total_courses ?? courses.length;
@@ -206,7 +230,10 @@ export function InstructorOverviewTab({
                     >
                       <Users className="w-3.5 h-3.5 text-[var(--color-primary-main)]" />
                       <span>
-                        {course.enrollment_count ?? course.studentsCount ?? 0}{" "}
+                        {Math.max(
+                          Number(course.studentsCount || 0),
+                          Number(course.enrollment_count || 0)
+                        )}{" "}
                         {isAr ? "طالب مسجل" : "learners"}
                       </span>
                     </Link>

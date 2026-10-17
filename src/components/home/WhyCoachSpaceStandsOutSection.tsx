@@ -100,7 +100,7 @@ export function WhyCoachSpaceStandsOutSection({ data }: WhyCoachSpaceStandsOutPr
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-40px" }}
+          viewport={{ once: true }}
           transition={{ duration: 0.6, ease: "easeOut" }}
           className="text-center max-w-3xl mx-auto mb-10 sm:mb-14"
         >
@@ -117,7 +117,7 @@ export function WhyCoachSpaceStandsOutSection({ data }: WhyCoachSpaceStandsOutPr
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
-          viewport={{ once: true, margin: "-40px" }}
+          viewport={{ once: true }}
           className={`grid gap-6 w-full justify-center ${
             features.length === 1
               ? "grid-cols-1 max-w-md mx-auto"

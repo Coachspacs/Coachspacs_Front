@@ -49,7 +49,7 @@ export function JoinFutureSection({ data, isPreview }: JoinFutureSectionProps = 
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-40px" }}
+          viewport={{ once: true }}
           transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
           className="relative bg-gradient-to-br from-[#EBF5F3] via-[#F4F9F8] to-[#E2F1EE] rounded-3xl lg:rounded-[36px] overflow-hidden grid grid-cols-1 lg:grid-cols-12 shadow-lg border border-brand-dark/15 group/banner"
         >

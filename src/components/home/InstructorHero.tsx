@@ -7,7 +7,6 @@ import { useSelector } from "react-redux";
 import { RootState } from "@/lib/store";
 import {
   Sparkles,
-  PlusCircle,
   LayoutDashboard,
   Users,
   BookOpen,
@@ -76,23 +75,13 @@ export function InstructorHero() {
             {/* Action Buttons Row */}
             <div className="flex flex-wrap items-center gap-3.5 sm:gap-4">
               {isApproved ? (
-                <>
-                  <Link
-                    href={`/${locale}/instructor/courses/new`}
-                    className="inline-flex items-center gap-2.5 bg-brand-dark hover:bg-[#08382E] active:scale-95 text-white font-bold text-sm sm:text-base px-7 py-3.5 rounded-2xl shadow-lg shadow-brand-dark/15 transition-all duration-200 cursor-pointer group"
-                  >
-                    <PlusCircle className="w-4 h-4 transition-transform group-hover:rotate-90" />
-                    <span>{t("createNewCourse")}</span>
-                  </Link>
-
-                  <Link
-                    href={`/${locale}/instructor/dashboard`}
-                    className="inline-flex items-center gap-2 bg-white hover:bg-slate-50 active:scale-95 text-slate-800 border border-slate-200/90 font-bold text-sm sm:text-base px-6 py-3.5 rounded-2xl shadow-xs transition-all duration-200 cursor-pointer"
-                  >
-                    <LayoutDashboard className="w-4 h-4 text-slate-500" />
-                    <span>{t("instructorDashboardBtn")}</span>
-                  </Link>
-                </>
+                <Link
+                  href={`/${locale}/instructor/dashboard`}
+                  className="inline-flex items-center gap-2.5 bg-brand-dark hover:bg-[#08382E] active:scale-95 text-white font-bold text-sm sm:text-base px-7 py-3.5 rounded-2xl shadow-lg shadow-brand-dark/15 transition-all duration-200 cursor-pointer"
+                >
+                  <LayoutDashboard className="w-4 h-4 text-white" />
+                  <span>{t("instructorDashboardBtn")}</span>
+                </Link>
               ) : (
                 <Link
                   href={`/${locale}/instructor/settings`}

@@ -27,6 +27,7 @@ export function InstructorCoursesPreview({ isPreview }: InstructorCoursesPreview
   // Slider State
   const [itemsPerPage, setItemsPerPage] = useState(3);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [currentPage, setCurrentPage] = useState(0);
 
   // Touch Swipe State
   const touchStartX = useRef<number | null>(null);
@@ -60,9 +61,10 @@ export function InstructorCoursesPreview({ isPreview }: InstructorCoursesPreview
     };
   }, []);
 
-  // Reset slider index when activeTab changes
+  // Reset slider index and page when activeTab changes
   useEffect(() => {
     setCurrentIndex(0);
+    setCurrentPage(0);
   }, [activeTab]);
 
   const isInstructor =
@@ -143,13 +145,24 @@ export function InstructorCoursesPreview({ isPreview }: InstructorCoursesPreview
 
   const effectiveItemsPerPage = Math.min(itemsPerPage, Math.max(1, filteredCourses.length));
   const maxIndex = Math.max(0, filteredCourses.length - effectiveItemsPerPage);
+  const totalPages = Math.max(1, Math.ceil(filteredCourses.length / effectiveItemsPerPage));
+
+  const goToPage = (pageIndex: number) => {
+    const clampedPage = Math.max(0, Math.min(pageIndex, totalPages - 1));
+    setCurrentPage(clampedPage);
+    setCurrentIndex(Math.min(clampedPage * effectiveItemsPerPage, maxIndex));
+  };
 
   const handlePrev = () => {
-    setCurrentIndex((prev) => (prev <= 0 ? maxIndex : prev - 1));
+    if (currentPage > 0) {
+      goToPage(currentPage - 1);
+    }
   };
 
   const handleNext = () => {
-    setCurrentIndex((prev) => (prev >= maxIndex ? 0 : prev + 1));
+    if (currentPage < totalPages - 1) {
+      goToPage(currentPage + 1);
+    }
   };
 
   // Touch Swipe Handlers for Mobile
@@ -177,8 +190,6 @@ export function InstructorCoursesPreview({ isPreview }: InstructorCoursesPreview
     touchEndX.current = null;
   };
 
-  const totalPages = Math.max(1, Math.ceil(filteredCourses.length / effectiveItemsPerPage));
-  const activePage = Math.min(totalPages - 1, Math.floor(currentIndex / effectiveItemsPerPage));
   const translateOffset = (currentIndex * 100) / effectiveItemsPerPage;
 
   return (
@@ -200,69 +211,41 @@ export function InstructorCoursesPreview({ isPreview }: InstructorCoursesPreview
             </p>
           </div>
 
-          {/* Filter Tabs & Navigation Controls */}
-          <div className="flex flex-wrap items-center gap-3 self-start md:self-auto">
-            {/* Filter Tabs */}
-            <div className="flex items-center gap-1.5 bg-white p-1.5 rounded-2xl border border-slate-200/80 shadow-xs">
-              <button
-                type="button"
-                onClick={() => setActiveTab("all")}
-                className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                  activeTab === "all"
-                    ? "bg-brand-dark text-white shadow-xs"
-                    : "text-slate-600 hover:text-slate-900"
-                }`}
-              >
-                {t("allCoursesTab")} ({courses.length})
-              </button>
-              <button
-                type="button"
-                onClick={() => setActiveTab("published")}
-                className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                  activeTab === "published"
-                    ? "bg-brand-dark text-white shadow-xs"
-                    : "text-slate-600 hover:text-slate-900"
-                }`}
-              >
-                {t("publishedTab")} ({publishedCount})
-              </button>
-              <button
-                type="button"
-                onClick={() => setActiveTab("drafts")}
-                className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                  activeTab === "drafts"
-                    ? "bg-brand-dark text-white shadow-xs"
-                    : "text-slate-600 hover:text-slate-900"
-                }`}
-              >
-                {t("draftsTab")} ({draftsCount})
-              </button>
-            </div>
-
-            {/* Slider Navigation Arrows (shown when there are more courses than visible columns) */}
-            {maxIndex > 0 && (
-              <div className="flex items-center gap-1.5 bg-white p-1.5 rounded-2xl border border-slate-200/80 shadow-xs">
-                <button
-                  type="button"
-                  onClick={isAr ? handleNext : handlePrev}
-                  aria-label="Previous"
-                  className="w-8 h-8 rounded-xl bg-slate-50 hover:bg-brand-dark text-slate-700 hover:text-white transition-all flex items-center justify-center cursor-pointer active:scale-95"
-                >
-                  <ChevronRight className="w-4 h-4 rtl:rotate-0 ltr:rotate-180" />
-                </button>
-                <span className="text-xs font-bold text-slate-500 px-1 select-none">
-                  {currentIndex + 1} / {maxIndex + 1}
-                </span>
-                <button
-                  type="button"
-                  onClick={isAr ? handlePrev : handleNext}
-                  aria-label="Next"
-                  className="w-8 h-8 rounded-xl bg-slate-50 hover:bg-brand-dark text-slate-700 hover:text-white transition-all flex items-center justify-center cursor-pointer active:scale-95"
-                >
-                  <ChevronLeft className="w-4 h-4 rtl:rotate-0 ltr:rotate-180" />
-                </button>
-              </div>
-            )}
+          {/* Filter Tabs */}
+          <div className="flex items-center gap-1.5 bg-white p-1.5 rounded-2xl border border-slate-200/80 shadow-xs self-start md:self-auto">
+            <button
+              type="button"
+              onClick={() => setActiveTab("all")}
+              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                activeTab === "all"
+                  ? "bg-brand-dark text-white shadow-xs"
+                  : "text-slate-600 hover:text-slate-900"
+              }`}
+            >
+              {t("allCoursesTab")} ({courses.length})
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab("published")}
+              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                activeTab === "published"
+                  ? "bg-brand-dark text-white shadow-xs"
+                  : "text-slate-600 hover:text-slate-900"
+              }`}
+            >
+              {t("publishedTab")} ({publishedCount})
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab("drafts")}
+              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                activeTab === "drafts"
+                  ? "bg-brand-dark text-white shadow-xs"
+                  : "text-slate-600 hover:text-slate-900"
+              }`}
+            >
+              {t("draftsTab")} ({draftsCount})
+            </button>
           </div>
         </div>
 
@@ -329,21 +312,98 @@ export function InstructorCoursesPreview({ isPreview }: InstructorCoursesPreview
               </div>
             </div>
 
-            {/* Slider Dots Pagination */}
+            {/* Unified Bottom Navigation Toolbar */}
             {totalPages > 1 && (
-              <div className="flex items-center justify-center gap-2 mt-6">
-                {Array.from({ length: totalPages }).map((_, idx) => (
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-8 pt-5 border-t border-slate-200/70">
+                {/* Courses Range Counter */}
+                <div className="text-xs font-semibold text-slate-500">
+                  {isAr ? (
+                    <>
+                      عرض الدورات{" "}
+                      <span className="font-black text-slate-900">
+                        {currentPage * effectiveItemsPerPage + 1}
+                      </span>{" "}
+                      -{" "}
+                      <span className="font-black text-slate-900">
+                        {Math.min(
+                          (currentPage + 1) * effectiveItemsPerPage,
+                          filteredCourses.length
+                        )}
+                      </span>{" "}
+                      من أصل{" "}
+                      <span className="font-black text-slate-900">
+                        {filteredCourses.length}
+                      </span>{" "}
+                      دورة
+                    </>
+                  ) : (
+                    <>
+                      Showing courses{" "}
+                      <span className="font-black text-slate-900">
+                        {currentPage * effectiveItemsPerPage + 1}
+                      </span>{" "}
+                      -{" "}
+                      <span className="font-black text-slate-900">
+                        {Math.min(
+                          (currentPage + 1) * effectiveItemsPerPage,
+                          filteredCourses.length
+                        )}
+                      </span>{" "}
+                      of{" "}
+                      <span className="font-black text-slate-900">
+                        {filteredCourses.length}
+                      </span>{" "}
+                      courses
+                    </>
+                  )}
+                </div>
+
+                {/* Unified Controls: [Prev] [Dots] [Next] */}
+                <div className="flex items-center gap-2 bg-white p-1 rounded-2xl border border-slate-200/80 shadow-2xs">
+                  {/* Prev Button */}
                   <button
-                    key={`dot-${idx}`}
-                    onClick={() => setCurrentIndex(Math.min(idx * effectiveItemsPerPage, maxIndex))}
-                    aria-label={`Go to slide ${idx + 1}`}
-                    className={`h-2.5 rounded-full transition-all duration-300 cursor-pointer ${
-                      activePage === idx
-                        ? "w-8 bg-brand-dark"
-                        : "w-2.5 bg-slate-200 hover:bg-slate-300"
-                    }`}
-                  />
-                ))}
+                    type="button"
+                    onClick={handlePrev}
+                    disabled={currentPage === 0}
+                    aria-label={isAr ? "الصفحة السابقة" : "Previous page"}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-slate-700 hover:text-slate-900 hover:bg-slate-100 disabled:opacity-30 disabled:pointer-events-none transition-all cursor-pointer"
+                  >
+                    {isAr ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
+                    <span className="hidden sm:inline">{isAr ? "السابق" : "Previous"}</span>
+                  </button>
+
+                  {/* Interactive Dots */}
+                  <div className="flex items-center gap-1.5 px-2">
+                    {Array.from({ length: totalPages }).map((_, idx) => (
+                      <button
+                        key={`dot-${idx}`}
+                        onClick={() => goToPage(idx)}
+                        aria-label={
+                          isAr
+                            ? `الانتقال إلى صفحة ${idx + 1}`
+                            : `Go to page ${idx + 1}`
+                        }
+                        className={`h-2 rounded-full transition-all duration-300 cursor-pointer ${
+                          currentPage === idx
+                            ? "w-6 bg-brand-dark shadow-xs"
+                            : "w-2 bg-slate-200 hover:bg-slate-300 hover:w-3"
+                        }`}
+                      />
+                    ))}
+                  </div>
+
+                  {/* Next Button */}
+                  <button
+                    type="button"
+                    onClick={handleNext}
+                    disabled={currentPage >= totalPages - 1}
+                    aria-label={isAr ? "الصفحة التالية" : "Next page"}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-slate-700 hover:text-slate-900 hover:bg-slate-100 disabled:opacity-30 disabled:pointer-events-none transition-all cursor-pointer"
+                  >
+                    <span className="hidden sm:inline">{isAr ? "التالي" : "Next"}</span>
+                    {isAr ? <ChevronLeft className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+                  </button>
+                </div>
               </div>
             )}
           </div>
