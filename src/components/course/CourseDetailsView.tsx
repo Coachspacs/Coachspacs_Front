@@ -297,7 +297,10 @@ export function CourseDetailsView({ course }: CourseDetailsViewProps) {
   };
 
   // Curriculum Data Structure strictly from real API response
-  const curriculumSections = Array.isArray(course.sections) ? course.sections : [];
+  const curriculumSections = React.useMemo(
+    () => (Array.isArray(course.sections) ? course.sections : []),
+    [course.sections]
+  );
 
   // Dynamic & accurate course video duration computation
   const courseDurationLabel = React.useMemo(() => {

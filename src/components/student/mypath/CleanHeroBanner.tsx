@@ -151,7 +151,13 @@ export function CleanHeroBanner({ isAr }: CleanHeroBannerProps) {
         </div>
 
         {/* Soft Ambient Light Gradient on edge */}
-        <div className="absolute inset-0 bg-gradient-to-t from-brand-dark via-transparent to-transparent pointer-events-none" />
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            background:
+              "linear-gradient(to top, rgba(15, 82, 68, 0.12) 0%, transparent 35%)",
+          }}
+        />
       </motion.div>
     </div>
   );

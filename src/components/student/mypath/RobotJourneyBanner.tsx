@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import { Sparkles } from "lucide-react";
+import { Sparkles, Volume2, VolumeX } from "lucide-react";
 import { AnimatedRobotCharacter } from "./AnimatedRobotCharacter";
 import { soundFx } from "@/lib/soundEffects";
 
@@ -30,6 +30,31 @@ export function RobotJourneyBanner({
   const activeWaypoint =
     WAYPOINTS.find((w) => w.step === currentStepIndex) || WAYPOINTS[0];
   const isFirstMount = useRef(true);
+  const [soundOn, setSoundOn] = useState<boolean>(true);
+
+  // Initialize sound state from localStorage on client
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem("coachspace_mypath_sound_enabled");
+      if (saved !== null) {
+        const val = saved === "true";
+        setSoundOn(val);
+        soundFx.setEnabled(val);
+      }
+    } catch {}
+  }, []);
+
+  const toggleSound = () => {
+    const nextVal = !soundOn;
+    setSoundOn(nextVal);
+    soundFx.setEnabled(nextVal);
+    try {
+      localStorage.setItem("coachspace_mypath_sound_enabled", String(nextVal));
+    } catch {}
+    if (nextVal) {
+      soundFx.playOptionSelect();
+    }
+  };
 
   // Trigger playful robotic jet glide sound effect on milestone changes
   useEffect(() => {
@@ -50,6 +75,37 @@ export function RobotJourneyBanner({
         priority
         className="object-cover object-center"
       />
+
+      {/* Floating Sound Toggle Pill (Glassmorphic) matching Image 1 */}
+      <div
+        className={`absolute top-3 ${
+          isAr ? "left-3" : "right-3"
+        } z-30 flex items-center gap-1.5`}
+      >
+        <button
+          type="button"
+          onClick={toggleSound}
+          aria-label={soundOn ? (isAr ? "الصوت مفعل" : "Sound On") : (isAr ? "الصوت مكتوم" : "Muted")}
+          title={soundOn ? (isAr ? "الصوت مفعل" : "Sound On") : (isAr ? "الصوت مكتوم" : "Muted")}
+          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full bg-white/85 hover:bg-white text-slate-700 backdrop-blur-md border border-slate-200/80 shadow-xs hover:shadow-sm transition-all cursor-pointer group pointer-events-auto"
+        >
+          {soundOn ? (
+            <>
+              <Volume2 className="w-3.5 h-3.5 text-emerald-600 group-hover:scale-110 transition-transform" />
+              <span className="text-[10px] font-extrabold text-slate-700 hidden sm:inline">
+                {isAr ? "الصوت مفعل" : "Sound On"}
+              </span>
+            </>
+          ) : (
+            <>
+              <VolumeX className="w-3.5 h-3.5 text-slate-400 group-hover:scale-110 transition-transform" />
+              <span className="text-[10px] font-extrabold text-slate-500 hidden sm:inline">
+                {isAr ? "الصوت مكتوم" : "Muted"}
+              </span>
+            </>
+          )}
+        </button>
+      </div>
 
       {/* ========================================================================= */}
       {/* 4TH MILESTONE PILLAR & FLAG (Exact Match to Posts 1, 2, 3) */}
@@ -166,7 +222,7 @@ export function RobotJourneyBanner({
           left: `${activeWaypoint.x}%`,
           top: `${activeWaypoint.y}%`,
         }}
-        className="absolute w-12 h-12 rounded-full border-2 border-slate-200 bg-slate-100 -translate-x-1/2 -translate-y-1/2 pointer-events-none z-10"
+        className="absolute w-12 h-12 rounded-full border-2 border-emerald-400/60 bg-emerald-400/20 -translate-x-1/2 -translate-y-1/2 pointer-events-none z-10"
       />
 
       {/* Centered Soft Emerald Ambient Halo behind Robot */}
@@ -183,11 +239,17 @@ export function RobotJourneyBanner({
           damping: 14,
           mass: 0.6,
         }}
-        className="absolute w-16 h-16 rounded-full bg-slate-100 blur-md -translate-x-1/2 -translate-y-1/2 pointer-events-none z-20"
+        className="absolute w-16 h-16 rounded-full bg-emerald-400/25 blur-md -translate-x-1/2 -translate-y-1/2 pointer-events-none z-20"
       />
 
       {/* Soft Ambient Light Gradient on edge */}
-      <div className="absolute inset-0 bg-gradient-to-t from-brand-dark via-transparent to-transparent pointer-events-none" />
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background:
+            "linear-gradient(to top, rgba(15, 82, 68, 0.12) 0%, transparent 35%)",
+        }}
+      />
 
       {/* ========================================================================= */}
       {/* ANIMATED ROBOT GLIDING SMOOTHLY ABOVE MILESTONES (1 -> 2 -> 3 -> 4) */}

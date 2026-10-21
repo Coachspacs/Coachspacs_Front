@@ -30,6 +30,32 @@ function getCookie(name: string): string | null {
 
 export const tokenManager = {
   /**
+   * Checks if a token is expired. If no token provided, checks the current access token.
+   */
+  isTokenExpired(token?: string | null): boolean {
+    const t = token !== undefined ? token : this.getAccessToken();
+    if (!t) return true;
+    try {
+      const parts = t.split('.');
+      if (parts.length < 2) return false;
+      const base64Url = parts[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const padLen = (4 - (base64.length % 4)) % 4;
+      const paddedBase64 = base64 + '='.repeat(padLen);
+      const jsonStr = decodeURIComponent(
+        atob(paddedBase64)
+          .split('')
+          .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+          .join('')
+      );
+      const payload = JSON.parse(jsonStr);
+      return typeof payload.exp === 'number' && Date.now() >= payload.exp * 1000;
+    } catch {
+      return false;
+    }
+  },
+
+  /**
    * Returns the current access token from memory.
    */
   getAccessToken(): string | null {
