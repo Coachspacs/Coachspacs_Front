@@ -66,13 +66,60 @@ export default function middleware(request: NextRequest) {
   const currentLocale = currentLocaleMatch ? currentLocaleMatch[1] : 'en';
   const pathWithoutLocale = pathname.replace(/^\/(?:ar|en)/, '') || '/';
 
+function extractJwtClaims(token: string | undefined): {
+  isSuperuser?: boolean;
+  role?: string;
+  isExpired?: boolean;
+} {
+  if (!token || token === 'undefined' || token === 'null') return {};
+  try {
+    const parts = token.split('.');
+    if (parts.length < 2) return {};
+    const base64Url = parts[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const padLen = (4 - (base64.length % 4)) % 4;
+    const paddedBase64 = base64 + '='.repeat(padLen);
+    const jsonStr = decodeURIComponent(
+      atob(paddedBase64)
+        .split('')
+        .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+        .join('')
+    );
+    const payload = JSON.parse(jsonStr);
+
+    const isExpired = typeof payload.exp === 'number' && Date.now() >= payload.exp * 1000;
+    const isSuperuser = Boolean(
+      payload.is_superuser ||
+      payload.is_staff ||
+      payload.role === 'admin' ||
+      payload.role === 'superuser'
+    );
+    const role = (payload.role || payload.user_role || payload.user_type || '').toLowerCase();
+
+    return { isSuperuser, role, isExpired };
+  } catch {
+    return {};
+  }
+}
+
   const authToken = request.cookies.get('auth_token')?.value;
-  const isAuthenticated = Boolean(authToken && authToken !== 'undefined' && authToken !== 'null');
-  const userRole = decodeURIComponent(request.cookies.get('user_role')?.value || 'student').toLowerCase();
+  const jwtClaims = extractJwtClaims(authToken);
+
+  // If token is expired, treat as unauthenticated
+  const isAuthenticated = Boolean(
+    authToken && authToken !== 'undefined' && authToken !== 'null' && !jwtClaims.isExpired
+  );
+
+  const cookieRole = decodeURIComponent(request.cookies.get('user_role')?.value || 'student').toLowerCase();
+  const userRole = jwtClaims.role || cookieRole;
   const userStatus = decodeURIComponent(request.cookies.get('user_status')?.value || '').toLowerCase();
   const isInstructor = userRole === 'instructor' || userRole === 'coach';
+
+  // Superuser check: Verify against JWT claims if available to prevent client-side cookie tampering
   const isSuperuserCookie = request.cookies.get('is_superuser')?.value === 'true';
-  const isSuperuser = isSuperuserCookie || userRole === 'admin' || userRole === 'superuser';
+  const isSuperuser = jwtClaims.isSuperuser !== undefined
+    ? jwtClaims.isSuperuser
+    : (isSuperuserCookie || userRole === 'admin' || userRole === 'superuser');
 
   // 5. Auth Guest Guard: Prevent logged-in users from accessing login, register, forgot-password, reset-password
   if (isAuthenticated) {

@@ -108,17 +108,49 @@ export function CertificateTemplate({
             1. HEADER: Brand Emblem & Refined Academic Title (English)
            ======================================================== */}
         <div className="relative z-10 w-full pt-1 space-y-2">
-          {/* Subtle Brand Lockup */}
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-slate-50 border border-slate-200/80 shadow-2xs">
+          {/* Subtle Brand Lockup - Perfectly Centered for Screen, Print, and PDF */}
+          <div
+            className="inline-flex items-center justify-center gap-2 px-4 py-1 rounded-full bg-slate-50 border border-slate-200/80 shadow-2xs select-none whitespace-nowrap shrink-0"
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+              verticalAlign: "middle",
+              whiteSpace: "nowrap",
+              height: "28px",
+              boxSizing: "border-box",
+            }}
+          >
             <Image
               src="/images/brand-logo.png"
               alt="Coach Space"
-              width={22}
-              height={22}
-              className="w-auto h-4 object-contain"
+              width={18}
+              height={18}
+              priority
+              unoptimized
+              className="w-4 h-4 object-contain shrink-0"
+              style={{
+                width: "16px",
+                height: "16px",
+                objectFit: "contain",
+                flexShrink: 0,
+                display: "inline-block",
+              }}
             />
-            <span className="text-[11px] font-bold text-brand-dark tracking-wider font-sans">
-              COACH SPACE
+            <span
+              className="text-[11px] font-bold text-brand-dark tracking-wider font-sans whitespace-nowrap leading-none shrink-0"
+              style={{
+                fontSize: "11px",
+                fontWeight: 700,
+                color: "#0F5244",
+                whiteSpace: "nowrap",
+                letterSpacing: "0.05em",
+                lineHeight: "1",
+                display: "inline-block",
+                flexShrink: 0,
+              }}
+            >
+              COACH&nbsp;SPACE
             </span>
           </div>
 

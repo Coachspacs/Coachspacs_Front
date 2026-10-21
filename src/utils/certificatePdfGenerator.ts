@@ -28,7 +28,9 @@ export async function exportElementToPdf(
       windowWidth: 1280,
       windowHeight: 900,
       onclone: (_clonedDoc, clonedElement) => {
-        // Normalize cloned element style so it's captured in full landscape resolution
+        // Normalize cloned element style so it's captured in full landscape resolution without scale distortion
+        clonedElement.style.transform = 'none';
+
         const cert =
           clonedElement.id === 'coachspace-certificate-card'
             ? clonedElement

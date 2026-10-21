@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useTranslations } from "next-intl";
@@ -482,6 +482,9 @@ export default function LandingEditorPage() {
     }
   };
 
+  const saveDraftToServerRef = useRef(saveDraftToServer);
+  saveDraftToServerRef.current = saveDraftToServer;
+
   const handleSaveOrder = async (newOrder: LandingSectionKey[]) => {
     const updatedSections: LandingSectionsData = {
       ...sections,
@@ -544,7 +547,7 @@ export default function LandingEditorPage() {
 
       // Debounced auto-save draft to backend (400ms)
       const timer = setTimeout(() => {
-        saveDraftToServer(combined);
+        saveDraftToServerRef.current(combined);
       }, 400);
 
       return () => clearTimeout(timer);

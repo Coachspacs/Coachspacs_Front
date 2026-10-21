@@ -9,6 +9,7 @@ import { Footer } from "@/components/layout/Footer";
 import { Loader2 } from "lucide-react";
 
 import { tokenManager } from "@/lib/tokenManager";
+import { authService } from "@/services/auth";
 
 export default function AuthLayout({
   children,
@@ -33,44 +34,86 @@ export default function AuthLayout({
   );
 
   useEffect(() => {
-    // Check for access token specifically to match middleware logic
-    // If only refresh token exists, middleware will block the request, causing an infinite loop
-    const hasAccessToken = Boolean(tokenManager.getAccessToken());
-    const localUserStr = typeof window !== "undefined" ? localStorage.getItem("user") : null;
-    let localUser = null;
-    try {
-      if (localUserStr) localUser = JSON.parse(localUserStr);
-    } catch {}
+    let isCancelled = false;
 
-    const isUserLoggedIn = isAuthenticated || Boolean(hasAccessToken && (user || localUser));
-    const activeUser = user || localUser;
-
-    if (isAuthPage && isUserLoggedIn && activeUser) {
-      const role = activeUser.role || "student";
-      const status = activeUser.approval_status || activeUser.approvalStatus || "";
-      const isAdmin = Boolean(
-        activeUser.is_superuser === true ||
-        (activeUser as any)?.isSuperuser === true ||
-        role === "admin" ||
-        role === "superuser"
-      );
-
-      const searchParams = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
-      const redirectParam = searchParams?.get("redirect");
-
-      let redirectPath = redirectParam || `/${locale}/student`;
-      if (isAdmin) {
-        redirectPath = (redirectParam && redirectParam.includes("/admin")) ? redirectParam : `/${locale}/admin/cms`;
-      } else if (!redirectParam && role === "instructor") {
-        redirectPath =
-          status === "approved"
-            ? `/${locale}/instructor/dashboard`
-            : `/${locale}/instructor`;
+    async function evaluateAuth() {
+      if (!isAuthPage) {
+        if (!isCancelled) setCheckingAuth(false);
+        return;
       }
-      router.replace(redirectPath);
-    } else {
-      setCheckingAuth(false);
+
+      const accessToken = tokenManager.getAccessToken();
+      const refreshTokenStr = tokenManager.getRefreshToken();
+      const isAccessTokenExpired = tokenManager.isTokenExpired(accessToken);
+
+      const localUserStr = typeof window !== "undefined" ? localStorage.getItem("user") : null;
+      let localUser = null;
+      try {
+        if (localUserStr) localUser = JSON.parse(localUserStr);
+      } catch {}
+
+      const activeUser = user || localUser;
+
+      // 1. If access token exists, is NOT expired, and user profile exists -> Safe to redirect away from auth page
+      if (accessToken && !isAccessTokenExpired && (isAuthenticated || activeUser)) {
+        const role = activeUser?.role || "student";
+        const status = activeUser?.approval_status || activeUser?.approvalStatus || "";
+        const isAdmin = Boolean(
+          activeUser?.is_superuser === true ||
+          (activeUser as any)?.isSuperuser === true ||
+          role === "admin" ||
+          role === "superuser"
+        );
+
+        const searchParams = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
+        const redirectParam = searchParams?.get("redirect");
+
+        let redirectPath = redirectParam || `/${locale}/student`;
+        if (isAdmin) {
+          redirectPath = (redirectParam && redirectParam.includes("/admin")) ? redirectParam : `/${locale}/admin/cms`;
+        } else if (!redirectParam && role === "instructor") {
+          redirectPath =
+            status === "approved"
+              ? `/${locale}/instructor/dashboard`
+              : `/${locale}/instructor`;
+        }
+        router.replace(redirectPath);
+        return;
+      }
+
+      // 2. If access token is expired or missing, but refresh token exists, attempt silent refresh
+      if (refreshTokenStr) {
+        try {
+          const res = await authService.refreshToken(refreshTokenStr);
+          if (isCancelled) return;
+          if (res?.access) {
+            // Token refreshed successfully! Now safe to redirect
+            const role = activeUser?.role || "student";
+            const searchParams = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
+            const redirectParam = searchParams?.get("redirect");
+            const redirectPath = redirectParam || (role === "instructor" ? `/${locale}/instructor` : `/${locale}/student`);
+            router.replace(redirectPath);
+            return;
+          }
+        } catch {
+          // Refresh token invalid/expired -> Clear stale session completely
+          tokenManager.clearTokens();
+        }
+      } else if (accessToken && isAccessTokenExpired) {
+        // Expired access token with no refresh token -> Clear stale tokens
+        tokenManager.clearTokens();
+      }
+
+      if (!isCancelled) {
+        setCheckingAuth(false);
+      }
     }
+
+    evaluateAuth();
+
+    return () => {
+      isCancelled = true;
+    };
   }, [isAuthenticated, user, isAuthPage, locale, router]);
 
   const toggleLanguage = () => {

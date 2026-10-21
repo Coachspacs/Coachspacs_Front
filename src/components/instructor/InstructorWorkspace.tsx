@@ -399,10 +399,9 @@ export function InstructorWorkspace({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAr]);
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     fetchMyCourses();
-  }, []);
+  }, [fetchMyCourses]);
 
   // Enrolled Students Data & Drawer State
   const [students, setStudents] = useState<any[]>([]);

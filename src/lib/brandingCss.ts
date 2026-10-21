@@ -408,8 +408,8 @@ export function generateBrandingCss(branding?: GlobalBrandingConfig | null): str
     }
 
     /* Darker Gradient Containers (Badges, Buttons) */
-    [class*="from-[#004442]"],
-    [class*="from-brand-dark"] {
+    [class*="from-[#004442]"]:not([class*="to-transparent"]):not([class*="via-transparent"]),
+    [class*="from-brand-dark"]:not([class*="to-transparent"]):not([class*="via-transparent"]) {
       --tw-gradient-from: var(--color-primary-dark) var(--tw-gradient-from-position) !important;
       --tw-gradient-to: var(--color-primary-main) var(--tw-gradient-to-position) !important;
       --tw-gradient-stops: var(--tw-gradient-from), var(--color-primary-main), var(--tw-gradient-to) !important;
